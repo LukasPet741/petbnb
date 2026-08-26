@@ -70,6 +70,37 @@ The booking funnel is **Browse → Sitter profile → "Book {name}" → `/bookin
 ## De-faked (removed this redesign)
 Fake stats (12k/2.4k/4.9★), all fake testimonials/reviews, "ID-verified / DBS background-check" badges, "PetBnB Guarantee", "since 2024", £ currency, UK placeholders, the non-functional profile camera button, `StarRating`/`rating`/`review_count`.
 
+## Kursinis (IoT dog collar) — new track
+Graduation has two deliverables done in tandem: this website (bakalauras) and an IoT GPS
+dog collar on a Raspberry Pi (kursinis). Collar code lives in `iot-collar/` (separate
+Python project, not part of the Next.js app) and talks to the **same Supabase project**.
+A collar belongs to a **user account**, not a specific pet — pairing/tracking lives on
+the **Profile page** ("My Collars"), independent of the Pets feature.
+- **Data path:** GPS module (serial/NMEA) → Pi → BLE GATT peripheral (local pairing) +
+  WiFi POST to a `collar-ingest` Edge Function → `collar_locations` table.
+- **Security model:** the Pi only knows a per-device `DEVICE_ID`/`DEVICE_SECRET` (bcrypt
+  hash checked server-side via `verify_collar_device`); it never holds the service role
+  key. `register_collar_device` RPC provisions a new collar for the **calling user**
+  (`owner_id` comes from `auth.uid()`, never client input).
+- **Supabase objects (live):** tables `collar_devices` (`owner_id → profiles.id`),
+  `collar_locations` (`device_id → collar_devices.id`), both RLS owner-scoped SELECT;
+  functions `register_collar_device`, `verify_collar_device`; deployed Edge Function
+  `collar-ingest` (currently v2).
+- **Website integration (done):** Profile → **"My collars"** tab (`src/components/CollarsPanel.tsx`) —
+  add-a-collar modal (shows the generated secret once, client-generates it via
+  `crypto.randomUUID()`), one card per collar with a `CollarMap.tsx` (Leaflet +
+  OpenStreetMap tiles, no API key/billing needed) showing the latest fix, polls every
+  30s. Verified end-to-end in the browser: created a collar, POSTed a fix through the
+  live `collar-ingest` function via curl (simulating the Pi), confirmed the marker
+  rendered with correct last-seen/speed/battery. `tsc --noEmit` and `next build` both
+  clean (had to add `iot-collar` to `tsconfig.json`'s `exclude` — its Deno edge function
+  file isn't part of the Next.js TS project).
+- **Status:** Pi-side code written (`gps_reader.py`, `ble_service.py`, `wifi_uplink.py`,
+  `main.py`, systemd unit) and backend deployed + smoke-tested. Not yet run on the
+  actual Pi/GPS hardware — see `iot-collar/README.md`. Next real-world step (per the
+  user): get the Pi's WiFi uplink talking to the site over a phone hotspot while
+  developing, before deploying to the collar full-time.
+
 ## What's Next (suggested)
 - Real avatar / pet photo **upload** (buckets already exist) → would replace seeded URLs for real users.
 - Reviews & ratings system (needs a `reviews` table) — intentionally omitted to stay honest.

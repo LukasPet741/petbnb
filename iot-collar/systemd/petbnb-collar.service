@@ -1,0 +1,15 @@
+[Unit]
+Description=PetBnB GPS collar (GPS -> BLE + WiFi uplink)
+After=network-online.target bluetooth.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/petbnb-collar
+ExecStart=/home/pi/petbnb-collar/venv/bin/python -m collar.main
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

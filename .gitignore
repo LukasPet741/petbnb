@@ -3,3 +3,6 @@ node_modules/
 .env.local
 .env
 tsconfig.tsbuildinfo
+iot-collar/**/__pycache__/
+iot-collar/**/*.pyc
+iot-collar/.env

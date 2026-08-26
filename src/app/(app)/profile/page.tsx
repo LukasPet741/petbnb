@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Save, User, Briefcase, LogOut } from "lucide-react";
+import { Save, User, Briefcase, Radar, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import PageHeader from "@/components/PageHeader";
+import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
 
 const SERVICES = Object.entries(SERVICE_LABELS) as [ServiceType, string][];
@@ -19,7 +20,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const { profile, refresh } = useProfile();
   const router = useRouter();
-  const [tab, setTab] = useState<"personal" | "sitter">("personal");
+  const [tab, setTab] = useState<"personal" | "sitter" | "collars">("personal");
   const [isSitter, setIsSitter] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", city: "", about_me: "", rate_per_hour: "", experience_years: "", services: { walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean> });
   const [saving, setSaving] = useState(false);
@@ -96,7 +97,7 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-6">
-        {[{ value: "personal" as const, label: "Personal info", icon: User }, { value: "sitter" as const, label: "Sitter settings", icon: Briefcase }].map(({ value, label, icon: Icon }) => (
+        {[{ value: "personal" as const, label: "Personal info", icon: User }, { value: "sitter" as const, label: "Sitter settings", icon: Briefcase }, { value: "collars" as const, label: "My collars", icon: Radar }].map(({ value, label, icon: Icon }) => (
           <button key={value} onClick={() => setTab(value)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
             {tab === value && (
@@ -232,6 +233,12 @@ export default function ProfilePage() {
           )}
         </AnimatePresence>
       </form>
+
+      {tab === "collars" && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+          <CollarsPanel />
+        </motion.div>
+      )}
     </div>
   );
 }
