@@ -1,6 +1,6 @@
 import { Dog, Cat, Bird, Fish, Squirrel, HelpCircle, Edit2, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { type Pet, PET_TYPE_LABELS, type PetType } from "@/lib/mock-data";
+import { type Pet, PET_TYPE_LABELS, type PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const PET_ICONS: Record<PetType, React.ElementType> = {
@@ -10,7 +10,7 @@ const PET_ICONS: Record<PetType, React.ElementType> = {
 
 const PET_COLORS: Record<PetType, string> = {
   dog: "bg-amber-50 text-amber-600",
-  cat: "bg-purple-50 text-purple-600",
+  cat: "bg-violet-50 text-violet-600",
   bird: "bg-sky-50 text-sky-600",
   fish: "bg-blue-50 text-blue-600",
   reptile: "bg-green-50 text-green-600",
@@ -30,26 +30,36 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-stone-100 shadow-sm p-5 flex gap-4 items-start"
+      className="bg-surface rounded-2xl border border-black/5 shadow-sm p-4 flex gap-4 items-start"
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(0,0,0,0.07)" }}
+      whileHover={{ y: -2, boxShadow: "0 10px 24px -14px rgba(26,31,29,0.2)" }}
     >
-      <motion.div
-        className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", colorClass)}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-      >
-        <Icon className="w-6 h-6" />
-      </motion.div>
+      {pet.photo_url ? (
+        <img
+          src={pet.photo_url}
+          alt={pet.name}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          className="w-16 h-16 rounded-xl object-cover ring-1 ring-black/5 flex-shrink-0 bg-surface-2"
+        />
+      ) : (
+        <motion.div
+          className={cn("w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0", colorClass)}
+          whileHover={{ scale: 1.06, rotate: 4 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+        >
+          <Icon className="w-7 h-7" />
+        </motion.div>
+      )}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-stone-900">{pet.name}</h3>
-            <p className="text-sm text-stone-500">
+            <h3 className="font-semibold text-ink">{pet.name}</h3>
+            <p className="text-sm text-ink-soft">
               {PET_TYPE_LABELS[pet.type as PetType]}
               {pet.sex && pet.sex !== "unknown" && ` · ${pet.sex}`}
               {pet.weight_kg && ` · ${pet.weight_kg}kg`}
@@ -58,7 +68,7 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
           <div className="flex items-center gap-1 flex-shrink-0">
             {onEdit && (
               <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={onEdit}
-                className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors">
+                className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-ink transition-colors">
                 <Edit2 className="w-4 h-4" />
               </motion.button>
             )}
@@ -70,7 +80,7 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
             )}
           </div>
         </div>
-        {pet.bio && <p className="text-sm text-stone-500 mt-1.5 leading-relaxed">{pet.bio}</p>}
+        {pet.bio && <p className="text-sm text-ink-soft mt-1.5 leading-relaxed">{pet.bio}</p>}
       </div>
     </motion.div>
   );

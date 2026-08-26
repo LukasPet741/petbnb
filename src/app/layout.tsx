@@ -1,19 +1,30 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "PetBnB — Find trusted pet sitters near you",
-  description: "Connect with vetted local pet sitters for walking, boarding, daycare and grooming.",
+  title: "PetBnB — Pet sitters near you in Lithuania",
+  description:
+    "Find a local pet sitter for walking, boarding, daycare and grooming. Book in minutes.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} h-full`}>
+      <body className="min-h-full font-sans antialiased">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

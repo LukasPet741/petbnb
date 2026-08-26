@@ -1,72 +1,58 @@
 import Link from "next/link";
-import { MapPin, Clock, CheckCircle } from "lucide-react";
+import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Avatar from "./Avatar";
-import StarRating from "./StarRating";
 import Badge from "./Badge";
-import { type Profile, SERVICE_LABELS, type ServiceType } from "@/lib/mock-data";
+import FavoriteButton from "./FavoriteButton";
+import { type Profile, SERVICE_LABELS, type ServiceType } from "@/lib/types";
 
-export default function SitterCard({ sitter }: { sitter: Profile }) {
+export default function SitterCard({ sitter, showFavorite = false }: { sitter: Profile; showFavorite?: boolean }) {
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][])
     .filter(([, v]) => v)
     .map(([k]) => SERVICE_LABELS[k]);
 
-  const lastActiveHours = Math.floor(
-    (Date.now() - new Date(sitter.last_active_at).getTime()) / 3600000
-  );
-  const activeLabel =
-    lastActiveHours < 1 ? "Active now" : lastActiveHours < 24 ? `${lastActiveHours}h ago` : "Recently active";
-
   return (
     <motion.div
-      className="bg-white rounded-xl border border-stone-100 shadow-sm p-5 flex flex-col gap-4"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      whileHover={{ y: -4, boxShadow: "0 12px 28px rgba(0,0,0,0.09)" }}
+      className="group bg-surface rounded-2xl border border-black/5 shadow-sm p-5 flex flex-col gap-4 h-full"
+      whileHover={{ y: -4, boxShadow: "0 14px 30px -12px rgba(26,31,29,0.18)" }}
+      transition={{ type: "spring", stiffness: 300, damping: 22 }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <Avatar name={sitter.full_name ?? "Sitter"} url={sitter.avatar_url} size="lg" />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <h3 className="font-semibold text-stone-900 text-base">{sitter.full_name}</h3>
-            <CheckCircle className="w-4 h-4 text-[#D95F3B] flex-shrink-0" />
-          </div>
-          {sitter.rating !== undefined && (
-            <StarRating rating={sitter.rating} count={sitter.review_count} />
-          )}
-          <div className="flex items-center gap-3 mt-1 text-xs text-stone-400">
-            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{sitter.city}</span>
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{activeLabel}</span>
+          <h3 className="font-semibold text-ink text-base leading-tight truncate">{sitter.full_name}</h3>
+          <div className="flex items-center gap-3 mt-1.5 text-xs text-ink-soft">
+            <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{sitter.city}</span>
+            {sitter.experience_years != null && (
+              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{sitter.experience_years} yr{sitter.experience_years !== 1 ? "s" : ""}</span>
+            )}
           </div>
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-xl font-bold text-stone-900">£{sitter.rate_per_hour}</div>
-          <div className="text-xs text-stone-400">per hour</div>
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          {showFavorite && <FavoriteButton sitterId={sitter.id} />}
+          <div className="text-right">
+            <div className="text-lg font-semibold text-ink">€{sitter.rate_per_hour}</div>
+            <div className="text-[11px] text-ink-soft">/ hour</div>
+          </div>
         </div>
       </div>
 
       {sitter.about_me && (
-        <p className="text-sm text-stone-600 leading-relaxed line-clamp-2">{sitter.about_me}</p>
+        <p className="text-sm text-ink-soft leading-relaxed line-clamp-2">{sitter.about_me}</p>
       )}
 
-      <div className="flex flex-wrap gap-1.5">
-        {activeServices.map((s) => <Badge key={s} variant="coral">{s}</Badge>)}
-      </div>
+      {activeServices.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {activeServices.map((s) => <Badge key={s} variant="brand">{s}</Badge>)}
+        </div>
+      )}
 
-      <div className="flex items-center justify-between pt-1 border-t border-stone-50">
-        <span className="text-xs text-stone-400">
-          {sitter.experience_years} yr{sitter.experience_years !== 1 ? "s" : ""} experience
-        </span>
-        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-          <Link
-            href={`/browse/${sitter.id}`}
-            className="px-4 py-2 bg-[#D95F3B] text-white rounded-lg text-sm font-medium hover:bg-[#c4482a] transition-colors"
-          >
-            View profile
-          </Link>
-        </motion.div>
-      </div>
+      <Link
+        href={`/browse/${sitter.id}`}
+        className="mt-auto inline-flex items-center justify-center gap-1.5 h-10 rounded-xl border border-brand/20 text-brand font-medium text-sm hover:bg-brand-soft transition-colors"
+      >
+        View profile <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+      </Link>
     </motion.div>
   );
 }

@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Plus, CalendarDays, Clock, MapPin } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
-import { STATUS_CONFIG, SERVICE_LABELS, type BookingStatus } from "@/lib/mock-data";
+import { STATUS_CONFIG, SERVICE_LABELS, type BookingStatus } from "@/lib/types";
 import Avatar from "@/components/Avatar";
+import PageHeader from "@/components/PageHeader";
+import EmptyState from "@/components/EmptyState";
+import RightRail from "@/components/RightRail";
 import { formatDate } from "@/lib/utils";
 import { stagger, fadeUp } from "@/lib/motion";
 
@@ -57,98 +60,90 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <motion.div className="flex items-center justify-between mb-6" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900">Bookings</h1>
-          <p className="text-stone-500 text-sm mt-0.5">{loading ? "Loading…" : `${bookings.length} total`}</p>
-        </div>
-        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-          <Link href="/bookings/new" className="flex items-center gap-2 px-4 py-2.5 bg-[#D95F3B] text-white rounded-xl text-sm font-medium hover:bg-[#c4482a] transition-colors">
-            <Plus className="w-4 h-4" />New booking
-          </Link>
-        </motion.div>
-      </motion.div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <PageHeader title="Bookings" subtitle={loading ? "Loading…" : `${bookings.length} booking${bookings.length !== 1 ? "s" : ""} in total`} />
 
-      {/* Tabs */}
-      <motion.div className="flex gap-1 bg-stone-100 rounded-xl p-1 mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
-        {TABS.map(({ label, value }) => (
-          <button key={value} onClick={() => setTab(value)}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-stone-900" : "text-stone-500 hover:text-stone-700"}`}>
-            {tab === value && (
-              <motion.div layoutId="tab-pill" className="absolute inset-0 bg-white rounded-lg shadow-sm" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
-            )}
-            {label}
-          </button>
-        ))}
-      </motion.div>
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 lg:gap-10">
+        <div className="min-w-0">
+          {/* Tabs */}
+          <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-8">
+            {TABS.map(({ label, value }) => (
+              <button key={value} onClick={() => setTab(value)}
+                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
+                {tab === value && (
+                  <motion.div layoutId="tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-sm" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+                )}
+                {label}
+              </button>
+            ))}
+          </div>
 
-      {!loading && filtered.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-xl border border-stone-100 p-12 text-center">
-          <CalendarDays className="w-12 h-12 text-stone-200 mx-auto mb-4" />
-          <p className="text-stone-500 font-medium">No bookings here</p>
-          <Link href="/browse" className="text-[#D95F3B] text-sm font-medium hover:underline mt-2 inline-block">Browse sitters →</Link>
-        </motion.div>
-      ) : (
-        <motion.div className="space-y-4" variants={stagger(0.07)} initial="hidden" animate="show">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((booking) => {
-              const status = STATUS_CONFIG[booking.status as BookingStatus];
-              const isSitterView = profile?.is_sitter && booking.sitter?.id === user?.id;
-              const displayProfile = isSitterView ? booking.owner : booking.sitter;
-              const displayLabel = isSitterView ? "From" : "With";
-              return (
-                <motion.div key={booking.id} variants={fadeUp} layout exit={{ opacity: 0, scale: 0.97 }}
-                  className="bg-white rounded-xl border border-stone-100 shadow-sm p-5"
-                  whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(0,0,0,0.07)" }}>
-                  <div className="flex items-start gap-4">
-                    <Avatar name={displayProfile?.full_name ?? "User"} url={displayProfile?.avatar_url} size="lg" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3 flex-wrap">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-stone-400">{displayLabel}:</span>
-                            <h3 className="font-semibold text-stone-900">{displayProfile?.full_name}</h3>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status?.color ?? "bg-stone-100 text-stone-600"}`}>{status?.label ?? booking.status}</span>
+          {!loading && filtered.length === 0 ? (
+            <EmptyState
+              icon={CalendarDays}
+              title={tab === "all" ? "No bookings yet" : `No ${TABS.find((t) => t.value === tab)?.label.toLowerCase()} bookings`}
+              description={tab === "all" ? "When you book a sitter, your requests will show up here." : undefined}
+              action={tab === "all" ? <Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />Find a sitter</Link> : undefined}
+            />
+          ) : (
+            <motion.div className="space-y-4" variants={stagger(0.07)} initial="hidden" animate="show">
+              <AnimatePresence mode="popLayout">
+                {filtered.map((booking) => {
+                  const status = STATUS_CONFIG[booking.status as BookingStatus];
+                  const isSitterView = profile?.is_sitter && booking.sitter?.id === user?.id;
+                  const displayProfile = isSitterView ? booking.owner : booking.sitter;
+                  const displayLabel = isSitterView ? "Owner" : "Sitter";
+                  return (
+                    <motion.div key={booking.id} variants={fadeUp} layout exit={{ opacity: 0, scale: 0.97 }}
+                      className="bg-surface rounded-2xl border border-black/5 shadow-sm p-5 sm:p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-4">
+                        <Avatar name={displayProfile?.full_name ?? "User"} url={displayProfile?.avatar_url} size="lg" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-ink">{displayProfile?.full_name}</h3>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status?.color ?? ""}`}>{status?.label ?? booking.status}</span>
                           </div>
-                          <p className="text-sm text-stone-500 mt-0.5">{SERVICE_LABELS[booking.service as keyof typeof SERVICE_LABELS]} · {booking.pet?.name}</p>
+                          <p className="text-sm text-ink-soft mt-1">
+                            <span className="text-ink-soft/70">{displayLabel} · </span>
+                            {SERVICE_LABELS[booking.service as keyof typeof SERVICE_LABELS]} · {booking.pet?.name}
+                          </p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
+                            <span className="flex items-center gap-1.5 text-xs text-ink-soft"><Clock className="w-3.5 h-3.5" />{formatDate(booking.start_at)} → {formatDate(booking.end_at)}</span>
+                            {booking.address && <span className="flex items-center gap-1.5 text-xs text-ink-soft"><MapPin className="w-3.5 h-3.5" />{booking.address}</span>}
+                          </div>
+                          {booking.notes && <p className="text-sm text-ink-soft/80 mt-3 italic">&ldquo;{booking.notes}&rdquo;</p>}
+                          {!isSitterView && booking.status === "pending" && (
+                            <div className="flex gap-2 mt-4 pt-4 border-t border-black/5">
+                              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => handleCancel(booking.id)}
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">Cancel request</motion.button>
+                            </div>
+                          )}
+                          {isSitterView && booking.status === "pending" && (
+                            <div className="flex gap-2 mt-4 pt-4 border-t border-black/5">
+                              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "signed")}
+                                className="px-4 py-2 bg-brand-soft text-brand-strong rounded-lg text-xs font-medium hover:brightness-95 transition-all">Accept</motion.button>
+                              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "declined")}
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">Decline</motion.button>
+                            </div>
+                          )}
+                          {isSitterView && booking.status === "signed" && (
+                            <div className="flex gap-2 mt-4 pt-4 border-t border-black/5">
+                              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "completed")}
+                                className="px-4 py-2 bg-sky-50 text-sky-700 rounded-lg text-xs font-medium hover:bg-sky-100 transition-colors">Mark completed</motion.button>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-4 mt-3">
-                        <span className="flex items-center gap-1.5 text-xs text-stone-500"><Clock className="w-3.5 h-3.5" />{formatDate(booking.start_at)} → {formatDate(booking.end_at)}</span>
-                        {booking.address && <span className="flex items-center gap-1.5 text-xs text-stone-500"><MapPin className="w-3.5 h-3.5" />{booking.address}</span>}
-                      </div>
-                      {booking.notes && <p className="text-xs text-stone-400 mt-2 italic">&ldquo;{booking.notes}&rdquo;</p>}
-                      {!isSitterView && booking.status === "pending" && (
-                        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-100">
-                          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleCancel(booking.id)}
-                            className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">
-                            Cancel
-                          </motion.button>
-                        </div>
-                      )}
-                      {isSitterView && booking.status === "pending" && (
-                        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-100">
-                          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "signed")}
-                            className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors">Accept</motion.button>
-                          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "declined")}
-                            className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">Decline</motion.button>
-                        </div>
-                      )}
-                      {isSitterView && booking.status === "signed" && (
-                        <div className="flex gap-2 mt-4 pt-4 border-t border-stone-100">
-                          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleUpdateStatus(booking.id, "completed")}
-                            className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors">Mark completed</motion.button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      )}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
+
+        <RightRail showNextBooking={false} />
+      </div>
     </div>
   );
 }
