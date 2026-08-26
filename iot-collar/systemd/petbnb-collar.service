@@ -1,3 +1,5 @@
+# Replace "pi" below with whatever username you set in Raspberry Pi Imager
+# if it's different -- newer Imager versions no longer default to "pi".
 [Unit]
 Description=PetBnB GPS collar (GPS -> BLE + WiFi uplink)
 After=network-online.target bluetooth.target
