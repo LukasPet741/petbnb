@@ -37,6 +37,17 @@ All `avatar_url` / `photo_url` were null; now seeded with verified external URLs
 
 Email confirmation is enabled — disable in Supabase Dashboard → Auth → Providers → Email if needed.
 
+## Raspberry Pi collar login
+| Field | Value |
+|---|---|
+| Hostname | `petbnb-collar` |
+| Username | `petbnb` |
+| Password | `PetBnBCollar2026!` |
+
+Set via Raspberry Pi Imager's advanced options (Ctrl+Shift+X) at flash time, along with
+WiFi SSID/password/country (using the phone hotspot as the network — see collar setup
+chat). Connect with `ssh petbnb@petbnb-collar.local` once booted (~1–3 min first boot).
+
 ## Dummy Data (kept)
 10 sitter profiles (Jonas, Laura, Marius, Agnė, Tomas, Eglė, Dovilė, Paulius, Rūta, Viktorija) across Vilnius, Kaunas, Klaipėda, Šiauliai, Panevėžys. Rates €10–25. Bios in Lithuanian.
 5 dummy owner profiles with 10 pets and 12 bookings. IDs: sitters `11111111-…`, owners `22222222-…`, pets `aaaaaaaa-…`.

@@ -34,7 +34,6 @@ def run() -> None:
     config = load_config()
 
     gps = GPSReader(config.gps_serial_port, config.gps_baud_rate)
-    ble = BLELocationService()
     uplink = WiFiUplink(
         ingest_url=config.ingest_url,
         device_id=config.device_id,
@@ -44,7 +43,15 @@ def run() -> None:
         battery_pct_provider=read_battery_pct,
     )
 
-    ble.start()
+    # BLE is a nice-to-have local-pairing feature; a Pi with Bluetooth not yet
+    # configured (or no adapter at all) shouldn't stop GPS -> WiFi tracking.
+    ble: BLELocationService | None = None
+    try:
+        ble = BLELocationService()
+        ble.start()
+    except Exception:
+        logger.warning("BLE unavailable, continuing without it", exc_info=True)
+
     logger.info("Collar running, fix every %ss", config.fix_interval_seconds)
 
     try:
@@ -55,7 +62,8 @@ def run() -> None:
                 logger.warning("No GPS fix yet (cold start can take up to a minute outdoors)")
             else:
                 logger.info("Fix: %.6f, %.6f @ %.1f km/h", fix.lat, fix.lng, fix.speed_kmh)
-                ble.update_fix(fix)
+                if ble is not None:
+                    ble.update_fix(fix)
                 uplink.send(fix)
 
             elapsed = time.monotonic() - tick_started

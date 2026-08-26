@@ -18,12 +18,15 @@ interface CollarMapProps {
   lat: number;
   lng: number;
   label?: string;
+  /** Optional trail of earlier points (oldest first) drawn as a line behind the marker. */
+  path?: { lat: number; lng: number }[];
 }
 
-export default function CollarMap({ lat, lng, label }: CollarMapProps) {
+export default function CollarMap({ lat, lng, label, path }: CollarMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const polylineRef = useRef<L.Polyline | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -31,6 +34,7 @@ export default function CollarMap({ lat, lng, label }: CollarMapProps) {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
     }).addTo(map);
+    polylineRef.current = L.polyline([], { color: "#2F6F5E", weight: 3, opacity: 0.8 }).addTo(map);
     markerRef.current = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
     mapRef.current = map;
     return () => {
@@ -44,8 +48,17 @@ export default function CollarMap({ lat, lng, label }: CollarMapProps) {
     if (!mapRef.current || !markerRef.current) return;
     markerRef.current.setLatLng([lat, lng]);
     if (label) markerRef.current.bindPopup(label);
-    mapRef.current.panTo([lat, lng]);
-  }, [lat, lng, label]);
+
+    const points = (path ?? []).map((p): [number, number] => [p.lat, p.lng]);
+    points.push([lat, lng]);
+    polylineRef.current?.setLatLngs(points);
+
+    if (points.length > 1) {
+      mapRef.current.fitBounds(L.latLngBounds(points), { padding: [24, 24], maxZoom: 17 });
+    } else {
+      mapRef.current.panTo([lat, lng]);
+    }
+  }, [lat, lng, label, path]);
 
   return <div ref={containerRef} className="w-full h-full rounded-xl" />;
 }

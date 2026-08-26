@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Copy, X, Radar, Check, Loader2 } from "lucide-react";
+import { Plus, Trash2, Copy, X, Radar, Check, Loader2, Route as RouteIcon, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import EmptyState from "@/components/EmptyState";
 
@@ -22,6 +22,12 @@ interface CollarFix {
   recorded_at: string;
 }
 
+interface RoutePoint {
+  lat: number;
+  lng: number;
+  recorded_at: string;
+}
+
 const POLL_INTERVAL_MS = 30_000;
 
 function timeAgo(iso: string): string {
@@ -34,12 +40,41 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+function todayInputValue(): string {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
+}
+
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: number } | null {
+  if (points.length < 2) return null;
+  let distanceKm = 0;
+  for (let i = 1; i < points.length; i++) distanceKm += haversineKm(points[i - 1], points[i]);
+  const durationMin = (new Date(points[points.length - 1].recorded_at).getTime() - new Date(points[0].recorded_at).getTime()) / 60_000;
+  return { distanceKm, durationMin };
+}
+
 export default function CollarsPanel() {
   const [devices, setDevices] = useState<CollarDevice[]>([]);
   const [fixes, setFixes] = useState<Record<string, CollarFix | null>>({});
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [provisioned, setProvisioned] = useState<{ id: string; secret: string; label: string } | null>(null);
+  const [routeOpenFor, setRouteOpenFor] = useState<string | null>(null);
+  const [routeDate, setRouteDate] = useState(todayInputValue());
+  const [routePoints, setRoutePoints] = useState<RoutePoint[]>([]);
+  const [routeLoading, setRouteLoading] = useState(false);
 
   const loadDevices = useCallback(async () => {
     const { data } = await supabase
@@ -77,6 +112,39 @@ export default function CollarsPanel() {
     const interval = setInterval(() => loadFixes(ids), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [devices, loadFixes]);
+
+  useEffect(() => {
+    if (!routeOpenFor) return;
+    let active = true;
+    setRouteLoading(true);
+    const start = new Date(`${routeDate}T00:00:00`).toISOString();
+    const end = new Date(`${routeDate}T23:59:59.999`).toISOString();
+    supabase
+      .from("collar_locations")
+      .select("lat, lng, recorded_at")
+      .eq("device_id", routeOpenFor)
+      .gte("recorded_at", start)
+      .lte("recorded_at", end)
+      .order("recorded_at", { ascending: true })
+      .then(({ data }) => {
+        if (!active) return;
+        setRoutePoints((data ?? []) as RoutePoint[]);
+        setRouteLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [routeOpenFor, routeDate]);
+
+  const toggleRoute = (deviceId: string) => {
+    if (routeOpenFor === deviceId) {
+      setRouteOpenFor(null);
+    } else {
+      setRouteOpenFor(deviceId);
+      setRouteDate(todayInputValue());
+      setRoutePoints([]);
+    }
+  };
 
   const handleCreate = async (label: string) => {
     const secret = crypto.randomUUID().replace(/-/g, "");
@@ -138,13 +206,22 @@ export default function CollarsPanel() {
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(device.id)}
-                    className="p-2 text-ink-soft hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-                    aria-label="Remove collar"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => toggleRoute(device.id)}
+                      className="p-2 text-ink-soft hover:text-brand hover:bg-brand-softer rounded-lg transition-colors"
+                      aria-label="View route"
+                    >
+                      <RouteIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(device.id)}
+                      className="p-2 text-ink-soft hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      aria-label="Remove collar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="h-56">
                   {fix ? (
@@ -155,6 +232,63 @@ export default function CollarsPanel() {
                     </div>
                   )}
                 </div>
+
+                <AnimatePresence>
+                  {routeOpenFor === device.id && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden border-t border-black/10"
+                    >
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-surface-2 border-b border-black/10">
+                        <div className="flex items-center gap-2 text-xs font-medium text-ink">
+                          <RouteIcon className="w-3.5 h-3.5" />Route
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="date"
+                            value={routeDate}
+                            max={todayInputValue()}
+                            onChange={(e) => setRouteDate(e.target.value)}
+                            className="h-8 px-2 rounded-lg border border-black/10 bg-surface text-xs text-ink"
+                          />
+                          <button onClick={() => setRouteOpenFor(null)} className="p-1 text-ink-soft hover:text-ink rounded" aria-label="Close route">
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {routeLoading ? (
+                        <div className="flex items-center justify-center py-8 text-ink-soft">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        </div>
+                      ) : routePoints.length === 0 ? (
+                        <div className="py-8 text-center text-sm text-ink-soft">No location data for this day</div>
+                      ) : (
+                        <>
+                          <div className="h-56">
+                            <CollarMap
+                              lat={routePoints[routePoints.length - 1].lat}
+                              lng={routePoints[routePoints.length - 1].lng}
+                              path={routePoints.slice(0, -1)}
+                            />
+                          </div>
+                          {(() => {
+                            const stats = routeStats(routePoints);
+                            return (
+                              <div className="px-4 py-2.5 text-xs text-ink-soft bg-surface-2 border-t border-black/10">
+                                {stats
+                                  ? `${stats.distanceKm.toFixed(2)} km · ${Math.round(stats.durationMin)} min · ${routePoints.length} points`
+                                  : `${routePoints.length} point${routePoints.length === 1 ? "" : "s"} (not enough for a route yet)`}
+                              </div>
+                            );
+                          })()}
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
