@@ -29,6 +29,7 @@ const sitters = {
     notFoundTitle: "Globėjas nerastas",
     notFoundDescription: "Šis globėjas galbūt nebėra įtrauktas į sąrašą.",
     fallbackName: "šį globėją",
+    fallbackNameNominative: "šis globėjas",
     experienceSingular: "{years} m. patirties",
     experiencePlural: "{years} m. patirties",
     aboutHeading: "Apie {name}",

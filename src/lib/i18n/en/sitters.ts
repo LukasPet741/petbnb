@@ -29,6 +29,7 @@ const sitters = {
     notFoundTitle: "Sitter not found",
     notFoundDescription: "This sitter may no longer be listed.",
     fallbackName: "this sitter",
+    fallbackNameNominative: "this sitter",
     experienceSingular: "{years} yr experience",
     experiencePlural: "{years} yrs experience",
     aboutHeading: "About {name}",

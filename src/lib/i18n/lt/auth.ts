@@ -20,7 +20,7 @@ const auth = {
     errorFallback: "Prisijungti nepavyko",
     noAccount: "Neturite paskyros?",
     createOneFree: "Susikurkite nemokamai",
-    termsAgreementPrefix: "Prisijungdami sutinkate su mūsų",
+    termsAgreementPrefix: "Prisijungdami sutinkate, kad galioja mūsų",
   },
   signup: {
     imageAlt: "Jaukiai įsitaisęs augintinis",
@@ -45,7 +45,7 @@ const auth = {
     passwordMismatch: "Slaptažodžiai nesutampa",
     errorFallback: "Registracija nepavyko",
     alreadyHaveAccount: "Jau turite paskyrą?",
-    termsAgreementPrefix: "Sukurdami paskyrą sutinkate su mūsų",
+    termsAgreementPrefix: "Sukurdami paskyrą jums galioja mūsų",
   },
   terms: {
     backLink: "Atgal",

@@ -7,6 +7,11 @@ import tips from "./en/tips";
 
 const en = {
   common: {
+    meta: {
+      title: "PetBnB: Pet sitters near you in Lithuania",
+      description:
+        "Find a local pet sitter for walking, boarding, daycare and grooming. Book in minutes.",
+    },
     signIn: "Sign in",
     getStarted: "Get started",
     createAccount: "Create account",

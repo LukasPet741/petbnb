@@ -4,7 +4,7 @@ const home = {
     fallbackEyebrow: "Augintinių priežiūra visoje Lietuvoje",
     fallbackTitleLine1: "Rūpestinga priežiūra",
     fallbackTitleLine2: "jūsų augintiniui, čia pat.",
-    fallbackSubtitle: "Suraskite patikimą vietos globėją vedžiojimui, apgyvendinimui, dienos priežiūrai ar kirpimui, susitarkite su juo tiesiogiai.",
+    fallbackSubtitle: "Suraskite patikimą vietos globėją vedžiojimui, apgyvendinimui, dienos priežiūrai ir kirpimui, susitarkite su juo tiesiogiai.",
     searchButton: "Ieškoti globėjų",
     cityPlaceholder: "Jūsų miestas",
     fallbackImageAlt: "Šuo, kurį prižiūri PetBnB globėjas",
@@ -20,7 +20,7 @@ const home = {
       walking: { title: "Šunų vedžiojimas", desc: "Kasdieniai pasivaikščiojimai su patikimu vietos vedžiotoju." },
       boarding: { title: "Apgyvendinimas", desc: "Jūsų augintinys nakvoja globėjo namuose." },
       daycare: { title: "Dienos priežiūra", desc: "Priežiūra dienos metu, kol jūs darbe." },
-      grooming: { title: "Kirpimas", desc: "Maudymas, kirpimas ir šiek tiek lepinimo." },
+      grooming: { title: "Kirpimas ir priežiūra", desc: "Maudymas, kirpimas ir šiek tiek lepinimo." },
     },
   },
   meetSitters: {

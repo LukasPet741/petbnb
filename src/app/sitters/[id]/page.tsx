@@ -74,6 +74,9 @@ function SitterDetail({ sitter }: { sitter: Profile }) {
   const { t } = useLanguage();
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][]).filter(([, v]) => v).map(([k]) => ({ key: k, label: t("common.services." + k) }));
   const firstName = sitter.full_name?.split(" ")[0] ?? t("sitters.profile.fallbackName");
+  // freeToJoinNote uses {name} as the grammatical subject, which requires the nominative
+  // case fallback (distinct from the accusative fallbackName used in aboutHeading/bookCta).
+  const firstNameNominative = sitter.full_name?.split(" ")[0] ?? t("sitters.profile.fallbackNameNominative");
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -133,7 +136,7 @@ function SitterDetail({ sitter }: { sitter: Profile }) {
             <Link href="/signup" className="flex items-center justify-center gap-2 w-full min-h-11 px-4 py-2.5 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors">
               <span className="text-center">{t("sitters.profile.bookCta", { name: firstName })}</span> <ArrowRight className="w-4 h-4 flex-shrink-0" />
             </Link>
-            <p className="text-xs text-ink-soft/80 text-center">{t("sitters.profile.freeToJoinNote", { name: firstName })}</p>
+            <p className="text-xs text-ink-soft/80 text-center">{t("sitters.profile.freeToJoinNote", { name: firstNameNominative })}</p>
           </div>
         </motion.div>
       </div>

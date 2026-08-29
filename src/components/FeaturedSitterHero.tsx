@@ -112,7 +112,7 @@ export default function FeaturedSitterHero() {
                 <div className="font-[family-name:var(--font-script)] text-2xl text-brand-strong leading-none">{sitter.full_name}</div>
                 <div className="flex items-center gap-1.5 text-sm text-ink-soft mt-1">
                   <MapPin className="w-3.5 h-3.5" />
-                  {sitter.city} {t("common.sitterWord")}
+                  {sitter.city}, {t("common.sitterWord")}
                   {years != null ? ` · ${t(years === 1 ? "common.experienceSuffix" : "common.experienceSuffixPlural", { years })}` : ""}
                 </div>
               </cite>

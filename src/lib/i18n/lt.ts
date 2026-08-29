@@ -7,6 +7,11 @@ import tips from "./lt/tips";
 
 const lt = {
   common: {
+    meta: {
+      title: "PetBnB: gyvūnų globėjai netoliese, visoje Lietuvoje",
+      description:
+        "Suraskite patikimą vietos globėją vedžiojimui, apgyvendinimui, dienos priežiūrai ar kirpimui. Užsisakykite per kelias minutes.",
+    },
     signIn: "Prisijungti",
     getStarted: "Pradėti",
     createAccount: "Sukurti paskyrą",

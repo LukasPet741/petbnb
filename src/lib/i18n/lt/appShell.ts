@@ -8,7 +8,7 @@ const appShell = {
       browse: "Naršyti",
       pets: "Mano augintiniai",
       bookings: "Užsakymai",
-      saved: "Išsaugoti",
+      saved: "Išsaugota",
       profile: "Profilis",
     },
     signOut: "Atsijungti",
@@ -21,7 +21,7 @@ const appShell = {
   rightRail: {
     nextBooking: "Kitas užsakymas",
     noUpcomingBookings: "Artėjančių užsakymų nėra",
-    sitterSpotlight: "Globėjo akcentas",
+    sitterSpotlight: "Rekomenduojamas globėjas",
   },
   sitterMini: {
     rateSuffix: "/ val.",
@@ -48,7 +48,7 @@ const appShell = {
       heading: "Jūsų užsakymai",
       viewAll: "Žiūrėti visus",
       emptyTitle: "Kol kas nėra užsakymų",
-      emptyDescription: "Raskite globėją ir išsiųskite pirmąją užklausą. Jis ją patvirtins ir toliau viskuo pasirūpins.",
+      emptyDescription: "Raskite globėją ir išsiųskite pirmąją užklausą. Globėjas ją patvirtins ir toliau viskuo pasirūpins.",
       details: "Daugiau",
     },
     sittersNearYou: {

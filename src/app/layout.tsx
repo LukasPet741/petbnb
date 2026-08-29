@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import Atmosphere from "@/components/Atmosphere";
+import en from "@/lib/i18n/en";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,10 +31,13 @@ const caveat = Caveat({
   display: "swap",
 });
 
+// Locale in this app is a client-only preference (see LanguageContext, which reads
+// localStorage after mount), so it isn't known yet when this static metadata is
+// generated on the server. These strings mirror src/lib/i18n's common.meta English
+// copy — kept there as the single source of truth — rather than being hardcoded here.
 export const metadata: Metadata = {
-  title: "PetBnB: Pet sitters near you in Lithuania",
-  description:
-    "Find a local pet sitter for walking, boarding, daycare and grooming. Book in minutes.",
+  title: en.common.meta.title,
+  description: en.common.meta.description,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
