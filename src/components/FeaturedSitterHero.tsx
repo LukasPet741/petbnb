@@ -40,8 +40,10 @@ export default function FeaturedSitterHero() {
         ({ data, error }) => {
           if (error) { setStatus("error"); return; }
           const eligible = ((data as Profile[]) ?? []).filter((p) => (p.about_me ?? "").trim().length > 0);
-          const withPhoto = eligible.find((p) => p.avatar_url);
-          setSitter(withPhoto ?? eligible[0] ?? null);
+          const withPhoto = eligible.filter((p) => p.avatar_url);
+          const pool = withPhoto.length ? withPhoto : eligible;
+          const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+          setSitter(pick);
           setStatus("ready");
         },
         () => setStatus("error")

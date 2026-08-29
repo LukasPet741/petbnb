@@ -11,6 +11,7 @@ import BookingCard from "@/components/BookingCard";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import RightRail from "@/components/RightRail";
+import SuccessToast from "@/components/SuccessToast";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -34,6 +35,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -49,14 +51,50 @@ export default function BookingsPage() {
 
   const filtered = tab === "all" ? bookings : bookings.filter((b) => b.status === tab);
 
+  const tabCounts: Record<"all" | BookingStatus, number> = TAB_VALUES.reduce((acc, value) => {
+    acc[value] = value === "all" ? bookings.length : bookings.filter((b) => b.status === value).length;
+    return acc;
+  }, {} as Record<"all" | BookingStatus, number>);
+
+  // "all" and "pending" stay one flat list; the other status tabs split into upcoming/past sections.
+  const showSections = tab !== "all" && tab !== "pending";
+  const nowMs = Date.now();
+  const upcoming = showSections ? filtered.filter((b) => new Date(b.start_at).getTime() >= nowMs) : [];
+  const past = showSections ? filtered.filter((b) => new Date(b.start_at).getTime() < nowMs).slice().reverse() : [];
+
   const handleCancel = async (id: string) => {
-    await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
+    const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
+    if (error) return;
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: "cancelled" } : b));
+    setToastMessage(t("appPages.bookings.toastCancelled"));
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
-    await supabase.from("bookings").update({ status }).eq("id", id);
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    if (error) return;
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status } : b));
+    const toastKey = status === "signed" ? "toastAccepted" : status === "declined" ? "toastDeclined" : status === "completed" ? "toastCompleted" : null;
+    if (toastKey) setToastMessage(t(`appPages.bookings.${toastKey}`));
+  };
+
+  const renderBookingItem = (booking: Booking) => {
+    const isSitterView = Boolean(profile?.is_sitter && booking.sitter?.id === user?.id);
+    const displayProfile = isSitterView ? booking.owner : booking.sitter;
+    const displayLabel = isSitterView ? t("appPages.bookings.ownerLabel") : t("appPages.bookings.sitterLabel");
+    return (
+      <motion.div key={booking.id} variants={fadeUp}>
+        <BookingCard
+          booking={booking}
+          isSitterView={isSitterView}
+          displayProfile={displayProfile}
+          displayLabel={displayLabel}
+          onCancel={() => handleCancel(booking.id)}
+          onAccept={() => handleUpdateStatus(booking.id, "signed")}
+          onDecline={() => handleUpdateStatus(booking.id, "declined")}
+          onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
+        />
+      </motion.div>
+    );
   };
 
   return (
@@ -67,15 +105,25 @@ export default function BookingsPage() {
         <div className="min-w-0">
           {/* Tabs */}
           <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-8">
-            {TABS.map(({ label, value }) => (
-              <button key={value} onClick={() => setTab(value)}
-                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
-                {tab === value && (
-                  <motion.div layoutId="tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-[var(--shadow-sm)]" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
-                )}
-                {label}
-              </button>
-            ))}
+            {TABS.map(({ label, value }) => {
+              const count = tabCounts[value];
+              return (
+                <button key={value} onClick={() => setTab(value)}
+                  className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
+                  {tab === value && (
+                    <motion.div layoutId="tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-[var(--shadow-sm)]" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+                  )}
+                  <span className="inline-flex items-center gap-1.5">
+                    {label}
+                    {count > 0 && (
+                      <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold leading-none ${tab === value ? "bg-brand-soft text-brand-strong" : "bg-black/10 text-ink-soft"}`}>
+                        {count}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {!loading && filtered.length === 0 ? (
@@ -85,35 +133,36 @@ export default function BookingsPage() {
               description={tab === "all" ? t("appPages.bookings.emptyDescriptionAll") : undefined}
               action={tab === "all" ? <Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />{t("appPages.bookings.findSitterButton")}</Link> : undefined}
             />
+          ) : showSections ? (
+            <div className="space-y-8">
+              {upcoming.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-ink mb-3">{t("appPages.bookings.upcomingSectionTitle")}</h3>
+                  <motion.div className="space-y-4" variants={stagger(0.07)} initial="hidden" animate="show">
+                    <AnimatePresence mode="popLayout">{upcoming.map(renderBookingItem)}</AnimatePresence>
+                  </motion.div>
+                </div>
+              )}
+              {past.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-ink mb-3">{t("appPages.bookings.pastSectionTitle")}</h3>
+                  <motion.div className="space-y-4" variants={stagger(0.07)} initial="hidden" animate="show">
+                    <AnimatePresence mode="popLayout">{past.map(renderBookingItem)}</AnimatePresence>
+                  </motion.div>
+                </div>
+              )}
+            </div>
           ) : (
             <motion.div className="space-y-4" variants={stagger(0.07)} initial="hidden" animate="show">
-              <AnimatePresence mode="popLayout">
-                {filtered.map((booking) => {
-                  const isSitterView = Boolean(profile?.is_sitter && booking.sitter?.id === user?.id);
-                  const displayProfile = isSitterView ? booking.owner : booking.sitter;
-                  const displayLabel = isSitterView ? t("appPages.bookings.ownerLabel") : t("appPages.bookings.sitterLabel");
-                  return (
-                    <motion.div key={booking.id} variants={fadeUp}>
-                      <BookingCard
-                        booking={booking}
-                        isSitterView={isSitterView}
-                        displayProfile={displayProfile}
-                        displayLabel={displayLabel}
-                        onCancel={() => handleCancel(booking.id)}
-                        onAccept={() => handleUpdateStatus(booking.id, "signed")}
-                        onDecline={() => handleUpdateStatus(booking.id, "declined")}
-                        onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
+              <AnimatePresence mode="popLayout">{filtered.map(renderBookingItem)}</AnimatePresence>
             </motion.div>
           )}
         </div>
 
         <RightRail showNextBooking={false} />
       </div>
+
+      <SuccessToast message={toastMessage} onDismiss={() => setToastMessage(null)} />
     </div>
   );
 }

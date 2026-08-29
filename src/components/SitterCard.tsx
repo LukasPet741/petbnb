@@ -8,11 +8,31 @@ import FavoriteButton from "./FavoriteButton";
 import { type Profile, type ServiceType } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext";
 
+/** Buckets a sitter's last_active_at into a coarse, non-exact trust signal.
+ *  Returns null for anything older than a week so long-dormant sitters show nothing. */
+type ActivityBucket = "now" | "today" | "week";
+const ACTIVITY_DOT_CLASS: Record<ActivityBucket, string> = {
+  now: "bg-brand",
+  today: "bg-brand/60",
+  week: "bg-ink-soft/40",
+};
+function getActivityBucket(lastActiveAt: string | null | undefined): ActivityBucket | null {
+  if (!lastActiveAt) return null;
+  const lastActiveMs = new Date(lastActiveAt).getTime();
+  if (Number.isNaN(lastActiveMs)) return null;
+  const minutesAgo = (Date.now() - lastActiveMs) / 60000;
+  if (minutesAgo <= 15) return "now";
+  if (minutesAgo <= 60 * 24) return "today";
+  if (minutesAgo <= 60 * 24 * 7) return "week";
+  return null;
+}
+
 export default function SitterCard({ sitter, showFavorite = false, basePath = "/browse" }: { sitter: Profile; showFavorite?: boolean; basePath?: string }) {
   const { t } = useLanguage();
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][])
     .filter(([, v]) => v)
     .map(([k]) => t("common.services." + k));
+  const activityBucket = getActivityBucket(sitter.last_active_at);
 
   return (
     <motion.div
@@ -31,6 +51,12 @@ export default function SitterCard({ sitter, showFavorite = false, basePath = "/
               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{t(sitter.experience_years !== 1 ? "sitters.card.experiencePlural" : "sitters.card.experienceSingular", { years: sitter.experience_years })}</span>
             )}
           </div>
+          {activityBucket && (
+            <div className="flex items-center gap-1.5 mt-1 text-[11px] text-ink-soft">
+              <span className={`w-1.5 h-1.5 rounded-full ${ACTIVITY_DOT_CLASS[activityBucket]}`} />
+              {t(`sitters.activity.${activityBucket}`)}
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
           {showFavorite && <FavoriteButton sitterId={sitter.id} />}

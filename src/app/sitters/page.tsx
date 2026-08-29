@@ -96,6 +96,7 @@ function SittersList() {
             title={t("sitters.browse.errorTitle")}
             description={t("sitters.browse.errorDescription")}
             action={<button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.browse.tryAgain")}</button>}
+            tone="error"
           />
         ) : filtered.length === 0 ? (
           <EmptyState
@@ -103,6 +104,7 @@ function SittersList() {
             title={cityParam ? t("sitters.browse.emptyTitleWithCity", { city: cityParam }) : t("sitters.browse.emptyTitle")}
             description={cityParam ? t("sitters.browse.emptyDescriptionWithCity") : t("sitters.browse.emptyDescription")}
             action={cityParam ? <Link href="/sitters" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.browse.seeAllSitters")}</Link> : undefined}
+            tone="neutral"
           />
         ) : (
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.06)} initial="hidden" animate="show">

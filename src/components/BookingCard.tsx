@@ -30,11 +30,26 @@ interface BookingCardProps {
 
 const ELEVATED_SHADOW = "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(31 92 71 / 0.08)";
 
+// Relative/countdown framing for an upcoming start date, e.g. "Today" / "Tomorrow" / "in 5 days".
+// Returns null for bookings that already started (a countdown to the past doesn't make sense).
+function getRelativeLabel(startAt: string, t: (key: string, vars?: Record<string, string | number>) => string): string | null {
+  const start = new Date(startAt);
+  const now = new Date();
+  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((startDay.getTime() - nowDay.getTime()) / 86_400_000);
+  if (diffDays < 0) return null;
+  if (diffDays === 0) return t("appPages.bookings.relativeToday");
+  if (diffDays === 1) return t("appPages.bookings.relativeTomorrow");
+  return t("appPages.bookings.relativeInDays", { days: diffDays });
+}
+
 export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted }: BookingCardProps) {
   const { t, locale } = useLanguage();
   const status = STATUS_CONFIG[booking.status as BookingStatus];
   const photo = booking.pet?.photo_url || displayProfile?.avatar_url || null;
   const isPending = booking.status === "pending";
+  const relative = getRelativeLabel(booking.start_at, t);
 
   // Pending: the decision that still needs making. Big, elevated, photo-led, exactly the buttons that apply.
   if (isPending) {
@@ -55,9 +70,16 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
           )}
         </div>
         <div className="p-5 sm:p-6">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status?.color ?? ""}`}>
-            {t(`common.bookingStatus.${booking.status}`)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status?.color ?? ""}`}>
+              {t(`common.bookingStatus.${booking.status}`)}
+            </span>
+            {relative && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-soft text-brand-strong">
+                {relative}
+              </span>
+            )}
+          </div>
           <h3 className="font-display text-xl sm:text-2xl font-bold text-ink mt-2.5 leading-tight">
             {formatDate(booking.start_at, locale)} – {formatDate(booking.end_at, locale)}
           </h3>
@@ -105,7 +127,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       )}
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-ink truncate">
-          {formatDate(booking.start_at, locale)} · {t(`common.services.${booking.service}`)}
+          {formatDate(booking.start_at, locale)}{relative ? ` · ${relative}` : ""} · {t(`common.services.${booking.service}`)}
         </div>
         <div className="text-xs text-ink-soft truncate">{booking.pet?.name} · {displayLabel} {displayProfile?.full_name}</div>
       </div>

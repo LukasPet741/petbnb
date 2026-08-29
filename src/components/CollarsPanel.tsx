@@ -29,7 +29,22 @@ interface RoutePoint {
   recorded_at: string;
 }
 
+interface WeeklyRoutePoint extends RoutePoint {
+  speed_kmh: number | null;
+}
+
+interface WeeklyStats {
+  totalDistanceKm: number;
+  mostActiveDate: string | null;
+  mostActiveDistanceKm: number;
+  activityBreakdown: { restingPct: number; walkingPct: number; runningPct: number } | null;
+}
+
 const POLL_INTERVAL_MS = 30_000;
+
+// Activity-level thresholds (km/h) used to bucket points from the weekly route history.
+const ACTIVITY_RESTING_MAX_KMH = 1;
+const ACTIVITY_WALKING_MAX_KMH = 7;
 
 function timeAgo(iso: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
   const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -66,8 +81,31 @@ function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: nu
   return { distanceKm, durationMin };
 }
 
+/** Monday-through-Sunday date strings (YYYY-MM-DD, local time) for the week containing today. */
+function currentWeekDates(): string[] {
+  const now = new Date();
+  const day = now.getDay(); // 0 = Sun ... 6 = Sat
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayOffset);
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const offset = d.getTimezoneOffset();
+    dates.push(new Date(d.getTime() - offset * 60_000).toISOString().slice(0, 10));
+  }
+  return dates;
+}
+
+function weekdayShort(dateStr: string, locale: string): string {
+  const date = new Date(`${dateStr}T00:00:00`);
+  const raw = new Intl.DateTimeFormat(locale === "lt" ? "lt-LT" : "en-US", { weekday: "short" }).format(date);
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
 export default function CollarsPanel() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [devices, setDevices] = useState<CollarDevice[]>([]);
   const [fixes, setFixes] = useState<Record<string, CollarFix | null>>({});
   const [loading, setLoading] = useState(true);
@@ -77,6 +115,7 @@ export default function CollarsPanel() {
   const [routeDate, setRouteDate] = useState(todayInputValue());
   const [routePoints, setRoutePoints] = useState<RoutePoint[]>([]);
   const [routeLoading, setRouteLoading] = useState(false);
+  const [weeklyStats, setWeeklyStats] = useState<Record<string, WeeklyStats | null>>({});
 
   const loadDevices = useCallback(async () => {
     const { data } = await supabase
@@ -103,6 +142,66 @@ export default function CollarsPanel() {
     setFixes(Object.fromEntries(entries));
   }, []);
 
+  // Weekly totals need every ping across 7 days (~20k rows for an active collar), which risks
+  // silent truncation from a single wide range query — so each day is fetched as its own
+  // request (mirroring the single-day route query above) and aggregated client-side.
+  const loadWeeklyStats = useCallback(async (deviceIds: string[]) => {
+    const weekDates = currentWeekDates();
+    const entries = await Promise.all(
+      deviceIds.map(async (id) => {
+        const dayResults = await Promise.all(
+          weekDates.map(async (dateStr) => {
+            const start = new Date(`${dateStr}T00:00:00`).toISOString();
+            const end = new Date(`${dateStr}T23:59:59.999`).toISOString();
+            const { data } = await supabase
+              .from("collar_locations")
+              .select("lat, lng, recorded_at, speed_kmh")
+              .eq("device_id", id)
+              .gte("recorded_at", start)
+              .lte("recorded_at", end)
+              .order("recorded_at", { ascending: true });
+            return { date: dateStr, points: (data ?? []) as WeeklyRoutePoint[] };
+          })
+        );
+
+        let totalDistanceKm = 0;
+        let mostActiveDate: string | null = null;
+        let mostActiveDistanceKm = 0;
+        let restingPts = 0;
+        let walkingPts = 0;
+        let runningPts = 0;
+
+        for (const { date, points } of dayResults) {
+          const dayDistanceKm = routeStats(points)?.distanceKm ?? 0;
+          totalDistanceKm += dayDistanceKm;
+          if (dayDistanceKm > mostActiveDistanceKm) {
+            mostActiveDistanceKm = dayDistanceKm;
+            mostActiveDate = date;
+          }
+          for (const point of points) {
+            if (point.speed_kmh == null) continue;
+            if (point.speed_kmh < ACTIVITY_RESTING_MAX_KMH) restingPts++;
+            else if (point.speed_kmh <= ACTIVITY_WALKING_MAX_KMH) walkingPts++;
+            else runningPts++;
+          }
+        }
+
+        const totalPts = restingPts + walkingPts + runningPts;
+        const activityBreakdown =
+          totalPts > 0
+            ? {
+                restingPct: Math.round((restingPts / totalPts) * 100),
+                walkingPct: Math.round((walkingPts / totalPts) * 100),
+                runningPct: Math.round((runningPts / totalPts) * 100),
+              }
+            : null;
+
+        return [id, { totalDistanceKm, mostActiveDate, mostActiveDistanceKm, activityBreakdown } as WeeklyStats] as const;
+      })
+    );
+    setWeeklyStats(Object.fromEntries(entries));
+  }, []);
+
   useEffect(() => {
     loadDevices();
   }, [loadDevices]);
@@ -114,6 +213,11 @@ export default function CollarsPanel() {
     const interval = setInterval(() => loadFixes(ids), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [devices, loadFixes]);
+
+  useEffect(() => {
+    if (devices.length === 0) return;
+    loadWeeklyStats(devices.map((d) => d.id));
+  }, [devices, loadWeeklyStats]);
 
   useEffect(() => {
     if (!routeOpenFor) return;
@@ -231,15 +335,54 @@ export default function CollarsPanel() {
                     </button>
                   </div>
                 </div>
-                <div className="h-56">
-                  {fix ? (
-                    <CollarMap lat={fix.lat} lng={fix.lng} label={device.label ?? undefined} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-sm text-ink-soft bg-surface-2">
-                      {t("appPages.collars.noLocationDataYet")}
+
+                {(() => {
+                  const weekly = weeklyStats[device.id];
+                  if (!weekly || weekly.totalDistanceKm <= 0) return null;
+                  const breakdown = weekly.activityBreakdown;
+                  return (
+                    <div className="px-4 py-2.5 bg-surface border-b border-black/5">
+                      <div className="flex items-center justify-between text-xs text-ink-soft tabular-nums">
+                        <span className="flex items-center gap-1.5">
+                          <RouteIcon className="w-3.5 h-3.5 text-slate" />
+                          {t("appPages.collars.weeklyDistanceLabel", { distance: weekly.totalDistanceKm.toFixed(1) })}
+                        </span>
+                        {weekly.mostActiveDate && (
+                          <span>{t("appPages.collars.mostActiveDayLabel", { day: weekdayShort(weekly.mostActiveDate, locale) })}</span>
+                        )}
+                      </div>
+                      {breakdown && (
+                        <div className="mt-2">
+                          <div className="h-1.5 rounded-full overflow-hidden flex bg-surface-2">
+                            {breakdown.restingPct > 0 && <div style={{ width: `${breakdown.restingPct}%` }} className="bg-slate-soft" />}
+                            {breakdown.walkingPct > 0 && <div style={{ width: `${breakdown.walkingPct}%` }} className="bg-brand-soft" />}
+                            {breakdown.runningPct > 0 && <div style={{ width: `${breakdown.runningPct}%` }} className="bg-amber-soft" />}
+                          </div>
+                          <div className="flex justify-between text-[10px] text-ink-soft mt-1 tabular-nums">
+                            <span>{t("appPages.collars.activityRestingLabel")} {breakdown.restingPct}%</span>
+                            <span>{t("appPages.collars.activityWalkingLabel")} {breakdown.walkingPct}%</span>
+                            <span>{t("appPages.collars.activityRunningLabel")} {breakdown.runningPct}%</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
+
+                {fix ? (
+                  <div className="h-56">
+                    <CollarMap lat={fix.lat} lng={fix.lng} label={device.label ?? undefined} />
+                  </div>
+                ) : (
+                  <div className="bg-surface-2">
+                    <EmptyState
+                      icon={Radar}
+                      tone="encouraging"
+                      title={t("appPages.collars.noLocationDataYet")}
+                      description={t("appPages.collars.noLocationDataYetDescription")}
+                    />
+                  </div>
+                )}
 
                 <AnimatePresence>
                   {routeOpenFor === device.id && (

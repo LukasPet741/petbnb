@@ -11,6 +11,21 @@ import Badge from "@/components/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useLanguage } from "@/context/LanguageContext";
 
+const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
+const RECENTLY_VIEWED_MAX = 6;
+
+function rememberRecentlyViewed(sitterId: string) {
+  try {
+    const stored = window.localStorage.getItem(RECENTLY_VIEWED_KEY);
+    const parsed: unknown = stored ? JSON.parse(stored) : [];
+    const ids = Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
+    const next = [sitterId, ...ids.filter((existingId) => existingId !== sitterId)].slice(0, RECENTLY_VIEWED_MAX);
+    window.localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(next));
+  } catch {
+    // localStorage unavailable (e.g. private browsing) — recently viewed just won't persist.
+  }
+}
+
 export default function SitterProfilePage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
@@ -21,6 +36,7 @@ export default function SitterProfilePage() {
     supabase.from("profiles").select("*").eq("id", id).single().then(({ data }) => {
       setSitter(data as Profile);
       setLoading(false);
+      if (data) rememberRecentlyViewed((data as Profile).id);
     });
   }, [id]);
 

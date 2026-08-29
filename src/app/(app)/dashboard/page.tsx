@@ -21,6 +21,16 @@ interface Booking { id: string; status: string; service: string; start_at: strin
 
 const BANNER = "https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1200&h=400&q=80";
 
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+function relativeDate(iso: string, t: Translate, locale: "en" | "lt"): string {
+  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
+  if (days <= 0) return t("appShell.dashboard.summary.relativeToday");
+  if (days === 1) return t("appShell.dashboard.summary.relativeTomorrow");
+  if (days < 7) return t("appShell.dashboard.summary.relativeInDays", { days });
+  return t("appShell.dashboard.summary.relativeOnDate", { date: formatDate(iso, locale) });
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { profile } = useProfile();
@@ -41,7 +51,14 @@ export default function DashboardPage() {
   const upcoming = bookings.filter((b) => b.status === "signed").length;
   const firstName = profile?.full_name?.split(" ")[0] ?? t("appShell.dashboard.fallbackName");
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? t("appShell.dashboard.greeting.morning") : hour < 18 ? t("appShell.dashboard.greeting.afternoon") : t("appShell.dashboard.greeting.evening");
+  const greeting =
+    hour < 5 || hour >= 22
+      ? t("appShell.dashboard.greeting.night")
+      : hour < 12
+      ? t("appShell.dashboard.greeting.morning")
+      : hour < 18
+      ? t("appShell.dashboard.greeting.afternoon")
+      : t("appShell.dashboard.greeting.evening");
 
   const nearby = [...sitters]
     .sort((a, b) => (a.city === profile?.city ? 0 : 1) - (b.city === profile?.city ? 0 : 1))
@@ -53,9 +70,20 @@ export default function DashboardPage() {
     { icon: CheckCircle2, label: t("appShell.dashboard.stats.confirmed"), value: upcoming, color: "text-brand bg-brand-soft", href: "/bookings" },
   ];
 
-  const summary = pending || upcoming
-    ? t(pending + upcoming !== 1 ? "appShell.dashboard.summary.withBookingsPlural" : "appShell.dashboard.summary.withBookings", { pending, upcoming })
+  const nextSigned = bookings.find((b) => b.status === "signed" && new Date(b.start_at).getTime() > Date.now());
+
+  const summary = pending
+    ? t(pending !== 1 ? "appShell.dashboard.summary.pendingPlural" : "appShell.dashboard.summary.pending", { pending })
+    : nextSigned
+    ? t("appShell.dashboard.summary.nextBooking", {
+        pet: nextSigned.pet?.name ?? t("appShell.dashboard.fallbackPetName"),
+        when: relativeDate(nextSigned.start_at, t, locale),
+      })
     : t("appShell.dashboard.summary.empty");
+
+  const upcomingServices = bookings
+    .filter((b) => b.status === "signed" && new Date(b.start_at).getTime() > Date.now())
+    .map((b) => b.service);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-8">
@@ -175,7 +203,7 @@ export default function DashboardPage() {
           {/* Tip */}
           <div className="space-y-2.5">
             <h3 className="text-sm font-semibold text-ink">{t("appShell.petCareTip")}</h3>
-            <TipWidget />
+            <TipWidget pets={pets} upcomingServices={upcomingServices} />
           </div>
         </motion.aside>
       </div>

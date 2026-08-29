@@ -23,8 +23,3 @@ export const TIPS: Tip[] = [
   { id: "meet-greet", tag: "First time", title: "Start with a meet & greet", body: "Booking a new sitter? A short hello first lets your pet and sitter get comfortable.", image: img("photo-1517849845537-4d257902454a") },
   { id: "consistent-meals", tag: "Diet", title: "Keep meals consistent", body: "Sudden food changes upset stomachs. Send a sitter your pet's usual food and portions.", image: img("photo-1450778869180-41d0601e046e") },
 ];
-
-export function tipOfTheDay(): Tip {
-  const day = Math.floor(Date.now() / 86_400_000);
-  return TIPS[day % TIPS.length];
-}

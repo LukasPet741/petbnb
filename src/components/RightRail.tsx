@@ -32,8 +32,12 @@ export default function RightRail({ showNextBooking = true }: { showNextBooking?
         .then(({ data }) => setNext((data?.[0] as unknown as NextBooking) ?? null));
     }
     supabase.from("profiles").select("*").eq("is_sitter", true).not("avatar_url", "is", null)
-      .order("experience_years", { ascending: false }).limit(1)
-      .then(({ data }) => setSpotlight((data?.[0] as Profile) ?? null));
+      .order("experience_years", { ascending: false }).limit(12)
+      .then(({ data }) => {
+        const pool = (data as Profile[]) ?? [];
+        const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+        setSpotlight(pick);
+      });
   }, [user, showNextBooking]);
 
   return (

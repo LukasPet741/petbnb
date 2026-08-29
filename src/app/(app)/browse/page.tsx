@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SitterCard from "@/components/SitterCard";
+import SitterMini from "@/components/SitterMini";
 import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/lib/supabase";
 import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
@@ -10,6 +11,7 @@ import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
+const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 
 export default function BrowsePage() {
   const { t } = useLanguage();
@@ -22,6 +24,7 @@ export default function BrowsePage() {
   const [maxRate, setMaxRate] = useState(50);
   const [showFilters, setShowFilters] = useState(false);
   const [cities, setCities] = useState<string[]>(["All cities"]);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.from("profiles").select("*").eq("is_sitter", true).then(({ data }) => {
@@ -31,7 +34,18 @@ export default function BrowsePage() {
       setCities(unique as string[]);
       setLoading(false);
     });
+    try {
+      const stored = window.localStorage.getItem(RECENTLY_VIEWED_KEY);
+      const parsed: unknown = stored ? JSON.parse(stored) : [];
+      setRecentIds(Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : []);
+    } catch {
+      // localStorage unavailable (e.g. private browsing) — recently viewed just won't show.
+    }
   }, []);
+
+  const recentSitters = recentIds
+    .map((rid) => sitters.find((s) => s.id === rid))
+    .filter((s): s is Profile => Boolean(s));
 
   const filtered = sitters.filter((s) => {
     if (search && !s.full_name?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -50,6 +64,19 @@ export default function BrowsePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
       <PageHeader title={t("appPages.browse.title")} subtitle={t("appPages.browse.subtitle")} />
+
+      {recentSitters.length > 0 && (
+        <motion.div className="mb-6" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <h2 className="text-xs font-medium text-ink-soft uppercase tracking-wide mb-2.5">{t("appPages.browse.recentlyViewedHeading")}</h2>
+          <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+            {recentSitters.map((sitter) => (
+              <div key={sitter.id} className="w-64 flex-shrink-0">
+                <SitterMini sitter={sitter} />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <motion.div className="flex gap-3 mb-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
         <div className="flex-1 relative">

@@ -52,12 +52,14 @@ export default function PublicSitterProfilePage() {
 
         {status === "error" && (
           <EmptyState icon={AlertCircle} title={t("sitters.profile.errorTitle")} description={t("sitters.profile.errorDescription")}
-            action={<button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.profile.tryAgain")}</button>} />
+            action={<button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.profile.tryAgain")}</button>}
+            tone="error" />
         )}
 
         {status === "not-found" && (
           <EmptyState icon={Search} title={t("sitters.profile.notFoundTitle")} description={t("sitters.profile.notFoundDescription")}
-            action={<Link href="/sitters" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.profile.backToSitters")}</Link>} />
+            action={<Link href="/sitters" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">{t("sitters.profile.backToSitters")}</Link>}
+            tone="neutral" />
         )}
 
         {status === "ready" && sitter && (

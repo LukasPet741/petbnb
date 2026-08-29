@@ -58,6 +58,7 @@ export default function PetsPage() {
                   <Plus className="w-4 h-4" />{t("appPages.pets.addFirstPetButton")}
                 </Link>
               }
+              tone="encouraging"
             />
           ) : (
             <motion.div className="space-y-4" variants={stagger(0.08)} initial="hidden" animate="show">

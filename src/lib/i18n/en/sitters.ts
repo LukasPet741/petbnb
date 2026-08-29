@@ -21,6 +21,11 @@ const sitters = {
     rateSuffix: "/ hour",
     viewProfile: "View profile",
   },
+  activity: {
+    now: "Active now",
+    today: "Active today",
+    week: "Active this week",
+  },
   profile: {
     backToSitters: "Back to sitters",
     errorTitle: "Couldn't load this sitter",

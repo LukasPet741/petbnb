@@ -59,11 +59,13 @@ export default function LandingPage() {
 
   useEffect(() => {
     supabase.from("profiles").select("*").eq("is_sitter", true)
-      .order("experience_years", { ascending: false }).limit(6)
+      .order("experience_years", { ascending: false }).limit(12)
       .then(
         ({ data, error }) => {
           if (error) { setSittersStatus("error"); return; }
-          setSitters((data as Profile[]) ?? []);
+          const pool = (data as Profile[]) ?? [];
+          const shuffled = [...pool].sort(() => Math.random() - 0.5);
+          setSitters(shuffled.slice(0, 6));
           setSittersStatus("ready");
         },
         () => setSittersStatus("error")
@@ -127,9 +129,9 @@ export default function LandingPage() {
               ))}
             </div>
           ) : sittersStatus === "error" ? (
-            <EmptyState icon={AlertCircle} title={t("home.meetSitters.errorTitle")} description={t("home.meetSitters.errorDesc")} />
+            <EmptyState icon={AlertCircle} title={t("home.meetSitters.errorTitle")} description={t("home.meetSitters.errorDesc")} tone="error" />
           ) : sitters.length === 0 ? (
-            <EmptyState icon={Search} title={t("home.meetSitters.emptyTitle")} description={t("home.meetSitters.emptyDesc")} />
+            <EmptyState icon={Search} title={t("home.meetSitters.emptyTitle")} description={t("home.meetSitters.emptyDesc")} tone="encouraging" />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {sitters.map((s, i) => (

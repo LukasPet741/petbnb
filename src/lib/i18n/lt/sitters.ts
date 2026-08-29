@@ -21,6 +21,11 @@ const sitters = {
     rateSuffix: "/ val.",
     viewProfile: "Peržiūrėti profilį",
   },
+  activity: {
+    now: "Aktyvus dabar",
+    today: "Aktyvus šiandien",
+    week: "Aktyvus šią savaitę",
+  },
   profile: {
     backToSitters: "Grįžti į globėjų sąrašą",
     errorTitle: "Nepavyko įkelti globėjo",

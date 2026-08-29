@@ -43,6 +43,7 @@ export default function SavedPage() {
           title={t("appPages.saved.emptyTitle")}
           description={t("appPages.saved.emptyDescription")}
           action={<Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />{t("appPages.saved.findSitterButton")}</Link>}
+          tone="encouraging"
         />
       ) : (
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.07)} initial="hidden" animate="show">
