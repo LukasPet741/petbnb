@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Ambient warmth */}
         <div aria-hidden className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-48 -right-40 w-[40rem] h-[40rem] rounded-full bg-brand/10 blur-3xl" />
-          <div className="absolute top-1/4 -left-44 w-[34rem] h-[34rem] rounded-full bg-amber-200/15 blur-3xl" />
+          <div className="absolute top-1/4 -left-44 w-[34rem] h-[34rem] rounded-full bg-amber/15 blur-3xl" />
           <div className="absolute -bottom-40 left-1/3 w-[34rem] h-[34rem] rounded-full bg-brand-soft/40 blur-3xl" />
         </div>
 

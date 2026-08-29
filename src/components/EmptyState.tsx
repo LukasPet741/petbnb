@@ -11,7 +11,7 @@ interface EmptyStateProps {
 export default function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
     <div className="bg-surface rounded-2xl border border-black/5 p-12 sm:p-16 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center mx-auto mb-4">
+      <div className="w-14 h-14 rounded-xl bg-brand-soft flex items-center justify-center mx-auto mb-4">
         <Icon className="w-7 h-7 text-brand" />
       </div>
       <p className="text-ink font-medium">{title}</p>

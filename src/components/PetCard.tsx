@@ -1,7 +1,9 @@
+"use client";
 import { Dog, Cat, Bird, Fish, Squirrel, HelpCircle, Edit2, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { type Pet, PET_TYPE_LABELS, type PetType } from "@/lib/types";
+import { type Pet, type PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/context/LanguageContext";
 
 const PET_ICONS: Record<PetType, React.ElementType> = {
   dog: Dog, cat: Cat, bird: Bird, fish: Fish,
@@ -25,18 +27,28 @@ interface PetCardProps {
 }
 
 export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
+  const { t } = useLanguage();
   const Icon = PET_ICONS[pet.type as PetType] ?? HelpCircle;
   const colorClass = PET_COLORS[pet.type as PetType] ?? "bg-stone-100 text-stone-500";
 
   return (
     <motion.div
-      className="bg-surface rounded-2xl border border-black/5 shadow-sm p-4 flex gap-4 items-start"
+      className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-4 flex gap-4 items-start"
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -2, boxShadow: "0 10px 24px -14px rgba(26,31,29,0.2)" }}
+      whileHover={{
+        y: -2,
+        boxShadow: "0 6px 16px rgba(19, 26, 23, 0.10), 0 2px 6px rgba(19, 26, 23, 0.06)",
+        transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+      }}
+      whileTap={{
+        y: -1,
+        boxShadow: "0 1px 2px rgba(19, 26, 23, 0.06), 0 1px 1px rgba(19, 26, 23, 0.04)",
+        transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+      }}
     >
       {pet.photo_url ? (
         <img
@@ -60,21 +72,21 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
           <div>
             <h3 className="font-semibold text-ink">{pet.name}</h3>
             <p className="text-sm text-ink-soft">
-              {PET_TYPE_LABELS[pet.type as PetType]}
-              {pet.sex && pet.sex !== "unknown" && ` · ${pet.sex}`}
-              {pet.weight_kg && ` · ${pet.weight_kg}kg`}
+              {t(`common.petTypes.${pet.type}`)}
+              {pet.sex && pet.sex !== "unknown" && ` · ${t(`common.petSex.${pet.sex}`)}`}
+              {pet.weight_kg && ` · ${pet.weight_kg}${t("appPages.petCard.weightUnit")}`}
             </p>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {onEdit && (
               <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={onEdit}
-                className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-ink transition-colors">
+                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400 hover:text-ink transition-colors">
                 <Edit2 className="w-4 h-4" />
               </motion.button>
             )}
             {onDelete && (
               <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={onDelete}
-                className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors">
+                className="p-1.5 rounded-full hover:bg-danger-soft text-stone-400 hover:text-danger transition-colors">
                 <Trash2 className="w-4 h-4" />
               </motion.button>
             )}

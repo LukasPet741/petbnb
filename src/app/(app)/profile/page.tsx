@@ -12,11 +12,14 @@ import Avatar from "@/components/Avatar";
 import PageHeader from "@/components/PageHeader";
 import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
+import { useLanguage } from "@/context/LanguageContext";
 
-const SERVICES = Object.entries(SERVICE_LABELS) as [ServiceType, string][];
+const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
+  const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const { user } = useAuth();
   const { profile, refresh } = useProfile();
   const router = useRouter();
@@ -64,25 +67,25 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
       <PageHeader
-        title="Profile"
+        title={t("appPages.profile.title")}
         action={
           <button onClick={handleSignOut} className="flex items-center gap-2 px-3.5 py-2 text-sm text-ink-soft hover:text-ink hover:bg-brand-softer rounded-lg transition-colors">
-            <LogOut className="w-4 h-4" />Sign out
+            <LogOut className="w-4 h-4" />{t("appPages.profile.signOutButton")}
           </button>
         }
       />
 
       {/* Avatar card */}
-      <div className="bg-surface rounded-2xl border border-black/5 shadow-sm p-6 mb-6">
+      <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 mb-6">
         <div className="flex items-center gap-5">
-          <Avatar name={form.full_name || "You"} url={profile?.avatar_url} size="xl" />
+          <Avatar name={form.full_name || t("appPages.profile.avatarFallbackName")} url={profile?.avatar_url} size="xl" />
           <div className="min-w-0">
-            <h2 className="font-display text-xl font-semibold text-ink tracking-tight truncate">{form.full_name || "Complete your profile"}</h2>
-            <p className="text-ink-soft text-sm mt-0.5">{form.city || "No city set"}</p>
+            <h2 className="font-display text-xl font-semibold text-ink tracking-tight truncate">{form.full_name || t("appPages.profile.completeProfileFallback")}</h2>
+            <p className="text-ink-soft text-sm mt-0.5">{form.city || t("appPages.profile.noCitySetFallback")}</p>
             <p className="text-ink-soft/70 text-xs mt-1 truncate">{user?.email}</p>
             <div className="mt-2.5">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isSitter ? "bg-brand-soft text-brand-strong" : "bg-surface-2 text-ink-soft"}`}>
-                {isSitter ? "Sitter & Owner" : "Pet Owner"}
+                {isSitter ? t("appPages.profile.sitterAndOwnerBadge") : t("appPages.profile.petOwnerBadge")}
               </span>
             </div>
           </div>
@@ -90,18 +93,18 @@ export default function ProfilePage() {
       </div>
 
       {!profile?.full_name && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-100 rounded-2xl text-sm text-amber-700">
-          Complete your profile to access all features.
+        <div className="mb-6 p-4 bg-amber-soft border border-amber/20 rounded-2xl text-sm text-amber-strong">
+          {t("appPages.profile.completeProfileBanner")}
         </div>
       )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-6">
-        {[{ value: "personal" as const, label: "Personal info", icon: User }, { value: "sitter" as const, label: "Sitter settings", icon: Briefcase }, { value: "collars" as const, label: "My collars", icon: Radar }].map(({ value, label, icon: Icon }) => (
+        {[{ value: "personal" as const, label: t("appPages.profile.tabPersonalInfo"), icon: User }, { value: "sitter" as const, label: t("appPages.profile.tabSitterSettings"), icon: Briefcase }, { value: "collars" as const, label: t("appPages.profile.tabMyCollars"), icon: Radar }].map(({ value, label, icon: Icon }) => (
           <button key={value} onClick={() => setTab(value)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
             {tab === value && (
-              <motion.div layoutId="profile-tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-sm" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+              <motion.div layoutId="profile-tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-[var(--shadow-sm)]" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
             )}
             <Icon className="w-4 h-4" />{label}
           </button>
@@ -111,12 +114,12 @@ export default function ProfilePage() {
       <AnimatePresence>
         {error && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">{error}
+            className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">{error}
           </motion.div>
         )}
         {saved && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="mb-4 p-3 bg-brand-soft rounded-xl text-sm text-brand-strong">Profile saved!
+            className="mb-4 p-3 bg-brand-soft rounded-xl text-sm text-brand-strong">{t("appPages.profile.profileSavedMessage")}
           </motion.div>
         )}
       </AnimatePresence>
@@ -125,10 +128,10 @@ export default function ProfilePage() {
         <AnimatePresence mode="wait">
           {tab === "personal" && (
             <motion.div key="personal" variants={stagger(0.07)} initial="hidden" animate="show" exit={{ opacity: 0, y: 8 }}
-              className="bg-surface rounded-2xl border border-black/5 shadow-sm p-6 sm:p-7 space-y-5">
+              className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
               {[
-                { label: "Full name", type: "text", key: "full_name", placeholder: "e.g. Jonas Petraitis", req: true },
-                { label: "City", type: "text", key: "city", placeholder: "e.g. Vilnius", req: true },
+                { label: t("appPages.profile.fullNameLabel"), type: "text", key: "full_name", placeholder: t("appPages.profile.fullNamePlaceholder"), req: true },
+                { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true },
               ].map(({ label, type, key, placeholder, req }) => (
                 <motion.div key={key} variants={fadeUp}>
                   <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
@@ -138,10 +141,10 @@ export default function ProfilePage() {
                 </motion.div>
               ))}
               <motion.div variants={fadeUp}>
-                <label className="block text-sm font-medium text-ink mb-1.5">Phone</label>
+                <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.phoneLabel")}</label>
                 <div className="flex gap-2">
                   <div className="h-11 px-3.5 rounded-xl border border-black/10 bg-surface-2 text-ink-soft text-sm flex items-center flex-shrink-0 select-none">
-                    🇱🇹 +370
+                    {t("appPages.profile.phoneCountryCode")}
                   </div>
                   <input
                     type="tel"
@@ -150,10 +153,10 @@ export default function ProfilePage() {
                       const digits = e.target.value.replace(/[^\d\s\-]/g, "");
                       setForm({ ...form, phone: digits ? `+370 ${digits}` : "" });
                     }}
-                    placeholder="600 12345"
+                    placeholder={t("appPages.profile.phonePlaceholder")}
                     required
                     pattern="[\d\s\-]{8,11}"
-                    title="Enter a valid Lithuanian phone number"
+                    title={t("appPages.profile.phoneTitle")}
                     className={`flex-1 ${inputCls}`}
                   />
                 </div>
@@ -161,7 +164,7 @@ export default function ProfilePage() {
               <motion.div variants={fadeUp}>
                 <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
                   className="w-full h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60">
-                  {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />Save changes</>}
+                  {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveChangesButton")}</>}
                 </motion.button>
               </motion.div>
             </motion.div>
@@ -170,15 +173,15 @@ export default function ProfilePage() {
           {tab === "sitter" && (
             <motion.div key="sitter" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.25 }} className="space-y-5">
               {/* Toggle */}
-              <div className="bg-surface rounded-2xl border border-black/5 shadow-sm p-5 flex items-center justify-between gap-4">
+              <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5 flex items-center justify-between gap-4">
                 <div>
-                  <div className="font-medium text-ink">Sitter mode</div>
-                  <div className="text-sm text-ink-soft mt-0.5">{isSitter ? "You appear in browse results" : "Enable to start accepting bookings"}</div>
+                  <div className="font-medium text-ink">{t("appPages.profile.sitterModeLabel")}</div>
+                  <div className="text-sm text-ink-soft mt-0.5">{isSitter ? t("appPages.profile.sitterModeOnDescription") : t("appPages.profile.sitterModeOffDescription")}</div>
                 </div>
                 <button type="button" onClick={() => setIsSitter(!isSitter)}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${isSitter ? "bg-brand" : "bg-black/15"}`}>
                   <motion.span layout transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm ${isSitter ? "left-6" : "left-0.5"}`} />
+                    className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[var(--shadow-sm)] ${isSitter ? "left-6" : "left-0.5"}`} />
                 </button>
               </div>
 
@@ -186,27 +189,27 @@ export default function ProfilePage() {
                 {isSitter && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }} className="overflow-hidden">
-                    <div className="bg-surface rounded-2xl border border-black/5 shadow-sm p-6 sm:p-7 space-y-5">
+                    <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
                       <div>
-                        <label className="block text-sm font-medium text-ink mb-1.5">About me</label>
+                        <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
                         <textarea value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}
-                          placeholder="Tell pet owners about your experience…" rows={4}
+                          placeholder={t("appPages.profile.aboutMePlaceholder")} rows={4}
                           className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-ink mb-1.5">Rate (€/hr)</label>
+                          <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.rateLabel")}</label>
                           <input type="number" value={form.rate_per_hour} onChange={(e) => setForm({ ...form, rate_per_hour: e.target.value })}
-                            placeholder="e.g. 18" min="1" step="1" className={inputCls} />
+                            placeholder={t("appPages.profile.ratePlaceholder")} min="1" step="1" className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-ink mb-1.5">Years experience</label>
+                          <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.experienceLabel")}</label>
                           <input type="number" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
-                            placeholder="e.g. 3" min="0" step="1" className={inputCls} />
+                            placeholder={t("appPages.profile.experiencePlaceholder")} min="0" step="1" className={inputCls} />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-ink mb-2">Services offered</label>
+                        <label className="block text-sm font-medium text-ink mb-2">{t("appPages.profile.servicesOfferedLabel")}</label>
                         <div className="grid grid-cols-2 gap-2.5">
                           {SERVICES.map(([k, v]) => (
                             <label key={k}
@@ -227,7 +230,7 @@ export default function ProfilePage() {
 
               <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
                 className="w-full h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60">
-                {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />Save profile</>}
+                {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveProfileButton")}</>}
               </motion.button>
             </motion.div>
           )}

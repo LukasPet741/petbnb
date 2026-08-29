@@ -9,18 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        coral: {
-          50: "#fdf3ef",
-          100: "#fbe4d9",
-          200: "#f6c8b1",
-          300: "#f0a47f",
-          400: "#e87a4d",
-          500: "#D95F3B",
-          600: "#c4482a",
-          700: "#a33824",
-          800: "#872f22",
-          900: "#702921",
-        },
         stone: {
           50: "#fafaf9",
           100: "#f5f5f4",
@@ -35,9 +23,6 @@ const config: Config = {
           950: "#0c0a09",
         },
       },
-      fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-      },
       borderRadius: {
         xl: "0.75rem",
         "2xl": "1rem",
@@ -45,6 +30,8 @@ const config: Config = {
       },
     },
   },
+  // NOTE: font-sans is sourced solely from the --font-sans token in the
+  // @theme inline block in src/app/globals.css. Do not redefine it here.
   plugins: [],
 };
 

@@ -1,21 +1,24 @@
 "use client";
 import Link from "next/link";
-import { PawPrint, Eye, EyeOff, ArrowRight, Check } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { signUp } from "@/lib/auth";
+import { signUp, matchAuthErrorKey } from "@/lib/auth";
 import { AUTH } from "@/lib/images";
 import { fadeUp, stagger, slideRight } from "@/lib/motion";
-
-const PERKS = [
-  "Browse trusted local sitters",
-  "Book walking, boarding, daycare & grooming",
-  "Manage all your pets in one place",
-  "Track every booking in one dashboard",
-];
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Logo from "@/components/Logo";
 
 export default function SignupPage() {
+  const { t } = useLanguage();
+  const PERKS = [
+    t("auth.signup.perks.browse"),
+    t("auth.signup.perks.book"),
+    t("auth.signup.perks.manage"),
+    t("auth.signup.perks.track"),
+  ];
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
@@ -24,36 +27,35 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password !== form.confirm) { setError("Passwords do not match"); return; }
+    if (form.password !== form.confirm) { setError(t("auth.signup.passwordMismatch")); return; }
     setError(""); setLoading(true);
     try {
       await signUp(form.email, form.password);
       router.push("/profile");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+      const key = err instanceof Error ? matchAuthErrorKey(err.message) : null;
+      setError(key ? t(key) : t("auth.signup.errorFallback"));
     } finally { setLoading(false); }
   };
 
   return (
     <div className="min-h-screen bg-canvas flex">
-      {/* Left — brand + photo */}
+      <LanguageSwitcher className="fixed top-4 right-4 z-10 bg-surface/90 backdrop-blur-sm shadow-[var(--shadow-sm)]" />
+      {/* Left - brand + photo */}
       <motion.div
         className="hidden lg:block lg:w-1/2 relative overflow-hidden"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
       >
-        <img src={AUTH.signup} alt="A cozy pet" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={AUTH.signup} alt={t("auth.signup.imageAlt")} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-brand-strong/90 via-brand/75 to-ink/80" />
         <div className="absolute inset-0 p-12 flex flex-col justify-between">
-          <Link href="/" className="flex items-center gap-2.5 w-fit">
-            <span className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur">
-              <PawPrint className="w-6 h-6 text-white" />
-            </span>
-            <span className="text-white font-display font-semibold text-xl tracking-tight">PetBnB</span>
+          <Link href="/" className="w-fit">
+            <Logo size={40} showWordmark wordmarkClassName="text-white" />
           </Link>
           <motion.div variants={stagger(0.1)} initial="hidden" animate="show" className="space-y-7">
             <motion.div variants={fadeUp}>
-              <h2 className="font-display text-3xl font-semibold text-white leading-tight mb-3">Care your pet deserves.</h2>
-              <p className="text-white/80 leading-relaxed max-w-sm">Join PetBnB and find a reliable sitter in your neighbourhood — or start sitting yourself.</p>
+              <h2 className="font-display text-3xl font-semibold text-white leading-tight mb-3">{t("auth.signup.heroTitle")}</h2>
+              <p className="text-white/80 leading-relaxed max-w-sm">{t("auth.signup.heroSubtitle")}</p>
             </motion.div>
             <motion.ul variants={stagger(0.08)} initial="hidden" animate="show" className="space-y-3">
               {PERKS.map((perk) => (
@@ -69,29 +71,26 @@ export default function SignupPage() {
         </div>
       </motion.div>
 
-      {/* Right — form */}
+      {/* Right - form */}
       <motion.div className="flex-1 flex items-center justify-center p-6" variants={slideRight} initial="hidden" animate="show">
         <motion.div className="w-full max-w-md" variants={stagger(0.09)} initial="hidden" animate="show">
-          <motion.div variants={fadeUp} className="lg:hidden flex items-center gap-2 mb-8">
-            <span className="w-9 h-9 bg-brand rounded-lg flex items-center justify-center">
-              <PawPrint className="w-5 h-5 text-white" />
-            </span>
-            <span className="font-display font-semibold text-xl text-ink tracking-tight">PetBnB</span>
+          <motion.div variants={fadeUp} className="lg:hidden mb-8">
+            <Logo size={36} showWordmark />
           </motion.div>
-          <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">Create your account</motion.h1>
-          <motion.p variants={fadeUp} className="text-ink-soft mb-8">Free to join. Takes less than a minute.</motion.p>
+          <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">{t("auth.signup.title")}</motion.h1>
+          <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.signup.subtitle")}</motion.p>
 
           {error && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">
               {error}
             </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {[
-              { label: "Email address", type: "email", key: "email", placeholder: "you@example.com" },
-              { label: "Password", type: showPass ? "text" : "password", key: "password", placeholder: "At least 8 characters" },
-              { label: "Confirm password", type: "password", key: "confirm", placeholder: "Repeat your password" },
+              { label: t("auth.signup.form.emailLabel"), type: "email", key: "email", placeholder: t("auth.signup.form.emailPlaceholder") },
+              { label: t("auth.signup.form.passwordLabel"), type: showPass ? "text" : "password", key: "password", placeholder: t("auth.signup.form.passwordPlaceholder") },
+              { label: t("auth.signup.form.confirmLabel"), type: "password", key: "confirm", placeholder: t("auth.signup.form.confirmPlaceholder") },
             ].map(({ label, type, key, placeholder }) => (
               <motion.div key={key} variants={fadeUp}>
                 <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
@@ -113,17 +112,17 @@ export default function SignupPage() {
                 className="w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-60">
                 {loading
                   ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  : <>Create account <ArrowRight className="w-4 h-4" /></>}
+                  : <>{t("common.createAccount")} <ArrowRight className="w-4 h-4" /></>}
               </motion.button>
             </motion.div>
           </form>
 
           <motion.p variants={fadeUp} className="text-center text-sm text-ink-soft mt-6">
-            Already have an account?{" "}
-            <Link href="/login" className="text-brand font-medium hover:underline">Sign in</Link>
+            {t("auth.signup.alreadyHaveAccount")}{" "}
+            <Link href="/login" className="text-brand font-medium hover:underline">{t("common.signIn")}</Link>
           </motion.p>
           <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
-            By creating an account you agree to our <Link href="/terms" className="underline">Terms &amp; Conditions</Link>.
+            {t("auth.signup.termsAgreementPrefix")} <Link href="/terms" className="underline">{t("common.terms")}</Link>.
           </motion.p>
         </motion.div>
       </motion.div>

@@ -1,23 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  /* Surfaces */
-  --canvas: #fbfaf8;      /* warm off-white page background */
+  /* Surfaces — cool "bone", not warm cream */
+  --canvas: #f4f6f4;      /* cool bone page background */
   --surface: #ffffff;     /* cards */
-  --surface-2: #f4f2ee;   /* subtle insets / inputs */
+  --surface-2: #e9ede8;   /* subtle insets / inputs */
 
-  /* Brand — calm sage */
-  --brand: #2f6f5e;
-  --brand-strong: #265a4c; /* hover / active */
-  --brand-soft: #e8f0ec;   /* chips, soft fills */
-  --brand-softer: #f1f6f3;
+  /* Brand — deep pine */
+  --brand: #1f5c47;
+  --brand-strong: #153f2f; /* hover / active */
+  --brand-soft: #dfe9e2;   /* chips, soft fills */
+  --brand-softer: #eef3ef;
 
   /* Ink */
-  --ink: #1a1f1d;
-  --ink-soft: #5b635f;     /* secondary text */
+  --ink: #131a17;
+  --ink-soft: #56635c;     /* secondary text */
 
-  /* Accent for warmth (sparingly — e.g. highlights) */
-  --amber: #c98a3a;
+  /* Accent for warmth (sparingly — e.g. highlights, live markers) */
+  --amber: #dc9a35;
+  --amber-soft: #faf1de;
+  --amber-strong: #8a5c1f; /* on-soft text, meets contrast where raw --amber can't */
+
+  /* Secondary cool accent — links, secondary CTAs, collar/map "instrument" system */
+  --slate: #3f6472;
+  --slate-soft: #e4eaec;
+
+  /* Error / destructive states — muted to match the tinted-shadow, desaturated system */
+  --danger: #b8443a;
+  --danger-soft: #f6e5e2;
+
+  /* Depth: tinted shadow scale — always tinted from --ink, never pure black */
+  --shadow-color: 19 26 23; /* rgb channels of --ink */
+  --shadow-sm: 0 1px 2px rgb(19 26 23 / 0.06), 0 1px 1px rgb(19 26 23 / 0.04);
+  --shadow-md: 0 6px 16px rgb(19 26 23 / 0.10), 0 2px 6px rgb(19 26 23 / 0.06);
+  --shadow-lg: 0 16px 40px rgb(19 26 23 / 0.14), 0 6px 14px rgb(19 26 23 / 0.08);
+
+  --radius-card: 16px;
+  --radius-input: 12px;
 }
 
 @theme inline {
@@ -31,8 +50,18 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
 
+  --color-slate: var(--slate);
+  --color-slate-soft: var(--slate-soft);
+
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+  --font-script: var(--font-caveat), cursive;
+
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-strong: var(--amber-strong);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 }
 
 * {
@@ -57,15 +86,15 @@ body {
   color: var(--brand-strong);
 }
 
-/* Scrollbar — muted sage */
+/* Scrollbar — pine-tinted, derived from the new palette */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #d4ddd7;
+  background: rgb(19 26 23 / 0.18);
   border-radius: 999px;
   border: 3px solid var(--canvas);
 }
-::-webkit-scrollbar-thumb:hover { background: #b9c7bf; }
+::-webkit-scrollbar-thumb:hover { background: rgb(19 26 23 / 0.32); }
 
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {

@@ -11,8 +11,10 @@ import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import type { Profile } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function SavedPage() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { favorites } = useFavorites();
   const [sitters, setSitters] = useState<Profile[]>([]);
@@ -33,14 +35,14 @@ export default function SavedPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title="Saved sitters" subtitle={loading ? "Loading…" : `${visible.length} saved`} />
+      <PageHeader title={t("appPages.saved.title")} subtitle={loading ? t("appPages.saved.loadingText") : t("appPages.saved.savedCountLabel", { count: visible.length })} />
 
       {!loading && visible.length === 0 ? (
         <EmptyState
           icon={Bookmark}
-          title="No saved sitters yet"
-          description="Tap the heart on any sitter and they'll show up here for later."
-          action={<Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />Find a sitter</Link>}
+          title={t("appPages.saved.emptyTitle")}
+          description={t("appPages.saved.emptyDescription")}
+          action={<Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />{t("appPages.saved.findSitterButton")}</Link>}
         />
       ) : (
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.07)} initial="hidden" animate="show">

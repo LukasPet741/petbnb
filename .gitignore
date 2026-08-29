@@ -6,3 +6,10 @@ tsconfig.tsbuildinfo
 iot-collar/**/__pycache__/
 iot-collar/**/*.pyc
 iot-collar/.env
+.superpowers/
+.vercel
+.env*
+.claude/
+.agents/
+.impeccable/
+skills-lock.json

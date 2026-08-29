@@ -7,12 +7,15 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
 import Avatar from "@/components/Avatar";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Pet { id: string; name: string; }
-const SERVICES = Object.entries(SERVICE_LABELS) as [ServiceType, string][];
+const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 function NewBookingForm() {
+  const { t } = useLanguage();
+  const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -63,45 +66,45 @@ function NewBookingForm() {
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
       <Link href="/bookings" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back to bookings
+        <ArrowLeft className="w-4 h-4" /> {t("appPages.bookingsNew.backToBookings")}
       </Link>
-      <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">Request a booking</h1>
-      <p className="text-ink-soft text-sm mt-2 mb-8">Choose your pet and the service you need — the sitter confirms next.</p>
+      <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">{t("appPages.bookingsNew.title")}</h1>
+      <p className="text-ink-soft text-sm mt-2 mb-8">{t("appPages.bookingsNew.subtitle")}</p>
 
       {!form.sitter_id && (
         <div className="mb-6 p-4 bg-brand-soft rounded-2xl flex items-center gap-3">
           <Search className="w-5 h-5 text-brand flex-shrink-0" />
           <div className="flex-1 text-sm text-ink">
-            No sitter selected yet. <Link href="/browse" className="text-brand-strong font-medium hover:underline">Find a sitter →</Link>
+            {t("appPages.bookingsNew.noSitterSelected")} <Link href="/browse" className="text-brand-strong font-medium hover:underline">{t("appPages.bookingsNew.findSitterLink")}</Link>
           </div>
         </div>
       )}
 
       {sitterProfile && (
-        <div className="mb-6 bg-surface rounded-2xl border border-black/5 shadow-sm p-4 flex items-center gap-3.5">
-          <Avatar name={sitterProfile.full_name ?? "Sitter"} url={sitterProfile.avatar_url} size="md" />
+        <div className="mb-6 bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-4 flex items-center gap-3.5">
+          <Avatar name={sitterProfile.full_name ?? t("appShell.sitterFallback")} url={sitterProfile.avatar_url} size="md" />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-ink">{sitterProfile.full_name}</div>
-            <div className="text-xs text-ink-soft mt-0.5">{sitterProfile.city} · €{sitterProfile.rate_per_hour}/hr</div>
+            <div className="text-xs text-ink-soft mt-0.5">{sitterProfile.city} · €{sitterProfile.rate_per_hour}{t("sitters.profile.ratePerHourShort")}</div>
           </div>
-          <Link href="/browse" className="text-xs text-brand font-medium hover:underline">Change</Link>
+          <Link href="/browse" className="text-xs text-brand font-medium hover:underline">{t("appPages.bookingsNew.changeLink")}</Link>
         </div>
       )}
 
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">{error}</div>}
+      {error && <div className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="bg-surface rounded-2xl border border-black/5 shadow-sm p-6 sm:p-7 space-y-5">
+        <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1.5">Pet</label>
+            <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.bookingsNew.petLabel")}</label>
             <select value={form.pet_id} onChange={(e) => setForm({ ...form, pet_id: e.target.value })} required className="w-full h-11 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand">
-              <option value="">Select a pet…</option>
+              <option value="">{t("appPages.bookingsNew.selectPetOption")}</option>
               {pets.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
-            {pets.length === 0 && <p className="text-xs text-ink-soft mt-2">No pets yet. <Link href="/pets/new" className="text-brand hover:underline">Add one first →</Link></p>}
+            {pets.length === 0 && <p className="text-xs text-ink-soft mt-2">{t("appPages.bookingsNew.noPetsYet")} <Link href="/pets/new" className="text-brand hover:underline">{t("appPages.bookingsNew.addPetLink")}</Link></p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-2">Service</label>
+            <label className="block text-sm font-medium text-ink mb-2">{t("appPages.bookingsNew.serviceLabel")}</label>
             <div className="grid grid-cols-2 gap-2.5">
               {SERVICES.map(([k, v]) => (
                 <label key={k} className={`p-3 rounded-xl border cursor-pointer text-sm font-medium transition-all text-center ${form.service === k ? "border-brand bg-brand-soft text-brand-strong" : "border-black/10 text-ink-soft hover:border-black/20"}`}>
@@ -112,38 +115,38 @@ function NewBookingForm() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">Start</label>
+              <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.bookingsNew.startLabel")}</label>
               <input type="datetime-local" value={form.start_at} onChange={(e) => setForm({ ...form, start_at: e.target.value })} required className="w-full h-11 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">End</label>
+              <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.bookingsNew.endLabel")}</label>
               <input type="datetime-local" value={form.end_at} onChange={(e) => setForm({ ...form, end_at: e.target.value })} required className="w-full h-11 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1.5">Address <span className="text-ink-soft/70 font-normal">· optional</span></label>
-            <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="e.g. Vingio parkas, Vilnius" className={inputCls} />
+            <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.bookingsNew.addressLabel")} <span className="text-ink-soft/70 font-normal">{t("appPages.bookingsNew.optionalSuffix")}</span></label>
+            <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder={t("appPages.bookingsNew.addressPlaceholder")} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1.5">Notes <span className="text-ink-soft/70 font-normal">· optional</span></label>
-            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Any special instructions for the sitter…" rows={3} className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
+            <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.bookingsNew.notesLabel")} <span className="text-ink-soft/70 font-normal">{t("appPages.bookingsNew.optionalSuffix")}</span></label>
+            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder={t("appPages.bookingsNew.notesPlaceholder")} rows={3} className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
           </div>
         </div>
 
         {sitterProfile && (
           <div className="bg-surface-2 rounded-2xl p-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-ink-soft">Rate · {sitterProfile.full_name}</span>
-              <span className="font-semibold text-ink">€{sitterProfile.rate_per_hour}/hr</span>
+              <span className="text-ink-soft">{t("appPages.bookingsNew.rateSummaryLabel", { name: sitterProfile.full_name ?? "" })}</span>
+              <span className="font-semibold text-ink">€{sitterProfile.rate_per_hour}{t("sitters.profile.ratePerHourShort")}</span>
             </div>
-            <p className="text-xs text-ink-soft/70 mt-1.5">Final price depends on the booking duration.</p>
+            <p className="text-xs text-ink-soft/70 mt-1.5">{t("appPages.bookingsNew.finalPriceNote")}</p>
           </div>
         )}
 
         <div className="flex gap-3">
-          <Link href="/bookings" className="flex-1 h-11 flex items-center justify-center rounded-xl border border-black/10 text-ink text-sm font-medium hover:bg-brand-softer transition-colors">Cancel</Link>
+          <Link href="/bookings" className="flex-1 h-11 flex items-center justify-center rounded-xl border border-black/10 text-ink text-sm font-medium hover:bg-brand-softer transition-colors">{t("appPages.bookingsNew.cancelButton")}</Link>
           <button type="submit" disabled={loading || !form.sitter_id || !form.pet_id} className="flex-1 h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><CalendarDays className="w-4 h-4" />Send request</>}
+            {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><CalendarDays className="w-4 h-4" />{t("appPages.bookingsNew.sendRequestButton")}</>}
           </button>
         </div>
       </form>

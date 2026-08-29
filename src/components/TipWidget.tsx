@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { TIPS } from "@/lib/tips";
+import { useLanguage } from "@/context/LanguageContext";
 import TipCard from "./TipCard";
 
 export default function TipWidget({ intervalMs = 7000 }: { intervalMs?: number }) {
+  const { t } = useLanguage();
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -37,7 +39,7 @@ export default function TipWidget({ intervalMs = 7000 }: { intervalMs?: number }
           <button
             key={idx}
             onClick={() => setI(idx)}
-            aria-label={`Tip ${idx + 1}`}
+            aria-label={t("appShell.tipWidget.dotAriaLabel", { index: idx + 1 })}
             className={`h-1.5 rounded-full transition-all ${idx === i ? "w-4 bg-brand" : "w-1.5 bg-black/15 hover:bg-black/30"}`}
           />
         ))}

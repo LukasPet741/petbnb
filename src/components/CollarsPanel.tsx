@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, Copy, X, Radar, Check, Loader2, Route as RouteIcon, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import EmptyState from "@/components/EmptyState";
+import { useLanguage } from "@/context/LanguageContext";
 
 const CollarMap = dynamic(() => import("@/components/CollarMap"), { ssr: false });
 
@@ -30,14 +31,14 @@ interface RoutePoint {
 
 const POLL_INTERVAL_MS = 30_000;
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
   const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
-  if (seconds < 60) return "just now";
+  if (seconds < 60) return t("appPages.collars.justNow");
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return t("appPages.collars.minutesAgo", { minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return t("appPages.collars.hoursAgo", { hours });
+  return t("appPages.collars.daysAgo", { days: Math.floor(hours / 24) });
 }
 
 function todayInputValue(): string {
@@ -66,6 +67,7 @@ function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: nu
 }
 
 export default function CollarsPanel() {
+  const { t } = useLanguage();
   const [devices, setDevices] = useState<CollarDevice[]>([]);
   const [fixes, setFixes] = useState<Record<string, CollarFix | null>>({});
   const [loading, setLoading] = useState(true);
@@ -161,17 +163,20 @@ export default function CollarsPanel() {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-black/5 shadow-sm p-6 sm:p-7">
+    <div
+      className="bg-surface rounded-2xl p-6 sm:p-7"
+      style={{ boxShadow: "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(31 92 71 / 0.08)" }}
+    >
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="font-display text-lg font-semibold text-ink tracking-tight">My collars</h3>
-          <p className="text-sm text-ink-soft mt-0.5">GPS collars paired to your account, tracked live on the map.</p>
+          <h3 className="font-display text-lg font-semibold text-ink tracking-tight">{t("appPages.collars.title")}</h3>
+          <p className="text-sm text-ink-soft mt-0.5">{t("appPages.collars.subtitle")}</p>
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors flex-shrink-0"
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong hover:shadow-[var(--shadow-sm)] active:-translate-y-px transition-all duration-200 flex-shrink-0"
         >
-          <Plus className="w-4 h-4" />Add a collar
+          <Plus className="w-4 h-4" />{t("appPages.collars.addCollarButton")}
         </button>
       </div>
 
@@ -182,42 +187,45 @@ export default function CollarsPanel() {
       ) : devices.length === 0 ? (
         <EmptyState
           icon={Radar}
-          title="No collars yet"
-          description="Pair a GPS collar to see its live location here."
+          title={t("appPages.collars.emptyTitle")}
+          description={t("appPages.collars.emptyDescription")}
         />
       ) : (
         <div className="space-y-4">
           {devices.map((device) => {
             const fix = fixes[device.id];
             return (
-              <div key={device.id} className="rounded-xl border border-black/10 overflow-hidden">
+              <div
+                key={device.id}
+                className="rounded-2xl border border-black/5 overflow-hidden shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              >
                 <div className="flex items-center justify-between px-4 py-3 bg-surface-2">
                   <div className="min-w-0">
-                    <div className="font-medium text-ink text-sm truncate">{device.label || "Unnamed collar"}</div>
+                    <div className="font-medium text-ink text-sm truncate">{device.label || t("appPages.collars.unnamedCollar")}</div>
                     <div className="text-xs text-ink-soft mt-0.5">
                       {fix ? (
                         <>
-                          Last seen {timeAgo(fix.recorded_at)}
-                          {fix.speed_kmh != null && ` · ${fix.speed_kmh.toFixed(1)} km/h`}
-                          {fix.battery_pct != null && ` · ${fix.battery_pct}% battery`}
+                          {t("appPages.collars.lastSeenPrefix")} {timeAgo(fix.recorded_at, t)}
+                          {fix.speed_kmh != null && ` · ${fix.speed_kmh.toFixed(1)} ${t("appPages.collars.speedUnit")}`}
+                          {fix.battery_pct != null && ` · ${fix.battery_pct}% ${t("appPages.collars.batteryLabel")}`}
                         </>
                       ) : (
-                        "Waiting for first fix…"
+                        t("appPages.collars.waitingForFirstFix")
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => toggleRoute(device.id)}
-                      className="p-2 text-ink-soft hover:text-brand hover:bg-brand-softer rounded-lg transition-colors"
-                      aria-label="View route"
+                      className="p-2 text-ink-soft hover:text-slate hover:bg-slate-soft rounded-lg transition-colors"
+                      aria-label={t("appPages.collars.viewRouteAriaLabel")}
                     >
                       <RouteIcon className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(device.id)}
-                      className="p-2 text-ink-soft hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      aria-label="Remove collar"
+                      className="p-2 text-ink-soft hover:text-danger hover:bg-danger-soft rounded-lg transition-colors"
+                      aria-label={t("appPages.collars.removeCollarAriaLabel")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -228,7 +236,7 @@ export default function CollarsPanel() {
                     <CollarMap lat={fix.lat} lng={fix.lng} label={device.label ?? undefined} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-sm text-ink-soft bg-surface-2">
-                      No location data yet
+                      {t("appPages.collars.noLocationDataYet")}
                     </div>
                   )}
                 </div>
@@ -244,7 +252,7 @@ export default function CollarsPanel() {
                     >
                       <div className="flex items-center justify-between px-4 py-2.5 bg-surface-2 border-b border-black/10">
                         <div className="flex items-center gap-2 text-xs font-medium text-ink">
-                          <RouteIcon className="w-3.5 h-3.5" />Route
+                          <RouteIcon className="w-3.5 h-3.5 text-slate" />{t("appPages.collars.routeLabel")}
                         </div>
                         <div className="flex items-center gap-3">
                           <input
@@ -254,7 +262,7 @@ export default function CollarsPanel() {
                             onChange={(e) => setRouteDate(e.target.value)}
                             className="h-8 px-2 rounded-lg border border-black/10 bg-surface text-xs text-ink"
                           />
-                          <button onClick={() => setRouteOpenFor(null)} className="p-1 text-ink-soft hover:text-ink rounded" aria-label="Close route">
+                          <button onClick={() => setRouteOpenFor(null)} className="p-1 text-ink-soft hover:text-ink rounded" aria-label={t("appPages.collars.closeRouteAriaLabel")}>
                             <ChevronUp className="w-4 h-4" />
                           </button>
                         </div>
@@ -264,7 +272,7 @@ export default function CollarsPanel() {
                           <Loader2 className="w-4 h-4 animate-spin" />
                         </div>
                       ) : routePoints.length === 0 ? (
-                        <div className="py-8 text-center text-sm text-ink-soft">No location data for this day</div>
+                        <div className="py-8 text-center text-sm text-ink-soft">{t("appPages.collars.noLocationDataForDay")}</div>
                       ) : (
                         <>
                           <div className="h-56">
@@ -277,10 +285,12 @@ export default function CollarsPanel() {
                           {(() => {
                             const stats = routeStats(routePoints);
                             return (
-                              <div className="px-4 py-2.5 text-xs text-ink-soft bg-surface-2 border-t border-black/10">
+                              <div className="px-4 py-2.5 text-xs text-ink-soft bg-surface-2 border-t border-black/10 tabular-nums">
                                 {stats
-                                  ? `${stats.distanceKm.toFixed(2)} km · ${Math.round(stats.durationMin)} min · ${routePoints.length} points`
-                                  : `${routePoints.length} point${routePoints.length === 1 ? "" : "s"} (not enough for a route yet)`}
+                                  ? t("appPages.collars.routeStatsSummary", { distance: stats.distanceKm.toFixed(2), duration: Math.round(stats.durationMin), points: routePoints.length })
+                                  : routePoints.length === 1
+                                    ? t("appPages.collars.routeNotEnoughSingular", { points: routePoints.length })
+                                    : t("appPages.collars.routeNotEnoughPlural", { points: routePoints.length })}
                               </div>
                             );
                           })()}
@@ -318,7 +328,8 @@ function ModalShell({ children, onClose }: { children: React.ReactNode; onClose:
         exit={{ opacity: 0, scale: 0.96, y: 8 }}
         transition={{ duration: 0.2 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-surface rounded-2xl border border-black/5 shadow-lg w-full max-w-sm p-6"
+        className="bg-surface rounded-2xl w-full max-w-sm p-6"
+        style={{ boxShadow: "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(31 92 71 / 0.08)" }}
       >
         {children}
       </motion.div>
@@ -327,23 +338,24 @@ function ModalShell({ children, onClose }: { children: React.ReactNode; onClose:
 }
 
 function AddCollarModal({ onClose, onCreate }: { onClose: () => void; onCreate: (label: string) => Promise<void> }) {
+  const { t } = useLanguage();
   const [label, setLabel] = useState("");
   const [saving, setSaving] = useState(false);
 
   return (
     <ModalShell onClose={onClose}>
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-display text-lg font-semibold text-ink">Add a collar</h4>
+        <h4 className="font-display text-lg font-semibold text-ink">{t("appPages.collars.addCollarModalTitle")}</h4>
         <button onClick={onClose} className="p-1 text-ink-soft hover:text-ink rounded-lg">
           <X className="w-4 h-4" />
         </button>
       </div>
-      <label className="block text-sm font-medium text-ink mb-1.5">Label</label>
+      <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.collars.labelFieldLabel")}</label>
       <input
         autoFocus
         value={label}
         onChange={(e) => setLabel(e.target.value)}
-        placeholder="e.g. Rex's collar"
+        placeholder={t("appPages.collars.labelPlaceholder")}
         className="w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition mb-5"
       />
       <button
@@ -355,13 +367,14 @@ function AddCollarModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
         }}
         className="w-full h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60"
       >
-        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create collar"}
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : t("appPages.collars.createCollarButton")}
       </button>
     </ModalShell>
   );
 }
 
 function ProvisionedModal({ id, secret, label, onClose }: { id: string; secret: string; label: string; onClose: () => void }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const envSnippet = `DEVICE_ID=${id}\nDEVICE_SECRET=${secret}`;
 
@@ -373,10 +386,9 @@ function ProvisionedModal({ id, secret, label, onClose }: { id: string; secret: 
 
   return (
     <ModalShell onClose={onClose}>
-      <h4 className="font-display text-lg font-semibold text-ink mb-1.5">{label || "Collar"} paired</h4>
+      <h4 className="font-display text-lg font-semibold text-ink mb-1.5">{t("appPages.collars.pairedTitle", { label: label || t("appPages.collars.collarFallbackName") })}</h4>
       <p className="text-sm text-ink-soft mb-4">
-        Copy these into the collar's <code className="text-xs bg-surface-2 px-1 py-0.5 rounded">.env</code> file — the
-        secret is shown only once and can't be recovered later.
+        {t("appPages.collars.envInstructionsPrefix")} <code className="text-xs bg-surface-2 px-1 py-0.5 rounded">.env</code> {t("appPages.collars.envInstructionsSuffix")}
       </p>
       <pre className="bg-surface-2 rounded-xl p-3.5 text-xs text-ink font-mono overflow-x-auto mb-4 whitespace-pre-wrap break-all">
         {envSnippet}
@@ -387,13 +399,13 @@ function ProvisionedModal({ id, secret, label, onClose }: { id: string; secret: 
           className="flex-1 h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"
         >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t("appPages.collars.copiedLabel") : t("appPages.collars.copyLabel")}
         </button>
         <button
           onClick={onClose}
           className="flex-1 h-11 flex items-center justify-center bg-surface-2 text-ink rounded-xl text-sm font-medium hover:bg-black/5 transition-colors"
         >
-          Done
+          {t("appPages.collars.doneButton")}
         </button>
       </div>
     </ModalShell>

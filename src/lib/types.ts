@@ -63,9 +63,9 @@ export const PET_TYPE_LABELS: Record<PetType, string> = {
 };
 
 export const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string }> = {
-  pending: { label: "Pending", color: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200/70" },
+  pending: { label: "Pending", color: "bg-amber-soft text-amber-strong ring-1 ring-inset ring-amber/20" },
   signed: { label: "Confirmed", color: "bg-brand-soft text-brand-strong ring-1 ring-inset ring-brand/15" },
-  declined: { label: "Declined", color: "bg-red-50 text-red-600 ring-1 ring-inset ring-red-200/70" },
-  cancelled: { label: "Cancelled", color: "bg-stone-100 text-stone-500 ring-1 ring-inset ring-stone-200" },
-  completed: { label: "Completed", color: "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/70" },
+  declined: { label: "Declined", color: "bg-danger-soft text-danger ring-1 ring-inset ring-danger/20" },
+  cancelled: { label: "Cancelled", color: "bg-surface-2 text-ink-soft ring-1 ring-inset ring-black/10" },
+  completed: { label: "Completed", color: "bg-brand-softer text-brand ring-1 ring-inset ring-brand/10" },
 };
