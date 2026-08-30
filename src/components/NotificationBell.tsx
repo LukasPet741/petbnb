@@ -14,7 +14,12 @@ import Avatar from "./Avatar";
  * Bell + popover over the shared NotificationsContext. It never touches Supabase:
  * the provider owns the query, the realtime channel and the read-marking RPCs.
  */
-export default function NotificationBell() {
+/**
+ * `align` picks which edge the panel hangs from. "right" suits a right-aligned
+ * trigger in a full-width bar; "left" is for the 256px desktop rail, where a
+ * right-anchored 320-384px panel would open off the left edge of the screen.
+ */
+export default function NotificationBell({ align = "right" }: { align?: "left" | "right" }) {
   const { t } = useLanguage();
   const { notifications, unreadCount, loading, markAllRead, markRead } = useNotifications();
   const [open, setOpen] = useState(false);
@@ -97,8 +102,11 @@ export default function NotificationBell() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -6 }}
             transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{ transformOrigin: "top right" }}
-            className="absolute right-0 top-full mt-2 z-50 w-80 sm:w-96 max-h-[70vh] overflow-y-auto bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]"
+            style={{ transformOrigin: align === "left" ? "top left" : "top right" }}
+            className={cn(
+              "absolute top-full mt-2 z-50 w-80 sm:w-96 max-h-[70vh] overflow-y-auto bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]",
+              align === "left" ? "left-0" : "right-0"
+            )}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 bg-surface border-b border-black/5">
               <h2 id={titleId} className="font-display text-base font-semibold text-ink">

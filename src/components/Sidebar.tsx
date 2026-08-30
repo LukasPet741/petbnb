@@ -42,14 +42,20 @@ export default function Sidebar() {
 
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
 
-  // Shared by the desktop rail and the mobile drawer. The bell lives only in the mobile
-  // top bar: its panel is right-anchored and 320–384px wide, so inside this 256px rail it
-  // would open off the left edge of the screen. Desktop keeps the nav unread badge instead.
+  // Shared by the desktop rail and the mobile drawer. The drawer is opened from the mobile
+  // top bar, which carries its own bell, so this one is hidden below lg to avoid two bells
+  // on the same screen. It opens left-anchored: a right-anchored panel would run off the
+  // left edge of this 256px rail.
   const Inner = (
     <>
-      <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center px-2 mb-6">
-        <Logo size={32} showWordmark />
-      </Link>
+      <div className="flex items-center justify-between px-2 mb-6">
+        <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center">
+          <Logo size={32} showWordmark />
+        </Link>
+        <div className="hidden lg:block -mr-1">
+          <NotificationBell align="left" />
+        </div>
+      </div>
 
       <nav className="space-y-1">
         {LINKS.map(({ href, key, icon: Icon }) => {
