@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import Atmosphere from "@/components/Atmosphere";
 import en from "@/lib/i18n/en";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <AuthProvider>{children}</AuthProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
