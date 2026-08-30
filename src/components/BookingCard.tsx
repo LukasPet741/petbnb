@@ -1,5 +1,6 @@
 "use client";
-import { MapPin } from "lucide-react";
+import Link from "next/link";
+import { MapPin, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { STATUS_CONFIG, type BookingStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -50,6 +51,8 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
   const photo = booking.pet?.photo_url || displayProfile?.avatar_url || null;
   const isPending = booking.status === "pending";
   const relative = getRelativeLabel(booking.start_at, t);
+  const threadHref = `/messages/${booking.id}`;
+  const messageLabel = t("appShell.sidebar.nav.messages");
 
   // Pending: the decision that still needs making. Big, elevated, photo-led, exactly the buttons that apply.
   if (isPending) {
@@ -92,7 +95,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
               {booking.notes && <p className="text-sm text-ink-soft/80 italic">&ldquo;{booking.notes}&rdquo;</p>}
             </div>
           )}
-          <div className="flex gap-2.5 mt-4">
+          <div className="flex flex-wrap gap-2.5 mt-4">
             {!isSitterView && (
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onCancel}
                 className="px-4 py-2 bg-danger-soft text-danger rounded-full text-xs font-semibold hover:brightness-95 transition-all">
@@ -111,6 +114,10 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
                 </motion.button>
               </>
             )}
+            <Link href={threadHref}
+              className="px-4 py-2 rounded-full text-xs font-semibold text-ink-soft inline-flex items-center gap-1.5 hover:bg-surface-2 hover:text-ink transition-colors">
+              <MessageCircle className="w-3.5 h-3.5" />{messageLabel}
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -131,6 +138,11 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
         </div>
         <div className="text-xs text-ink-soft truncate">{booking.pet?.name} · {displayLabel} {displayProfile?.full_name}</div>
       </div>
+      <Link href={threadHref} aria-label={messageLabel} title={messageLabel}
+        className="text-xs font-semibold text-brand hover:text-brand-strong transition-colors inline-flex items-center gap-1 flex-shrink-0">
+        <MessageCircle className="w-3.5 h-3.5" />
+        <span className="hidden sm:inline">{messageLabel}</span>
+      </Link>
       {isSitterView && booking.status === "signed" && (
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onMarkCompleted}
           className="px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-semibold hover:brightness-95 transition-all flex-shrink-0">

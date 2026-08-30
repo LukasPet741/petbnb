@@ -1,22 +1,25 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Search, Heart, CalendarDays, Bookmark, User, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { signOut } from "@/lib/auth";
 import { useLanguage } from "@/context/LanguageContext";
+import { useNotifications } from "@/context/NotificationsContext";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
+import NotificationBell from "@/components/NotificationBell";
 
 const LINKS = [
   { href: "/dashboard", key: "appShell.sidebar.nav.dashboard", icon: LayoutDashboard },
   { href: "/browse", key: "appShell.sidebar.nav.browse", icon: Search },
   { href: "/pets", key: "appShell.sidebar.nav.pets", icon: Heart },
   { href: "/bookings", key: "appShell.sidebar.nav.bookings", icon: CalendarDays },
+  { href: "/messages", key: "appShell.sidebar.nav.messages", icon: MessageCircle },
   { href: "/saved", key: "appShell.sidebar.nav.saved", icon: Bookmark },
   { href: "/profile", key: "appShell.sidebar.nav.profile", icon: User },
 ];
@@ -26,6 +29,7 @@ export default function Sidebar() {
   const router = useRouter();
   const { t } = useLanguage();
   const { profile } = useProfile();
+  const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -38,6 +42,9 @@ export default function Sidebar() {
 
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
 
+  // Shared by the desktop rail and the mobile drawer. The bell lives only in the mobile
+  // top bar: its panel is right-anchored and 320–384px wide, so inside this 256px rail it
+  // would open off the left edge of the screen. Desktop keeps the nav unread badge instead.
   const Inner = (
     <>
       <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center px-2 mb-6">
@@ -47,10 +54,16 @@ export default function Sidebar() {
       <nav className="space-y-1">
         {LINKS.map(({ href, key, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
+          const badge = href === "/messages" ? unreadCount : 0;
           return (
             <Link key={href} href={href} onClick={() => setOpen(false)}
               className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors", active ? "bg-brand-soft text-brand-strong" : "text-ink-soft hover:bg-brand-softer hover:text-ink")}>
               <Icon className="w-[18px] h-[18px]" />{t(key)}
+              {badge > 0 && (
+                <span className="ml-auto bg-brand text-white text-[11px] font-semibold rounded-full min-w-[18px] h-[18px] px-1 grid place-items-center">
+                  {badge > 9 ? "9+" : badge}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -91,6 +104,7 @@ export default function Sidebar() {
         </Link>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          <NotificationBell />
           <button onClick={() => setOpen(true)} className="p-2 rounded-lg text-ink-soft hover:bg-brand-softer"><Menu className="w-5 h-5" /></button>
         </div>
       </header>

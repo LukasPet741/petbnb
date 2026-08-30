@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, Copy, X, Radar, Check, Loader2, Route as RouteIcon, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { timeAgo } from "@/lib/utils";
 import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -45,16 +46,6 @@ const POLL_INTERVAL_MS = 30_000;
 // Activity-level thresholds (km/h) used to bucket points from the weekly route history.
 const ACTIVITY_RESTING_MAX_KMH = 1;
 const ACTIVITY_WALKING_MAX_KMH = 7;
-
-function timeAgo(iso: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
-  const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
-  if (seconds < 60) return t("appPages.collars.justNow");
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return t("appPages.collars.minutesAgo", { minutes });
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return t("appPages.collars.hoursAgo", { hours });
-  return t("appPages.collars.daysAgo", { days: Math.floor(hours / 24) });
-}
 
 function todayInputValue(): string {
   const now = new Date();
@@ -309,7 +300,7 @@ export default function CollarsPanel() {
                     <div className="text-xs text-ink-soft mt-0.5">
                       {fix ? (
                         <>
-                          {t("appPages.collars.lastSeenPrefix")} {timeAgo(fix.recorded_at, t)}
+                          {t("appPages.collars.lastSeenPrefix")} {timeAgo(fix.recorded_at, t, "appPages.collars")}
                           {fix.speed_kmh != null && ` · ${fix.speed_kmh.toFixed(1)} ${t("appPages.collars.speedUnit")}`}
                           {fix.battery_pct != null && ` · ${fix.battery_pct}% ${t("appPages.collars.batteryLabel")}`}
                         </>
