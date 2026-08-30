@@ -4,6 +4,7 @@ import sitters from "./lt/sitters";
 import appShell from "./lt/appShell";
 import appPages from "./lt/appPages";
 import tips from "./lt/tips";
+import messages from "./lt/messages";
 
 const lt = {
   common: {
@@ -51,6 +52,12 @@ const lt = {
       cancelled: "atšauktų",
       completed: "įvykdytų",
     },
+    timeAgo: {
+      justNow: "ką tik",
+      minutesAgo: "prieš {minutes} min.",
+      hoursAgo: "prieš {hours} val.",
+      daysAgo: "prieš {days} d.",
+    },
     petSex: {
       male: "patinas",
       female: "patelė",
@@ -63,6 +70,7 @@ const lt = {
   appShell,
   appPages,
   tips,
+  messages,
 };
 
 export default lt;

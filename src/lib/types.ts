@@ -69,3 +69,50 @@ export const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string
   cancelled: { label: "Cancelled", color: "bg-surface-2 text-ink-soft ring-1 ring-inset ring-black/10" },
   completed: { label: "Completed", color: "bg-brand-softer text-brand ring-1 ring-inset ring-brand/10" },
 };
+
+export type MessageKind = "user" | "system";
+export type SystemEvent = "requested" | "accepted" | "declined" | "cancelled" | "completed";
+
+export interface Message {
+  id: string;
+  booking_id: string;
+  sender_id: string;
+  kind: MessageKind;
+  /** Set only when kind === "user". */
+  body: string | null;
+  /** Set only when kind === "system". The UI translates this; no display text is stored. */
+  event: SystemEvent | null;
+  read_at: string | null;
+  created_at: string;
+  sender?: Profile;
+}
+
+export type NotificationType =
+  | "booking_requested"
+  | "booking_accepted"
+  | "booking_declined"
+  | "booking_cancelled"
+  | "booking_completed"
+  | "message_received";
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  actor_id: string | null;
+  booking_id: string | null;
+  type: NotificationType;
+  read_at: string | null;
+  created_at: string;
+  email_status: "pending" | "sent" | "skipped" | "failed";
+  email_error: string | null;
+  actor?: Profile;
+  booking?: Booking;
+}
+
+/** One row in the /messages thread list. Threads are 1:1 with bookings. */
+export interface Thread {
+  booking: Booking;
+  counterparty: Profile | null;
+  lastMessage: Message | null;
+  unreadCount: number;
+}

@@ -4,6 +4,7 @@ import sitters from "./en/sitters";
 import appShell from "./en/appShell";
 import appPages from "./en/appPages";
 import tips from "./en/tips";
+import messages from "./en/messages";
 
 const en = {
   common: {
@@ -52,6 +53,12 @@ const en = {
       cancelled: "cancelled",
       completed: "completed",
     },
+    timeAgo: {
+      justNow: "just now",
+      minutesAgo: "{minutes}m ago",
+      hoursAgo: "{hours}h ago",
+      daysAgo: "{days}d ago",
+    },
     petSex: {
       male: "male",
       female: "female",
@@ -64,6 +71,7 @@ const en = {
   appShell,
   appPages,
   tips,
+  messages,
 };
 
 export default en;

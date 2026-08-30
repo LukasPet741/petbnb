@@ -8,6 +8,7 @@ const appShell = {
       browse: "Naršyti",
       pets: "Mano augintiniai",
       bookings: "Užsakymai",
+      messages: "Žinutės",
       saved: "Išsaugota",
       profile: "Profilis",
     },

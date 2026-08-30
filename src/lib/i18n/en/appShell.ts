@@ -8,6 +8,7 @@ const appShell = {
       browse: "Browse",
       pets: "My Pets",
       bookings: "Bookings",
+      messages: "Messages",
       saved: "Saved",
       profile: "Profile",
     },
