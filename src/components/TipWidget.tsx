@@ -17,7 +17,7 @@ const PET_TAG: Record<string, string> = {
   cat: "Cats",
 };
 
-function loadSeenIds(): string[] {
+export function loadSeenIds(): string[] {
   try {
     const raw = window.localStorage.getItem(SEEN_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
@@ -27,7 +27,7 @@ function loadSeenIds(): string[] {
   }
 }
 
-function saveSeenIds(ids: string[]) {
+export function saveSeenIds(ids: string[]) {
   try {
     window.localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
   } catch {
@@ -36,7 +36,7 @@ function saveSeenIds(ids: string[]) {
 }
 
 // Matching tips (by tag) first, the rest after, original order preserved within each group.
-function personalizedOrder(pets: { type: string }[], upcomingServices: string[]): Tip[] {
+export function personalizedOrder(pets: { type: string }[], upcomingServices: string[]): Tip[] {
   const tags = new Set<string>();
   upcomingServices.forEach((service) => {
     const tag = SERVICE_TAG[service];
@@ -54,7 +54,7 @@ function personalizedOrder(pets: { type: string }[], upcomingServices: string[])
 
 // Picks the first tip (in `order`) not yet marked seen, resetting the seen log once every
 // tip has been shown. Records the pick as seen so the same tip doesn't open the next session too.
-function pickStartIndex(order: Tip[]): number {
+export function pickStartIndex(order: Tip[]): number {
   let seen = loadSeenIds();
   let startIndex = order.findIndex((tip) => !seen.includes(tip.id));
   if (startIndex === -1) {

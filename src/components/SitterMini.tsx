@@ -13,7 +13,7 @@ const ACTIVITY_DOT_CLASS: Record<ActivityBucket, string> = {
   today: "bg-brand/60",
   week: "bg-ink-soft/40",
 };
-function getActivityBucket(lastActiveAt: string | null | undefined): ActivityBucket | null {
+export function getActivityBucket(lastActiveAt: string | null | undefined): ActivityBucket | null {
   if (!lastActiveAt) return null;
   const lastActiveMs = new Date(lastActiveAt).getTime();
   if (Number.isNaN(lastActiveMs)) return null;

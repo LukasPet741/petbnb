@@ -18,7 +18,7 @@ type FeaturedStatus = "loading" | "error" | "ready";
 
 const MAX_QUOTE_LENGTH = 220;
 
-function excerpt(text: string, max = MAX_QUOTE_LENGTH) {
+export function excerpt(text: string, max = MAX_QUOTE_LENGTH) {
   const trimmed = text.trim().replace(/\s+/g, " ");
   if (trimmed.length <= max) return trimmed;
   const cut = trimmed.slice(0, max);

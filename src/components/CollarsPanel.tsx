@@ -47,13 +47,13 @@ const POLL_INTERVAL_MS = 30_000;
 const ACTIVITY_RESTING_MAX_KMH = 1;
 const ACTIVITY_WALKING_MAX_KMH = 7;
 
-function todayInputValue(): string {
+export function todayInputValue(): string {
   const now = new Date();
   const offset = now.getTimezoneOffset();
   return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
 }
 
-function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+export function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const R = 6371;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat);
@@ -64,7 +64,7 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: number } | null {
+export function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: number } | null {
   if (points.length < 2) return null;
   let distanceKm = 0;
   for (let i = 1; i < points.length; i++) distanceKm += haversineKm(points[i - 1], points[i]);
@@ -73,7 +73,7 @@ function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: nu
 }
 
 /** Monday-through-Sunday date strings (YYYY-MM-DD, local time) for the week containing today. */
-function currentWeekDates(): string[] {
+export function currentWeekDates(): string[] {
   const now = new Date();
   const day = now.getDay(); // 0 = Sun ... 6 = Sat
   const mondayOffset = day === 0 ? -6 : 1 - day;
@@ -89,7 +89,7 @@ function currentWeekDates(): string[] {
   return dates;
 }
 
-function weekdayShort(dateStr: string, locale: string): string {
+export function weekdayShort(dateStr: string, locale: string): string {
   const date = new Date(`${dateStr}T00:00:00`);
   const raw = new Intl.DateTimeFormat(locale === "lt" ? "lt-LT" : "en-US", { weekday: "short" }).format(date);
   return raw.charAt(0).toUpperCase() + raw.slice(1);

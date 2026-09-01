@@ -11,7 +11,7 @@ interface LanguageContextValue {
   t: (key: string, vars?: Record<string, string | number>) => string;
 }
 
-function lookup(dict: Record<string, unknown>, key: string): unknown {
+export function lookup(dict: Record<string, unknown>, key: string): unknown {
   return key.split(".").reduce<unknown>((node, part) => {
     if (node && typeof node === "object" && part in (node as Record<string, unknown>)) {
       return (node as Record<string, unknown>)[part];
@@ -20,7 +20,7 @@ function lookup(dict: Record<string, unknown>, key: string): unknown {
   }, dict);
 }
 
-function interpolate(text: string, vars?: Record<string, string | number>): string {
+export function interpolate(text: string, vars?: Record<string, string | number>): string {
   if (!vars) return text;
   return text.replace(/\{(\w+)\}/g, (match, name) => (name in vars ? String(vars[name]) : match));
 }

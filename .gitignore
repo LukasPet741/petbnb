@@ -13,3 +13,4 @@ iot-collar/.env
 .agents/
 .impeccable/
 skills-lock.json
+supabase/.temp/

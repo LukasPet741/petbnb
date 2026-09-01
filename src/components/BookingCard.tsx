@@ -33,7 +33,7 @@ const ELEVATED_SHADOW = "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5),
 
 // Relative/countdown framing for an upcoming start date, e.g. "Today" / "Tomorrow" / "in 5 days".
 // Returns null for bookings that already started (a countdown to the past doesn't make sense).
-function getRelativeLabel(startAt: string, t: (key: string, vars?: Record<string, string | number>) => string): string | null {
+export function getRelativeLabel(startAt: string, t: (key: string, vars?: Record<string, string | number>) => string): string | null {
   const start = new Date(startAt);
   const now = new Date();
   const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
