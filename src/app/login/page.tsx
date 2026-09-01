@@ -36,7 +36,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas flex">
+    <div className="min-h-[100dvh] bg-canvas flex">
       <LanguageSwitcher className="fixed top-4 right-4 z-10 bg-surface/90 backdrop-blur-sm shadow-[var(--shadow-sm)]" />
       {/* Left - photography */}
       <motion.div

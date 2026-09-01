@@ -36,7 +36,7 @@ export default function PublicSitterProfilePage() {
   }, [id]);
 
   return (
-    <div className="min-h-screen bg-canvas flex flex-col">
+    <div className="min-h-[100dvh] bg-canvas flex flex-col">
       <PublicHeader />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14 w-full">

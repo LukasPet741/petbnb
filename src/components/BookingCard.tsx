@@ -139,8 +139,8 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
         <div className="text-xs text-ink-soft truncate">{booking.pet?.name} · {displayLabel} {displayProfile?.full_name}</div>
       </div>
       <Link href={threadHref} aria-label={messageLabel} title={messageLabel}
-        className="text-xs font-semibold text-brand hover:text-brand-strong transition-colors inline-flex items-center gap-1 flex-shrink-0">
-        <MessageCircle className="w-3.5 h-3.5" />
+        className="text-xs font-semibold text-brand hover:text-brand-strong transition-colors inline-flex items-center justify-center gap-1 flex-shrink-0 min-w-11 min-h-11 -my-2 active:text-brand-strong sm:min-w-0 sm:min-h-0 sm:my-0">
+        <MessageCircle className="w-4 h-4" />
         <span className="hidden sm:inline">{messageLabel}</span>
       </Link>
       {isSitterView && booking.status === "signed" && (

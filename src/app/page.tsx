@@ -73,7 +73,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-[100dvh] bg-canvas">
       <PublicHeader />
 
       <FeaturedSitterHero />

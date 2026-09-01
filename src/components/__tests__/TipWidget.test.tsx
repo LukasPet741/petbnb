@@ -56,8 +56,11 @@ function dots(): HTMLElement[] {
   return screen.getAllByRole("button");
 }
 
-const isActive = (dot: HTMLElement) =>
-  dot.classList.contains("w-4") && dot.classList.contains("bg-brand");
+// The button is the 44px tap target; the painted pill inside it carries the active state.
+const isActive = (dot: HTMLElement) => {
+  const pill = dot.firstElementChild ?? dot;
+  return pill.classList.contains("w-4") && pill.classList.contains("bg-brand");
+};
 
 const seenLog = (): unknown =>
   JSON.parse(window.localStorage.getItem(SEEN_KEY) ?? "null");

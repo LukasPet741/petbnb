@@ -277,7 +277,7 @@ describe("actions", () => {
   it("keeps the action row present but empty, reserving the layout slot", () => {
     // The flex container renders unconditionally; only its children are gated.
     const { container } = render(<PetCard pet={pet()} />);
-    const row = container.querySelector(".flex.items-center.gap-1");
+    const row = container.querySelector(".flex.items-center.gap-2");
     expect(row).toBeInTheDocument();
     expect(row?.children).toHaveLength(0);
   });

@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen bg-canvas flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-canvas flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <FavoritesProvider>
       <NotificationsProvider>
-        <div className="min-h-screen">
+        <div className="min-h-[100dvh]">
           {/* Ambient warmth */}
           <div aria-hidden className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-48 -right-40 w-[40rem] h-[40rem] rounded-full bg-brand/10 blur-3xl" />
@@ -43,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Sidebar />
 
           <div className="lg:pl-64 relative z-10">
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
           </div>
         </div>
       </NotificationsProvider>

@@ -18,7 +18,10 @@ export default function FavoriteButton({ sitterId, className }: { sitterId: stri
       aria-label={active ? t("appPages.favoriteButton.removeFromSaved") : t("appPages.favoriteButton.saveSitter")}
       title={active ? t("appPages.favoriteButton.removeFromSaved") : t("appPages.favoriteButton.saveSitter")}
       className={cn(
-        "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0",
+        // 36px painted circle, but a 44px tap target: the pseudo-element extends the hit
+        // area 4px on every side without changing the layout or the visual size.
+        "relative w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0",
+        "after:absolute after:-inset-1 after:content-[''] after:rounded-full",
         active ? "bg-rose-50 text-rose-500" : "bg-surface-2 text-ink-soft hover:text-rose-500",
         className
       )}

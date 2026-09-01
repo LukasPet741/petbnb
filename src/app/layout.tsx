@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Bricolage_Grotesque, Caveat } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -38,6 +38,17 @@ const caveat = Caveat({
 export const metadata: Metadata = {
   title: en.common.meta.title,
   description: en.common.meta.description,
+};
+
+// Phones: `viewportFit: "cover"` is what makes env(safe-area-inset-*) resolve to real
+// values on notched iOS — without it every safe-area rule in the app is silently 0px.
+// themeColor keeps the Chrome Android toolbar on --canvas instead of painting a grey
+// seam above the sticky top bar. No maximumScale/userScalable: pinch-zoom stays on.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f4f6f4",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

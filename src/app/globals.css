@@ -70,6 +70,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Kill the hard grey square iOS/Android paint over every rounded-2xl card on tap. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -79,6 +81,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* No pull-to-refresh: a stray downward drag in a message thread must not reload
+     the page and discard the unsent draft. */
+  overscroll-behavior-y: none;
 }
 
 ::selection {

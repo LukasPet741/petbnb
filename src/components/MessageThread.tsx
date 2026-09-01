@@ -349,7 +349,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
         </div>
       </header>
 
-      <div ref={listRef} role="log" aria-live="polite" aria-label={headerTitle} className="flex-1 overflow-y-auto">
+      <div ref={listRef} role="log" aria-live="polite" aria-label={headerTitle} className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-6">
           {messages.map((m, i) => {
             const previous = i > 0 ? messages[i - 1] : null;
@@ -414,7 +414,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
         </div>
       </div>
 
-      <div className="flex-shrink-0 border-t border-black/5 bg-surface/80 backdrop-blur-md">
+      <div className="flex-shrink-0 border-t border-black/5 bg-surface/80 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-3">
           {sendError && (
             <p role="alert" className="flex items-center gap-1.5 text-xs text-danger mb-2">

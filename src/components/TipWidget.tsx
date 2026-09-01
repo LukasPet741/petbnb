@@ -104,7 +104,13 @@ export default function TipWidget({
   }, [paused, intervalMs, order.length]);
 
   return (
-    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    // Touch has no hover: without a pointer handler the carousel keeps advancing under
+    // the reader's finger, and tapping a dot never stops it.
+    <div
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onPointerDown={(e) => { if (e.pointerType !== "mouse") setPaused(true); }}
+    >
       <div className="relative h-64">
         <AnimatePresence>
           <motion.div
@@ -121,14 +127,21 @@ export default function TipWidget({
       </div>
 
       {/* progress dots */}
-      <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+      <div className="flex flex-wrap justify-center mt-1">
         {order.map((tip, idx) => (
+          // The painted pill stays 6px; the button around it is 44px tall so a thumb can
+          // actually hit it. -my-3 keeps the row from growing in the layout.
           <button
             key={tip.id}
             onClick={() => setI(idx)}
             aria-label={t("appShell.tipWidget.dotAriaLabel", { index: idx + 1 })}
-            className={`h-1.5 rounded-full transition-all ${idx === i ? "w-4 bg-brand" : "w-1.5 bg-black/15 hover:bg-black/30"}`}
-          />
+            className="group h-11 -my-3 px-1 flex items-center justify-center"
+          >
+            <span
+              aria-hidden
+              className={`block h-1.5 rounded-full transition-all ${idx === i ? "w-4 bg-brand" : "w-1.5 bg-black/15 group-hover:bg-black/30"}`}
+            />
+          </button>
         ))}
       </div>
     </div>

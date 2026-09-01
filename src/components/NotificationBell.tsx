@@ -80,13 +80,13 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
             ? t("messages.notifications.bellAriaLabelUnread", { count: unreadCount })
             : t("messages.notifications.bellAriaLabel")
         }
-        className="relative p-2 rounded-lg text-ink-soft hover:text-ink hover:bg-brand-softer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        className="relative w-11 h-11 flex items-center justify-center rounded-lg text-ink-soft hover:text-ink hover:bg-brand-softer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
         <Bell className="w-[18px] h-[18px]" />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
-            className="absolute top-0.5 right-0.5 min-w-[17px] h-[17px] px-1 flex items-center justify-center rounded-full bg-brand text-white text-[10px] font-semibold leading-none tabular-nums shadow-[var(--shadow-sm)]"
+            className="absolute top-2 right-2 min-w-[17px] h-[17px] px-1 flex items-center justify-center rounded-full bg-brand text-white text-[10px] font-semibold leading-none tabular-nums shadow-[var(--shadow-sm)]"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -104,7 +104,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
             transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ transformOrigin: align === "left" ? "top left" : "top right" }}
             className={cn(
-              "absolute top-full mt-2 z-50 w-80 sm:w-96 max-h-[70vh] overflow-y-auto bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]",
+              "absolute top-full mt-2 z-50 w-80 sm:w-96 max-h-[70dvh] overflow-y-auto overscroll-contain bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]",
               align === "left" ? "left-0" : "right-0"
             )}
           >
