@@ -79,7 +79,7 @@ export default function BrowsePage() {
       )}
 
       <motion.div className="flex gap-3 mb-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-        <div className="flex-1 relative">
+        <div className="flex-1 min-w-0 relative">
           <Search className="w-4 h-4 text-ink-soft/60 absolute left-4 top-1/2 -translate-y-1/2" />
           <input type="text" placeholder={t("appPages.browse.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} inputMode="search" enterKeyHint="search"
             className="w-full h-12 pl-11 pr-4 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm shadow-[var(--shadow-sm)]" />

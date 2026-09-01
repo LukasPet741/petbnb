@@ -58,7 +58,7 @@ export default function FeaturedSitterHero() {
 
   const searchForm = (
     <motion.form onSubmit={handleHeroSearch} variants={fadeUp} className="flex flex-col sm:flex-row gap-3 max-w-md">
-      <div className="flex-1 relative">
+      <div className="flex-1 min-w-0 relative">
         <MapPin className="w-4 h-4 text-ink-soft/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
