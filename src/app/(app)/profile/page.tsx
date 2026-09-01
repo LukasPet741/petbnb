@@ -137,7 +137,8 @@ export default function ProfilePage() {
                   <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
                   <input type={type} value={form[key as keyof typeof form] as string}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    placeholder={placeholder} required={req} className={inputCls} />
+                    placeholder={placeholder} required={req} className={inputCls}
+                    autoComplete={key === "full_name" ? "name" : "address-level2"} />
                 </motion.div>
               ))}
               <motion.div variants={fadeUp}>
@@ -155,7 +156,8 @@ export default function ProfilePage() {
                     }}
                     placeholder={t("appPages.profile.phonePlaceholder")}
                     required
-                    pattern="[\d\s\-]{8,11}"
+                    pattern="[ds-]{8,11}"
+                    autoComplete="tel-national"
                     title={t("appPages.profile.phoneTitle")}
                     className={`flex-1 ${inputCls}`}
                   />
@@ -200,12 +202,12 @@ export default function ProfilePage() {
                         <div>
                           <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.rateLabel")}</label>
                           <input type="number" value={form.rate_per_hour} onChange={(e) => setForm({ ...form, rate_per_hour: e.target.value })}
-                            placeholder={t("appPages.profile.ratePlaceholder")} min="1" step="1" className={inputCls} />
+                            placeholder={t("appPages.profile.ratePlaceholder")} min="1" step="1" inputMode="numeric" className={inputCls} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.experienceLabel")}</label>
                           <input type="number" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
-                            placeholder={t("appPages.profile.experiencePlaceholder")} min="0" step="1" className={inputCls} />
+                            placeholder={t("appPages.profile.experiencePlaceholder")} min="0" step="1" inputMode="numeric" className={inputCls} />
                         </div>
                       </div>
                       <div>

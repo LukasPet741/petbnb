@@ -75,15 +75,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <motion.div variants={fadeUp}>
               <label className="block text-sm font-medium text-ink mb-1.5">{t("auth.login.form.emailLabel")}</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("auth.login.form.emailPlaceholder")} required
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("auth.login.form.emailPlaceholder")} required autoComplete="email"
                 className="w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />
             </motion.div>
             <motion.div variants={fadeUp}>
               <label className="block text-sm font-medium text-ink mb-1.5">{t("auth.login.form.passwordLabel")}</label>
               <div className="relative">
-                <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("auth.login.form.passwordPlaceholder")} required
+                <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("auth.login.form.passwordPlaceholder")} required autoComplete="current-password"
                   className="w-full h-11 px-3.5 pr-11 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft/60 hover:text-ink">
+                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-ink-soft/60 hover:text-ink active:text-ink">
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>

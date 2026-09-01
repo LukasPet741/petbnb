@@ -69,6 +69,8 @@ function SittersList() {
               onChange={(e) => setCity(e.target.value)}
               placeholder={t("sitters.browse.searchPlaceholder")}
               aria-label={t("sitters.browse.searchAriaLabel")}
+              autoComplete="address-level2"
+              enterKeyHint="search"
               className="w-full h-12 pl-10 pr-4 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand text-sm shadow-[var(--shadow-sm)]"
             />
           </div>

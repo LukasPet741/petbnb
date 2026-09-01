@@ -435,6 +435,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
+              enterKeyHint="send"
               placeholder={t("messages.composerPlaceholder")}
               aria-label={t("messages.composerPlaceholder")}
               className={cn(INPUT_CLASS, "h-auto min-h-[2.75rem] max-h-40 py-3 leading-6 resize-none overflow-y-auto")}

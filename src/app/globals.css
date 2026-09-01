@@ -74,6 +74,20 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* iOS Safari zooms the whole page when a focused control's font-size is under 16px, and
+   every field in this app is text-sm (14px). Floor them at 16px below the sm breakpoint.
+   This rule is deliberately UNLAYERED: Tailwind v4 emits its utilities inside
+   @layer utilities, and unlayered styles beat layered ones no matter their specificity,
+   so this wins over `text-sm` without !important. Desktop is untouched.
+   Checkboxes, radios and ranges are excluded — they carry no text. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 body {
   background: var(--canvas);
   color: var(--ink);

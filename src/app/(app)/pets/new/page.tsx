@@ -71,7 +71,7 @@ export default function NewPetPage() {
         </div>
         <div>
           <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.petsNew.weightLabel")} <span className="text-ink-soft/70 font-normal">{t("appPages.petsNew.optionalSuffix")}</span></label>
-          <input type="number" value={form.weight_kg} onChange={(e) => setForm({ ...form, weight_kg: e.target.value })} placeholder={t("appPages.petsNew.weightPlaceholder")} step="0.1" min="0" className={inputCls} />
+          <input type="number" value={form.weight_kg} onChange={(e) => setForm({ ...form, weight_kg: e.target.value })} placeholder={t("appPages.petsNew.weightPlaceholder")} step="0.1" min="0" inputMode="decimal" className={inputCls} />
         </div>
         <div>
           <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.petsNew.bioLabel")} <span className="text-ink-soft/70 font-normal">{t("appPages.petsNew.optionalSuffix")}</span></label>
