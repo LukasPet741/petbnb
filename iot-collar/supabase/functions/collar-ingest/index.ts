@@ -4,19 +4,10 @@
 // collar_locations using the service role -- so the collar never holds a key that
 // could read/write anything beyond "insert one location for the device it is."
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { validateIngestPayload, type IngestPayload } from "./lib.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-interface IngestPayload {
-  device_id?: string;
-  device_secret?: string;
-  lat?: number;
-  lng?: number;
-  speed_kmh?: number | null;
-  battery_pct?: number | null;
-  recorded_at?: string;
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -30,11 +21,12 @@ Deno.serve(async (req) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const { device_id, device_secret, lat, lng, speed_kmh = null, battery_pct = null, recorded_at } = body;
-
-  if (!device_id || !device_secret || typeof lat !== "number" || typeof lng !== "number") {
-    return json({ error: "device_id, device_secret, lat, lng are required" }, 400);
+  const validated = validateIngestPayload(body);
+  if (!validated.ok) {
+    return json({ error: validated.error }, 400);
   }
+  const { device_id, device_secret, lat, lng, speed_kmh, battery_pct, recorded_at } =
+    validated.value;
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
