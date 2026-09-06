@@ -200,6 +200,36 @@ describe("dynamic key templates resolve in both languages", () => {
     expectAllResolve("sitters.activity", ["now", "today", "week"]);
   });
 
+  // The landing page builds these four families by concatenation too. A miss
+  // prints the raw key straight onto the marketing page, which is the most
+  // visible surface in the app.
+  it("resolves home.cities.sitterCount for every plural form", () => {
+    expectAllResolve("home.cities.sitterCount", ["one", "few", "other"]);
+  });
+
+  it("resolves home.how.steps title, desc and guarantee for every step", () => {
+    const steps = ["find", "request", "confirm"];
+    for (const part of ["title", "desc", "note"]) {
+      expectAllResolve("home.how.steps", steps, `.${part}`);
+    }
+  });
+
+  it("resolves home.faq.items question and answer for every item", () => {
+    const items = ["howItWorks", "cost", "areas", "becomeSitter", "realCompany"];
+    for (const part of ["q", "a"]) {
+      expectAllResolve("home.faq.items", items, `.${part}`);
+    }
+  });
+
+  it("resolves home.becomeSitter.perks for every perk", () => {
+    expectAllResolve("home.becomeSitter.perks", [
+      "ownRate",
+      "chooseServices",
+      "ownHours",
+      "free",
+    ]);
+  });
+
   it("resolves auth.knownErrors for every key matchAuthErrorKey can return", () => {
     expectAllResolve("auth.knownErrors", [
       "invalidCredentials", "userAlreadyRegistered",

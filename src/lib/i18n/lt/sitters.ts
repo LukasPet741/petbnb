@@ -6,6 +6,7 @@ const sitters = {
     searchAriaLabel: "Filtruoti pagal miestą",
     searchButton: "Ieškoti",
     clearCityAriaLabel: "Išvalyti miesto filtrą",
+    clearServiceAriaLabel: "Išvalyti paslaugos filtrą",
     errorTitle: "Nepavyko įkelti globėjų",
     errorDescription: "Įvyko klaida mūsų pusėje. Bandykite dar kartą po kelių akimirkų.",
     tryAgain: "Bandyti dar kartą",

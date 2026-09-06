@@ -6,6 +6,7 @@ const sitters = {
     searchAriaLabel: "Filter by city",
     searchButton: "Search",
     clearCityAriaLabel: "Clear city filter",
+    clearServiceAriaLabel: "Clear service filter",
     errorTitle: "Couldn't load sitters",
     errorDescription: "Something went wrong on our end. Please try again in a moment.",
     tryAgain: "Try again",

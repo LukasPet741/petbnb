@@ -9,17 +9,35 @@ import PublicFooter from "@/components/PublicFooter";
 import SitterCard from "@/components/SitterCard";
 import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/lib/supabase";
-import { type Profile } from "@/lib/types";
+import { type Profile, type ServiceType } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 
 type Status = "loading" | "error" | "ready";
+
+/** Only these four reach the filter. Anything else in the URL is ignored rather
+ *  than silently returning nothing, since ?service=<junk> would otherwise look
+ *  like "no sitters offer this" instead of "that is not a service". */
+const SERVICE_KEYS: ServiceType[] = ["walking", "boarding", "daycare", "grooming"];
 
 function SittersList() {
   const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const cityParam = searchParams.get("city") ?? "";
+  const rawService = searchParams.get("service") ?? "";
+  const serviceParam = SERVICE_KEYS.includes(rawService as ServiceType)
+    ? (rawService as ServiceType)
+    : "";
+
+  /** A filter chip clears only itself, so removing the city keeps the service. */
+  const urlWithout = (drop: "city" | "service") => {
+    const next = new URLSearchParams();
+    if (drop !== "city" && cityParam) next.set("city", cityParam);
+    if (drop !== "service" && serviceParam) next.set("service", serviceParam);
+    const qs = next.toString();
+    return qs ? `/sitters?${qs}` : "/sitters";
+  };
 
   const [city, setCity] = useState(cityParam);
   const [sitters, setSitters] = useState<Profile[]>([]);
@@ -43,12 +61,20 @@ function SittersList() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = city.trim();
-    router.push(q ? `/sitters?city=${encodeURIComponent(q)}` : "/sitters");
+    const next = new URLSearchParams();
+    if (q) next.set("city", q);
+    // Searching a city narrows the current view rather than replacing it, so a
+    // service arrived at from the landing page rail survives the search.
+    if (serviceParam) next.set("service", serviceParam);
+    const qs = next.toString();
+    router.push(qs ? `/sitters?${qs}` : "/sitters");
   };
 
-  const filtered = cityParam
-    ? sitters.filter((s) => s.city?.toLowerCase().includes(cityParam.toLowerCase()))
-    : sitters;
+  const filtered = sitters.filter((s) => {
+    const cityOk = !cityParam || (s.city ?? "").toLowerCase().includes(cityParam.toLowerCase());
+    const serviceOk = !serviceParam || s.services?.[serviceParam] === true;
+    return cityOk && serviceOk;
+  });
 
   return (
     <div className="min-h-[100dvh] bg-canvas flex flex-col">
@@ -79,12 +105,20 @@ function SittersList() {
           </button>
         </form>
 
-        {cityParam && (
-          <div className="flex items-center gap-2 mb-6 -mt-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-medium">
-              {cityParam}
-              <Link href="/sitters" aria-label={t("sitters.browse.clearCityAriaLabel")} className="hover:text-brand"><X className="w-3 h-3" /></Link>
-            </span>
+        {(cityParam || serviceParam) && (
+          <div className="flex flex-wrap items-center gap-2 mb-6 -mt-4">
+            {cityParam && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-medium">
+                {cityParam}
+                <Link href={urlWithout("city")} aria-label={t("sitters.browse.clearCityAriaLabel")} className="hover:text-brand"><X className="w-3 h-3" /></Link>
+              </span>
+            )}
+            {serviceParam && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-medium">
+                {t(`common.services.${serviceParam}`)}
+                <Link href={urlWithout("service")} aria-label={t("sitters.browse.clearServiceAriaLabel")} className="hover:text-brand"><X className="w-3 h-3" /></Link>
+              </span>
+            )}
           </div>
         )}
 
