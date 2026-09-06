@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, PawPrint } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -10,12 +11,14 @@ import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import RightRail from "@/components/RightRail";
 import type { Pet } from "@/lib/types";
+import { PHOTO_BUCKET, storagePathFromPublicUrl } from "@/lib/upload";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function PetsPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const router = useRouter();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,10 +31,14 @@ export default function PetsPage() {
 
   useEffect(() => { load(); }, [user]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (pet: Pet) => {
     if (!confirm(t("appPages.pets.removeConfirm"))) return;
-    await supabase.from("pets").delete().eq("id", id);
-    setPets((prev) => prev.filter((p) => p.id !== id));
+    // Drop the photo before the row: afterwards its URL is unrecoverable and
+    // the object would linger in the bucket with nothing pointing at it.
+    const path = storagePathFromPublicUrl(pet.photo_url);
+    if (path) await supabase.storage.from(PHOTO_BUCKET).remove([path]);
+    await supabase.from("pets").delete().eq("id", pet.id);
+    setPets((prev) => prev.filter((p) => p.id !== pet.id));
   };
 
   return (
@@ -65,7 +72,7 @@ export default function PetsPage() {
               <AnimatePresence>
                 {pets.map((pet) => (
                   <motion.div key={pet.id} variants={fadeUp}>
-                    <PetCard pet={pet} onDelete={() => handleDelete(pet.id)} />
+                    <PetCard pet={pet} onEdit={() => router.push(`/pets/${pet.id}/edit`)} onDelete={() => handleDelete(pet)} />
                   </motion.div>
                 ))}
               </AnimatePresence>

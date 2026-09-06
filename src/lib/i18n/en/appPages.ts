@@ -95,6 +95,7 @@ const appPages = {
     backToMyPets: "Back to my pets",
     title: "Add a pet",
     subtitle: "Tell sitters a little about your companion.",
+    photoLabel: "Photo",
     nameLabel: "Pet name",
     namePlaceholder: "e.g. Reksas",
     typeLabel: "Type",
@@ -109,6 +110,13 @@ const appPages = {
     optionalSuffix: "· optional",
     cancelButton: "Cancel",
     savePetButton: "Save pet",
+  },
+  petsEdit: {
+    title: "Edit pet",
+    subtitle: "Update your companion's details at any time.",
+    notFound: "We couldn't find that pet. It may have been removed.",
+    saveButton: "Save changes",
+    deleteButton: "Delete pet",
   },
   profile: {
     title: "Profile",
@@ -154,6 +162,15 @@ const appPages = {
   },
   petCard: {
     weightUnit: "kg",
+  },
+  imageUpload: {
+    addPhoto: "Add photo",
+    changePhoto: "Change photo",
+    removePhoto: "Remove",
+    errorWrongType: "That file type is not supported. Use a JPEG, PNG, WebP or GIF.",
+    errorTooLarge: "That photo is too large. The limit is 5 MB.",
+    errorEmpty: "That file is empty. Pick another photo.",
+    errorFailed: "We could not process that photo. Try a different one.",
   },
   favoriteButton: {
     removeFromSaved: "Remove from saved",

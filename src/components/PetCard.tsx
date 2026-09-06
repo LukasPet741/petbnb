@@ -1,24 +1,10 @@
 "use client";
-import { Dog, Cat, Bird, Fish, Squirrel, HelpCircle, Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { type Pet, type PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
-
-const PET_ICONS: Record<PetType, React.ElementType> = {
-  dog: Dog, cat: Cat, bird: Bird, fish: Fish,
-  reptile: Squirrel, small_mammal: Squirrel, other: HelpCircle,
-};
-
-const PET_COLORS: Record<PetType, string> = {
-  dog: "bg-amber-50 text-amber-600",
-  cat: "bg-violet-50 text-violet-600",
-  bird: "bg-sky-50 text-sky-600",
-  fish: "bg-blue-50 text-blue-600",
-  reptile: "bg-green-50 text-green-600",
-  small_mammal: "bg-orange-50 text-orange-600",
-  other: "bg-stone-100 text-stone-500",
-};
+import { petColor, petIcon } from "@/lib/petVisuals";
 
 interface PetCardProps {
   pet: Pet;
@@ -28,8 +14,8 @@ interface PetCardProps {
 
 export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
   const { t } = useLanguage();
-  const Icon = PET_ICONS[pet.type as PetType] ?? HelpCircle;
-  const colorClass = PET_COLORS[pet.type as PetType] ?? "bg-stone-100 text-stone-500";
+  const Icon = petIcon(pet.type as PetType);
+  const colorClass = petColor(pet.type as PetType);
 
   return (
     <motion.div

@@ -9,6 +9,7 @@ import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
 import Avatar from "@/components/Avatar";
+import ImageUpload from "@/components/ImageUpload";
 import PageHeader from "@/components/PageHeader";
 import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
@@ -62,6 +63,14 @@ export default function ProfilePage() {
     setSaving(false);
   };
 
+  const handleAvatarChange = async (url: string | null) => {
+    if (!user) return;
+    setError("");
+    const { error: err } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    if (err) { setError(err.message); return; }
+    await refresh();
+  };
+
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
 
   return (
@@ -77,9 +86,23 @@ export default function ProfilePage() {
 
       {/* Avatar card */}
       <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 mb-6">
-        <div className="flex items-center gap-5">
-          <Avatar name={form.full_name || t("appPages.profile.avatarFallbackName")} url={profile?.avatar_url} size="xl" />
-          <div className="min-w-0">
+        <div className="flex items-start gap-5">
+          <ImageUpload
+            userId={user?.id ?? ""}
+            kind="avatar"
+            value={profile?.avatar_url ?? null}
+            onChange={handleAvatarChange}
+            shape="circle"
+            className="w-20 h-20"
+            fallback={
+              <Avatar
+                name={form.full_name || t("appPages.profile.avatarFallbackName")}
+                size="xl"
+                className="w-full h-full"
+              />
+            }
+          />
+          <div className="min-w-0 pt-1">
             <h2 className="font-display text-xl font-semibold text-ink tracking-tight truncate">{form.full_name || t("appPages.profile.completeProfileFallback")}</h2>
             <p className="text-ink-soft text-sm mt-0.5">{form.city || t("appPages.profile.noCitySetFallback")}</p>
             <p className="text-ink-soft/70 text-xs mt-1 truncate">{user?.email}</p>

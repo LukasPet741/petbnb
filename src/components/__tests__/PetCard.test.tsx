@@ -261,12 +261,10 @@ describe("actions", () => {
     expect(onDelete).not.toHaveBeenCalled();
   });
 
-  // DEAD CODE: onEdit is supported here but no caller in the app supplies it -
-  // src/app/(app)/pets/page.tsx passes only onDelete. The pencil button is
-  // therefore unreachable in the shipped product, and there is no edit-pet
-  // route to reach either. Pinned so the prop is either wired up or removed
-  // deliberately rather than lingering as an untested branch.
-  it("supports an edit affordance the app never actually renders", async () => {
+  // Was dead code: onEdit had no caller and there was no edit-pet route to
+  // reach. Both now exist - src/app/(app)/pets/page.tsx routes the pencil to
+  // /pets/[id]/edit - so this pins the prop the shipped product depends on.
+  it("supports the edit affordance the pets list wires to the edit route", async () => {
     const onEdit = vi.fn();
     const user = userEvent.setup();
     render(<PetCard pet={pet()} onEdit={onEdit} />);

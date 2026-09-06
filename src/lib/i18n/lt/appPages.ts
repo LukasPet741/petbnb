@@ -95,6 +95,7 @@ const appPages = {
     backToMyPets: "Grįžti į mano augintinius",
     title: "Pridėti augintinį",
     subtitle: "Papasakokite globėjams šiek tiek apie savo augintinį.",
+    photoLabel: "Nuotrauka",
     nameLabel: "Augintinio vardas",
     namePlaceholder: "pvz. Reksas",
     typeLabel: "Rūšis",
@@ -109,6 +110,13 @@ const appPages = {
     optionalSuffix: "· neprivaloma",
     cancelButton: "Atšaukti",
     savePetButton: "Išsaugoti augintinį",
+  },
+  petsEdit: {
+    title: "Redaguoti augintinį",
+    subtitle: "Bet kada atnaujinkite savo augintinio informaciją.",
+    notFound: "Tokio augintinio rasti nepavyko. Galbūt jis buvo pašalintas.",
+    saveButton: "Išsaugoti pakeitimus",
+    deleteButton: "Ištrinti augintinį",
   },
   profile: {
     title: "Profilis",
@@ -154,6 +162,15 @@ const appPages = {
   },
   petCard: {
     weightUnit: "kg",
+  },
+  imageUpload: {
+    addPhoto: "Pridėti nuotrauką",
+    changePhoto: "Keisti nuotrauką",
+    removePhoto: "Pašalinti",
+    errorWrongType: "Šis failo tipas nepalaikomas. Naudokite JPEG, PNG, WebP arba GIF.",
+    errorTooLarge: "Ši nuotrauka per didelė. Didžiausias dydis – 5 MB.",
+    errorEmpty: "Šis failas tuščias. Pasirinkite kitą nuotrauką.",
+    errorFailed: "Nepavyko apdoroti šios nuotraukos. Pabandykite kitą.",
   },
   favoriteButton: {
     removeFromSaved: "Pašalinti iš išsaugotų",
