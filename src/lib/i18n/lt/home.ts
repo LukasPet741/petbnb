@@ -11,14 +11,14 @@ const home = {
   },
   services: {
     railLabel: "Naršyti pagal paslaugą",
-    title: "Keturi dalykai, kuriuos gali globėjas",
+    title: "Keturi dalykai, kuriuos gali atlikti globėjas",
     subtitle: "Kiekviena kortelė atveria tą paslaugą siūlančius globėjus jūsų mieste.",
     items: {
       walking: {
-        desc: "Globėjas atvyksta pas jus ir išveda šunį — paprastai 30–60 minučių jūsų pačių gatvėmis ir parkais. Dažniausias užsakymas čia ir paprasčiausias būdas pradėti su nauju žmogumi.",
+        desc: "Globėjas atvyksta pas jus ir išveda šunį — paprastai 30–60 minučių jūsų pačių gatvėmis ir parkais. Dažniausias užsakymas čia ir paprasčiausias būdas išbandyti naują globėją.",
       },
       boarding: {
-        desc: "Jums išvykus, augintinis nakvoja globėjo namuose. Dėl pristatymo ir pasiėmimo tariatės tiesiogiai, o dauguma globėjų prašo prieš pirmą naktį kartą susipažinti su gyvūnu.",
+        desc: "Jums išvykus, augintinis nakvoja globėjo namuose. Dėl atvežimo ir pasiėmimo tariatės tiesiogiai, o dauguma globėjų prašo bent kartą susipažinti su gyvūnu prieš pirmą naktį.",
       },
       daycare: {
         desc: "Dienos priežiūra pas globėją, kol dirbate, o vakare — namo. Tinka gyvūnams, kurie sunkiai lieka vieni, ir ilgoms dienoms, kurių niekaip nepertrauksite.",
@@ -39,11 +39,11 @@ const home = {
       },
       vetting: {
         title: "Globėjų netikriname",
-        body: "Jokių patikrų dėl praeities, jokių pokalbių, jokių patvirtinimo ženklelių. Viską profilyje parašė pats globėjas. Susitikite prieš užsakydami ir klauskite to, ko klaustumėte bet ko, kam paliekate gyvūną.",
+        body: "Jokių patikrų dėl praeities, jokių pokalbių, jokių patvirtinimo ženklelių. Viską profilyje parašė pats globėjas. Susitikite prieš užsakydami ir klauskite visko, ko klaustumėte bet kuriam žmogui, kuriam paliekate gyvūną.",
       },
       insurance: {
         title: "Jokio draudimo, jokios garantijos",
-        body: "Jei kas nors nutiktų, už to nestovi jokia apsauga ir nėra žalos atlyginimo tvarkos. Didesnės platformos tai siūlo. Tai studento projektas ir to nesiūlo, tad rizika lieka jums ir globėjui.",
+        body: "Jei kas nors nutiktų, už to nestovi jokia apsauga ir nėra žalos atlyginimo tvarkos. Didesnės platformos tai siūlo. Ši svetainė yra studento projektas ir to nesiūlo, tad rizika lieka jums ir globėjui.",
       },
       data: {
         title: "Jūsų duomenys lieka ES",

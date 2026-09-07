@@ -3,7 +3,9 @@
  * src/lib/i18n/en/legal.ts — raktų paritetą tikrina parity.test.ts, o skyrių
  * numeraciją ir jų egzistavimą — legal.test.ts.
  *
- * NB: šį tekstą parašė ne gimtakalbis. Reikia kalbinės peržiūros.
+ * NB: šį tekstą parašė ne gimtakalbis. Antra redakcija atlikta 2026-09-07 (ištaisyta
+ * padalyvio nesiderinimo klaida, klaidingas „train anything" vertimas ir keli anglicizmai),
+ * bet gimtakalbio peržiūros tai NEPAKEIČIA — tai teisinis tekstas viešoje svetainėje.
  */
 
 const legal = {
@@ -15,7 +17,7 @@ const legal = {
 
   terms: {
     title: "Taisyklės ir sąlygos",
-    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjis",
+    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjo mėn.",
     intro:
       "PetBnB yra universiteto projektas, o ne įmonė. Šiose taisyklėse aprašoma, kaip veikia ši demonstracinė versija ir ko ji sąmoningai nedaro. Jos parašytos siekiant sąžiningumo, o ne išsamumo, ir nėra teisinė konsultacija.",
     sections: {
@@ -25,7 +27,7 @@ const legal = {
       },
       acceptance: {
         heading: "2. Taisyklių priėmimas",
-        body: "Sukurdami paskyrą arba naudodamiesi svetaine sutinkate su šiomis taisyklėmis. Jei su jomis nesutinkate, prašome paslauga nesinaudoti. Bet kada galite liautis — tiesiog paprašykite ištrinti paskyrą.",
+        body: "Sukurdami paskyrą arba naudodamiesi svetaine sutinkate su šiomis taisyklėmis. Jei su jomis nesutinkate, prašome paslauga nesinaudoti. Bet kada galite nustoti naudotis — tiesiog paprašykite ištrinti paskyrą.",
       },
       userAccounts: {
         heading: "3. Jūsų paskyra",
@@ -33,7 +35,7 @@ const legal = {
       },
       bookings: {
         heading: "4. Užsakymai",
-        body: "Užsakymo užklausa yra supažindinimas, o ne sutartis su mumis. Globėjai patys pasirenka, kurias užklausas priimti, o bet koks susitarimas dėl datų, priežiūros ar pinigų sudaromas tiesiogiai tarp jūsų ir globėjo. PetBnB niekada nėra jo šalis ir negali jo užtikrinti.",
+        body: "Užsakymo užklausa yra tik susipažinimas, o ne sutartis su mumis. Globėjai patys pasirenka, kurias užklausas priimti, o bet koks susitarimas dėl datų, priežiūros ar pinigų sudaromas tiesiogiai tarp jūsų ir globėjo. PetBnB niekada nėra jo šalis ir negali užtikrinti jo vykdymo.",
       },
       payments: {
         heading: "5. Mokėjimai",
@@ -41,11 +43,11 @@ const legal = {
       },
       sitters: {
         heading: "6. Globėjai",
-        body: "Mes netikriname globėjų, su jais nekalbame, nerenkame duomenų apie jų praeitį ir netikriname nei draudimo, nei kvalifikacijos, nei rekomendacijų. Viskas globėjo profilyje parašyta paties globėjo. Pasikliaukite savo nuovoka, susitikite prieš užsakydami ir užduokite tuos klausimus, kuriuos užduotumėte bet kam, kam paliekate gyvūną.",
+        body: "Mes netikriname globėjų, nerengiame pokalbių, nerenkame duomenų apie jų praeitį ir netikriname nei draudimo, nei kvalifikacijos, nei rekomendacijų. Viskas globėjo profilyje parašyta paties globėjo. Pasikliaukite savo nuovoka, susitikite prieš užsakydami ir užduokite tuos klausimus, kuriuos užduotumėte bet kam, kam paliekate gyvūną.",
       },
       conduct: {
         heading: "7. Tinkamas naudojimasis",
-        body: "Naudokitės svetaine sąžiningai: savo tikruoju vardu, teisinga informacija apie augintinį ir tokiomis žinutėmis, kurias nesivaržytumėte išgirsti perskaitytas garsiai. Nepriekabiaukite prie kitų naudotojų, neslėpkite gyvūno sveikatos ar būdo ypatumų ir nenaudokite svetainės nesusijusiai reklamai. Tai pažeidžiantį turinį ar paskyras galime pašalinti.",
+        body: "Naudokitės svetaine sąžiningai: savo tikruoju vardu, teisinga informacija apie augintinį ir tokiomis žinutėmis, kurių nesigėdytumėte perskaityti balsu. Nepriekabiaukite prie kitų naudotojų, neslėpkite gyvūno sveikatos ar būdo ypatumų ir nenaudokite svetainės nesusijusiai reklamai. Šias taisykles pažeidžiantį turinį ar paskyras galime pašalinti.",
       },
       liability: {
         heading: "8. Atsakomybė",
@@ -53,7 +55,7 @@ const legal = {
       },
       dataAndPrivacy: {
         heading: "9. Jūsų duomenys",
-        body: "Naudojantis svetaine mes saugome jūsų paskyrą, o veiksmai su užsakymais reiškia, kad svetainė siunčia tikrus laiškus tikrais adresais. Gretimame skirtuke esančioje privatumo politikoje tiksliai nurodyta, kas renkama, kur tai saugoma ir kas gali tai skaityti.",
+        body: "Kai naudojatės svetaine, mes saugome jūsų paskyrą, o veiksmai su užsakymais reiškia, kad svetainė siunčia tikrus laiškus tikrais adresais. Gretimame skirtuke esančioje privatumo politikoje tiksliai nurodyta, kas renkama, kur tai saugoma ir kas gali tai skaityti.",
       },
       changes: {
         heading: "10. Taisyklių pakeitimai",
@@ -66,7 +68,7 @@ const legal = {
 
   privacy: {
     title: "Privatumo politika",
-    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjis",
+    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjo mėn.",
     intro:
       "Šioje politikoje aprašoma, ką PetBnB iš tikrųjų saugo, kur tai laikoma ir kas gali tai skaityti. Ten, kur sąžiningas atsakymas yra „nieko“, taip ir parašyta — tai studento projektas, renkantis kur kas mažiau duomenų nei komercinė platforma.",
     sections: {
@@ -76,11 +78,11 @@ const legal = {
       },
       whatWeCollect: {
         heading: "2. Ką renkame",
-        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Daugiau nieko — jokio slapto profiliavimo, jokių iš šalies nupirktų duomenų.",
+        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Daugiau nieko — jokio slapto profiliavimo, jokių iš kitur nupirktų duomenų.",
       },
       howWeUse: {
         heading: "3. Kam tai naudojame",
-        body: "Paslaugos veikimui ir niekam daugiau. Jūsų profilis rodomas tiems globėjams ir šeimininkams, su kuriais bendraujate, augintinio duomenys keliauja pas jūsų užsakytą globėją, o žinutės pristatomos tam, kam jas parašėte. Mes neparduodame jūsų duomenų, nedaliname jų reklamuotojams ir nieko jais nemokome.",
+        body: "Paslaugos veikimui ir niekam daugiau. Jūsų profilis rodomas tiems globėjams ir šeimininkams, su kuriais bendraujate, augintinio duomenys keliauja pas jūsų užsakytą globėją, o žinutės pristatomos tam, kam jas parašėte. Mes neparduodame jūsų duomenų, nedaliname jų reklamuotojams ir nenaudojame jų dirbtiniam intelektui mokyti.",
       },
       email: {
         heading: "4. Laiškai, kuriuos jums siunčiame",
