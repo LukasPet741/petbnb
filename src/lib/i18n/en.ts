@@ -5,6 +5,7 @@ import appShell from "./en/appShell";
 import appPages from "./en/appPages";
 import tips from "./en/tips";
 import messages from "./en/messages";
+import legal from "./en/legal";
 
 const en = {
   common: {
@@ -17,6 +18,7 @@ const en = {
     getStarted: "Get started",
     createAccount: "Create account",
     terms: "Terms & Conditions",
+    privacy: "Privacy Policy",
     footerNote: "A student project connecting pet owners with local sitters.",
     sitterWord: "sitter",
     languageLabel: "Language",
@@ -72,6 +74,7 @@ const en = {
   appPages,
   tips,
   messages,
+  legal,
 };
 
 export default en;

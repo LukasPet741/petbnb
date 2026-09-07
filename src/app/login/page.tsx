@@ -103,7 +103,7 @@ export default function LoginPage() {
             <Link href="/signup" className="text-brand font-medium hover:underline">{t("auth.login.createOneFree")}</Link>
           </motion.p>
           <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
-            {t("auth.login.termsAgreementPrefix")} <Link href="/terms" className="underline">{t("common.terms")}</Link>.
+            {t("auth.login.termsAgreementPrefix")} <Link href="/legal/terms" className="underline">{t("common.terms")}</Link>.
           </motion.p>
         </motion.div>
       </motion.div>

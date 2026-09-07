@@ -123,7 +123,7 @@ export default function SignupPage() {
             <Link href="/login" className="text-brand font-medium hover:underline">{t("common.signIn")}</Link>
           </motion.p>
           <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
-            {t("auth.signup.termsAgreementPrefix")} <Link href="/terms" className="underline">{t("common.terms")}</Link>.
+            {t("auth.signup.termsAgreementPrefix")} <Link href="/legal/terms" className="underline">{t("common.terms")}</Link>.
           </motion.p>
         </motion.div>
       </motion.div>

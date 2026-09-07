@@ -5,6 +5,7 @@ import appShell from "./lt/appShell";
 import appPages from "./lt/appPages";
 import tips from "./lt/tips";
 import messages from "./lt/messages";
+import legal from "./lt/legal";
 
 const lt = {
   common: {
@@ -17,6 +18,7 @@ const lt = {
     getStarted: "Pradėti",
     createAccount: "Sukurti paskyrą",
     terms: "Taisyklės ir sąlygos",
+    privacy: "Privatumo politika",
     footerNote: "Studentų projektas, jungiantis augintinių šeimininkus su vietos globėjais.",
     sitterWord: "globėjas",
     languageLabel: "Kalba",
@@ -71,6 +73,7 @@ const lt = {
   appPages,
   tips,
   messages,
+  legal,
 };
 
 export default lt;
