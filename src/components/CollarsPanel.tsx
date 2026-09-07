@@ -409,25 +409,30 @@ export default function CollarsPanel() {
                         <div className="py-8 text-center text-sm text-ink-soft">{t("appPages.collars.noLocationDataForDay")}</div>
                       ) : (
                         <>
-                          <div className="h-56">
+                          <div className="relative h-56">
                             <CollarMap
                               lat={routePoints[routePoints.length - 1].lat}
                               lng={routePoints[routePoints.length - 1].lng}
                               path={routePoints.slice(0, -1)}
                             />
+                            {(() => {
+                              const stats = routeStats(routePoints);
+                              return (
+                                /* Floated over the live tiles rather than stacked under them: the
+                                   OpenStreetMap raster is the only backdrop in this app varied
+                                   enough for frosted glass to do real optical work.
+                                   z-[800] clears Leaflet's own panes (400-700), and
+                                   pointer-events-none keeps map drag and zoom working through it. */
+                                <div className="glass-panel pointer-events-none absolute inset-x-2 bottom-2 z-[800] rounded-[var(--radius-input)] border px-3 py-2 text-xs text-ink tabular-nums">
+                                  {stats
+                                    ? t("appPages.collars.routeStatsSummary", { distance: stats.distanceKm.toFixed(2), duration: Math.round(stats.durationMin), points: routePoints.length })
+                                    : routePoints.length === 1
+                                      ? t("appPages.collars.routeNotEnoughSingular", { points: routePoints.length })
+                                      : t("appPages.collars.routeNotEnoughPlural", { points: routePoints.length })}
+                                </div>
+                              );
+                            })()}
                           </div>
-                          {(() => {
-                            const stats = routeStats(routePoints);
-                            return (
-                              <div className="px-4 py-2.5 text-xs text-ink-soft bg-surface-2 border-t border-black/10 tabular-nums">
-                                {stats
-                                  ? t("appPages.collars.routeStatsSummary", { distance: stats.distanceKm.toFixed(2), duration: Math.round(stats.durationMin), points: routePoints.length })
-                                  : routePoints.length === 1
-                                    ? t("appPages.collars.routeNotEnoughSingular", { points: routePoints.length })
-                                    : t("appPages.collars.routeNotEnoughPlural", { points: routePoints.length })}
-                              </div>
-                            );
-                          })()}
                         </>
                       )}
                     </motion.div>
@@ -453,7 +458,11 @@ function ModalShell({ children, onClose }: { children: React.ReactNode; onClose:
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      /* NOTE: this element animates its own opacity, and an element with opacity < 1
+         becomes a "backdrop root" per Filter Effects L2 — so the blur only engages
+         once the fade completes. Accepted deliberately; fixing it means restructuring
+         the mount animation. */
+      className="fixed inset-0 z-50 glass-scrim flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div

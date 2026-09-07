@@ -113,7 +113,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className={`lg:hidden sticky top-0 z-40 bg-canvas/85 backdrop-blur-md border-b border-ink/8 h-14 flex items-center justify-between pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] transition-shadow duration-300 ease-out ${scrolled ? "shadow-[var(--shadow-sm)]" : ""}`}>
+      <header className={`lg:hidden sticky top-0 z-40 glass border-b h-14 flex items-center justify-between pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] transition-shadow duration-300 ease-out ${scrolled ? "shadow-[var(--shadow-sm)]" : ""}`}>
         <Link href="/dashboard" className="flex items-center">
           <Logo size={28} showWordmark />
         </Link>
@@ -133,7 +133,7 @@ export default function Sidebar() {
       <AnimatePresence>
         {open && (
           <div className="lg:hidden">
-            <motion.div className="fixed inset-0 bg-ink/40 z-50 touch-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)} />
+            <motion.div className="fixed inset-0 glass-scrim z-50 touch-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)} />
             <motion.aside className="fixed inset-y-0 left-0 w-72 bg-surface flex flex-col z-50 overflow-y-auto overscroll-contain pl-[max(1rem,env(safe-area-inset-left))] pr-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)]"
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 400, damping: 38 }}>
               <button onClick={() => setOpen(false)} className="self-end p-2 rounded-lg text-ink-soft hover:bg-brand-softer -mt-1 mb-1"><X className="w-5 h-5" /></button>

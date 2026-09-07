@@ -318,7 +318,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
 
   return (
     <div className="h-[calc(100dvh-3.5rem)] lg:h-[100dvh] flex flex-col">
-      <header className="flex-shrink-0 border-b border-black/5 bg-surface/80 backdrop-blur-md">
+      <header className="flex-shrink-0 glass border-b">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-3">
           <Link
             href="/messages"
@@ -414,7 +414,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
         </div>
       </div>
 
-      <div className="flex-shrink-0 border-t border-black/5 bg-surface/80 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
+      <div className="flex-shrink-0 glass border-t pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-3">
           {sendError && (
             <p role="alert" className="flex items-center gap-1.5 text-xs text-danger mb-2">

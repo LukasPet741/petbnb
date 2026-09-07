@@ -121,7 +121,10 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
                         ))}
                         {rest > 0 && (
                           <span
-                            className={`ml-4 text-xs font-medium ${lead ? "text-white/80" : "text-ink-soft"}`}
+                            /* On the lead cell this sits directly on the photograph, so it gets a
+                               frosted chip. The other cells are on flat --canvas, where there is
+                               nothing behind the glass and it would only render grey. */
+                            className={`ml-4 text-xs font-medium ${lead ? "glass-chip rounded-full px-2 py-0.5 text-white" : "text-ink-soft"}`}
                           >
                             +{rest}
                           </span>

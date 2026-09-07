@@ -37,6 +37,20 @@
 
   --radius-card: 16px;
   --radius-input: 12px;
+
+  /* Glass — four materials, one recipe each. See the @utility rules below.
+     Saturation is the load-bearing part: on a light, low-contrast ground like
+     --canvas, blur alone renders grey and dirty. Boosting saturation of the
+     sampled backdrop is what reads as "glass" rather than "fog". */
+  --glass-tint: rgb(244 246 244 / 0.72);   /* --canvas, held back so content reads through */
+  --glass-tint-panel: rgb(255 255 255 / 0.88); /* --surface; higher, because panels sit over photos */
+  --glass-tint-scrim: rgb(19 26 23 / 0.42);    /* --ink, for the dim behind modals */
+  --glass-blur: 12px;
+  --glass-blur-panel: 16px;
+  --glass-blur-scrim: 8px;
+  --glass-saturate: 1.6;
+  --glass-border: rgb(19 26 23 / 0.08);    /* matches the existing border-ink/8 hairline */
+  --glass-sheen: inset 0 1px 0 rgb(255 255 255 / 0.55); /* specular top edge */
 }
 
 @theme inline {
@@ -62,6 +76,93 @@
   --color-amber-strong: var(--amber-strong);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   Glass materials.
+
+   Four roles, deliberately named, because before this there were five accidental
+   recipes across seven surfaces and every new surface invented a sixth.
+
+     .glass        chrome that page content scrolls beneath — headers, sticky bars
+     .glass-panel  a panel floating over varied content — photos, map tiles
+     .glass-chip   a light frosted chip sitting directly on imagery
+     .glass-scrim  the dim behind a modal or drawer
+
+   Rule of use: glass only where something varied actually passes behind it. Over
+   flat --canvas there is nothing to refract and it just renders grey.
+
+   Written as @utility (Tailwind v4) rather than in tailwind.config.ts, which is
+   DEAD in this project: there is no @config directive, so v4 never loads it.
+
+   Do NOT hand-write -webkit-backdrop-filter here. Lightning CSS collapses the
+   standard + prefixed pair into the prefixed form alone, which silently leaves
+   Firefox (unprefixed-only) with a tint and no blur. Verified in the built bundle.
+   Declare the standard property and let Lightning CSS add prefixes.
+   --------------------------------------------------------------------------- */
+
+@utility glass {
+  background-color: var(--glass-tint);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+@utility glass-panel {
+  background-color: var(--glass-tint-panel);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-sheen), var(--shadow-md);
+  backdrop-filter: blur(var(--glass-blur-panel)) saturate(var(--glass-saturate));
+}
+
+/* A light frosted chip sitting directly ON imagery — not a reading surface, so it
+   can stay far more transparent than .glass-panel. Holds white content against a
+   photo (the dashboard avatar), where an opaque plate would look pasted on. */
+@utility glass-chip {
+  background-color: rgb(255 255 255 / 0.18);
+  backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+}
+
+@utility glass-scrim {
+  background-color: var(--glass-tint-scrim);
+  backdrop-filter: blur(var(--glass-blur-scrim));
+}
+
+/* Fallback and opt-out.
+
+   Both blocks below are deliberately UNLAYERED. Tailwind v4 emits @utility output
+   inside @layer utilities, and an unlayered rule beats a layered one regardless of
+   specificity — the same mechanism the 16px input floor above relies on. That is
+   what lets these override the materials without !important. */
+
+/* No backdrop-filter (older engines, and anything with filters disabled): the tint
+   alone would leave a washed-out, half-legible bar. Go fully opaque instead. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background-color: var(--canvas); }
+  .glass-panel { background-color: var(--surface); }
+  .glass-chip { background-color: rgb(19 26 23 / 0.45); }
+  .glass-scrim { background-color: rgb(19 26 23 / 0.6); }
+}
+
+/* The user has asked their OS for fewer translucent effects. Honour it: swap to
+   opaque surfaces rather than merely dropping the blur, which would leave text
+   sitting on a see-through panel — the worst of both. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background-color: var(--canvas);
+    backdrop-filter: none;
+  }
+  .glass-panel {
+    background-color: var(--surface);
+    backdrop-filter: none;
+  }
+  .glass-chip {
+    background-color: rgb(19 26 23 / 0.45);
+    backdrop-filter: none;
+  }
+  .glass-scrim {
+    background-color: rgb(19 26 23 / 0.72);
+    backdrop-filter: none;
+  }
 }
 
 * {

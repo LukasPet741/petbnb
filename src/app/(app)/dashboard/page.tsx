@@ -93,7 +93,7 @@ export default function DashboardPage() {
         <img src={BANNER} alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/55 to-ink/10" />
         <div className="relative p-7 sm:p-9 min-h-[150px] flex items-center gap-4">
-          <Avatar name={profile?.full_name ?? t("appShell.sidebar.youFallback")} url={profile?.avatar_url} size="lg" className="bg-white/15 text-white ring-2 ring-white/50 backdrop-blur-sm hidden sm:flex" />
+          <Avatar name={profile?.full_name ?? t("appShell.sidebar.youFallback")} url={profile?.avatar_url} size="lg" className="glass-chip text-white ring-2 ring-white/50 hidden sm:flex" />
           <div>
             <h1 className="font-display text-2xl sm:text-3xl font-semibold text-white tracking-tight">{greeting}, {firstName}</h1>
             <p className="text-white/80 text-sm mt-1.5">{summary}</p>

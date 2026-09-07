@@ -17,7 +17,7 @@ export default function PublicHeader() {
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 bg-canvas/80 backdrop-blur-md border-b border-ink/8 transition-shadow duration-300 ease-out ${scrolled ? "shadow-[var(--shadow-sm)]" : ""}`}>
+    <header className={`sticky top-0 z-50 glass border-b transition-shadow duration-300 ease-out ${scrolled ? "shadow-[var(--shadow-sm)]" : ""}`}>
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <Logo size={32} showWordmark />
