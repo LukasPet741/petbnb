@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { excerpt, topCities, pickVoices, faceWall } from "@/lib/home";
+import { excerpt, topCities, pickVoices } from "@/lib/home";
 import type { Profile } from "@/lib/types";
 
 let seq = 0;
@@ -222,31 +222,5 @@ describe("pickVoices", () => {
       sitter({ full_name: "Named", experience_years: 2 }),
     ]);
     expect(out).toHaveLength(2);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// faceWall
-// ---------------------------------------------------------------------------
-
-describe("faceWall", () => {
-  it("keeps only sitters who have a photo", () => {
-    const out = faceWall([
-      sitter({ full_name: "Has", avatar_url: "https://x/p.jpg" }),
-      sitter({ full_name: "None", avatar_url: null }),
-    ]);
-    expect(out.map((s) => s.full_name)).toEqual(["Has"]);
-  });
-
-  it("excludes profiles that are not sitters", () => {
-    expect(faceWall([sitter({ is_sitter: false })])).toEqual([]);
-  });
-
-  it("returns an empty array when nobody has a photo, rather than a hole", () => {
-    expect(faceWall([sitter({ avatar_url: null })])).toEqual([]);
-  });
-
-  it("caps at the requested number of tiles", () => {
-    expect(faceWall(Array.from({ length: 12 }, () => sitter()), 5)).toHaveLength(5);
   });
 });

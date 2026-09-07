@@ -12,7 +12,7 @@ export default function Faq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="border-t border-black/5 bg-surface py-16 md:py-20">
+    <section className="border-t border-black/5 bg-surface py-12 md:py-16">
       <div className="max-w-2xl mx-auto px-4">
         <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink mb-8 text-center tracking-tight">
           {t("home.faq.title")}

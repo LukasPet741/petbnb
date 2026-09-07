@@ -30,7 +30,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
     "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-4 lg:h-[380px]";
 
   return (
-    <section className="py-16 md:py-20">
+    <section className="py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div className="max-w-lg">

@@ -7,11 +7,51 @@ const home = {
       "Walking, boarding, daycare and grooming, arranged directly with a sitter in your own city.",
     searchButton: "Find sitters",
     cityPlaceholder: "Your city",
-    wallAlt: "Sitters on PetBnB",
-    fallbackImageAlt: "A dog looked after by a PetBnB sitter",
+    photoAlt: "A dog being looked after by a sitter in Lithuania",
   },
   services: {
     railLabel: "Browse by service",
+    title: "Four things a sitter can do",
+    subtitle: "Every card opens the sitters offering it, filtered to your city.",
+    items: {
+      walking: {
+        desc: "A sitter comes to you and takes your dog out, usually for 30 to 60 minutes around your own streets and parks. The most common booking here, and the easiest place to start with someone new.",
+      },
+      boarding: {
+        desc: "Your pet stays overnight at the sitter's home while you are away. You agree drop-off and pick-up directly, and most sitters ask to meet the animal once before the first night.",
+      },
+      daycare: {
+        desc: "Daytime care at the sitter's place while you work, then home in the evening. Suited to animals that do not settle on their own, and to long days you cannot break up.",
+      },
+      grooming: {
+        desc: "Washing, brushing, nail trimming and coat work. The most skill-dependent service on the site, so read the bio and ask what breeds and coats the sitter has handled before.",
+      },
+    },
+  },
+
+  honest: {
+    title: "What this site does, and what it doesn't",
+    subtitle: "Most marketplaces bury this in a terms page. Ours is short enough to read here.",
+    points: {
+      fees: {
+        title: "No fees, no payments",
+        body: "PetBnB takes no commission and processes no money. Sitters set their own rate and you settle it between yourselves, away from the platform. Nothing here ever asks for card details.",
+      },
+      vetting: {
+        title: "We do not vet sitters",
+        body: "No background checks, no interviews, no verified badges. Everything on a profile was written by that sitter. Meet before you book, and ask what you would ask anyone minding your animal.",
+      },
+      insurance: {
+        title: "No insurance, no guarantee",
+        body: "If something goes wrong there is no cover behind it and no claims process. Bigger platforms offer one. This is a student project and does not, so the risk stays with you and the sitter.",
+      },
+      data: {
+        title: "Your data stays in the EU",
+        body: "Accounts, pets and messages live in a Postgres database in Frankfurt. There is no analytics package, no tracking pixel and nobody measuring your visit.",
+      },
+    },
+    termsLink: "Read the full terms",
+    privacyLink: "Read the privacy policy",
   },
   cities: {
     title: "Start with your city",
@@ -78,23 +118,23 @@ const home = {
     items: {
       howItWorks: {
         q: "How does PetBnB work?",
-        a: "Browse local sitters, open a profile, and send a booking request for the dates and service you need. The sitter reviews it and confirms, then you're set.",
+        a: "Browse local sitters, open a profile, and send a booking request for the dates and service you need. The sitter reviews it and either confirms or declines, and you can message each other here while you sort out the details. Nothing is charged and nothing is binding until you both agree.",
       },
       cost: {
         q: "How much does it cost?",
-        a: "Each sitter sets their own hourly rate (they start from around €10/hr). PetBnB doesn't add any booking fees on top.",
+        a: "Each sitter sets their own hourly rate, starting from around €10/hr. PetBnB adds nothing on top: no booking fee, no service charge, no commission. You pay the sitter directly, however the two of you arrange it.",
       },
       areas: {
         q: "Which areas are covered?",
-        a: "Sitters are active across Vilnius, Kaunas, Klaipėda, Šiauliai and Panevėžys, with more cities as the community grows.",
+        a: "Sitters are active across Vilnius, Kaunas, Klaipėda, Šiauliai and Panevėžys. Coverage is uneven and we would rather say so: some cities have a handful of people, not a full roster. If yours looks empty, it means nobody has signed up there yet.",
       },
       becomeSitter: {
         q: "How do I become a sitter?",
-        a: "Create an account, open your Profile, switch on Sitter mode, and add your services, rate and a short bio. You'll appear in browse results right away.",
+        a: "Create an account, open your Profile, switch on Sitter mode, then add your services, your rate and a short bio. You appear in browse results straight away — there is no application to submit and no approval to wait for.",
       },
       realCompany: {
         q: "Is this a real company?",
-        a: "PetBnB is a university project, a full-stack demo marketplace built to show how the experience could work end to end.",
+        a: "No. PetBnB is a university project, a full-stack demonstration marketplace built to show how the experience could work end to end. There is no company behind it, and most sitters you see are seeded example accounts rather than people working today.",
       },
     },
   },

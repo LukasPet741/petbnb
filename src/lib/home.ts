@@ -98,10 +98,3 @@ export function pickVoices(profiles: Profile[], limit = 6): Profile[] {
     .slice(0, limit);
 }
 
-/** Sitters with a real photo, for the hero pinboard. No photo, no tile. */
-export function faceWall(profiles: Profile[], limit = 5): Profile[] {
-  return profiles
-    .filter((p) => p.is_sitter && Boolean(p.avatar_url))
-    .sort(byStanding)
-    .slice(0, limit);
-}

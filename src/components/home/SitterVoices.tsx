@@ -20,7 +20,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
   const voices = pickVoices(sitters, MAX_VOICES);
 
   return (
-    <section className="border-y border-black/5 bg-surface py-16 md:py-20">
+    <section className="border-y border-black/5 bg-surface py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div className="max-w-lg">

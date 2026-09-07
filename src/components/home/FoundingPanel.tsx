@@ -17,7 +17,7 @@ export default function FoundingPanel() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="py-16 md:py-20">
+    <section className="py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}

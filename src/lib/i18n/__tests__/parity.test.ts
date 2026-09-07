@@ -221,6 +221,21 @@ describe("dynamic key templates resolve in both languages", () => {
     }
   });
 
+  it("resolves a description for every service card", () => {
+    // ServiceCards builds t(`home.services.items.${key}.desc`) from the ServiceType
+    // union. A miss prints the raw dot-path onto the landing page.
+    expectAllResolve("home.services.items", SERVICES, ".desc");
+  });
+
+  it("resolves title and body for every honest-block point", () => {
+    // The "what we do and do not do" block is built by concatenation from a local
+    // array of point ids; nothing type-checks those against the dictionary.
+    const points = ["fees", "vetting", "insurance", "data"];
+    for (const part of ["title", "body"]) {
+      expectAllResolve("home.honest.points", points, `.${part}`);
+    }
+  });
+
   it("resolves home.becomeSitter.perks for every perk", () => {
     expectAllResolve("home.becomeSitter.perks", [
       "ownRate",

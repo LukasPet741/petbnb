@@ -7,11 +7,51 @@ const home = {
       "Vedžiojimas, apgyvendinimas, dienos priežiūra ir kirpimas, sutariama tiesiogiai su globėju jūsų mieste.",
     searchButton: "Ieškoti globėjų",
     cityPlaceholder: "Jūsų miestas",
-    wallAlt: "PetBnB globėjai",
-    fallbackImageAlt: "Šuo, kurį prižiūri PetBnB globėjas",
+    photoAlt: "Šuo, kurį Lietuvoje prižiūri globėjas",
   },
   services: {
     railLabel: "Naršyti pagal paslaugą",
+    title: "Keturi dalykai, kuriuos gali globėjas",
+    subtitle: "Kiekviena kortelė atveria tą paslaugą siūlančius globėjus jūsų mieste.",
+    items: {
+      walking: {
+        desc: "Globėjas atvyksta pas jus ir išveda šunį — paprastai 30–60 minučių jūsų pačių gatvėmis ir parkais. Dažniausias užsakymas čia ir paprasčiausias būdas pradėti su nauju žmogumi.",
+      },
+      boarding: {
+        desc: "Jums išvykus, augintinis nakvoja globėjo namuose. Dėl pristatymo ir pasiėmimo tariatės tiesiogiai, o dauguma globėjų prašo prieš pirmą naktį kartą susipažinti su gyvūnu.",
+      },
+      daycare: {
+        desc: "Dienos priežiūra pas globėją, kol dirbate, o vakare — namo. Tinka gyvūnams, kurie sunkiai lieka vieni, ir ilgoms dienoms, kurių niekaip nepertrauksite.",
+      },
+      grooming: {
+        desc: "Maudymas, šukavimas, nagų kirpimas ir kailio priežiūra. Labiausiai nuo įgūdžių priklausanti paslauga svetainėje, tad perskaitykite aprašymą ir pasiteiraukite, su kokiomis veislėmis globėjas jau dirbo.",
+      },
+    },
+  },
+
+  honest: {
+    title: "Ką ši svetainė daro ir ko nedaro",
+    subtitle: "Daugelis platformų tai paslepia taisyklėse. Mūsų sąrašas pakankamai trumpas, kad perskaitytumėte čia pat.",
+    points: {
+      fees: {
+        title: "Jokių mokesčių, jokių mokėjimų",
+        body: "PetBnB neima komisinių ir netvarko pinigų. Globėjai patys nustato įkainį, o jūs atsiskaitote tarpusavyje, už platformos ribų. Niekur čia neprašoma kortelės duomenų.",
+      },
+      vetting: {
+        title: "Globėjų netikriname",
+        body: "Jokių patikrų dėl praeities, jokių pokalbių, jokių patvirtinimo ženklelių. Viską profilyje parašė pats globėjas. Susitikite prieš užsakydami ir klauskite to, ko klaustumėte bet ko, kam paliekate gyvūną.",
+      },
+      insurance: {
+        title: "Jokio draudimo, jokios garantijos",
+        body: "Jei kas nors nutiktų, už to nestovi jokia apsauga ir nėra žalos atlyginimo tvarkos. Didesnės platformos tai siūlo. Tai studento projektas ir to nesiūlo, tad rizika lieka jums ir globėjui.",
+      },
+      data: {
+        title: "Jūsų duomenys lieka ES",
+        body: "Paskyros, augintiniai ir žinutės saugomi „Postgres“ duomenų bazėje Frankfurte. Nėra jokios analitikos, jokio sekimo pikselio ir niekas nematuoja jūsų apsilankymo.",
+      },
+    },
+    termsLink: "Skaityti visas taisykles",
+    privacyLink: "Skaityti privatumo politiką",
   },
   cities: {
     title: "Pradėkite nuo savo miesto",
@@ -78,23 +118,23 @@ const home = {
     items: {
       howItWorks: {
         q: "Kaip veikia PetBnB?",
-        a: "Naršykite vietos globėjus, atsidarykite profilį ir išsiųskite užsakymo užklausą reikiamoms datoms bei paslaugai. Globėjas ją peržiūri ir patvirtina, tada viskas sutvarkyta.",
+        a: "Naršykite vietos globėjus, atsidarykite profilį ir išsiųskite užsakymo užklausą reikiamoms datoms bei paslaugai. Globėjas ją peržiūri ir arba patvirtina, arba atmeta, o detales galite aptarti susirašinėdami čia pat. Niekas neapmokestinama ir niekas neįpareigoja, kol abu nesutariate.",
       },
       cost: {
         q: "Kiek tai kainuoja?",
-        a: "Kiekvienas globėjas nustato savo valandinį įkainį (jie prasideda nuo maždaug €10/val.). PetBnB neprideda jokių papildomų užsakymo mokesčių.",
+        a: "Kiekvienas globėjas nustato savo valandinį įkainį, prasidedantį nuo maždaug €10/val. PetBnB nieko neprideda: jokio užsakymo mokesčio, jokio aptarnavimo mokesčio, jokių komisinių. Globėjui sumokate tiesiogiai, kaip patys susitariate.",
       },
       areas: {
         q: "Kurie miestai aptarnaujami?",
-        a: "Globėjai aktyviai dirba Vilniuje, Kaune, Klaipėdoje, Šiauliuose ir Panevėžyje, o bendruomenei augant prisidės ir daugiau miestų.",
+        a: "Globėjai dirba Vilniuje, Kaune, Klaipėdoje, Šiauliuose ir Panevėžyje. Aprėptis netolygi, ir mes verčiau tai pasakome: kai kuriuose miestuose yra vos keli žmonės, o ne visas sąrašas. Jei jūsiškis atrodo tuščias, vadinasi, ten dar niekas neužsiregistravo.",
       },
       becomeSitter: {
         q: "Kaip tapti globėju?",
-        a: "Susikurkite paskyrą, atsidarykite Profilį, įjunkite Globėjo režimą ir pridėkite paslaugas, įkainį bei trumpą aprašymą. Iškart atsirasite paieškos rezultatuose.",
+        a: "Susikurkite paskyrą, atsidarykite Profilį, įjunkite Globėjo režimą ir pridėkite paslaugas, įkainį bei trumpą aprašymą. Paieškos rezultatuose atsirasite iškart — nereikia nei teikti paraiškos, nei laukti patvirtinimo.",
       },
       realCompany: {
         q: "Ar tai tikra įmonė?",
-        a: "PetBnB yra universiteto projektas, pilnavertė demonstracinė prekyvietė, sukurta parodyti, kaip visas procesas galėtų veikti nuo pradžios iki pabaigos.",
+        a: "Ne. PetBnB yra universiteto projektas, pilnavertė demonstracinė prekyvietė, sukurta parodyti, kaip visas procesas galėtų veikti nuo pradžios iki pabaigos. Už jos nestovi jokia įmonė, o dauguma matomų globėjų yra pavyzdiniai profiliai, o ne šiandien dirbantys žmonės.",
       },
     },
   },

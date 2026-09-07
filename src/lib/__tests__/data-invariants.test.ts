@@ -90,8 +90,17 @@ describe("image constants", () => {
     ...Object.values(AUTH),
   ];
 
-  it("exposes seven curated URLs", () => {
-    expect(allUrls).toHaveLength(7);
+  it("exposes eight curated URLs", () => {
+    // Eight since HERO.wide was added: the landscape crop the hero renders
+    // full-bleed, replacing the pinboard that upscaled 128px sitter avatars.
+    expect(allUrls).toHaveLength(8);
+  });
+
+  it("requests the full-bleed hero photograph large enough not to upscale", () => {
+    // The defect this replaced was a 128px source stretched across 460px. Pin the
+    // requested width so a future crop cannot quietly reintroduce it.
+    const width = Number(new URL(HERO.wide).searchParams.get("w"));
+    expect(width).toBeGreaterThanOrEqual(1200);
   });
 
   it("serves every URL from the Unsplash CDN over https", () => {

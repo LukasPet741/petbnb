@@ -5,11 +5,12 @@ import { type Profile } from "@/lib/types";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import Hero from "@/components/home/Hero";
-import ServiceRail from "@/components/home/ServiceRail";
+import ServiceCards from "@/components/home/ServiceCards";
 import CityGrid from "@/components/home/CityGrid";
 import SitterVoices from "@/components/home/SitterVoices";
 import HowItWorks from "@/components/home/HowItWorks";
 import Faq from "@/components/home/Faq";
+import Honest from "@/components/home/Honest";
 import FoundingPanel from "@/components/home/FoundingPanel";
 import { type HomeStatus } from "@/components/home/status";
 
@@ -59,11 +60,12 @@ export default function LandingPage() {
     <div className="min-h-[100dvh] bg-canvas">
       <PublicHeader />
       <main>
-        <Hero sitters={sitters} status={status} />
-        <ServiceRail />
+        <Hero />
+        <ServiceCards />
         <CityGrid sitters={sitters} status={status} />
         <SitterVoices sitters={sitters} status={status} />
         <HowItWorks />
+        <Honest />
         <Faq />
         <FoundingPanel />
       </main>
