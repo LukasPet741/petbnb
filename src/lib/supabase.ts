@@ -61,6 +61,35 @@ export type Database = {
         Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at">;
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
       };
+      reviews: {
+        Row: {
+          id: string;
+          booking_id: string;
+          owner_id: string;
+          sitter_id: string;
+          rating: number;
+          body: string | null;
+          created_at: string;
+        };
+        // owner_id and sitter_id stay required on insert: the RLS policy checks both
+        // against the booking, so the client must send what it believes them to be
+        // rather than letting the database infer them.
+        Insert: Omit<Database["public"]["Tables"]["reviews"]["Row"], "id" | "created_at">;
+        Update: Partial<
+          Pick<Database["public"]["Tables"]["reviews"]["Row"], "rating" | "body">
+        >;
+      };
+    };
+    Views: {
+      // Derived from public.reviews, never written to. Declared read-only here so a
+      // stray .insert() on it is a type error rather than a runtime one.
+      sitter_ratings: {
+        Row: {
+          sitter_id: string;
+          review_count: number;
+          average_rating: number;
+        };
+      };
     };
   };
 };
