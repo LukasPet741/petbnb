@@ -1,5 +1,17 @@
 # Next Session
 
+> **SUPERSEDED — kept for history, do not plan from this file.**
+>
+> Written before the test suite, CI and the live deployment existed, and before the current
+> design system replaced the one it describes. Concretely: §2 says "zero automated test
+> coverage" (there are now 1092 tests), "no CI pipeline, no live deployment" (CI runs on
+> every push and the site is live at petbnb.lt), and §3's "Pine, Slate & Bone" palette and
+> `FeaturedSitterHero` have both since been replaced.
+>
+> For setup on a new machine, read `SETUP.md`. For where the project actually stands, read
+> the project notes in the Claude memory directory (`SETUP.md` §5 explains how to restore
+> them) — or ask Lukas.
+
 Six sections: orientation, graduation readiness, what this session did, what's next, reference data, known issues. This file replaces the previous version (old sage-green palette / old accounts / old dummy-data IDs are all gone — do not trust anything from git history before this rewrite).
 
 ---

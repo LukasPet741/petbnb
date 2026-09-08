@@ -14,3 +14,8 @@ iot-collar/.env
 .impeccable/
 skills-lock.json
 supabase/.temp/
+
+# The template is the one env file that must be tracked: it carries the key names and
+# where each value comes from, and it holds no values itself. It has to be un-ignored
+# explicitly because `.env*` above matches it.
+!.env.example
