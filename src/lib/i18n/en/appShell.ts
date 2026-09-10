@@ -11,6 +11,7 @@ const appShell = {
       messages: "Messages",
       saved: "Saved",
       profile: "Profile",
+      legal: "Terms",
     },
     signOut: "Sign out",
     youFallback: "You",

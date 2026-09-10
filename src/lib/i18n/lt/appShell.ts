@@ -11,6 +11,7 @@ const appShell = {
       messages: "Žinutės",
       saved: "Išsaugota",
       profile: "Profilis",
+      legal: "Taisyklės",
     },
     signOut: "Atsijungti",
     youFallback: "Jūs",

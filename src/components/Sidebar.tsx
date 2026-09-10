@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut } from "lucide-react";
+import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,9 @@ const LINKS = [
   { href: "/messages", key: "appShell.sidebar.nav.messages", icon: MessageCircle },
   { href: "/saved", key: "appShell.sidebar.nav.saved", icon: Bookmark },
   { href: "/profile", key: "appShell.sidebar.nav.profile", icon: User },
+  // Last on purpose: reference material, not somewhere anyone came here to go.
+  // /legal redirects to /legal/terms, so this stays current on the privacy tab too.
+  { href: "/legal", key: "appShell.sidebar.nav.legal", icon: FileText },
 ];
 
 export default function Sidebar() {
@@ -72,6 +75,9 @@ export default function Sidebar() {
           const badge = href === "/messages" ? unreadCount : 0;
           return (
             <Link key={href} href={href} onClick={() => setOpen(false)}
+              // The active state used to be styling only, and colour alone does not
+              // tell a screen reader which section it is in.
+              aria-current={active ? "page" : undefined}
               className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors", active ? "bg-brand-soft text-brand-strong" : "text-ink-soft hover:bg-brand-softer hover:text-ink")}>
               <Icon className="w-[18px] h-[18px]" />{t(key)}
               {badge > 0 && (
