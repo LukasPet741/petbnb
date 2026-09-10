@@ -27,6 +27,12 @@ interface BookingCardProps {
   onDecline?: () => void;
   onCancel?: () => void;
   onMarkCompleted?: () => void;
+  /**
+   * Rendered under the card's row. The bookings page passes the review affordance
+   * here rather than this component growing a notion of reviews: BookingCard serves
+   * both the owner and the sitter view, and only an owner can review anything.
+   */
+  reviewSlot?: React.ReactNode;
 }
 
 const ELEVATED_SHADOW = "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(31 92 71 / 0.08)";
@@ -45,7 +51,7 @@ export function getRelativeLabel(startAt: string, t: (key: string, vars?: Record
   return t("appPages.bookings.relativeInDays", { days: diffDays });
 }
 
-export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted }: BookingCardProps) {
+export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted, reviewSlot }: BookingCardProps) {
   const { t, locale } = useLanguage();
   const status = STATUS_CONFIG[booking.status as BookingStatus];
   const photo = booking.pet?.photo_url || displayProfile?.avatar_url || null;
@@ -126,7 +132,8 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
 
   // Resolved: a record, not a decision. Flat, compact, quiet — one small housekeeping action at most.
   return (
-    <motion.div layout exit={{ opacity: 0, scale: 0.97 }} className="bg-surface border border-black/5 rounded-[var(--radius-card)] px-4 py-3 flex items-center gap-3">
+    <motion.div layout exit={{ opacity: 0, scale: 0.97 }} className="bg-surface border border-black/5 rounded-[var(--radius-card)] px-4 py-3">
+      <div className="flex items-center gap-3">
       {photo ? (
         <img src={photo} alt={booking.pet?.name ?? ""} className="w-11 h-11 rounded-[var(--radius-input)] object-cover flex-shrink-0" />
       ) : (
@@ -152,6 +159,8 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${status?.color ?? ""}`}>
         {t(`common.bookingStatus.${booking.status}`)}
       </span>
+      </div>
+      {reviewSlot}
     </motion.div>
   );
 }

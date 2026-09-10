@@ -40,6 +40,18 @@ const sitters = {
       few: "{count} reviews",
       other: "{count} reviews",
     },
+    form: {
+      leave: "Leave a review",
+      edit: "Edit review",
+      yourReview: "Your review",
+      ratingLabel: "Your rating",
+      starLabel: "{count} out of 5",
+      bodyLabel: "Your review (optional)",
+      bodyPlaceholder: "How did it go? (optional)",
+      post: "Post review",
+      cancel: "Cancel",
+      error: "Couldn't save your review. Please try again.",
+    },
   },
   profile: {
     backToSitters: "Back to sitters",

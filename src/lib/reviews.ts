@@ -52,3 +52,46 @@ export function formatAverage(locale: Locale, average: number): string {
 export function reviewCountForm(locale: Locale, count: number): PluralForm {
   return pluralForm(locale, count);
 }
+
+/**
+ * The longest body the reviews CHECK constraint accepts.
+ *
+ * `check (body is null or char_length(btrim(body)) between 1 and 2000)` — the upper
+ * bound is duplicated here so the form can stop at the limit rather than discovering
+ * it as a 400 from PostgREST after somebody has written 2,001 characters.
+ */
+export const REVIEW_BODY_MAX_LENGTH = 2000;
+
+/**
+ * What the review textarea should send to the database.
+ *
+ * The constraint rejects an empty string and accepts NULL, so "left blank" has to
+ * become null rather than "". A star with no words is a complete review; requiring
+ * text would cost most of them.
+ *
+ * The inside of the text is left exactly as written — ReviewList renders it with
+ * whitespace-pre-line, so paragraph breaks are meaningful and collapsing them would
+ * silently reformat what somebody wrote.
+ */
+export function normaliseReviewBody(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return null;
+  return trimmed.slice(0, REVIEW_BODY_MAX_LENGTH);
+}
+
+/**
+ * Whether a rating is one the column will accept: a whole number from 1 to 5.
+ *
+ * Zero is excluded deliberately — it is how StarInput reports "nothing chosen", and
+ * it is the value that must not reach a NOT NULL column. Halves are excluded because
+ * rating is a smallint; Stars renders half stars for a computed average, but a single
+ * review can never be one.
+ */
+export function isValidRating(value: unknown): boolean {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= MIN_RATING &&
+    value <= MAX_RATING
+  );
+}

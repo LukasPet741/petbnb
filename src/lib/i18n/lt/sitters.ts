@@ -40,6 +40,18 @@ const sitters = {
       few: "{count} atsiliepimai",
       other: "{count} atsiliepimų",
     },
+    form: {
+      leave: "Palikti atsiliepimą",
+      edit: "Redaguoti atsiliepimą",
+      yourReview: "Jūsų atsiliepimas",
+      ratingLabel: "Jūsų įvertinimas",
+      starLabel: "{count} iš 5",
+      bodyLabel: "Jūsų atsiliepimas (nebūtina)",
+      bodyPlaceholder: "Kaip sekėsi? (nebūtina)",
+      post: "Skelbti atsiliepimą",
+      cancel: "Atšaukti",
+      error: "Nepavyko išsaugoti atsiliepimo. Bandykite dar kartą.",
+    },
   },
   profile: {
     backToSitters: "Grįžti į globėjų sąrašą",

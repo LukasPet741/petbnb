@@ -8,6 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { type BookingStatus } from "@/lib/types";
 import BookingCard from "@/components/BookingCard";
+import BookingReview from "@/components/BookingReview";
+import { useMyReviews } from "@/hooks/useMyReviews";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import RightRail from "@/components/RightRail";
@@ -36,6 +38,14 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // One query for every completed booking this user owns, rather than one per card.
+  // Bookings where they were the sitter are excluded: a sitter cannot review anyone,
+  // and reviews_no_self_review would reject it even if the UI offered.
+  const reviewableBookingIds = bookings
+    .filter((b) => b.status === "completed" && b.owner?.id === user?.id)
+    .map((b) => b.id);
+  const { reviews, saveReview, error: reviewError } = useMyReviews(reviewableBookingIds);
 
   const load = async () => {
     if (!user) return;
@@ -81,6 +91,10 @@ export default function BookingsPage() {
     const isSitterView = Boolean(profile?.is_sitter && booking.sitter?.id === user?.id);
     const displayProfile = isSitterView ? booking.owner : booking.sitter;
     const displayLabel = isSitterView ? t("appPages.bookings.ownerLabel") : t("appPages.bookings.sitterLabel");
+    // Only the owner reviews, and only a completed booking. The same card renders for
+    // the sitter, who gets no review affordance at all.
+    const sitterId = booking.sitter?.id;
+    const reviewable = !isSitterView && booking.status === "completed" && sitterId && user?.id;
     return (
       <motion.div key={booking.id} variants={fadeUp}>
         <BookingCard
@@ -92,6 +106,16 @@ export default function BookingsPage() {
           onAccept={() => handleUpdateStatus(booking.id, "signed")}
           onDecline={() => handleUpdateStatus(booking.id, "declined")}
           onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
+          reviewSlot={
+            reviewable ? (
+              <BookingReview
+                target={{ bookingId: booking.id, sitterId: sitterId!, ownerId: user!.id }}
+                review={reviews.get(booking.id)}
+                onSave={saveReview}
+                error={reviewError}
+              />
+            ) : undefined
+          }
         />
       </motion.div>
     );
