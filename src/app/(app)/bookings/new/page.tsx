@@ -5,7 +5,7 @@ import { ArrowLeft, CalendarDays, Search } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
-import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
+import { SERVICE_LABELS, type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -35,7 +35,7 @@ function NewBookingForm() {
 
   useEffect(() => {
     if (form.sitter_id) {
-      supabase.from("profiles").select("*").eq("id", form.sitter_id).single().then(({ data }) => setSitterProfile(data as Profile));
+      supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("id", form.sitter_id).single().then(({ data }) => setSitterProfile(data as Profile));
     }
     if (user) supabase.from("pets").select("id,name").eq("owner_id", user.id).then(({ data }) => {
       setPets(data ?? []);

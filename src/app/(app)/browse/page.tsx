@@ -6,7 +6,7 @@ import SitterCard from "@/components/SitterCard";
 import SitterMini from "@/components/SitterMini";
 import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/lib/supabase";
-import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
+import { SERVICE_LABELS, type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
@@ -32,7 +32,7 @@ export default function BrowsePage() {
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
   useEffect(() => {
-    supabase.from("profiles").select("*").eq("is_sitter", true).then(({ data }) => {
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).then(({ data }) => {
       const rows = (data ?? []) as Profile[];
       setSitters(rows);
       const unique = ["All cities", ...Array.from(new Set(rows.map((s) => s.city).filter(Boolean)))];

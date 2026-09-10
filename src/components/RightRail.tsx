@@ -8,7 +8,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "./Avatar";
 import SitterMini from "./SitterMini";
 import TipWidget from "./TipWidget";
-import { STATUS_CONFIG, type BookingStatus, type Profile } from "@/lib/types";
+import { STATUS_CONFIG, type BookingStatus, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
 interface NextBooking {
@@ -31,7 +31,7 @@ export default function RightRail({ showNextBooking = true }: { showNextBooking?
         .order("start_at").limit(1)
         .then(({ data }) => setNext((data?.[0] as unknown as NextBooking) ?? null));
     }
-    supabase.from("profiles").select("*").eq("is_sitter", true).not("avatar_url", "is", null)
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).not("avatar_url", "is", null)
       .order("experience_years", { ascending: false }).limit(12)
       .then(({ data }) => {
         const pool = (data as Profile[]) ?? [];

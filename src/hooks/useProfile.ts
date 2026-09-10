@@ -3,8 +3,16 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import type { Database } from "@/lib/supabase";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Profile = Database["public"]["Views"]["my_profile"]["Row"];
 
+/**
+ * Own profile, read through the `my_profile` view rather than the profiles table.
+ *
+ * `authenticated` holds a SELECT grant on only the public columns of profiles, so
+ * `select("*")` there is an error and `phone` is not among the columns it can name.
+ * The view is `where id = auth.uid()`, which is the one place a phone number is
+ * legitimately readable: your own.
+ */
 export function useProfile() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -15,10 +23,9 @@ export function useProfile() {
     if (!user) { setLoading(false); return; }
 
     supabase
-      .from("profiles")
+      .from("my_profile")
       .select("*")
-      .eq("id", user.id)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         setProfile(data);
         setLoading(false);
@@ -27,7 +34,7 @@ export function useProfile() {
 
   const refresh = async () => {
     if (!user) return;
-    const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+    const { data } = await supabase.from("my_profile").select("*").maybeSingle();
     setProfile(data);
   };
 

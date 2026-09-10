@@ -9,7 +9,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import SitterCard from "@/components/SitterCard";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
-import type { Profile } from "@/lib/types";
+import { type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
@@ -26,7 +26,7 @@ export default function SavedPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("favorites").select("sitter:profiles!favorites_sitter_id_fkey(*)").eq("user_id", user.id)
+    supabase.from("favorites").select(`sitter:profiles!favorites_sitter_id_fkey(${PUBLIC_PROFILE_COLUMNS})`).eq("user_id", user.id)
       .then(({ data }) => {
         const rows = (data ?? []).map((r) => (r as unknown as { sitter: Profile }).sitter).filter(Boolean);
         setSitters(rows);

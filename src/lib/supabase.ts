@@ -85,6 +85,24 @@ export type Database = Omit<Generated, "public"> & {
           avg_handover: number | null;
         };
       };
+      /**
+       * 4. `my_profile` is added by hand because it did not exist when
+       *    database.types.ts was last generated — see migration 20260910170000.
+       *    Delete this block the next time that file is regenerated.
+       *
+       *    It is the caller's own profile row and nothing else: the view is
+       *    `where id = auth.uid()`, so it returns exactly one row or none. It exists
+       *    because `authenticated` no longer holds a table-level SELECT on profiles,
+       *    and a column grant cannot say "this column, but only on your own row".
+       *    Read-only by design — writes still go to the profiles table, where the
+       *    existing `auth.uid() = id` policy governs them.
+       */
+      my_profile: {
+        Row: Generated["public"]["Tables"]["profiles"]["Row"] extends infer R
+          ? WithServiceMap<R>
+          : never;
+        Relationships: [];
+      };
     };
   };
 };

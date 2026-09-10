@@ -126,17 +126,22 @@ export interface SitterRating {
 }
 
 /**
- * The profile columns a signed-out visitor is allowed to receive.
+ * The profile columns anyone is allowed to receive for *somebody else's* profile.
  *
- * The public pages used to `select("*")`, which shipped every column of all 43 rows
- * to any browser that loaded the sitter directory — phone numbers included, along
- * with smart_id_session_id and the verification fields, none of which the UI reads.
- * This is the list of what the public UI actually renders.
+ * Signed in or out makes no difference here. The name is historical: this started as
+ * the signed-out list, because the public pages used to `select("*")` and shipped
+ * every column of all 43 rows to any browser that loaded the sitter directory. The
+ * signed-in pages did exactly the same thing for another six weeks — browse,
+ * dashboard, saved, the booking form and the right rail each handed every sitter's
+ * phone number to every logged-in visitor. They now select this list too.
  *
- * Kept in one place because three separate queries feed it, and a fourth will
- * eventually be added by someone who copies one of them. Postgres also has a
- * column-level revoke on profiles.phone for anon, so a `select("*")` from a
- * signed-out page is now an error rather than a quiet leak.
+ * Kept in one place because nine separate queries feed it, and a tenth will
+ * eventually be added by someone who copies one of them. Postgres backs it up: both
+ * anon and authenticated hold column grants rather than a table grant, so a
+ * `select("*")` against profiles is a hard error rather than a quiet leak.
+ *
+ * Your OWN profile is not this — it comes from the `my_profile` view, which is the
+ * one place phone is readable. See useProfile.
  */
 export const PUBLIC_PROFILE_COLUMNS =
   "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, last_active_at, is_sitter";

@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase";
 import { useProfile } from "@/hooks/useProfile";
 
-type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type ProfileRow = Database["public"]["Views"]["my_profile"]["Row"];
 type SingleResult = { data: ProfileRow | null; error: unknown };
 
 // The hook is a thin wrapper over one query, so everything interesting lives in
@@ -13,15 +13,14 @@ type SingleResult = { data: ProfileRow | null; error: unknown };
 // be driven deterministically, including the resolution ORDER of two in-flight
 // requests.
 const h = vi.hoisted(() => {
-  const single = vi.fn<() => Promise<SingleResult>>(async () => ({
+  const maybeSingle = vi.fn<() => Promise<SingleResult>>(async () => ({
     data: null,
     error: null,
   }));
-  const eq = vi.fn((_column: string, _value: string) => ({ single }));
-  const select = vi.fn((_columns: string) => ({ eq }));
+  const select = vi.fn((_columns: string) => ({ maybeSingle }));
   const from = vi.fn((_table: string) => ({ select }));
   const auth = { user: null as User | null, loading: false };
-  return { single, eq, select, from, auth };
+  return { maybeSingle, select, from, auth };
 });
 
 vi.mock("@/lib/supabase", () => ({ supabase: { from: h.from } }));
@@ -70,17 +69,16 @@ function deferred<T>() {
 beforeEach(() => {
   h.auth.user = null;
   h.auth.loading = false;
-  h.single.mockReset();
-  h.single.mockResolvedValue({ data: null, error: null });
+  h.maybeSingle.mockReset();
+  h.maybeSingle.mockResolvedValue({ data: null, error: null });
   h.from.mockClear();
   h.select.mockClear();
-  h.eq.mockClear();
 });
 
 /** Renders the hook with `profile` already fetched and settled. */
 async function renderLoaded(profile: ProfileRow | null) {
   h.auth.user = userA;
-  h.single.mockResolvedValue({ data: profile, error: null });
+  h.maybeSingle.mockResolvedValue({ data: profile, error: null });
   const view = renderHook(() => useProfile());
   await waitFor(() => expect(view.result.current.loading).toBe(false));
   return view;
@@ -124,9 +122,11 @@ describe("effect branching", () => {
     const profile = makeProfile({ id: "user-a" });
     const { result } = await renderLoaded(profile);
 
-    expect(h.from).toHaveBeenCalledWith("profiles");
+    // Reading the view rather than the table is the point: the authenticated
+    // grant on profiles excludes phone, so a regression back to from("profiles")
+    // would quietly break isComplete for everyone.
+    expect(h.from).toHaveBeenCalledWith("my_profile");
     expect(h.select).toHaveBeenCalledWith("*");
-    expect(h.eq).toHaveBeenCalledWith("id", "user-a");
     expect(result.current.profile).toEqual(profile);
     expect(result.current.isComplete).toBe(true);
   });
@@ -135,14 +135,17 @@ describe("effect branching", () => {
     const { result, rerender } = await renderLoaded(makeProfile({ id: "user-a" }));
 
     h.auth.user = userB;
-    h.single.mockResolvedValue({
+    h.maybeSingle.mockResolvedValue({
       data: makeProfile({ id: "user-b", full_name: "Rita" }),
       error: null,
     });
     rerender();
 
     await waitFor(() => expect(result.current.profile?.id).toBe("user-b"));
-    expect(h.eq).toHaveBeenLastCalledWith("id", "user-b");
+    // No id to assert on any more -- my_profile is scoped by auth.uid() inside the
+    // view, so what identifies a refetch is that the query ran a second time.
+    expect(h.from).toHaveBeenLastCalledWith("my_profile");
+    expect(h.maybeSingle).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -158,7 +161,7 @@ describe("error handling", () => {
   // treat "no row" separately from "fetch failed".
   it("silently reports a null profile when the row is genuinely missing (current buggy behaviour)", async () => {
     h.auth.user = userA;
-    h.single.mockResolvedValue({
+    h.maybeSingle.mockResolvedValue({
       data: null,
       error: { code: "PGRST116", message: "JSON object requested, multiple (or no) rows returned" },
     });
@@ -172,7 +175,7 @@ describe("error handling", () => {
 
   it("is indistinguishable from a hard fetch failure (current buggy behaviour)", async () => {
     h.auth.user = userA;
-    h.single.mockResolvedValue({
+    h.maybeSingle.mockResolvedValue({
       data: null,
       error: { code: "500", message: "upstream connect error" },
     });
@@ -198,14 +201,14 @@ describe("request races", () => {
   it("lets an older request overwrite a newer one when it resolves last (current buggy behaviour)", async () => {
     const first = deferred<SingleResult>();
     const second = deferred<SingleResult>();
-    h.single.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    h.maybeSingle.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
 
     h.auth.user = userA;
     const { result, rerender } = renderHook(() => useProfile());
 
     h.auth.user = userB;
     rerender();
-    expect(h.single).toHaveBeenCalledTimes(2);
+    expect(h.maybeSingle).toHaveBeenCalledTimes(2);
 
     // The NEW user's request comes back first — correct state, briefly.
     await act(async () => {
@@ -260,7 +263,7 @@ describe("refresh", () => {
   it("replaces the profile with the freshly fetched row", async () => {
     const { result } = await renderLoaded(makeProfile({ full_name: "Jonas Petraitis" }));
 
-    h.single.mockResolvedValue({ data: makeProfile({ full_name: "Jonas Naujas" }), error: null });
+    h.maybeSingle.mockResolvedValue({ data: makeProfile({ full_name: "Jonas Naujas" }), error: null });
     await act(async () => {
       await result.current.refresh();
     });
@@ -272,7 +275,7 @@ describe("refresh", () => {
     const pending = deferred<SingleResult>();
     const { result } = await renderLoaded(makeProfile());
 
-    h.single.mockReturnValueOnce(pending.promise);
+    h.maybeSingle.mockReturnValueOnce(pending.promise);
     let refreshing!: Promise<void>;
     act(() => {
       refreshing = result.current.refresh();
@@ -296,7 +299,7 @@ describe("refresh", () => {
     const { result } = await renderLoaded(makeProfile({ full_name: "Jonas Petraitis" }));
     expect(result.current.profile).not.toBeNull();
 
-    h.single.mockResolvedValue({ data: null, error: { message: "network down" } });
+    h.maybeSingle.mockResolvedValue({ data: null, error: { message: "network down" } });
     await act(async () => {
       await result.current.refresh();
     });
@@ -363,7 +366,7 @@ describe("isComplete truth table", () => {
 describe("loading composition", () => {
   it("reports loading while the profile query is still in flight", async () => {
     const pending = deferred<SingleResult>();
-    h.single.mockReturnValueOnce(pending.promise);
+    h.maybeSingle.mockReturnValueOnce(pending.promise);
     h.auth.user = userA;
 
     const { result } = renderHook(() => useProfile());

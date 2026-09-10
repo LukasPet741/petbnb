@@ -13,7 +13,7 @@ import Avatar from "@/components/Avatar";
 import SitterMini from "@/components/SitterMini";
 import TipWidget from "@/components/TipWidget";
 import EmptyState from "@/components/EmptyState";
-import { STATUS_CONFIG, type Profile } from "@/lib/types";
+import { STATUS_CONFIG, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { fadeUp, stagger } from "@/lib/motion";
 
@@ -45,7 +45,7 @@ export default function DashboardPage() {
     if (!user) return;
     supabase.from("pets").select("id,name,type,photo_url").eq("owner_id", user.id).order("created_at").then(({ data }) => setPets((data as Pet[]) ?? []));
     supabase.from("bookings").select("id,status,service,start_at, sitter:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url), pet:pets(id,name)").eq("owner_id", user.id).order("start_at").then(({ data }) => setBookings((data as unknown as Booking[]) ?? []));
-    supabase.from("profiles").select("*").eq("is_sitter", true).neq("id", user.id).order("experience_years", { ascending: false }).limit(8).then(({ data }) => setSitters((data as Profile[]) ?? []));
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).neq("id", user.id).order("experience_years", { ascending: false }).limit(8).then(({ data }) => setSitters((data as Profile[]) ?? []));
   }, [user]);
 
   const pending = bookings.filter((b) => b.status === "pending").length;

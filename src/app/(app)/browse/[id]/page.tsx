@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { MapPin, Clock, ArrowLeft, Calendar, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { type ServiceType, type Profile } from "@/lib/types";
+import { type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import Badge from "@/components/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -36,7 +36,7 @@ export default function SitterProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("profiles").select("*").eq("id", id).single().then(({ data }) => {
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("id", id).single().then(({ data }) => {
       setSitter(data as Profile);
       setLoading(false);
       if (data) rememberRecentlyViewed((data as Profile).id);
