@@ -14,10 +14,13 @@ import { timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Booking, Message, Thread } from "@/lib/types";
 
+// The two profile embeds name their columns because neither role holds a
+// table-level SELECT on profiles any more -- `profiles ( * )` is a 42501, not a
+// quiet omission, and this page has an error state it would land in.
 const BOOKING_SELECT = `
   *,
-  owner:profiles!bookings_owner_id_fkey ( * ),
-  sitter:profiles!bookings_sitter_id_fkey ( * ),
+  owner:profiles!bookings_owner_id_fkey ( id, full_name, avatar_url ),
+  sitter:profiles!bookings_sitter_id_fkey ( id, full_name, avatar_url ),
   pet:pets ( * )
 `;
 
