@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import Atmosphere from "@/components/Atmosphere";
 import en from "@/lib/i18n/en";
+import { SITE_ORIGIN } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,8 +37,31 @@ const caveat = Caveat({
 // generated on the server. These strings mirror src/lib/i18n's common.meta English
 // copy — kept there as the single source of truth — rather than being hardcoded here.
 export const metadata: Metadata = {
-  title: en.common.meta.title,
+  // Without this, every relative URL below is a build error and the OG card has no
+  // absolute image to point at. See src/lib/site.ts for where the origin comes from.
+  metadataBase: new URL(SITE_ORIGIN),
+  title: {
+    default: en.common.meta.title,
+    // Pages set a bare title and this frames it, so no page has to repeat the brand.
+    template: "%s · PetBnB",
+  },
   description: en.common.meta.description,
+  applicationName: "PetBnB",
+  openGraph: {
+    type: "website",
+    siteName: "PetBnB",
+    locale: "lt_LT",
+    url: "/",
+    title: en.common.meta.title,
+    description: en.common.meta.description,
+  },
+  twitter: {
+    // opengraph-image.tsx supplies the picture; Twitter falls back to og:image,
+    // so this only has to say how large to render it.
+    card: "summary_large_image",
+    title: en.common.meta.title,
+    description: en.common.meta.description,
+  },
 };
 
 // Phones: `viewportFit: "cover"` is what makes env(safe-area-inset-*) resolve to real
