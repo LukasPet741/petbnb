@@ -21,12 +21,18 @@ vi.mock("@/lib/supabase", () => {
         return {
           select: (...a: unknown[]) => {
             record("select", ...a);
-            return {
+            // eq is chainable and in terminates, matching the real builder.
+            const chain: Record<string, unknown> = {
+              eq: (col: string, value: unknown) => {
+                record("eq", col, value);
+                return chain;
+              },
               in: (col: string, ids: string[]) => {
                 record("in", col, ids);
                 return Promise.resolve(h.read);
               },
             };
+            return chain;
           },
           insert: (row: unknown) => {
             record("insert", row);
@@ -55,16 +61,27 @@ function review(over: Record<string, unknown> = {}) {
   return {
     id: "r-1",
     booking_id: "b-1",
-    owner_id: "owner-1",
-    sitter_id: "sitter-1",
+    author_id: "owner-1",
+    subject_id: "sitter-1",
+    direction: "owner_to_sitter",
     rating: 4,
     body: "Good.",
     created_at: "2026-09-01T10:00:00Z",
+    communication: null,
+    pet_wellbeing: null,
+    reliability: null,
+    pet_as_described: null,
+    handover: null,
     ...over,
   };
 }
 
-const target = { bookingId: "b-1", sitterId: "sitter-1", ownerId: "owner-1" };
+const target = {
+  bookingId: "b-1",
+  subjectId: "sitter-1",
+  authorId: "owner-1",
+  direction: "owner_to_sitter" as const,
+};
 
 beforeEach(() => {
   // vitest.config sets restoreMocks, but in Vitest 4 that restores spies made with
@@ -81,7 +98,7 @@ describe("useMyReviews — reading", () => {
   it("asks for nothing when no completed bookings are on screen", async () => {
     // The bookings page mounts before its bookings load, and most owners have no
     // completed bookings at all.
-    const { result } = renderHook(() => useMyReviews([]));
+    const { result } = renderHook(() => useMyReviews([], "owner-1", "owner_to_sitter"));
     expect(opsNamed("from")).toHaveLength(0);
     expect(result.current.reviews.size).toBe(0);
   });
@@ -89,7 +106,7 @@ describe("useMyReviews — reading", () => {
   it("fetches every visible booking in one query rather than one per card", async () => {
     h.read = { data: [review({ booking_id: "b-1" }), review({ id: "r-2", booking_id: "b-2" })], error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1", "b-2"]));
+    const { result } = renderHook(() => useMyReviews(["b-1", "b-2"], "owner-1", "owner_to_sitter"));
 
     await waitFor(() => expect(result.current.reviews.size).toBe(2));
     expect(opsNamed("in")).toHaveLength(1);
@@ -99,7 +116,7 @@ describe("useMyReviews — reading", () => {
   it("keys the result by booking, which is how a card finds its own review", () => {
     h.read = { data: [review({ booking_id: "b-7" })], error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-7"]));
+    const { result } = renderHook(() => useMyReviews(["b-7"], "owner-1", "owner_to_sitter"));
 
     return waitFor(() => {
       expect(result.current.reviews.get("b-7")?.rating).toBe(4);
@@ -109,7 +126,7 @@ describe("useMyReviews — reading", () => {
   it("treats a booking with no review as unreviewed rather than as a failure", async () => {
     h.read = { data: [], error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.reviews.get("b-1")).toBeUndefined();
@@ -118,7 +135,7 @@ describe("useMyReviews — reading", () => {
   it("does not re-query when the same ids arrive in a new array", async () => {
     // Every call site builds this list inline from state, so a fresh array arrives
     // on every render; an identity-keyed effect would query forever.
-    const { result, rerender } = renderHook(({ ids }) => useMyReviews(ids), {
+    const { result, rerender } = renderHook(({ ids }) => useMyReviews(ids, "owner-1", "owner_to_sitter"), {
       initialProps: { ids: ["b-1", "b-2"] },
     });
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -132,7 +149,7 @@ describe("useMyReviews — reading", () => {
   it("yields no reviews when the query fails, so the bookings still render", async () => {
     h.read = { data: null, error: { message: "network" } };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.reviews.size).toBe(0);
@@ -143,47 +160,72 @@ describe("useMyReviews — writing", () => {
   it("inserts when the booking has never been reviewed", async () => {
     h.insert = { data: review({ rating: 5, body: "Excellent." }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 5, body: "Excellent." });
+      await result.current.saveReview(target, { rating: 5, body: "Excellent.", dimensions: {} });
     });
 
     expect(opsNamed("insert")).toHaveLength(1);
     expect(opsNamed("update")).toHaveLength(0);
   });
 
-  it("sends owner_id and sitter_id on insert, because the policy re-checks both", async () => {
-    // reviews_insert_own_completed_booking verifies the denormalised columns against
-    // the booking. Letting the database infer them is not an option: it does not.
+  it("sends author, subject and direction on insert, because the policy re-checks all three", async () => {
+    // reviews_insert_own_completed_booking verifies the denormalised columns and the
+    // direction against the booking. Letting the database infer them is not an option:
+    // it does not.
     h.insert = { data: review(), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], target.authorId, target.direction));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 4, body: "Good." });
+      await result.current.saveReview(target, {
+        rating: 4,
+        body: "Good.",
+        dimensions: { pet_wellbeing: 5, communication: 4 },
+      });
     });
 
     expect(opsNamed("insert")[0].args[0]).toEqual({
       booking_id: "b-1",
-      owner_id: "owner-1",
-      sitter_id: "sitter-1",
+      author_id: "owner-1",
+      subject_id: "sitter-1",
+      direction: "owner_to_sitter",
       rating: 4,
       body: "Good.",
+      // Every dimension column, including the two this direction never asks about.
+      // An omitted column on a later UPDATE would keep a stale value, and a value
+      // belonging to the other direction makes the CHECK reject the whole row.
+      communication: 4,
+      pet_wellbeing: 5,
+      reliability: null,
+      pet_as_described: null,
+      handover: null,
     });
+  });
+
+  it("reads only my own reviews, in this direction", async () => {
+    // A booking now carries up to two reviews. Without both filters the other party's
+    // review of me would turn up inside my own form, prefilled and ready to overwrite.
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const filters = h.calls.filter((c) => c.op === "eq").map((c) => c.args);
+    expect(filters).toContainEqual(["author_id", "owner-1"]);
+    expect(filters).toContainEqual(["direction", "owner_to_sitter"]);
   });
 
   it("updates when a review for that booking already exists", async () => {
     h.read = { data: [review({ booking_id: "b-1" })], error: null };
     h.update = { data: review({ rating: 2, body: "Changed my mind." }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.reviews.size).toBe(1));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 2, body: "Changed my mind." });
+      await result.current.saveReview(target, { rating: 2, body: "Changed my mind.", dimensions: {} });
     });
 
     expect(opsNamed("update")).toHaveLength(1);
@@ -196,25 +238,39 @@ describe("useMyReviews — writing", () => {
     h.read = { data: [review({ booking_id: "b-1" })], error: null };
     h.update = { data: review({ rating: 1, body: null }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.reviews.size).toBe(1));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 1, body: null });
+      await result.current.saveReview(target, { rating: 1, body: null, dimensions: { reliability: 2 } });
     });
 
-    expect(opsNamed("update")[0].args[0]).toEqual({ rating: 1, body: null });
+    // Rating, body and every dimension column — never the identifying columns.
+    // reviews.Update is narrowed to exactly this set for a reason: the policy
+    // re-asserts booking, author, subject and direction, so trying to move a review
+    // is a guaranteed failed round trip. The two dimensions this direction does not
+    // ask about are sent as null rather than omitted, so an edit cannot leave a stale
+    // value behind for the CHECK to reject.
+    expect(opsNamed("update")[0].args[0]).toEqual({
+      rating: 1,
+      body: null,
+      communication: null,
+      pet_wellbeing: null,
+      reliability: 2,
+      pet_as_described: null,
+      handover: null,
+    });
     expect(opsNamed("update.eq")[0].args).toEqual(["booking_id", "b-1"]);
   });
 
   it("shows the new review straight away, without a second read", async () => {
     h.insert = { data: review({ rating: 5, body: "Excellent." }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 5, body: "Excellent." });
+      await result.current.saveReview(target, { rating: 5, body: "Excellent.", dimensions: {} });
     });
 
     expect(result.current.reviews.get("b-1")?.rating).toBe(5);
@@ -227,11 +283,11 @@ describe("useMyReviews — writing", () => {
     h.insert = { data: null, error: { code: "23505", message: "duplicate key" } };
     h.update = { data: review({ rating: 3, body: "Second attempt." }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 3, body: "Second attempt." });
+      await result.current.saveReview(target, { rating: 3, body: "Second attempt.", dimensions: {} });
     });
 
     expect(opsNamed("update")).toHaveLength(1);
@@ -244,12 +300,12 @@ describe("useMyReviews — writing", () => {
     // leave the card showing a review the database does not have.
     h.insert = { data: null, error: { code: "42501", message: "denied" } };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     let saved: boolean | undefined;
     await act(async () => {
-      saved = await result.current.saveReview(target, { rating: 5, body: null });
+      saved = await result.current.saveReview(target, { rating: 5, body: null, dimensions: {} });
     });
 
     // The caller has to be able to tell, because BookingReview keeps its form open
@@ -262,12 +318,12 @@ describe("useMyReviews — writing", () => {
   it("says so when the write succeeded", async () => {
     h.insert = { data: review({ rating: 5 }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     let saved: boolean | undefined;
     await act(async () => {
-      saved = await result.current.saveReview(target, { rating: 5, body: null });
+      saved = await result.current.saveReview(target, { rating: 5, body: null, dimensions: {} });
     });
 
     expect(saved).toBe(true);
@@ -277,12 +333,12 @@ describe("useMyReviews — writing", () => {
     h.insert = { data: null, error: { code: "23505", message: "duplicate key" } };
     h.update = { data: review({ rating: 3 }), error: null };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     let saved: boolean | undefined;
     await act(async () => {
-      saved = await result.current.saveReview(target, { rating: 3, body: null });
+      saved = await result.current.saveReview(target, { rating: 3, body: null, dimensions: {} });
     });
 
     expect(saved).toBe(true);
@@ -291,17 +347,17 @@ describe("useMyReviews — writing", () => {
   it("clears a previous failure when a later save succeeds", async () => {
     h.insert = { data: null, error: { code: "42501", message: "denied" } };
 
-    const { result } = renderHook(() => useMyReviews(["b-1"]));
+    const { result } = renderHook(() => useMyReviews(["b-1"], "owner-1", "owner_to_sitter"));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.saveReview(target, { rating: 5, body: null });
+      await result.current.saveReview(target, { rating: 5, body: null, dimensions: {} });
     });
     expect(result.current.error).toBeTruthy();
 
     h.insert = { data: review({ rating: 5 }), error: null };
     await act(async () => {
-      await result.current.saveReview(target, { rating: 5, body: null });
+      await result.current.saveReview(target, { rating: 5, body: null, dimensions: {} });
     });
 
     expect(result.current.error).toBeNull();

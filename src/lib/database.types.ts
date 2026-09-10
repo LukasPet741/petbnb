@@ -407,50 +407,68 @@ export type Database = {
       }
       reviews: {
         Row: {
+          author_id: string
           body: string | null
           booking_id: string
+          communication: number | null
           created_at: string
+          direction: string
+          handover: number | null
           id: string
-          owner_id: string
+          pet_as_described: number | null
+          pet_wellbeing: number | null
           rating: number
-          sitter_id: string
+          reliability: number | null
+          subject_id: string
         }
         Insert: {
+          author_id: string
           body?: string | null
           booking_id: string
+          communication?: number | null
           created_at?: string
+          direction: string
+          handover?: number | null
           id?: string
-          owner_id: string
+          pet_as_described?: number | null
+          pet_wellbeing?: number | null
           rating: number
-          sitter_id: string
+          reliability?: number | null
+          subject_id: string
         }
         Update: {
+          author_id?: string
           body?: string | null
           booking_id?: string
+          communication?: number | null
           created_at?: string
+          direction?: string
+          handover?: number | null
           id?: string
-          owner_id?: string
+          pet_as_described?: number | null
+          pet_wellbeing?: number | null
           rating?: number
-          sitter_id?: string
+          reliability?: number | null
+          subject_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "reviews_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: true
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_owner_id_fkey"
-            columns: ["owner_id"]
+            foreignKeyName: "reviews_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reviews_sitter_id_fkey"
-            columns: ["sitter_id"]
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_subject_id_fkey"
+            columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -459,15 +477,37 @@ export type Database = {
       }
     }
     Views: {
+      owner_ratings: {
+        Row: {
+          average_rating: number | null
+          avg_communication: number | null
+          avg_handover: number | null
+          avg_pet_as_described: number | null
+          owner_id: string | null
+          review_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_subject_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sitter_ratings: {
         Row: {
           average_rating: number | null
+          avg_communication: number | null
+          avg_pet_wellbeing: number | null
+          avg_reliability: number | null
           review_count: number | null
           sitter_id: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "reviews_sitter_id_fkey"
+            foreignKeyName: "reviews_subject_id_fkey"
             columns: ["sitter_id"]
             isOneToOne: false
             referencedRelation: "profiles"

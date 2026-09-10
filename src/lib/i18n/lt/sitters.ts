@@ -51,6 +51,14 @@ const sitters = {
       post: "Skelbti atsiliepimą",
       cancel: "Atšaukti",
       error: "Nepavyko išsaugoti atsiliepimo. Bandykite dar kartą.",
+      detailToggle: "Įvertinti išsamiau (nebūtina)",
+      dimension: {
+        petWellbeing: "Kaip jautėsi augintinis",
+        communication: "Bendravimas",
+        reliability: "Patikimumas",
+        petAsDescribed: "Augintinis atitiko aprašymą",
+        handover: "Perdavimas",
+      },
     },
   },
   profile: {

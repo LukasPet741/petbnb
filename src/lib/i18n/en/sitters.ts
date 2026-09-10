@@ -51,6 +51,14 @@ const sitters = {
       post: "Post review",
       cancel: "Cancel",
       error: "Couldn't save your review. Please try again.",
+      detailToggle: "Add detail (optional)",
+      dimension: {
+        petWellbeing: "How your pet seemed",
+        communication: "Communication",
+        reliability: "Reliability",
+        petAsDescribed: "Pet as described",
+        handover: "Handover",
+      },
     },
   },
   profile: {

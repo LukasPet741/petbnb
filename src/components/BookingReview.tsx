@@ -44,8 +44,20 @@ export default function BookingReview({ target, review, onSave, error }: Booking
   if (open) {
     return (
       <ReviewForm
+        direction={target.direction}
         initialRating={review?.rating ?? 0}
         initialBody={review?.body ?? ""}
+        initialDimensions={
+          review
+            ? {
+                communication: review.communication,
+                pet_wellbeing: review.pet_wellbeing,
+                reliability: review.reliability,
+                pet_as_described: review.pet_as_described,
+                handover: review.handover,
+              }
+            : undefined
+        }
         onSubmit={handleSubmit}
         onCancel={() => setOpen(false)}
         error={error}

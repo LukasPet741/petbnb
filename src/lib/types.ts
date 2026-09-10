@@ -51,16 +51,71 @@ export interface Booking {
   pet?: Pet;
 }
 
+/** Which way a review points. Matches the reviews.direction CHECK constraint. */
+export type ReviewDirection = "owner_to_sitter" | "sitter_to_owner";
+
+/** Every optional dimension column on reviews. */
+export type ReviewDimension =
+  | "communication"
+  | "pet_wellbeing"
+  | "reliability"
+  | "pet_as_described"
+  | "handover";
+
+/**
+ * Which dimensions each direction may carry.
+ *
+ * The database enforces this too, in reviews_dimensions_match_direction. Offering a
+ * dimension the constraint rejects would produce a 23514 the user can do nothing
+ * about, so the two definitions have to agree — pinned by review-dimensions.test.ts.
+ */
+export const REVIEW_DIMENSIONS: Record<ReviewDirection, readonly ReviewDimension[]> = {
+  owner_to_sitter: ["pet_wellbeing", "communication", "reliability"],
+  sitter_to_owner: ["communication", "pet_as_described", "handover"],
+};
+
+export function dimensionsFor(direction: ReviewDirection): readonly ReviewDimension[] {
+  return REVIEW_DIMENSIONS[direction];
+}
+
+/**
+ * All five dimension columns set to null.
+ *
+ * A write spreads its own answers over this. Sending every column explicitly matters on
+ * an UPDATE: omitting one would leave a value from a previous edit in place, and if
+ * that value belonged to the other direction the CHECK would reject the whole row.
+ */
+export function emptyDimensions(
+  _direction: ReviewDirection,
+): Record<ReviewDimension, number | null> {
+  return {
+    communication: null,
+    pet_wellbeing: null,
+    reliability: null,
+    pet_as_described: null,
+    handover: null,
+  };
+}
+
 export interface Review {
   id: string;
   booking_id: string;
-  owner_id: string;
-  sitter_id: string;
+  /** Who wrote it. */
+  author_id: string;
+  /** Who it is about. */
+  subject_id: string;
+  direction: ReviewDirection;
+  /** The overall star. The only rating that is ever required. */
   rating: number;
   body: string | null;
   created_at: string;
-  /** Embedded author profile. Reviews are public, and so is profiles.SELECT. */
-  owner?: Pick<Profile, "id" | "full_name" | "avatar_url">;
+  communication: number | null;
+  pet_wellbeing: number | null;
+  reliability: number | null;
+  pet_as_described: number | null;
+  handover: number | null;
+  /** Embedded author profile, for review lists. */
+  author?: Pick<Profile, "id" | "full_name" | "avatar_url">;
 }
 
 /** A sitter's aggregate rating, as read from the public.sitter_ratings view. */

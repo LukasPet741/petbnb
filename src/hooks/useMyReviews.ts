@@ -1,35 +1,52 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Review } from "@/lib/types";
+import {
+  emptyDimensions,
+  type Review,
+  type ReviewDimension,
+  type ReviewDirection,
+} from "@/lib/types";
 
-/** Postgres unique_violation: booking_id already has a review. */
+/** Postgres unique_violation: this author already reviewed this booking. */
 const UNIQUE_VIOLATION = "23505";
 
 export interface ReviewTarget {
   bookingId: string;
-  sitterId: string;
-  ownerId: string;
+  /** Who the review is about. */
+  subjectId: string;
+  /** Who is writing it — always the signed-in user. */
+  authorId: string;
+  direction: ReviewDirection;
 }
 
 export interface ReviewInput {
   rating: number;
   body: string | null;
+  /** Only the dimensions this direction asks about; the rest are nulled for us. */
+  dimensions: Partial<Record<ReviewDimension, number | null>>;
 }
 
 /**
- * The signed-in owner's own reviews for a page's worth of completed bookings, keyed
- * by booking id, plus the one call that writes them.
+ * The signed-in user's own reviews for a page's worth of completed bookings, keyed by
+ * booking id, plus the one call that writes them.
  *
- * One `.in()` query for the whole list rather than one per card, for the same reason
- * as useSitterRatings: the bookings list renders every completed booking at once and
- * a query per card would turn one page load into a dozen round trips.
+ * One `.in()` query for the whole list rather than one per card, for the same reason as
+ * useSitterRatings: the bookings list renders every completed booking at once.
  *
- * A booking absent from the map has not been reviewed. That is the normal case, not a
- * failure, and a failed read yields an empty map for the same reason — the review
+ * Filtered to this author AND this direction. A booking now carries up to two reviews —
+ * one each way — and without both filters the other party's review of you would appear
+ * inside your own form, prefilled and ready to be overwritten.
+ *
+ * A booking absent from the map has not been reviewed by you. That is the normal case,
+ * not a failure, and a failed read yields an empty map for the same reason: the review
  * affordance decorates a bookings list that has to render without it.
  */
-export function useMyReviews(bookingIds: string[]) {
+export function useMyReviews(
+  bookingIds: string[],
+  authorId: string | undefined,
+  direction: ReviewDirection,
+) {
   const [reviews, setReviews] = useState<Map<string, Review>>(new Map());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +58,7 @@ export function useMyReviews(bookingIds: string[]) {
 
   useEffect(() => {
     const ids = key ? key.split(",") : [];
-    if (ids.length === 0) return;
+    if (ids.length === 0 || !authorId) return;
 
     let active = true;
     setLoading(true);
@@ -49,6 +66,8 @@ export function useMyReviews(bookingIds: string[]) {
     supabase
       .from("reviews")
       .select("*")
+      .eq("author_id", authorId)
+      .eq("direction", direction)
       .in("booking_id", ids)
       .then(({ data, error: readError }) => {
         if (!active) return;
@@ -63,7 +82,7 @@ export function useMyReviews(bookingIds: string[]) {
     return () => {
       active = false;
     };
-  }, [key]);
+  }, [key, authorId, direction]);
 
   const remember = useCallback((row: Review) => {
     setReviews((prev) => new Map(prev).set(row.booking_id, row));
@@ -72,23 +91,29 @@ export function useMyReviews(bookingIds: string[]) {
   /**
    * Writes a review, choosing INSERT or UPDATE by whether one is already known.
    *
-   * owner_id and sitter_id are sent explicitly on insert because the RLS policy
-   * re-verifies both against the booking — the database will not infer them. The
-   * update sends only rating and body, which is all the narrowed reviews.Update type
-   * and the policy's WITH CHECK allow.
+   * author_id, subject_id and direction are all sent explicitly on insert because the
+   * RLS policy re-verifies every one of them against the booking — the database will
+   * not infer them, and a direction that disagrees with the caller's role on that
+   * booking is refused outright.
    *
-   * Returns whether the review reached the database. A boolean rather than a throw:
-   * a refusal is an expected outcome the form has to react to, not an exception, and
-   * the caller needs the answer to decide whether to close itself.
+   * Both paths send all five dimension columns. Sending only the three this direction
+   * asks about would, on an update, leave a value from a previous edit in place; if it
+   * belonged to the other direction, reviews_dimensions_match_direction would then
+   * reject the whole row.
+   *
+   * Returns whether the review reached the database. A boolean rather than a throw: a
+   * refusal is an expected outcome the form has to react to, not an exception.
    */
   const saveReview = useCallback(
     async (target: ReviewTarget, input: ReviewInput): Promise<boolean> => {
       setError(null);
 
+      const dimensions = { ...emptyDimensions(target.direction), ...input.dimensions };
+
       const update = async (): Promise<boolean> => {
         const { data, error: updateError } = await supabase
           .from("reviews")
-          .update({ rating: input.rating, body: input.body })
+          .update({ rating: input.rating, body: input.body, ...dimensions })
           .eq("booking_id", target.bookingId)
           .select()
           .single();
@@ -108,17 +133,19 @@ export function useMyReviews(bookingIds: string[]) {
         .from("reviews")
         .insert({
           booking_id: target.bookingId,
-          owner_id: target.ownerId,
-          sitter_id: target.sitterId,
+          author_id: target.authorId,
+          subject_id: target.subjectId,
+          direction: target.direction,
           rating: input.rating,
           body: input.body,
+          ...dimensions,
         })
         .select()
         .single();
 
       if (insertError) {
-        // The row exists after all — another tab, or a map this hook has not caught
-        // up with. That means the review is there, not that anything went wrong.
+        // The row exists after all — another tab, or a map this hook has not caught up
+        // with. That means the review is there, not that anything went wrong.
         if ((insertError as { code?: string }).code === UNIQUE_VIOLATION) {
           return update();
         }

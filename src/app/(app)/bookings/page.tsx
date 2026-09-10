@@ -39,13 +39,18 @@ export default function BookingsPage() {
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // One query for every completed booking this user owns, rather than one per card.
-  // Bookings where they were the sitter are excluded: a sitter cannot review anyone,
-  // and reviews_no_self_review would reject it even if the UI offered.
-  const reviewableBookingIds = bookings
+  // Two directions, one query each, rather than one query per card. A user who sits as
+  // well as owns appears on both lists, for different bookings — the same person can
+  // owe a review to a sitter and be owed one by an owner on the same screen.
+  const asOwnerIds = bookings
     .filter((b) => b.status === "completed" && b.owner?.id === user?.id)
     .map((b) => b.id);
-  const { reviews, saveReview, error: reviewError } = useMyReviews(reviewableBookingIds);
+  const asSitterIds = bookings
+    .filter((b) => b.status === "completed" && b.sitter?.id === user?.id)
+    .map((b) => b.id);
+
+  const myReviewsOfSitters = useMyReviews(asOwnerIds, user?.id, "owner_to_sitter");
+  const myReviewsOfOwners = useMyReviews(asSitterIds, user?.id, "sitter_to_owner");
 
   const load = async () => {
     if (!user) return;
@@ -91,10 +96,12 @@ export default function BookingsPage() {
     const isSitterView = Boolean(profile?.is_sitter && booking.sitter?.id === user?.id);
     const displayProfile = isSitterView ? booking.owner : booking.sitter;
     const displayLabel = isSitterView ? t("appPages.bookings.ownerLabel") : t("appPages.bookings.sitterLabel");
-    // Only the owner reviews, and only a completed booking. The same card renders for
-    // the sitter, who gets no review affordance at all.
-    const sitterId = booking.sitter?.id;
-    const reviewable = !isSitterView && booking.status === "completed" && sitterId && user?.id;
+    // Both parties may review a completed booking, each about the other. Which side of
+    // this card you are on decides the direction, the subject, and which of the two
+    // review sets the existing review comes from.
+    const counterpartId = isSitterView ? booking.owner?.id : booking.sitter?.id;
+    const reviewable = booking.status === "completed" && counterpartId && user?.id;
+    const reviewSet = isSitterView ? myReviewsOfOwners : myReviewsOfSitters;
     return (
       <motion.div key={booking.id} variants={fadeUp}>
         <BookingCard
@@ -109,10 +116,15 @@ export default function BookingsPage() {
           reviewSlot={
             reviewable ? (
               <BookingReview
-                target={{ bookingId: booking.id, sitterId: sitterId!, ownerId: user!.id }}
-                review={reviews.get(booking.id)}
-                onSave={saveReview}
-                error={reviewError}
+                target={{
+                  bookingId: booking.id,
+                  subjectId: counterpartId!,
+                  authorId: user!.id,
+                  direction: isSitterView ? "sitter_to_owner" : "owner_to_sitter",
+                }}
+                review={reviewSet.reviews.get(booking.id)}
+                onSave={reviewSet.saveReview}
+                error={reviewSet.error}
               />
             ) : undefined
           }

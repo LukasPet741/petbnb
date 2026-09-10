@@ -13,6 +13,10 @@ interface StarInputProps {
   value: number;
   onChange: (rating: number) => void;
   disabled?: boolean;
+  /** md is the overall rating; sm is a dimension row. */
+  size?: "sm" | "md";
+  /** Overrides the group label. Dimension rows name themselves. */
+  label?: string;
   /**
    * Radio group name. Native radios group by name, so two forms open at once on the
    * bookings list would share a group and choosing a rating in one would clear the
@@ -31,7 +35,9 @@ interface StarInputProps {
  * Stars.tsx stays the display component and is not reused here: it renders a single
  * labelled role="img", which is right for output and wrong for input.
  */
-export default function StarInput({ value, onChange, disabled = false, name }: StarInputProps) {
+const SIZE_CLASS = { sm: "w-5 h-5", md: "w-7 h-7" } as const;
+
+export default function StarInput({ value, onChange, disabled = false, name, size = "md", label }: StarInputProps) {
   const { t } = useLanguage();
   const generatedName = useId();
   const groupName = name ?? generatedName;
@@ -39,7 +45,7 @@ export default function StarInput({ value, onChange, disabled = false, name }: S
   return (
     <div
       role="radiogroup"
-      aria-label={t("sitters.reviews.form.ratingLabel")}
+      aria-label={label ?? t("sitters.reviews.form.ratingLabel")}
       className="inline-flex items-center gap-1"
     >
       {RATINGS.map((rating) => {
@@ -65,7 +71,7 @@ export default function StarInput({ value, onChange, disabled = false, name }: S
             </span>
             <Star
               aria-hidden="true"
-              className={`w-7 h-7 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-brand rounded-sm ${
+              className={`${SIZE_CLASS[size]} transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-brand rounded-sm ${
                 filled ? "text-amber" : "text-ink-soft/30"
               }`}
               fill={filled ? "currentColor" : "none"}

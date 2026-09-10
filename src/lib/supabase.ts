@@ -42,7 +42,16 @@ export type Database = Omit<Generated, "public"> & {
     Tables: Omit<Generated["public"]["Tables"], "reviews" | "profiles"> & {
       reviews: Omit<Generated["public"]["Tables"]["reviews"], "Update"> & {
         Update: Partial<
-          Pick<Generated["public"]["Tables"]["reviews"]["Row"], "rating" | "body">
+          Pick<
+            Generated["public"]["Tables"]["reviews"]["Row"],
+            | "rating"
+            | "body"
+            | "communication"
+            | "pet_wellbeing"
+            | "reliability"
+            | "pet_as_described"
+            | "handover"
+          >
         >;
       };
       profiles: {
@@ -52,12 +61,28 @@ export type Database = Omit<Generated, "public"> & {
         Relationships: Generated["public"]["Tables"]["profiles"]["Relationships"];
       };
     };
-    Views: Omit<Generated["public"]["Views"], "sitter_ratings"> & {
+    Views: Omit<Generated["public"]["Views"], "sitter_ratings" | "owner_ratings"> & {
       sitter_ratings: Omit<Generated["public"]["Views"]["sitter_ratings"], "Row"> & {
         Row: {
           sitter_id: string;
           review_count: number;
           average_rating: number;
+          // These stay nullable, unlike the three above: a dimension average is only
+          // non-null once somebody has actually rated that dimension, and every one
+          // of them is optional to fill in.
+          avg_communication: number | null;
+          avg_pet_wellbeing: number | null;
+          avg_reliability: number | null;
+        };
+      };
+      owner_ratings: Omit<Generated["public"]["Views"]["owner_ratings"], "Row"> & {
+        Row: {
+          owner_id: string;
+          review_count: number;
+          average_rating: number;
+          avg_communication: number | null;
+          avg_pet_as_described: number | null;
+          avg_handover: number | null;
         };
       };
     };

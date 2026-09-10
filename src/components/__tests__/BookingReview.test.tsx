@@ -12,17 +12,28 @@ const EDIT = "sitters.reviews.form.edit";
 const POST = "sitters.reviews.form.post";
 const CANCEL = "sitters.reviews.form.cancel";
 
-const target = { bookingId: "b-1", sitterId: "sitter-1", ownerId: "owner-1" };
+const target = {
+  bookingId: "b-1",
+  subjectId: "sitter-1",
+  authorId: "owner-1",
+  direction: "owner_to_sitter" as const,
+};
 
 function existingReview(over: Partial<Review> = {}): Review {
   return {
     id: "r-1",
     booking_id: "b-1",
-    owner_id: "owner-1",
-    sitter_id: "sitter-1",
+    author_id: "owner-1",
+    subject_id: "sitter-1",
+    direction: "owner_to_sitter",
     rating: 4,
     body: "He was great with Rex.",
     created_at: "2026-09-01T10:00:00Z",
+    communication: null,
+    pet_wellbeing: null,
+    reliability: null,
+    pet_as_described: null,
+    handover: null,
     ...over,
   };
 }
@@ -69,7 +80,7 @@ describe("BookingReview — nothing written yet", () => {
     await userEvent.click(screen.getAllByRole("radio")[4]);
     await userEvent.click(screen.getByRole("button", { name: POST }));
 
-    expect(onSave).toHaveBeenCalledWith(target, { rating: 5, body: null });
+    expect(onSave).toHaveBeenCalledWith(target, { rating: 5, body: null, dimensions: {} });
   });
 
   it("closes the form once the review is saved", async () => {

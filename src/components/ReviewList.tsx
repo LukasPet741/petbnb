@@ -11,7 +11,7 @@ import type { Review } from "@/lib/types";
 // The author is embedded rather than fetched per row: reviews and profiles are both
 // publicly readable, so one join answers the whole list.
 const REVIEW_SELECT =
-  "id,booking_id,owner_id,sitter_id,rating,body,created_at,owner:profiles!reviews_owner_id_fkey(id,full_name,avatar_url)";
+  "id,booking_id,author_id,subject_id,direction,rating,body,created_at,communication,pet_wellbeing,reliability,author:profiles!reviews_author_id_fkey(id,full_name,avatar_url)";
 
 /** Enough to establish a pattern for a reader without paginating a page that has
  *  no pagination anywhere else. */
@@ -30,7 +30,8 @@ export default function ReviewList({ sitterId }: { sitterId: string }) {
     supabase
       .from("reviews")
       .select(REVIEW_SELECT)
-      .eq("sitter_id", sitterId)
+      .eq("subject_id", sitterId)
+      .eq("direction", "owner_to_sitter")
       .order("created_at", { ascending: false })
       .limit(MAX_REVIEWS)
       .then(({ data, error }: { data: unknown; error: unknown }) => {
@@ -91,7 +92,7 @@ function ReviewEntry({
   // First name only. The reviewer is a private individual who booked a sitter, not
   // a listed business — a surname here would publish a full name next to a city and
   // a service they paid for.
-  const firstName = review.owner?.full_name?.split(" ")[0] ?? t("sitters.reviews.anonymousAuthor");
+  const firstName = review.author?.full_name?.split(" ")[0] ?? t("sitters.reviews.anonymousAuthor");
   const body = review.body?.trim();
 
   return (
@@ -101,7 +102,7 @@ function ReviewEntry({
       transition={{ duration: 0.3, delay: Math.min(index, 4) * 0.05 }}
       className="flex gap-3"
     >
-      <Avatar name={firstName} url={review.owner?.avatar_url ?? null} size="md" />
+      <Avatar name={firstName} url={review.author?.avatar_url ?? null} size="md" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm font-medium text-ink">{firstName}</span>

@@ -18,7 +18,7 @@ type ReviewRow = {
   rating: number;
   body: string | null;
   created_at: string;
-  owner: { id: string; full_name: string | null; avatar_url: string | null } | null;
+  author: { id: string; full_name: string | null; avatar_url: string | null } | null;
 };
 
 /** Points the mocked query chain at one result, and hands back a deferred
@@ -26,7 +26,7 @@ type ReviewRow = {
 function respondWith(rows: ReviewRow[] | null, error: unknown = null) {
   limitMock.mockResolvedValue({ data: rows, error });
   orderMock.mockReturnValue({ limit: limitMock });
-  eqMock.mockReturnValue({ order: orderMock });
+  eqMock.mockReturnValue({ eq: eqMock, order: orderMock });
   selectMock.mockReturnValue({ eq: eqMock });
   fromMock.mockReturnValue({ select: selectMock });
 }
@@ -36,7 +36,7 @@ const review = (overrides: Partial<ReviewRow> = {}): ReviewRow => ({
   rating: 5,
   body: "Jonas sent photos every day.",
   created_at: "2026-09-02T10:00:00Z",
-  owner: { id: "o-1", full_name: "Rūta Kazlauskienė", avatar_url: null },
+  author: { id: "o-1", full_name: "Rūta Kazlauskienė", avatar_url: null },
   ...overrides,
 });
 
@@ -51,7 +51,10 @@ describe("ReviewList query", () => {
     render(<ReviewList sitterId="s-1" />);
 
     await waitFor(() => expect(fromMock).toHaveBeenCalledWith("reviews"));
-    expect(eqMock).toHaveBeenCalledWith("sitter_id", "s-1");
+    expect(eqMock).toHaveBeenCalledWith("subject_id", "s-1");
+    // Only reviews pointing at the sitter. The same table now also holds reviews of
+    // owners, which are not public and must never reach a sitter profile page.
+    expect(eqMock).toHaveBeenCalledWith("direction", "owner_to_sitter");
     expect(orderMock).toHaveBeenCalledWith("created_at", { ascending: false });
   });
 
@@ -60,7 +63,7 @@ describe("ReviewList query", () => {
     render(<ReviewList sitterId="s-1" />);
 
     await waitFor(() => expect(selectMock).toHaveBeenCalled());
-    expect(selectMock.mock.calls[0][0]).toContain("owner:profiles!reviews_owner_id_fkey");
+    expect(selectMock.mock.calls[0][0]).toContain("author:profiles!reviews_author_id_fkey");
   });
 });
 
@@ -95,7 +98,7 @@ describe("ReviewList rendering", () => {
   });
 
   it("falls back to a placeholder name when the author profile is missing", async () => {
-    respondWith([review({ owner: null })]);
+    respondWith([review({ author: null })]);
     render(<ReviewList sitterId="s-1" />);
 
     expect(await screen.findByText("sitters.reviews.anonymousAuthor")).toBeInTheDocument();
