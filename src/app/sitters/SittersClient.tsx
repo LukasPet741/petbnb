@@ -9,7 +9,7 @@ import PublicFooter from "@/components/PublicFooter";
 import SitterCard from "@/components/SitterCard";
 import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/lib/supabase";
-import { type Profile, type ServiceType } from "@/lib/types";
+import { type Profile, type ServiceType, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
@@ -49,7 +49,7 @@ function SittersList() {
 
   useEffect(() => {
     setStatus("loading");
-    supabase.from("profiles").select("*").eq("is_sitter", true).order("experience_years", { ascending: false })
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).order("experience_years", { ascending: false })
       .then(
         ({ data, error }) => {
           if (error) { setStatus("error"); return; }

@@ -10,7 +10,7 @@ import Avatar from "@/components/Avatar";
 import Badge from "@/components/Badge";
 import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/lib/supabase";
-import { type ServiceType, type Profile } from "@/lib/types";
+import { type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import RatingSummary from "@/components/RatingSummary";
 import ReviewList from "@/components/ReviewList";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
@@ -26,7 +26,7 @@ export default function SitterProfileClient() {
 
   useEffect(() => {
     setStatus("loading");
-    supabase.from("profiles").select("*").eq("id", id).eq("is_sitter", true).single()
+    supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("id", id).eq("is_sitter", true).single()
       .then(
         ({ data, error }) => {
           if (!error && data) { setSitter(data as Profile); setStatus("ready"); return; }

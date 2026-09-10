@@ -5,7 +5,13 @@ export type BookingStatus = "pending" | "signed" | "declined" | "cancelled" | "c
 export interface Profile {
   id: string;
   full_name: string;
-  phone: string;
+  /**
+   * Optional because the public queries no longer ask for it. Every page a
+   * signed-out visitor can reach selects PUBLIC_PROFILE_COLUMNS, which omits the
+   * phone number; only a signed-in user reading their own profile has one. Nothing
+   * outside /profile reads this field.
+   */
+  phone?: string | null;
   city: string;
   is_sitter: boolean;
   rate_per_hour: number | null;
@@ -63,6 +69,22 @@ export interface SitterRating {
   average: number | null;
   count: number;
 }
+
+/**
+ * The profile columns a signed-out visitor is allowed to receive.
+ *
+ * The public pages used to `select("*")`, which shipped every column of all 43 rows
+ * to any browser that loaded the sitter directory — phone numbers included, along
+ * with smart_id_session_id and the verification fields, none of which the UI reads.
+ * This is the list of what the public UI actually renders.
+ *
+ * Kept in one place because three separate queries feed it, and a fourth will
+ * eventually be added by someone who copies one of them. Postgres also has a
+ * column-level revoke on profiles.phone for anon, so a `select("*")` from a
+ * signed-out page is now an error rather than a quiet leak.
+ */
+export const PUBLIC_PROFILE_COLUMNS =
+  "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, last_active_at, is_sitter";
 
 export const SERVICE_LABELS: Record<ServiceType, string> = {
   walking: "Dog Walking",

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { type Profile } from "@/lib/types";
+import { type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import Hero from "@/components/home/Hero";
@@ -32,7 +32,7 @@ export default function LandingPage() {
 
     supabase
       .from("profiles")
-      .select("*")
+      .select(PUBLIC_PROFILE_COLUMNS)
       .eq("is_sitter", true)
       .order("experience_years", { ascending: false })
       .limit(SITTER_LIMIT)
