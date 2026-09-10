@@ -16,6 +16,7 @@ import RightRail from "@/components/RightRail";
 import SuccessToast from "@/components/SuccessToast";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { pluralForm } from "@/lib/i18n/plural";
 
 interface Booking {
   id: string; status: string; service: string; start_at: string; end_at: string; notes: string | null; address: string | null;
@@ -27,7 +28,7 @@ interface Booking {
 const TAB_VALUES: ("all" | BookingStatus)[] = ["all", "pending", "signed", "completed"];
 
 export default function BookingsPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const TABS: { label: string; value: "all" | BookingStatus }[] = TAB_VALUES.map((value) => ({
     value,
     label: value === "all" ? t("appPages.bookings.tabAll") : t(`common.bookingStatus.${value}`),
@@ -135,7 +136,7 @@ export default function BookingsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title={t("appPages.bookings.title")} subtitle={loading ? t("appPages.bookings.loadingText") : bookings.length !== 1 ? t("appPages.bookings.countPlural", { count: bookings.length }) : t("appPages.bookings.countSingular", { count: bookings.length })} />
+      <PageHeader title={t("appPages.bookings.title")} subtitle={loading ? t("appPages.bookings.loadingText") : t(`appPages.bookings.count.${pluralForm(locale, bookings.length)}`, { count: bookings.length })} />
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 lg:gap-10">
         <div className="min-w-0">

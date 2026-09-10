@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { pluralForm } from "@/lib/i18n/plural";
 import Avatar from "@/components/Avatar";
 import SitterMini from "@/components/SitterMini";
 import TipWidget from "@/components/TipWidget";
@@ -73,7 +74,7 @@ export default function DashboardPage() {
   const nextSigned = bookings.find((b) => b.status === "signed" && new Date(b.start_at).getTime() > Date.now());
 
   const summary = pending
-    ? t(pending !== 1 ? "appShell.dashboard.summary.pendingPlural" : "appShell.dashboard.summary.pending", { pending })
+    ? t(`appShell.dashboard.summary.pendingCount.${pluralForm(locale, pending)}`, { pending })
     : nextSigned
     ? t("appShell.dashboard.summary.nextBooking", {
         pet: nextSigned.pet?.name ?? t("appShell.dashboard.fallbackPetName"),

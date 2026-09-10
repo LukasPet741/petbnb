@@ -37,8 +37,11 @@ const appShell = {
     fallbackName: "svečias",
     fallbackPetName: "jūsų augintinis",
     summary: {
-      pending: "Turite {pending} laukiantį užsakymą.",
-      pendingPlural: "Turite {pending} laukiančių užsakymų.",
+      pendingCount: {
+        one: "Turite {pending} laukiantį užsakymą.",
+        few: "Turite {pending} laukiančius užsakymus.",
+        other: "Turite {pending} laukiančių užsakymų.",
+      },
       nextBooking: "Artimiausia viešnagė: {pet} ({when}).",
       relativeToday: "šiandien",
       relativeTomorrow: "rytoj",

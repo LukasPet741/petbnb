@@ -122,7 +122,7 @@ const home = {
       },
       cost: {
         q: "Kiek tai kainuoja?",
-        a: "Kiekvienas globėjas nustato savo valandinį įkainį, prasidedantį nuo maždaug €10/val. PetBnB nieko neprideda: jokio užsakymo mokesčio, jokio aptarnavimo mokesčio, jokių komisinių. Globėjui sumokate tiesiogiai, kaip patys susitariate.",
+        a: "Kiekvienas globėjas nustato savo valandinį įkainį, prasidedantį nuo maždaug 10 €/val. PetBnB nieko neprideda: jokio užsakymo mokesčio, jokio aptarnavimo mokesčio, jokių komisinių. Globėjui sumokate tiesiogiai, kaip patys susitariate.",
       },
       areas: {
         q: "Kurie miestai aptarnaujami?",

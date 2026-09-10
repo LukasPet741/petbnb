@@ -292,92 +292,9 @@ describe("dynamic key templates resolve in both languages", () => {
   });
 });
 
-describe("Lithuanian plural agreement", () => {
-  /**
-   * BUG (documented, not fixed here).
-   *
-   * Lithuanian has THREE count-agreement forms, which Intl.PluralRules reports
-   * as "one", "few" and "other":
-   *   one   - n % 10 == 1 and n % 100 not in 11..19   (1, 21, 31, 101)
-   *   few   - n % 10 in 2..9 and n % 100 not in 11..19 (2..9, 22..29)
-   *   other - everything else                          (0, 10, 11..19, 20, 30)
-   *
-   * The app pluralises with a hand-rolled `n !== 1` ternary at each call site
-   * and stores only TWO forms per concept, so it can never express "few".
-   * The stored plural is the "other" form, which means every count from 2..9,
-   * 22..29, 32..39 and so on renders the wrong grammatical form - and those are
-   * the commonest counts in this app.
-   *
-   * Concretely, for bookings: 3 renders "Iš viso 3 užsakymų" where correct
-   * Lithuanian is "Iš viso 3 užsakymai"; 21 renders "21 užsakymų" where correct
-   * is "21 užsakymas".
-   *
-   * The fix is to select with Intl.PluralRules and restructure these keys as
-   * { one, few, other } objects. These tests pin today's behaviour so that fix
-   * has a failing expectation to flip.
-   */
-  const lt = new Intl.PluralRules("lt");
-
-  // Every key pair that pluralises a COUNT. The experience pairs are excluded
-  // deliberately: their Lithuanian value is the invariant abbreviation "m."
-  // (metai), identical in both slots, so the missing "few" form is unobservable.
-  const COUNT_PAIRS: Array<{ singular: string; plural: string }> = [
-    { singular: "appPages.bookings.countSingular", plural: "appPages.bookings.countPlural" },
-    { singular: "appPages.pets.countSingular", plural: "appPages.pets.countPlural" },
-    { singular: "appPages.browse.resultsCountSingular", plural: "appPages.browse.resultsCountPlural" },
-    { singular: "appShell.dashboard.summary.pending", plural: "appShell.dashboard.summary.pendingPlural" },
-    { singular: "appPages.collars.routeNotEnoughSingular", plural: "appPages.collars.routeNotEnoughPlural" },
-  ];
-
-  it("confirms Lithuanian genuinely needs three forms", () => {
-    expect(lt.select(1)).toBe("one");
-    expect(lt.select(3)).toBe("few");
-    expect(lt.select(10)).toBe("other");
-    expect(lt.select(21)).toBe("one");
-    expect(lt.select(22)).toBe("few");
-    expect(lt.select(101)).toBe("one");
-  });
-
-  it("only stores two Lithuanian forms per count, so the few form does not exist", () => {
-    for (const { singular, plural } of COUNT_PAIRS) {
-      expect(typeof LT[singular]).toBe("string");
-      expect(typeof LT[plural]).toBe("string");
-      // If a third form is ever added these keys will appear, and this
-      // expectation should be deleted along with the ternaries at the call sites.
-      expect(LT[`${singular.replace(/Singular$/, "")}Few`]).toBeUndefined();
-    }
-  });
-
-  it.each([
-    [2, "few"],
-    [5, "few"],
-    [9, "few"],
-    [22, "few"],
-    [21, "one"],
-    [101, "one"],
-  ])(
-    "picks the wrong Lithuanian form for a count of %i, which needs the %s form",
-    (n, expectedCategory) => {
-      expect(lt.select(n)).toBe(expectedCategory);
-      // The call sites all branch on `n !== 1`, so anything but 1 takes the
-      // stored plural, which is the "other" form.
-      const takesStoredPlural = n !== 1;
-      expect(takesStoredPlural).toBe(true);
-      // ...and "other" is not what Lithuanian grammar wants here.
-      expect(expectedCategory).not.toBe("other");
-    },
-  );
-
-  it.each([0, 1, 10, 11, 19, 20, 30])(
-    "happens to pick an acceptable Lithuanian form for a count of %i",
-    (n) => {
-      const category = lt.select(n);
-      const takesStoredPlural = n !== 1;
-      // These counts work only by coincidence: 1 takes the "one" slot, and
-      // every other value here genuinely is the "other" category.
-      expect(takesStoredPlural ? category : "one").toBe(
-        takesStoredPlural ? "other" : "one",
-      );
-    },
-  );
-});
+// The "Lithuanian plural agreement" block that used to live here pinned the bug as
+// known-and-unfixed: it asserted that only two forms were stored and that counts from
+// 2 to 9 therefore rendered the genitive. That bug was fixed on 2026-09-10 — the five
+// affected keys now store { one, few, other } and their call sites select with
+// pluralForm(). Its replacement, which asserts the correct behaviour rather than the
+// broken one, is src/lib/i18n/__tests__/count-agreement.test.ts.

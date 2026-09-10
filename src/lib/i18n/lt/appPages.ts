@@ -9,12 +9,16 @@ const appPages = {
     serviceLabel: "Paslauga",
     allServicesOption: "Visos paslaugos",
     allCitiesOption: "Visi miestai",
-    maxRateLabel: "Maks. įkainis: €{rate}/val.",
-    upToRateChip: "Iki €{rate}/val.",
+    maxRateLabel: "Maks. įkainis: {rate} €/val.",
+    upToRateChip: "Iki {rate} €/val.",
     clearAllButton: "Išvalyti viską",
     loadingText: "Kraunama…",
-    resultsCountSingular: "Rastas {count} globėjas",
-    resultsCountPlural: "Rasta {count} globėjų",
+    // Trys formos: dalyvis derinamas kartu su daiktavardžiu.
+    resultsCount: {
+      one: "Rastas {count} globėjas",
+      few: "Rasti {count} globėjai",
+      other: "Rasta {count} globėjų",
+    },
     emptyTitle: "Pagal filtrus globėjų nerasta",
     emptyDescription: "Pabandykite pakeisti paieškos kriterijus.",
     sitterNotFound: "Globėjas nerastas.",
@@ -33,8 +37,11 @@ const appPages = {
   bookings: {
     title: "Užsakymai",
     loadingText: "Kraunama…",
-    countSingular: "Iš viso {count} užsakymas",
-    countPlural: "Iš viso {count} užsakymų",
+    count: {
+      one: "Iš viso {count} užsakymas",
+      few: "Iš viso {count} užsakymai",
+      other: "Iš viso {count} užsakymų",
+    },
     tabAll: "Visi",
     emptyTitleAll: "Kol kas nėra užsakymų",
     emptyTitleFiltered: "Nėra {status} užsakymų",
@@ -83,8 +90,11 @@ const appPages = {
   pets: {
     title: "Mano augintiniai",
     loadingText: "Kraunama…",
-    countSingular: "Užregistruotas {count} augintinis",
-    countPlural: "Užregistruota {count} augintinių",
+    count: {
+      one: "Užregistruotas {count} augintinis",
+      few: "Užregistruoti {count} augintiniai",
+      other: "Užregistruota {count} augintinių",
+    },
     addPetButton: "Pridėti augintinį",
     emptyTitle: "Kol kas nėra augintinių",
     emptyDescription: "Pridėkite pirmąjį augintinį, kad galėtumėte užsakyti globėjus ir saugoti visą informaciją vienoje vietoje.",
@@ -200,8 +210,13 @@ const appPages = {
     closeRouteAriaLabel: "Uždaryti maršrutą",
     noLocationDataForDay: "Šiai dienai vietos duomenų nėra",
     routeStatsSummary: "{distance} km · {duration} min · {points} tšk.",
-    routeNotEnoughSingular: "{points} taškas (dar nepakanka maršrutui)",
-    routeNotEnoughPlural: "{points} taškai (dar nepakanka maršrutui)",
+    // Ši eilutė klydo ne ties 2-9, o ties 10 ir daugiau: antroji forma buvo
+    // vardininko daugiskaita, todėl "10 taškai" vietoj "10 taškų".
+    routeNotEnough: {
+      one: "{points} taškas (dar nepakanka maršrutui)",
+      few: "{points} taškai (dar nepakanka maršrutui)",
+      other: "{points} taškų (dar nepakanka maršrutui)",
+    },
     justNow: "ką tik",
     minutesAgo: "prieš {minutes} min.",
     hoursAgo: "prieš {hours} val.",

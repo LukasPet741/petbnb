@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { timeAgo } from "@/lib/utils";
 import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/context/LanguageContext";
+import { pluralForm } from "@/lib/i18n/plural";
 
 const CollarMap = dynamic(() => import("@/components/CollarMap"), { ssr: false });
 
@@ -426,9 +427,7 @@ export default function CollarsPanel() {
                                 <div className="glass-panel pointer-events-none absolute inset-x-2 bottom-2 z-[800] rounded-[var(--radius-input)] border px-3 py-2 text-xs text-ink tabular-nums">
                                   {stats
                                     ? t("appPages.collars.routeStatsSummary", { distance: stats.distanceKm.toFixed(2), duration: Math.round(stats.durationMin), points: routePoints.length })
-                                    : routePoints.length === 1
-                                      ? t("appPages.collars.routeNotEnoughSingular", { points: routePoints.length })
-                                      : t("appPages.collars.routeNotEnoughPlural", { points: routePoints.length })}
+                                    : t(`appPages.collars.routeNotEnough.${pluralForm(locale, routePoints.length)}`, { points: routePoints.length })}
                                 </div>
                               );
                             })()}

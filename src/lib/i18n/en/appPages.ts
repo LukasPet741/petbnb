@@ -13,8 +13,13 @@ const appPages = {
     upToRateChip: "Up to €{rate}/hr",
     clearAllButton: "Clear all",
     loadingText: "Loading…",
-    resultsCountSingular: "{count} sitter found",
-    resultsCountPlural: "{count} sitters found",
+    // Three forms because Lithuanian needs three; English resolves "few" never,
+    // so its few simply matches its other. See src/lib/i18n/plural.ts.
+    resultsCount: {
+      one: "{count} sitter found",
+      few: "{count} sitters found",
+      other: "{count} sitters found",
+    },
     emptyTitle: "No sitters match your filters",
     emptyDescription: "Try adjusting your search criteria.",
     sitterNotFound: "Sitter not found.",
@@ -33,8 +38,11 @@ const appPages = {
   bookings: {
     title: "Bookings",
     loadingText: "Loading…",
-    countSingular: "{count} booking in total",
-    countPlural: "{count} bookings in total",
+    count: {
+      one: "{count} booking in total",
+      few: "{count} bookings in total",
+      other: "{count} bookings in total",
+    },
     tabAll: "All",
     emptyTitleAll: "No bookings yet",
     emptyTitleFiltered: "No {status} bookings",
@@ -83,8 +91,11 @@ const appPages = {
   pets: {
     title: "My pets",
     loadingText: "Loading…",
-    countSingular: "{count} pet registered",
-    countPlural: "{count} pets registered",
+    count: {
+      one: "{count} pet registered",
+      few: "{count} pets registered",
+      other: "{count} pets registered",
+    },
     addPetButton: "Add pet",
     emptyTitle: "No pets yet",
     emptyDescription: "Add your first pet to start booking sitters and keep their details in one place.",
@@ -200,8 +211,11 @@ const appPages = {
     closeRouteAriaLabel: "Close route",
     noLocationDataForDay: "No location data for this day",
     routeStatsSummary: "{distance} km · {duration} min · {points} points",
-    routeNotEnoughSingular: "{points} point (not enough for a route yet)",
-    routeNotEnoughPlural: "{points} points (not enough for a route yet)",
+    routeNotEnough: {
+      one: "{points} point (not enough for a route yet)",
+      few: "{points} points (not enough for a route yet)",
+      other: "{points} points (not enough for a route yet)",
+    },
     justNow: "just now",
     minutesAgo: "{minutes}m ago",
     hoursAgo: "{hours}h ago",

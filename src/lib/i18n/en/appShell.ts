@@ -37,8 +37,11 @@ const appShell = {
     fallbackName: "there",
     fallbackPetName: "your pet",
     summary: {
-      pending: "You have {pending} pending booking.",
-      pendingPlural: "You have {pending} pending bookings.",
+      pendingCount: {
+        one: "You have {pending} pending booking.",
+        few: "You have {pending} pending bookings.",
+        other: "You have {pending} pending bookings.",
+      },
       nextBooking: "Next stay: {pet} ({when}).",
       relativeToday: "today",
       relativeTomorrow: "tomorrow",

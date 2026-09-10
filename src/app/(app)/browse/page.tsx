@@ -10,12 +10,13 @@ import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
+import { pluralForm } from "@/lib/i18n/plural";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 
 export default function BrowsePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const [sitters, setSitters] = useState<Profile[]>([]);
   // One query for the whole page rather than one per card. Keyed on the loaded
@@ -141,7 +142,7 @@ export default function BrowsePage() {
         )}
       </AnimatePresence>
 
-      <p className="text-sm text-ink-soft mb-6">{loading ? t("appPages.browse.loadingText") : filtered.length === 1 ? t("appPages.browse.resultsCountSingular", { count: filtered.length }) : t("appPages.browse.resultsCountPlural", { count: filtered.length })}</p>
+      <p className="text-sm text-ink-soft mb-6">{loading ? t("appPages.browse.loadingText") : t(`appPages.browse.resultsCount.${pluralForm(locale, filtered.length)}`, { count: filtered.length })}</p>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">

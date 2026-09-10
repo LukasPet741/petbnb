@@ -78,7 +78,7 @@ These were checked and are **correct** — recorded so nobody re-litigates them:
 
 ---
 
-## A5. The documented plural bug — exactly which keys still carry it
+## A5. The documented plural bug — FIXED 2026-09-10
 
 `project-notes.md` §5 records this as known and unfixed: the app stores two count forms
 and branches on `n !== 1`, so 2–9 renders the genitive plural where the nominative plural
@@ -128,10 +128,14 @@ Lithuanian convention places the symbol **after** the amount, with a space
 |---|---|---|
 | `appPages.ts` | 12 | `"Maks. įkainis: €{rate}/val."` |
 | `appPages.ts` | 13 | `"Iki €{rate}/val."` |
-| `appPages.ts` | 148 | `"Įkainis (€/val.)"` |
 | `home.ts` | 125 | `"…nuo maždaug €10/val."` |
 
-Worth checking whether the English file should keep `€10` — it should.
+**FIXED 2026-09-10** for the two strings carrying an amount. `appPages.ts:148`
+(`"Įkainis (€/val.)"`) was left alone on reflection: it is a unit label with no amount
+in front of it, so the symbol-after-number rule does not apply. My original finding
+listed it in error.
+
+The English file correctly keeps `€10`.
 
 ### B2. One unmatched quotation mark · `legal.ts:7`
 
