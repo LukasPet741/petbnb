@@ -45,6 +45,25 @@ export interface Booking {
   pet?: Pet;
 }
 
+export interface Review {
+  id: string;
+  booking_id: string;
+  owner_id: string;
+  sitter_id: string;
+  rating: number;
+  body: string | null;
+  created_at: string;
+  /** Embedded author profile. Reviews are public, and so is profiles.SELECT. */
+  owner?: Pick<Profile, "id" | "full_name" | "avatar_url">;
+}
+
+/** A sitter's aggregate rating, as read from the public.sitter_ratings view. */
+export interface SitterRating {
+  /** Null when the sitter has no usable rating — never 0. See averageRating(). */
+  average: number | null;
+  count: number;
+}
+
 export const SERVICE_LABELS: Record<ServiceType, string> = {
   walking: "Dog Walking",
   boarding: "Boarding",

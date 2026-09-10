@@ -11,6 +11,9 @@ import Badge from "@/components/Badge";
 import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/lib/supabase";
 import { type ServiceType, type Profile } from "@/lib/types";
+import RatingSummary from "@/components/RatingSummary";
+import ReviewList from "@/components/ReviewList";
+import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 
 type Status = "loading" | "error" | "not-found" | "ready";
@@ -74,6 +77,7 @@ export default function PublicSitterProfilePage() {
 
 function SitterDetail({ sitter }: { sitter: Profile }) {
   const { t } = useLanguage();
+  const rating = useSitterRatings([sitter.id]).get(sitter.id) ?? null;
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][]).filter(([, v]) => v).map(([k]) => ({ key: k, label: t("common.services." + k) }));
   const firstName = sitter.full_name?.split(" ")[0] ?? t("sitters.profile.fallbackName");
   // freeToJoinNote uses {name} as the grammatical subject, which requires the nominative
@@ -95,6 +99,7 @@ function SitterDetail({ sitter }: { sitter: Profile }) {
                   <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{t(sitter.experience_years !== 1 ? "sitters.profile.experiencePlural" : "sitters.profile.experienceSingular", { years: sitter.experience_years })}</span>
                 )}
               </div>
+              <RatingSummary average={rating?.average ?? null} count={rating?.count ?? 0} size="md" emptyState="label" className="mt-2" />
               <div className="flex flex-wrap gap-2 mt-4">{activeServices.map(({ key, label }) => <Badge key={key} variant="brand">{label}</Badge>)}</div>
             </div>
           </div>
@@ -124,6 +129,11 @@ function SitterDetail({ sitter }: { sitter: Profile }) {
               ))}
             </div>
           )}
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.16 }}
+          className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6">
+          <ReviewList sitterId={sitter.id} />
         </motion.div>
       </div>
 

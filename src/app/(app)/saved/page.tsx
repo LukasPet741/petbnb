@@ -11,6 +11,7 @@ import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import type { Profile } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
+import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function SavedPage() {
@@ -18,6 +19,9 @@ export default function SavedPage() {
   const { user } = useAuth();
   const { favorites } = useFavorites();
   const [sitters, setSitters] = useState<Profile[]>([]);
+  // One query for the whole page rather than one per card. Keyed on the loaded
+  // set, not the filtered one, so changing a filter never re-queries.
+  const ratings = useSitterRatings(sitters.map((s) => s.id));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function SavedPage() {
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.07)} initial="hidden" animate="show">
           {visible.map((s) => (
             <motion.div key={s.id} variants={fadeUp} layout>
-              <SitterCard sitter={s} showFavorite />
+              <SitterCard sitter={s} showFavorite rating={ratings.get(s.id) ?? null} />
             </motion.div>
           ))}
         </motion.div>

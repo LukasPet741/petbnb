@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import Avatar from "./Avatar";
 import Badge from "./Badge";
 import FavoriteButton from "./FavoriteButton";
-import { type Profile, type ServiceType } from "@/lib/types";
+import RatingSummary from "./RatingSummary";
+import { type Profile, type ServiceType, type SitterRating } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext";
 
 /** Buckets a sitter's last_active_at into a coarse, non-exact trust signal.
@@ -27,7 +28,7 @@ export function getActivityBucket(lastActiveAt: string | null | undefined): Acti
   return null;
 }
 
-export default function SitterCard({ sitter, showFavorite = false, basePath = "/browse" }: { sitter: Profile; showFavorite?: boolean; basePath?: string }) {
+export default function SitterCard({ sitter, showFavorite = false, basePath = "/browse", rating }: { sitter: Profile; showFavorite?: boolean; basePath?: string; rating?: SitterRating | null }) {
   const { t } = useLanguage();
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][])
     .filter(([, v]) => v)
@@ -51,6 +52,9 @@ export default function SitterCard({ sitter, showFavorite = false, basePath = "/
               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{t(sitter.experience_years !== 1 ? "sitters.card.experiencePlural" : "sitters.card.experienceSingular", { years: sitter.experience_years })}</span>
             )}
           </div>
+          {rating && (
+            <RatingSummary average={rating.average} count={rating.count} className="mt-1.5" />
+          )}
           {activityBucket && (
             <div className="flex items-center gap-1.5 mt-1 text-[11px] text-ink-soft">
               <span className={`w-1.5 h-1.5 rounded-full ${ACTIVITY_DOT_CLASS[activityBucket]}`} />

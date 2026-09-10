@@ -9,6 +9,9 @@ import { type ServiceType, type Profile } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import Badge from "@/components/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
+import RatingSummary from "@/components/RatingSummary";
+import ReviewList from "@/components/ReviewList";
+import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
@@ -40,6 +43,11 @@ export default function SitterProfilePage() {
     });
   }, [id]);
 
+  // Both of these sit above the early returns below: a hook cannot live behind a
+  // branch, and the empty id list means an unloaded sitter issues no query.
+  const ratings = useSitterRatings(sitter ? [sitter.id] : []);
+  const rating = ratings.get(sitter?.id ?? "") ?? null;
+
   if (loading) return <div className="flex items-center justify-center py-24"><div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" /></div>;
   if (!sitter) return <div className="max-w-4xl mx-auto px-4 py-16 text-center"><p className="text-ink-soft">{t("appPages.browse.sitterNotFound")}</p><Link href="/browse" className="text-brand hover:underline mt-2 inline-block">{t("appPages.browse.backToBrowse")}</Link></div>;
 
@@ -67,6 +75,7 @@ export default function SitterProfilePage() {
                     <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{sitter.experience_years !== 1 ? t("appPages.browse.experiencePlural", { years: sitter.experience_years }) : t("appPages.browse.experienceSingular", { years: sitter.experience_years })}</span>
                   )}
                 </div>
+                <RatingSummary average={rating?.average ?? null} count={rating?.count ?? 0} size="md" emptyState="label" className="mt-2" />
                 <div className="flex flex-wrap gap-2 mt-4">{activeServices.map(({ key, label }) => <Badge key={key} variant="brand">{label}</Badge>)}</div>
               </div>
               <FavoriteButton sitterId={sitter.id} />
@@ -98,6 +107,11 @@ export default function SitterProfilePage() {
                 ))}
               </div>
             )}
+          </motion.div>
+          {/* Reviews */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.16 }}
+            className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6">
+            <ReviewList sitterId={sitter.id} />
           </motion.div>
         </div>
 

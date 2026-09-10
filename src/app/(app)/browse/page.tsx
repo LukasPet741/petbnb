@@ -8,6 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/lib/supabase";
 import { SERVICE_LABELS, type ServiceType, type Profile } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
+import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
@@ -17,6 +18,9 @@ export default function BrowsePage() {
   const { t } = useLanguage();
   const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const [sitters, setSitters] = useState<Profile[]>([]);
+  // One query for the whole page rather than one per card. Keyed on the loaded
+  // set, not the filtered one, so changing a filter never re-queries.
+  const ratings = useSitterRatings(sitters.map((s) => s.id));
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All cities");
@@ -153,7 +157,7 @@ export default function BrowsePage() {
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.07)} initial="hidden" animate="show">
           {filtered.map((sitter) => (
             <motion.div key={sitter.id} variants={fadeUp}>
-              <SitterCard sitter={sitter} showFavorite />
+              <SitterCard sitter={sitter} showFavorite rating={ratings.get(sitter.id) ?? null} />
             </motion.div>
           ))}
         </motion.div>

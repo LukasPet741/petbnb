@@ -27,6 +27,20 @@ const sitters = {
     today: "Active today",
     week: "Active this week",
   },
+  reviews: {
+    heading: "Reviews",
+    none: "No reviews yet",
+    emptyDescription: "No one has reviewed this sitter yet. A review can only be left after a booking is completed.",
+    anonymousAuthor: "A pet owner",
+    starsAriaLabel: "Rated {rating} out of {max}",
+    // English has no distinct "few"; it mirrors "other" so the shared plural
+    // helper can ask for the same three forms in both languages.
+    count: {
+      one: "{count} review",
+      few: "{count} reviews",
+      other: "{count} reviews",
+    },
+  },
   profile: {
     backToSitters: "Back to sitters",
     errorTitle: "Couldn't load this sitter",

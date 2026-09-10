@@ -11,6 +11,7 @@ import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/lib/supabase";
 import { type Profile, type ServiceType } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
+import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 
 type Status = "loading" | "error" | "ready";
@@ -42,6 +43,9 @@ function SittersList() {
   const [city, setCity] = useState(cityParam);
   const [sitters, setSitters] = useState<Profile[]>([]);
   const [status, setStatus] = useState<Status>("loading");
+  // One query for the whole page rather than one per card. Keyed on the loaded
+  // set, not the filtered one, so changing a filter never re-queries.
+  const ratings = useSitterRatings(sitters.map((s) => s.id));
 
   useEffect(() => {
     setStatus("loading");
@@ -146,7 +150,7 @@ function SittersList() {
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.06)} initial="hidden" animate="show">
             {filtered.map((sitter) => (
               <motion.div key={sitter.id} variants={fadeUp}>
-                <SitterCard sitter={sitter} basePath="/sitters" />
+                <SitterCard sitter={sitter} basePath="/sitters" rating={ratings.get(sitter.id) ?? null} />
               </motion.div>
             ))}
           </motion.div>

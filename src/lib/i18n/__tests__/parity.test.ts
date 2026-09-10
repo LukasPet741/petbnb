@@ -200,6 +200,25 @@ describe("dynamic key templates resolve in both languages", () => {
     expectAllResolve("sitters.activity", ["now", "today", "week"]);
   });
 
+  // Built by concatenation in RatingSummary from reviewCountForm(), so a missing
+  // form prints a raw dot-path next to a sitter's rating on every listing.
+  it("resolves sitters.reviews.count for every plural form", () => {
+    expectAllResolve("sitters.reviews.count", ["one", "few", "other"]);
+  });
+
+  // The rest of the reviews namespace is requested by literal key rather than by
+  // concatenation, but it spans three components and two pages, so it is pinned
+  // here as one family rather than trusted to survive a rename.
+  it("resolves the rest of the sitters.reviews namespace", () => {
+    expectAllResolve("sitters.reviews", [
+      "heading",
+      "none",
+      "emptyDescription",
+      "anonymousAuthor",
+      "starsAriaLabel",
+    ]);
+  });
+
   // The landing page builds these four families by concatenation too. A miss
   // prints the raw key straight onto the marketing page, which is the most
   // visible surface in the app.

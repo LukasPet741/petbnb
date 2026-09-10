@@ -417,3 +417,32 @@ describe("rate suffix keys", () => {
     );
   });
 });
+
+describe("SitterCard rating", () => {
+  it("shows the stars, average and count for a rated sitter", () => {
+    const { container } = render(
+      <SitterCard sitter={sitter()} rating={{ average: 4.8, count: 12 }} />,
+    );
+    expect(container.querySelectorAll("[data-star]")).toHaveLength(5);
+    expect(screen.getByText("4.8")).toBeInTheDocument();
+    expect(screen.getByText("sitters.reviews.count.other")).toBeInTheDocument();
+  });
+
+  // Every sitter is unrated on day one. A "no reviews yet" line repeated down a
+  // listing of 25 cards reads as a dead marketplace, so the card shows nothing at
+  // all and only the profile says it out loud.
+  it("shows no rating line at all for a sitter nobody has reviewed", () => {
+    const { container } = render(
+      <SitterCard sitter={sitter()} rating={{ average: null, count: 0 }} />,
+    );
+    expect(container.querySelectorAll("[data-star]")).toHaveLength(0);
+    expect(screen.queryByText(/^sitters\.reviews\./)).not.toBeInTheDocument();
+  });
+
+  it("shows no rating line before the ratings query has come back", () => {
+    // The listings render their cards first and fill ratings in afterwards, so the
+    // prop is absent for a beat on every page load.
+    const { container } = render(<SitterCard sitter={sitter()} />);
+    expect(container.querySelectorAll("[data-star]")).toHaveLength(0);
+  });
+});

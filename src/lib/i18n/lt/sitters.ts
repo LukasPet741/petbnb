@@ -27,6 +27,20 @@ const sitters = {
     today: "Aktyvus šiandien",
     week: "Aktyvus šią savaitę",
   },
+  reviews: {
+    heading: "Atsiliepimai",
+    none: "Atsiliepimų kol kas nėra",
+    emptyDescription: "Šis globėjas dar neturi atsiliepimų. Palikti atsiliepimą galima tik po įvykdyto užsakymo.",
+    anonymousAuthor: "Augintinio šeimininkas",
+    starsAriaLabel: "Įvertinimas {rating} iš {max}",
+    // Three forms, not two: 2-9 takes the nominative plural (atsiliepimai) where
+    // the app's older `n !== 1` ternary would wrongly emit the genitive.
+    count: {
+      one: "{count} atsiliepimas",
+      few: "{count} atsiliepimai",
+      other: "{count} atsiliepimų",
+    },
+  },
   profile: {
     backToSitters: "Grįžti į globėjų sąrašą",
     errorTitle: "Nepavyko įkelti globėjo",
