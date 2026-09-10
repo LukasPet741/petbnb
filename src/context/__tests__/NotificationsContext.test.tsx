@@ -331,7 +331,11 @@ describe("markRead", () => {
 });
 
 describe("markAllRead", () => {
-  it("stamps every unread row and asks the RPC for all of them with a null id list", async () => {
+  // "All of them" is expressed by sending no id list at all rather than an explicit
+  // null: mark_notifications_read declares `p_ids uuid[] default null` and branches on
+  // `p_ids is null`, so an omitted argument reaches the same NULL by the default. The
+  // generated RPC signature cannot express a nullable argument, only an optional one.
+  it("stamps every unread row and asks the RPC for all of them, with no id list", async () => {
     const { result } = await mount([
       notif({ read_at: null }),
       notif({ read_at: null }),
@@ -343,7 +347,7 @@ describe("markAllRead", () => {
 
     expect(result.current.unreadCount).toBe(0);
     expect(rpcCalls("mark_notifications_read")).toEqual([
-      { op: "rpc:mark_notifications_read", args: [{ p_ids: null }] },
+      { op: "rpc:mark_notifications_read", args: [{}] },
     ]);
   });
 

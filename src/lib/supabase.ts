@@ -1,89 +1,59 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database as Generated } from "./database.types";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(url, anon);
+export type { Json } from "./database.types";
 
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          full_name: string | null;
-          phone: string | null;
-          city: string | null;
-          is_sitter: boolean;
-          rate_per_hour: number | null;
-          experience_years: number | null;
-          services: Record<string, boolean> | null;
-          about_me: string | null;
-          avatar_url: string | null;
-          last_active_at: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at">;
-        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
-      };
-      pets: {
-        Row: {
-          id: string;
-          owner_id: string;
-          name: string;
-          type: string;
-          sex: string | null;
-          weight_kg: number | null;
-          bio: string | null;
-          photo_url: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<Database["public"]["Tables"]["pets"]["Row"], "id" | "created_at" | "updated_at">;
-        Update: Partial<Database["public"]["Tables"]["pets"]["Insert"]>;
-      };
-      bookings: {
-        Row: {
-          id: string;
-          owner_id: string;
-          sitter_id: string;
-          pet_id: string;
-          service: string;
-          start_at: string;
-          end_at: string;
-          address: string | null;
-          notes: string | null;
-          status: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at">;
-        Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
-      };
-      reviews: {
-        Row: {
-          id: string;
-          booking_id: string;
-          owner_id: string;
-          sitter_id: string;
-          rating: number;
-          body: string | null;
-          created_at: string;
-        };
-        // owner_id and sitter_id stay required on insert: the RLS policy checks both
-        // against the booking, so the client must send what it believes them to be
-        // rather than letting the database infer them.
-        Insert: Omit<Database["public"]["Tables"]["reviews"]["Row"], "id" | "created_at">;
+/**
+ * Swaps the `services` column's generated `Json` for the flat map it actually holds.
+ * Homomorphic, so Row keeps `services` required and Insert/Update keep it optional.
+ */
+type WithServiceMap<T> = {
+  [K in keyof T]: K extends "services" ? Record<string, boolean> | null : T[K];
+};
+
+/**
+ * The generated schema with three deliberate narrowings. Everything not mentioned
+ * here is exactly what `supabase gen types` produced — see ./database.types.ts,
+ * and regenerate that file rather than editing either by hand.
+ *
+ * 1. `reviews.Update` is restricted to rating and body. The RLS policy re-checks
+ *    owner_id and sitter_id against the booking on every UPDATE, so changing them
+ *    can only ever fail at the database. Narrowing it here makes that a type error
+ *    instead of a round trip.
+ *
+ * 2. `profiles.services` is a flat service-name to boolean map, not arbitrary Json.
+ *    The column is jsonb, so the generator can only say `Json`, which admits arrays
+ *    and bare strings and therefore does not overlap the app's own `Profile` type at
+ *    all. Nothing but this app writes the column, and it only ever writes the map.
+ *
+ * 3. `sitter_ratings`'s three columns are non-null. The generator marks every view
+ *    column nullable because Postgres will not prove otherwise through a view, but
+ *    the view is `select sitter_id, count(*), avg(rating) ... group by sitter_id`
+ *    over a table whose sitter_id and rating are both NOT NULL: a group only exists
+ *    because it has rows, so count is never null, avg is never null, and the group
+ *    key is never null. Taking the generated nullability literally would mean three
+ *    null guards for cases the view cannot produce.
+ */
+export type Database = Omit<Generated, "public"> & {
+  public: Omit<Generated["public"], "Tables" | "Views"> & {
+    Tables: Omit<Generated["public"]["Tables"], "reviews" | "profiles"> & {
+      reviews: Omit<Generated["public"]["Tables"]["reviews"], "Update"> & {
         Update: Partial<
-          Pick<Database["public"]["Tables"]["reviews"]["Row"], "rating" | "body">
+          Pick<Generated["public"]["Tables"]["reviews"]["Row"], "rating" | "body">
         >;
       };
+      profiles: {
+        Row: WithServiceMap<Generated["public"]["Tables"]["profiles"]["Row"]>;
+        Insert: WithServiceMap<Generated["public"]["Tables"]["profiles"]["Insert"]>;
+        Update: WithServiceMap<Generated["public"]["Tables"]["profiles"]["Update"]>;
+        Relationships: Generated["public"]["Tables"]["profiles"]["Relationships"];
+      };
     };
-    Views: {
-      // Derived from public.reviews, never written to. Declared read-only here so a
-      // stray .insert() on it is a type error rather than a runtime one.
-      sitter_ratings: {
+    Views: Omit<Generated["public"]["Views"], "sitter_ratings"> & {
+      sitter_ratings: Omit<Generated["public"]["Views"]["sitter_ratings"], "Row"> & {
         Row: {
           sitter_id: string;
           review_count: number;
@@ -93,3 +63,5 @@ export type Database = {
     };
   };
 };
+
+export const supabase = createClient<Database>(url, anon);

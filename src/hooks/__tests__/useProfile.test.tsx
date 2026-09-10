@@ -48,6 +48,13 @@ function makeProfile(over: Partial<ProfileRow> = {}): ProfileRow {
     last_active_at: "2026-01-01T00:00:00Z",
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
+    // Columns the hand-written Database type never mentioned. A profile row from
+    // the database always carries them, so a fixture that omits them is not one.
+    locale: "lt",
+    is_verified: false,
+    verified_at: null,
+    verified_full_name: null,
+    smart_id_session_id: null,
     ...over,
   };
 }

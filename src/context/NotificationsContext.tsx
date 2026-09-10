@@ -133,7 +133,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const markAllRead = useCallback(async () => {
     const now = new Date().toISOString();
     setNotifications((prev) => prev.map((n) => (n.read_at ? n : { ...n, read_at: now })));
-    const { error } = await supabase.rpc("mark_notifications_read", { p_ids: null });
+    const { error } = await supabase.rpc("mark_notifications_read", {});
     if (error) await load();
   }, [load]);
 

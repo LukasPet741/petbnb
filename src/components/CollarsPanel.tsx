@@ -245,7 +245,7 @@ export default function CollarsPanel() {
 
   const handleCreate = async (label: string) => {
     const secret = crypto.randomUUID().replace(/-/g, "");
-    const { data, error } = await supabase.rpc("register_collar_device", { p_secret: secret, p_label: label || null });
+    const { data, error } = await supabase.rpc("register_collar_device", { p_secret: secret, p_label: label || undefined });
     if (error || !data) return;
     setProvisioned({ id: data as string, secret, label });
     setShowAdd(false);
