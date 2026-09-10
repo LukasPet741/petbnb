@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cn, formatDate, formatCurrency, formatTime, timeAgo } from "@/lib/utils";
+import { cn, formatDate, formatCurrency, formatTime, timeAgo, normaliseCity } from "@/lib/utils";
 
 // The suite pins TZ to Europe/Vilnius (see vitest.config.mts). Every assertion
 // below assumes it, because these helpers all render user-facing wall-clock
@@ -308,4 +308,53 @@ describe("timeAgo", () => {
     expect(t).toHaveBeenCalledTimes(1);
     expect(t.mock.calls[0][0]).toBe("common.timeAgo.minutesAgo");
   });
+});
+
+describe("normaliseCity", () => {
+  /**
+   * City is a free-text field on the profile form, so whatever someone types is what
+   * the database gets. Production ended up holding "kaunas" alongside "Kaunas", and
+   * "Mažeikiai " with a trailing space alongside what should have been the same city —
+   * three entries for two places. The city filter and the city list both treat them as
+   * distinct, and the profile page renders the raw value, so one sitter's page read
+   * "kaunas".
+   */
+  it("capitalises a city typed in lower case", () => {
+    expect(normaliseCity("kaunas")).toBe("Kaunas");
+  });
+
+  it("strips the trailing space that made a second Mažeikiai", () => {
+    expect(normaliseCity("Mažeikiai ")).toBe("Mažeikiai");
+  });
+
+  it("leaves an already-correct name untouched", () => {
+    expect(normaliseCity("Vilnius")).toBe("Vilnius");
+  });
+
+  it.each(["Klaipėda", "Šiauliai", "Panevėžys", "Mažeikiai"])(
+    "preserves the Lithuanian letters in %s",
+    (city) => {
+      expect(normaliseCity(city.toLowerCase())).toBe(city);
+    },
+  );
+
+  it("lowercases the tail of a shouted city name", () => {
+    expect(normaliseCity("VILNIUS")).toBe("Vilnius");
+  });
+
+  it("capitalises every word of a two-word city", () => {
+    expect(normaliseCity("naujoji akmenė")).toBe("Naujoji Akmenė");
+  });
+
+  it("collapses runs of internal whitespace", () => {
+    expect(normaliseCity("Naujoji   Akmenė")).toBe("Naujoji Akmenė");
+  });
+
+  it.each([["", "empty"], ["   ", "only spaces"], ["\t\n", "only whitespace"]])(
+    "treats %s (%s) as no city rather than as a city named nothing",
+    (input) => {
+      // The column is nullable, and "" would sort and group as its own city.
+      expect(normaliseCity(input)).toBeNull();
+    },
+  );
 });

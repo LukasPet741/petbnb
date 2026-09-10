@@ -122,7 +122,7 @@ const home = {
       },
       cost: {
         q: "How much does it cost?",
-        a: "Each sitter sets their own hourly rate, starting from around €10/hr. PetBnB adds nothing on top: no booking fee, no service charge, no commission. You pay the sitter directly, however the two of you arrange it.",
+        a: "Each sitter sets their own hourly rate, starting from €13/hr. PetBnB adds nothing on top: no booking fee, no service charge, no commission. You pay the sitter directly, however the two of you arrange it.",
       },
       areas: {
         q: "Which areas are covered?",

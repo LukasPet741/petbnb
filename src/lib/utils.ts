@@ -50,3 +50,31 @@ export function formatTime(date: string | Date, locale: keyof typeof INTL_LOCALE
     minute: "2-digit",
   }).format(new Date(date));
 }
+
+/**
+ * Normalises a free-text city name to one canonical spelling.
+ *
+ * The profile form takes city as plain text, so the database stores whatever was
+ * typed. Production ended up with "kaunas" beside "Kaunas", and "Mažeikiai " with a
+ * trailing space beside what should have been the same place — three rows for two
+ * cities. Both the city filter and the landing page's city list group on the exact
+ * string, so each variant became its own city, and the sitter profile renders the raw
+ * value, so one page read "kaunas".
+ *
+ * Trims, collapses internal runs of whitespace, and title-cases each word so
+ * two-word names like "Naujoji Akmenė" survive. Case mapping goes through the
+ * Lithuanian locale rather than the default: it is the locale whose rules apply to
+ * these strings, and relying on the ambient one is how this sort of thing rots.
+ *
+ * Returns null for a blank entry — the column is nullable, and an empty string would
+ * group and sort as a city named nothing.
+ */
+export function normaliseCity(raw: string): string | null {
+  const collapsed = raw.trim().replace(/\s+/g, " ");
+  if (collapsed.length === 0) return null;
+
+  return collapsed
+    .split(" ")
+    .map((word) => word.slice(0, 1).toLocaleUpperCase("lt") + word.slice(1).toLocaleLowerCase("lt"))
+    .join(" ");
+}

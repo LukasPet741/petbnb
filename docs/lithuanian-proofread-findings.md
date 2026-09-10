@@ -29,7 +29,7 @@ English "sitter" hits are all JavaScript object keys, which correctly stay Engli
 
 ## A. Factual — copy contradicts the system
 
-### A1. The FAQ understates the price floor · `home.ts:125`
+### A1. The FAQ understates the price floor · `home.ts:125` — FIXED 2026-09-10
 
 > „…valandinį įkainį, prasidedantį nuo maždaug **€10**/val."
 
@@ -199,7 +199,7 @@ unsure.
 
 ---
 
-## Not a copy issue, but found while checking A1
+## Not a copy issue, but found while checking A1 — FIXED 2026-09-10
 
 **`profiles.city` is stored with inconsistent casing.** Production holds both `kaunas`
 and `Kaunas` as distinct values, so the city filter and the city list treat them as two

@@ -14,6 +14,7 @@ import PageHeader from "@/components/PageHeader";
 import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { normaliseCity } from "@/lib/utils";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -50,7 +51,7 @@ export default function ProfilePage() {
     if (!user) return;
     setSaving(true); setError("");
     const { error: err } = await supabase.from("profiles").upsert({
-      id: user.id, full_name: form.full_name, phone: form.phone, city: form.city,
+      id: user.id, full_name: form.full_name, phone: form.phone, city: normaliseCity(form.city),
       about_me: form.about_me || null, is_sitter: isSitter,
       rate_per_hour: form.rate_per_hour ? Number(form.rate_per_hour) : null,
       experience_years: form.experience_years ? Number(form.experience_years) : null,
