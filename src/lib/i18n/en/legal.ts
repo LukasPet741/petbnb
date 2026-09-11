@@ -98,7 +98,7 @@ const legal = {
       },
       whoCanSee: {
         heading: "7. Who can see your data",
-        body: "Access is enforced by the database itself, not just by the interface. Sitter profiles are public, because the whole point is to be findable. Your pets are not: only you, and a sitter with an actual booking for that pet, can read them. Messages are readable only by the two people in the conversation.",
+        body: "Access is enforced by the database itself, not just by the interface. Every profile is public, owners' as well as sitters': anyone, signed in or not, can read the name, city, photo and description on it, plus a sitter's rate, services and experience. Being findable is the point. Your phone number is not public — you are the only person who can read it. Your pets are not public either: only you, and a sitter with an actual booking for that pet, can read them. Messages are readable only by the two people in the conversation.",
       },
       noTracking: {
         heading: "8. What we deliberately do not do",

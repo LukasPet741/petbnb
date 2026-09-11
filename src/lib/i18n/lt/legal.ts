@@ -98,7 +98,7 @@ const legal = {
       },
       whoCanSee: {
         heading: "7. Kas gali matyti jūsų duomenis",
-        body: "Prieigą riboja pati duomenų bazė, o ne vien naudotojo sąsaja. Globėjų profiliai yra vieši, nes visa esmė — kad juos būtų galima rasti. Jūsų augintiniai — ne: juos skaityti gali tik jūs ir globėjas, turintis tikrą to augintinio užsakymą. Žinutes mato tik du pokalbio dalyviai.",
+        body: "Prieigą riboja pati duomenų bazė, o ne vien naudotojo sąsaja. Vieši yra visi profiliai — ne tik globėjų, bet ir šeimininkų: bet kas, prisijungęs ar ne, gali matyti juose nurodytą vardą, miestą, nuotrauką ir aprašymą, o globėjų profiliuose — dar ir įkainį, paslaugas bei patirtį. Tokia ir esmė: kad jus būtų galima rasti. Jūsų telefono numeris nėra viešas — jį matote tik jūs. Jūsų augintiniai taip pat nėra vieši: juos skaityti gali tik jūs ir globėjas, turintis tikrą to augintinio užsakymą. Žinutes mato tik du pokalbio dalyviai.",
       },
       noTracking: {
         heading: "8. Ko sąmoningai nedarome",
