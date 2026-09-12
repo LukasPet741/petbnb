@@ -50,13 +50,19 @@ export default function ProfilePage() {
     e.preventDefault();
     if (!user) return;
     setSaving(true); setError("");
-    const { error: err } = await supabase.from("profiles").upsert({
-      id: user.id, full_name: form.full_name, phone: form.phone, city: normaliseCity(form.city),
+    // .update(), never .upsert(). PostgREST's upsert emits `insert ... on conflict do
+    // update`, which requires SELECT on every column it names, and authenticated holds
+    // no SELECT on phone (migration 20260910215330). That combination failed every save
+    // with 42501 between 2026-09-10 and 2026-09-12. There is also nothing for an upsert
+    // to insert: on_auth_user_created creates the row at sign-up, and production carries
+    // zero profiles without an auth user. Pinned by profile-columns.test.ts.
+    const { error: err } = await supabase.from("profiles").update({
+      full_name: form.full_name, phone: form.phone, city: normaliseCity(form.city),
       about_me: form.about_me || null, is_sitter: isSitter,
       rate_per_hour: form.rate_per_hour ? Number(form.rate_per_hour) : null,
       experience_years: form.experience_years ? Number(form.experience_years) : null,
       services: form.services, last_active_at: new Date().toISOString(),
-    });
+    }).eq("id", user.id);
     if (err) { setError(err.message); setSaving(false); return; }
     await refresh();
     setSaved(true);

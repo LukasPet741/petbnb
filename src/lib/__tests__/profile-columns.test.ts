@@ -17,6 +17,18 @@ import { join, relative } from "node:path";
  * `owner:profiles!fkey ( * )` in the messages page, which is the same star wearing
  * a different hat. This test reads both spellings out of the source so the next one
  * cannot ship.
+ *
+ * That grant has a write-side twin, found on 2026-09-12. `insert ... on conflict do
+ * update` — what PostgREST's .upsert() emits — needs SELECT on the columns it names,
+ * so /profile had been failing every save with 42501 for two days purely because its
+ * payload included `phone`. Proven against production three ways: the same upsert
+ * without `phone` succeeds, a plain `update ... set phone` succeeds, the upsert with
+ * `phone` fails. A plain .update() carries no such requirement, so the upsert shape is
+ * forbidden on this table too.
+ *
+ * Both checks are line-based, like the star ones above: a call split across lines would
+ * slip through. That is the same limitation the star tests have always had, and it is
+ * worth less than the complexity of parsing TypeScript here.
  */
 
 const SRC = join(process.cwd(), "src");
@@ -63,5 +75,15 @@ describe("profiles is never selected with a star", () => {
     // Matches `profiles ( * )` and `profiles!some_fkey ( * )`, the two shapes
     // PostgREST accepts for an embedded resource.
     expect(hits(/(?<![_a-zA-Z])profiles(?:![A-Za-z_]+)?\s*\(\s*\*\s*\)/)).toEqual([]);
+  });
+});
+
+describe("profiles is never written with an upsert", () => {
+  it('has no .from("profiles").upsert(', () => {
+    // A profile row always exists by the time anyone can edit it: on_auth_user_created
+    // inserts one for every new auth user, and production carries zero orphans. So
+    // .update().eq("id", user.id) is the correct write, and the upsert bought nothing
+    // but a 42501.
+    expect(hits(/from\(\s*["']profiles["']\s*\)\s*\.\s*upsert\(/)).toEqual([]);
   });
 });
