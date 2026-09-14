@@ -14,6 +14,7 @@ import {
   Search,
   StickyNote,
   Sun,
+  UserX,
 } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +22,7 @@ import { useAuth } from "@/context/AuthContext";
 import { type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { offeredServices, resolveService } from "@/lib/services";
 import { bookingRangeProblem, toDateTimeLocalValue } from "@/lib/booking-duration";
+import { sitterBlocker } from "@/lib/sitter-blocker";
 import Avatar from "@/components/Avatar";
 import BookingSummary from "@/components/BookingSummary";
 import { useLanguage } from "@/context/LanguageContext";
@@ -93,7 +95,9 @@ function NewBookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
-  const [sitterProfile, setSitterProfile] = useState<Profile | null>(null);
+  // undefined until the fetch answers, null when it finds nobody -- sitterBlocker needs
+  // the difference, or every valid link would flash "not found" first.
+  const [sitterProfile, setSitterProfile] = useState<Profile | null | undefined>(undefined);
   const [pets, setPets] = useState<Pet[]>([]);
   const [form, setForm] = useState({
     sitter_id: searchParams.get("sitter") ?? "",
@@ -118,8 +122,10 @@ function NewBookingForm() {
       .from("profiles")
       .select(PUBLIC_PROFILE_COLUMNS)
       .eq("id", form.sitter_id)
-      .single()
-      .then(({ data }) => setSitterProfile((data as Profile) ?? null));
+      // maybeSingle: no such profile is an answer (null), not an error. A malformed id
+      // in the URL does error, and is just as much "no such sitter".
+      .maybeSingle()
+      .then(({ data, error }) => setSitterProfile(error ? null : ((data as Profile | null) ?? null)));
   }, [form.sitter_id]);
 
   useEffect(() => {
@@ -130,7 +136,12 @@ function NewBookingForm() {
     });
   }, [user]);
 
-  const offered = offeredServices(sitterProfile?.services);
+  // A profile that cannot be booked is not presented as this booking's sitter anywhere on
+  // the page: no header, no services, no rate in the summary, no colour behind the glass.
+  const blocker = form.sitter_id ? sitterBlocker(sitterProfile, user?.id) : null;
+  const bookableSitter = blocker ? null : (sitterProfile ?? null);
+
+  const offered = offeredServices(bookableSitter?.services);
   const offeredKey = offered.join(",");
 
   // Keep the held service honest as the sitter loads or changes: preselect their only
@@ -153,11 +164,12 @@ function NewBookingForm() {
   const canSubmit =
     Boolean(form.sitter_id && form.pet_id && form.service && form.start_at && form.end_at) &&
     !rangeProblem &&
+    !blocker &&
     !loading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !form.service) return;
+    if (!user || !form.service || blocker) return;
     if (bookingRangeProblem(form.start_at, form.end_at, new Date())) return;
     setError("");
     setLoading(true);
@@ -205,9 +217,9 @@ function NewBookingForm() {
             away, so its only clip is at the viewport boundary, where clipping is
             invisible. Sized and centred so the blurred falloff lands well inside the
             layer on both sides. */}
-        {sitterProfile?.avatar_url && (
+        {bookableSitter?.avatar_url && (
           <img
-            src={sitterProfile.avatar_url}
+            src={bookableSitter.avatar_url}
             alt=""
             className="absolute -top-24 left-1/2 -translate-x-1/2 w-[40rem] h-[40rem] rounded-full object-cover blur-[90px] opacity-45 saturate-150"
           />
@@ -237,6 +249,18 @@ function NewBookingForm() {
         </div>
       )}
 
+      {blocker && (
+        <div role="alert" className="mb-6 glass-panel border rounded-[var(--radius-card)] p-4 flex items-center gap-3">
+          <UserX className="w-5 h-5 text-amber-strong flex-shrink-0" />
+          <div className="flex-1 text-sm text-ink">
+            {t(`appPages.bookingsNew.${blocker}`)}{" "}
+            <Link href="/browse" className="text-brand-strong font-medium hover:underline">
+              {t("appPages.bookingsNew.findSitterLink")}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-[var(--radius-input)] text-sm text-danger">
           {error}
@@ -249,16 +273,16 @@ function NewBookingForm() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-6 items-start">
         <form onSubmit={handleSubmit} id="booking-form" className="min-w-0">
           <div className="glass-panel border rounded-[var(--radius-card)] p-6 sm:p-7 space-y-6">
-            {sitterProfile && (
+            {bookableSitter && (
               <div className="flex items-center gap-3.5 pb-5 border-b border-black/5 lg:hidden">
                 <Avatar
-                  name={sitterProfile.full_name ?? t("appShell.sitterFallback")}
-                  url={sitterProfile.avatar_url}
+                  name={bookableSitter.full_name ?? t("appShell.sitterFallback")}
+                  url={bookableSitter.avatar_url}
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-ink truncate">{sitterProfile.full_name}</div>
-                  <div className="text-xs text-ink-soft mt-0.5">{sitterProfile.city}</div>
+                  <div className="text-sm font-semibold text-ink truncate">{bookableSitter.full_name}</div>
+                  <div className="text-xs text-ink-soft mt-0.5">{bookableSitter.city}</div>
                 </div>
                 <Link href="/browse" className="text-xs text-brand font-medium hover:underline">
                   {t("appPages.bookingsNew.changeLink")}
@@ -296,7 +320,7 @@ function NewBookingForm() {
               </FieldLabel>
 
               {/* Three states, because "four options regardless of the sitter" was the bug. */}
-              {!form.sitter_id ? (
+              {!form.sitter_id || blocker ? (
                 <p className="text-sm text-ink-soft border border-dashed border-black/15 rounded-[var(--radius-input)] px-3.5 py-3">
                   {t("appPages.bookingsNew.pickSitterFirst")}
                 </p>
@@ -419,7 +443,7 @@ function NewBookingForm() {
             mobile header's height on the breakpoint where stickiness applies. */}
         <div className="lg:sticky lg:top-8">
           <BookingSummary
-            sitter={sitterProfile}
+            sitter={bookableSitter}
             service={form.service}
             startAt={form.start_at}
             endAt={form.end_at}
