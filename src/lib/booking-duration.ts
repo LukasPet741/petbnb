@@ -59,9 +59,10 @@ export type BookingRangeProblem = "startInPast" | "endBeforeStart";
 /**
  * What is wrong with the dates as typed, or null when there is nothing to say yet.
  *
- * The only thing standing between a user and a booking for yesterday, or one that
- * ends before it starts: `bookings` has no check constraint on either column, so
- * whatever this page sends is stored.
+ * The database refuses both as well -- bookings_range_check, and enforce_booking_rules
+ * for a start in the past, with 15 minutes of slack for clocks that disagree (migration
+ * 20260914193216). So this is not what stops the insert; it is what tells the user, in
+ * their language and inside the right field, before they send.
  *
  * Silent until there is something to judge — an empty start is the opening state, not
  * an error — and it reports one problem at a time, the start's before the end's.

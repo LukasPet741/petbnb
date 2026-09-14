@@ -372,9 +372,9 @@ function NewBookingForm() {
               )}
             </div>
 
-            {/* Nothing downstream checks these: bookings has no constraint on either
-                column. `min` narrows the native pickers; the message is what actually
-                explains a bad range, in the site's language rather than the browser's. */}
+            {/* The database refuses a reversed or past range too (20260914193216), but only
+                with the generic submit error. `min` narrows the native pickers; the message
+                explains a bad range first, in the site's language rather than the browser's. */}
             {/* Each message lives inside its own field, so it stays under the right
                 input when the two stack on a phone. */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

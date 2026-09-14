@@ -9,8 +9,9 @@ import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
  * default was wrong for anyone who does not walk dogs, and a booking for a service
  * the sitter does not provide was two taps away.
  *
- * `service` carries a CHECK constraint, so an option the sitter cannot fulfil is not
- * merely bad manners -- it is a request they can only decline.
+ * Since migration 20260914193216 the database refuses a service the sitter does not offer
+ * (enforce_booking_rules reads the same map, strictly `true`), so an option offered here
+ * that the sitter cannot fulfil would end in the generic submit error.
  */
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
