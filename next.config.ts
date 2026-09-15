@@ -84,7 +84,13 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Only the landing page belongs in search results (Lukas, 2026-09-15). "/:path+" needs at
+      // least one segment, so it matches every path except "/". A header rather than robots.txt
+      // Disallow: Google still lists blocked URLs it already knows, and never sees their noindex.
+      { source: "/:path+", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+    ];
   },
 
   turbopack: {

@@ -32,19 +32,3 @@ export const SITE_ORIGIN = resolveOrigin();
 export function siteUrl(path: string): string {
   return `${SITE_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
 }
-
-/**
- * Routes behind the login wall. They are real URLs, so a crawler can reach them and
- * be served an empty client shell; none of them have anything to index. Kept here so
- * robots.txt and any future noindex share one list.
- */
-export const PRIVATE_ROUTE_PREFIXES = [
-  "/bookings",
-  "/browse",
-  "/dashboard",
-  "/messages",
-  "/pets",
-  "/profile",
-  "/saved",
-  "/smart-id-demo",
-] as const;

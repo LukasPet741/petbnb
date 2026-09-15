@@ -1,23 +1,19 @@
 import type { MetadataRoute } from "next";
-import { SITE_ORIGIN, PRIVATE_ROUTE_PREFIXES, siteUrl } from "@/lib/site";
+import { SITE_ORIGIN, siteUrl } from "@/lib/site";
 
 /**
- * Everything public is crawlable; everything behind the login wall is not.
+ * Crawlers may fetch everything; only the landing page may be indexed (Lukas, 2026-09-15).
  *
- * The private routes are client shells that render nothing until Supabase answers,
- * so a crawler that fetched them would index an empty page under a real URL. The
- * login and signup pages stay crawlable but carry `robots: { index: false }` in
- * their own metadata: they are linked from the public pages, and a disallow here
- * would turn those links into crawl errors rather than a quiet skip.
+ * Nothing is disallowed on purpose. A Disallow does not take a page out of Google: a blocked
+ * URL it already knows can still be listed, and a blocked crawl never sees the page's noindex.
+ * Instead every path but "/" answers with `X-Robots-Tag: noindex` (next.config.ts), which a
+ * crawler has to be allowed to fetch in order to obey.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Bare prefixes, not `/bookings/`: a trailing slash would leave the segment
-      // itself (`/bookings`) crawlable and only block what sits under it.
-      disallow: [...PRIVATE_ROUTE_PREFIXES],
     },
     sitemap: siteUrl("/sitemap.xml"),
     host: SITE_ORIGIN,
