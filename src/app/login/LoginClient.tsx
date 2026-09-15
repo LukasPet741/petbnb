@@ -85,7 +85,10 @@ export default function LoginClient() {
                 className="w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />
             </motion.div>
             <motion.div variants={fadeUp}>
-              <label className="block text-sm font-medium text-ink mb-1.5">{t("auth.login.form.passwordLabel")}</label>
+              <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                <label className="block text-sm font-medium text-ink">{t("auth.login.form.passwordLabel")}</label>
+                <Link href="/forgot-password" className="text-sm text-brand font-medium hover:underline">{t("auth.login.forgotPassword")}</Link>
+              </div>
               <div className="relative">
                 <input type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("auth.login.form.passwordPlaceholder")} required autoComplete="current-password"
                   className="w-full h-11 px-3.5 pr-11 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />

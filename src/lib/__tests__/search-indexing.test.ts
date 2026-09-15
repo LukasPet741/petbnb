@@ -41,6 +41,8 @@ describe("X-Robots-Tag noindex", () => {
     "/legal/privacy",
     "/login",
     "/signup",
+    "/forgot-password",
+    "/reset-password",
     "/sitters",
     "/sitters/740b5962-4f41-4871-9c4e-333d7680325b",
   ])("is sent for %s", async (path) => {

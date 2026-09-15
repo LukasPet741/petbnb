@@ -5,6 +5,8 @@ const signUpMock = vi.fn();
 const signInMock = vi.fn();
 const signOutMock = vi.fn();
 const getSessionMock = vi.fn();
+const resetPasswordMock = vi.fn();
+const updateUserMock = vi.fn();
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
@@ -13,11 +15,13 @@ vi.mock("@/lib/supabase", () => ({
       signInWithPassword: (...a: unknown[]) => signInMock(...a),
       signOut: (...a: unknown[]) => signOutMock(...a),
       getSession: (...a: unknown[]) => getSessionMock(...a),
+      resetPasswordForEmail: (...a: unknown[]) => resetPasswordMock(...a),
+      updateUser: (...a: unknown[]) => updateUserMock(...a),
     },
   },
 }));
 
-const { matchAuthErrorKey, signUp, signIn, signOut, getSession } = await import(
+const { matchAuthErrorKey, signUp, signIn, signOut, getSession, requestPasswordReset, updatePassword } = await import(
   "@/lib/auth"
 );
 
@@ -26,6 +30,8 @@ beforeEach(() => {
   signInMock.mockReset();
   signOutMock.mockReset();
   getSessionMock.mockReset();
+  resetPasswordMock.mockReset();
+  updateUserMock.mockReset();
 });
 
 describe("matchAuthErrorKey", () => {
@@ -34,6 +40,10 @@ describe("matchAuthErrorKey", () => {
     ["User already registered", "userAlreadyRegistered"],
     ["Email not confirmed", "emailNotConfirmed"],
     ["Password should be at least 6 characters", "weakPassword"],
+    ["email rate limit exceeded", "rateLimited"],
+    ["For security purposes, you can only request this after 42 seconds.", "rateLimited"],
+    ["New password should be different from the old password.", "samePassword"],
+    ["Auth session missing!", "linkExpired"],
   ])("maps %j to the %s key", (message, key) => {
     expect(matchAuthErrorKey(message)).toBe(`auth.knownErrors.${key}`);
   });
@@ -107,6 +117,10 @@ describe("matchAuthErrorKey", () => {
       "User already registered",
       "Email not confirmed",
       "Password should be at least 6 characters",
+      "email rate limit exceeded",
+      "For security purposes, you can only request this after 42 seconds.",
+      "New password should be different from the old password.",
+      "Auth session missing!",
     ];
     for (const message of messages) {
       const key = matchAuthErrorKey(message);
@@ -214,5 +228,41 @@ describe("getSession", () => {
       error: new Error("network"),
     });
     await expect(getSession()).resolves.toBeNull();
+  });
+});
+
+describe("requestPasswordReset", () => {
+  it("asks Supabase to mail a link back to this site's /reset-password", async () => {
+    resetPasswordMock.mockResolvedValue({ data: {}, error: null });
+    await requestPasswordReset("a@b.com");
+    expect(resetPasswordMock).toHaveBeenCalledWith("a@b.com", {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+  });
+
+  it("resolves the same way whether or not an account exists", async () => {
+    // Supabase answers 200 for unknown addresses too; the helper adds nothing that could tell them apart.
+    resetPasswordMock.mockResolvedValue({ data: {}, error: null });
+    await expect(requestPasswordReset("nobody@b.com")).resolves.toBeUndefined();
+  });
+
+  it("rethrows the original error object", async () => {
+    const error = new Error("email rate limit exceeded");
+    resetPasswordMock.mockResolvedValue({ data: null, error });
+    await expect(requestPasswordReset("a@b.com")).rejects.toBe(error);
+  });
+});
+
+describe("updatePassword", () => {
+  it("sets the new password on the signed-in (recovery) session", async () => {
+    updateUserMock.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
+    await updatePassword("new-password");
+    expect(updateUserMock).toHaveBeenCalledWith({ password: "new-password" });
+  });
+
+  it("rethrows the original error object", async () => {
+    const error = new Error("New password should be different from the old password.");
+    updateUserMock.mockResolvedValue({ data: { user: null }, error });
+    await expect(updatePassword("same")).rejects.toBe(error);
   });
 });
