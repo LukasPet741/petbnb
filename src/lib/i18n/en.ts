@@ -62,6 +62,17 @@ const en = {
       demoTag: "DEMO",
       demoNote: "A demonstration check: no real person's identity was verified.",
     },
+    notFound: {
+      title: "This page doesn't exist",
+      body: "The link may be out of date, or the address has a typo.",
+      home: "Go to the home page",
+    },
+    error: {
+      title: "Something went wrong",
+      body: "The page couldn't load. Try again, and if it keeps happening, come back in a few minutes.",
+      retry: "Try again",
+      home: "Go to the home page",
+    },
     petTypes: {
       dog: "Dog",
       cat: "Cat",

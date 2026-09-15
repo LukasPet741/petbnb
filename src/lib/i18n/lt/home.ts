@@ -137,7 +137,7 @@ const home = {
       },
       cost: {
         q: "Kiek tai kainuoja?",
-        a: "Kiekvienas globėjas nustato savo valandinį įkainį, prasidedantį nuo 13 €/val. PetBnB nieko neprideda: jokio užsakymo mokesčio, jokio aptarnavimo mokesčio, jokių komisinių. Globėjui sumokate tiesiogiai, kaip patys susitariate.",
+        a: "Kiekvienas globėjas pats nustato kainą už dieną, kelias dienas, savaitę ar ilgiau, o siųsdami užklausą galite pasiūlyti savo kainą. PetBnB nieko neprideda: jokio užsakymo mokesčio, jokio aptarnavimo mokesčio, jokių komisinių. Globėjui sumokate tiesiogiai, kaip patys susitariate.",
       },
       areas: {
         q: "Kurie miestai aptarnaujami?",
@@ -145,7 +145,7 @@ const home = {
       },
       becomeSitter: {
         q: "Kaip tapti globėju?",
-        a: "Susikurkite paskyrą, atsidarykite Profilį, įjunkite Globėjo režimą ir pridėkite paslaugas, įkainį bei trumpą aprašymą. Paieškos rezultatuose atsirasite iškart — nereikia nei teikti paraiškos, nei laukti patvirtinimo.",
+        a: "Susikurkite paskyrą, atsidarykite Profilį, įjunkite Globėjo režimą ir pridėkite paslaugas, kainas bei trumpą aprašymą. Paieškos rezultatuose atsirasite iškart. Kad galėtumėte priimti užsakymus, vieną kartą patvirtinkite tapatybę su Smart-ID demo — nuorodą rasite Profilyje, tai užtrunka apie minutę.",
       },
       realCompany: {
         q: "Ar tai tikra įmonė?",

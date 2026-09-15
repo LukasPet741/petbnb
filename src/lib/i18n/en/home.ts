@@ -137,7 +137,7 @@ const home = {
       },
       cost: {
         q: "How much does it cost?",
-        a: "Each sitter sets their own hourly rate, starting from €13/hr. PetBnB adds nothing on top: no booking fee, no service charge, no commission. You pay the sitter directly, however the two of you arrange it.",
+        a: "Each sitter sets their own price for a day, a few days, a week or longer, and you can make an offer when you send a request. PetBnB adds nothing on top: no booking fee, no service charge, no commission. You pay the sitter directly, however the two of you arrange it.",
       },
       areas: {
         q: "Which areas are covered?",
@@ -145,7 +145,7 @@ const home = {
       },
       becomeSitter: {
         q: "How do I become a sitter?",
-        a: "Create an account, open your Profile, switch on Sitter mode, then add your services, your rate and a short bio. You appear in browse results straight away — there is no application to submit and no approval to wait for.",
+        a: "Create an account, open your Profile, switch on Sitter mode, then add your services, your prices and a short bio. You appear in browse results straight away. Before anyone can book you, confirm your identity once with the Smart-ID demo linked from your Profile; it takes about a minute.",
       },
       realCompany: {
         q: "Is this a real company?",

@@ -64,6 +64,17 @@ const lt = {
       demoTag: "DEMO",
       demoNote: "Demonstracinė patikra: tikro asmens tapatybė nepatvirtinta.",
     },
+    notFound: {
+      title: "Tokio puslapio nėra",
+      body: "Nuoroda gali būti pasenusi arba adrese yra klaida.",
+      home: "Į pradžios puslapį",
+    },
+    error: {
+      title: "Kažkas nepavyko",
+      body: "Puslapio įkelti nepavyko. Bandykite dar kartą, o jei klaida kartojasi, sugrįžkite po kelių minučių.",
+      retry: "Bandyti dar kartą",
+      home: "Į pradžios puslapį",
+    },
     petTypes: {
       dog: "Šuo",
       cat: "Katė",

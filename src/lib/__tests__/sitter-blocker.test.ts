@@ -46,6 +46,21 @@ describe("sitterBlocker", () => {
     );
   });
 
+  it("refuses a sitter who has not verified their identity yet", () => {
+    // enforce_sitter_verified refuses the insert; a sitter who just signed up is listed in
+    // browse but was answered only by the generic submit error.
+    expect(sitterBlocker({ ...sitter, verification_method: "none" }, "owner-1")).toBe("notVerified");
+  });
+
+  it("lets a seeded or Smart-ID-verified sitter be booked", () => {
+    expect(sitterBlocker({ ...sitter, verification_method: "seed" }, "owner-1")).toBeNull();
+    expect(sitterBlocker({ ...sitter, verification_method: "smart_id_demo" }, "owner-1")).toBeNull();
+  });
+
+  it("names your own profile before your verification", () => {
+    expect(sitterBlocker({ ...sitter, verification_method: "none" }, "sitter-1")).toBe("ownProfile");
+  });
+
   it("does not match a signed-out user to a profile", () => {
     // The (app) layout gates on auth, but an undefined id must never equal anything.
     expect(sitterBlocker(sitter, undefined)).toBeNull();

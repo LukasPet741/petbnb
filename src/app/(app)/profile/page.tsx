@@ -19,6 +19,7 @@ import { cn, normaliseCity } from "@/lib/utils";
 import { nextFromSearch } from "@/lib/next-path";
 import VerifiedSeal from "@/components/VerifiedSeal";
 import type { VerificationMethod } from "@/lib/types";
+import { verificationLinkCopy } from "@/lib/verification-link";
 import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
@@ -104,6 +105,9 @@ export default function ProfilePage() {
   };
 
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
+
+  // Follows the Sitter mode switch as it is flipped, before the profile is saved.
+  const linkCopy = verificationLinkCopy(profile?.verification_method as VerificationMethod | null | undefined, isSitter);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -248,8 +252,8 @@ export default function ProfilePage() {
               <Link href="/smart-id-demo" className="group flex items-center gap-4 glass-card rounded-2xl border p-5 hover:shadow-[var(--shadow-md)] transition-shadow">
                 <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Fingerprint className="w-5 h-5" aria-hidden="true" /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-medium text-ink">{t(profile?.verification_method === "smart_id_demo" ? "appPages.smartIdDemo.profileLinkVerifiedTitle" : "appPages.smartIdDemo.profileLinkTitle")}</span>
-                  <span className="block text-sm text-ink-soft mt-0.5">{t(profile?.verification_method === "smart_id_demo" ? "appPages.smartIdDemo.profileLinkVerifiedText" : "appPages.smartIdDemo.profileLinkText")}</span>
+                  <span className="block font-medium text-ink">{t(linkCopy.title)}</span>
+                  <span className="block text-sm text-ink-soft mt-0.5">{t(linkCopy.text)}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-ink-soft group-hover:text-brand transition-colors" aria-hidden="true" />
               </Link>
