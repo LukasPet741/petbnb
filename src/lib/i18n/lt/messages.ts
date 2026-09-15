@@ -23,6 +23,36 @@ const messages = {
   sendFailed: "Žinutė neišsiųsta. Patikrinkite ryšį ir bandykite dar kartą.",
   today: "Šiandien",
   yesterday: "Vakar",
+  threadListOffer: "Pasiūlymas: {price}",
+
+  offer: {
+    title: "Pasiūlymas",
+    yours: "Jūsų pasiūlymas",
+    replaced: "Pakeista",
+    acceptFor: "Sutikti už {price}",
+    counter: "Siūlyti kitą kainą",
+    makeOffer: "Pasiūlyti kainą",
+    submit: "Siųsti pasiūlymą",
+    cancel: "Atšaukti",
+    amountLabel: "Jūsų kaina, €",
+    range: "Nuo {min} iki {max}",
+    noteLabel: "Žinutė (neprivaloma)",
+    failed: "Pasiūlymas neišsiųstas. Bandykite dar kartą.",
+    priceChanged: "Kaina ką tik pasikeitė.",
+    acceptFailed: "Nepavyko priimti kainos. Bandykite dar kartą.",
+  },
+
+  priceBar: {
+    asking: "Prašoma {price}",
+    onTable: "Siūloma {price} · {name}",
+    agreed: "Sutarta kaina {price}",
+    fixed: "Fiksuota kaina {price}",
+    offersLeft: {
+      one: "Jums liko {count} pasiūlymas",
+      few: "Jums liko {count} pasiūlymai",
+      other: "Jums liko {count} pasiūlymų",
+    },
+  },
 
   systemEvent: {
     requested: "{actor} išsiuntė šią užsakymo užklausą",
@@ -30,6 +60,7 @@ const messages = {
     declined: "{actor} atmetė užklausą",
     cancelled: "{actor} atšaukė užklausą",
     completed: "{actor} pažymėjo užsakymą kaip įvykdytą",
+    agreed: "{actor} sutiko su kaina, užsakymas patvirtintas",
   },
 
   notifications: {
@@ -46,6 +77,8 @@ const messages = {
     booking_cancelled: "{actor} atšaukė užsakymą",
     booking_completed: "{actor} pažymėjo užsakymą kaip įvykdytą",
     message_received: "{actor} atsiuntė jums žinutę",
+    offer_received: "{actor} atsiuntė kainos pasiūlymą",
+    price_agreed: "{actor} sutiko su jūsų kaina",
     fallbackPet: "jūsų augintinis",
   },
 };

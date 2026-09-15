@@ -6,10 +6,10 @@ import Avatar from "./Avatar";
 import Badge from "./Badge";
 import FavoriteButton from "./FavoriteButton";
 import RatingSummary from "./RatingSummary";
+import PriceTag from "./PriceTag";
 import { type Profile, type ServiceType, type SitterRating } from "@/lib/types";
 import { coverFocus, coverService, sitterCoverPhoto } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
-import { formatCurrency } from "@/lib/utils";
 
 /** Buckets a sitter's last_active_at into a coarse, non-exact trust signal.
  *  Returns null for anything older than a week so long-dormant sitters show nothing. */
@@ -45,14 +45,17 @@ export default function SitterCard({
   showFavorite = false,
   rating,
   coverPhotoId,
+  priceService,
 }: {
   sitter: Profile;
   showFavorite?: boolean;
   rating?: SitterRating | null;
   /** The grid's pick (spreadCoverPhotos), so neighbouring cards never share a photo. */
   coverPhotoId?: string;
+  /** The service /browse is filtered to, so the price shown is that service's. */
+  priceService?: ServiceType | "";
 }) {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const name = sitter.full_name ?? t("appShell.sitterFallback");
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][])
     .filter(([, v]) => v)
@@ -112,12 +115,7 @@ export default function SitterCard({
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-1">
           {rating ? <RatingSummary average={rating.average} count={rating.count} /> : <span />}
-          {sitter.rate_per_hour != null && (
-            <span className="text-right leading-none">
-              <span className="font-display text-xl font-semibold text-ink">{formatCurrency(sitter.rate_per_hour, locale)}</span>
-              <span className="ml-0.5 text-xs text-ink-soft">{t("sitters.card.rateSuffix")}</span>
-            </span>
-          )}
+          <PriceTag sitter={sitter} service={priceService} />
         </div>
       </div>
 

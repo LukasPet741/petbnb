@@ -25,6 +25,8 @@ const TYPES: NotificationType[] = [
   "booking_cancelled",
   "booking_completed",
   "message_received",
+  "offer_received",
+  "price_agreed",
 ];
 
 function note(overrides: Partial<AppNotification> = {}): AppNotification {
@@ -52,6 +54,8 @@ describe("notificationSentence", () => {
     ["booking_cancelled", "Emilija Ambrazevičiūtė atšaukė užsakymą"],
     ["booking_completed", "Emilija Ambrazevičiūtė pažymėjo užsakymą kaip įvykdytą"],
     ["message_received", "Emilija Ambrazevičiūtė atsiuntė jums žinutę"],
+    ["offer_received", "Emilija Ambrazevičiūtė atsiuntė kainos pasiūlymą"],
+    ["price_agreed", "Emilija Ambrazevičiūtė sutiko su jūsų kaina"],
   ])("reads %s in Lithuanian with the actor as the only name in it", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("lt"))).toBe(expected);
   });
@@ -63,6 +67,8 @@ describe("notificationSentence", () => {
     ["booking_cancelled", "Emilija Ambrazevičiūtė cancelled a booking"],
     ["booking_completed", "Emilija Ambrazevičiūtė marked a booking as completed"],
     ["message_received", "Emilija Ambrazevičiūtė sent you a message"],
+    ["offer_received", "Emilija Ambrazevičiūtė sent you a price offer"],
+    ["price_agreed", "Emilija Ambrazevičiūtė accepted your price"],
   ])("reads %s in English", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("en"))).toBe(expected);
   });

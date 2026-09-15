@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Check,
   Clock,
+  Euro,
   Footprints,
   House,
   MapPin,
@@ -25,6 +26,8 @@ import { bookingRangeProblem, toDateTimeLocalValue } from "@/lib/booking-duratio
 import { sitterBlocker } from "@/lib/sitter-blocker";
 import Avatar from "@/components/Avatar";
 import BookingSummary from "@/components/BookingSummary";
+import RequestPrice, { requestPriceValid, type PriceChoice } from "@/components/RequestPrice";
+import { askingPrice, stayDays } from "@/lib/pricing";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface Pet { id: string; name: string; }
@@ -110,6 +113,7 @@ function NewBookingForm() {
     address: "",
     notes: "",
   });
+  const [priceChoice, setPriceChoice] = useState<PriceChoice>({ mode: "asking", amount: "", note: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -161,10 +165,18 @@ function NewBookingForm() {
   const rangeProblem = bookingRangeProblem(form.start_at, form.end_at, now);
   const minStart = toDateTimeLocalValue(now);
 
+  // The same numbers enforce_booking_rules freezes on the booking when it is saved. The price
+  // choice waits for the dates, so it never quotes a stay nobody has described; a service with
+  // no price at all is said at once.
+  const days = stayDays(form.start_at, form.end_at);
+  const priced = form.service ? askingPrice(bookableSitter?.prices, form.service, 1) !== null : false;
+  const asking = form.service && days !== null ? askingPrice(bookableSitter?.prices, form.service, days) : null;
+
   const canSubmit =
     Boolean(form.sitter_id && form.pet_id && form.service && form.start_at && form.end_at) &&
     !rangeProblem &&
     !blocker &&
+    requestPriceValid(priceChoice, asking, form.service) &&
     !loading;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,16 +185,20 @@ function NewBookingForm() {
     if (bookingRangeProblem(form.start_at, form.end_at, new Date())) return;
     setError("");
     setLoading(true);
-    const { error: err } = await supabase.from("bookings").insert({
-      owner_id: user.id,
-      sitter_id: form.sitter_id,
-      pet_id: form.pet_id,
-      service: form.service,
-      start_at: new Date(form.start_at).toISOString(),
-      end_at: new Date(form.end_at).toISOString(),
-      address: form.address || null,
-      notes: form.notes || null,
-      status: "pending",
+    if (!requestPriceValid(priceChoice, asking, form.service)) return;
+    const offering = priceChoice.mode === "offer" && form.service !== "grooming";
+    // One database call for the request and its opening offer, so neither can be saved alone.
+    // The database prices the request itself from the sitter's list (days, asking_price).
+    const { error: err } = await supabase.rpc("create_booking_request", {
+      p_sitter_id: form.sitter_id,
+      p_pet_id: form.pet_id,
+      p_service: form.service,
+      p_start_at: new Date(form.start_at).toISOString(),
+      p_end_at: new Date(form.end_at).toISOString(),
+      p_address: form.address || undefined,
+      p_notes: form.notes || undefined,
+      p_offer_amount: offering ? Number(priceChoice.amount) : undefined,
+      p_offer_note: offering && priceChoice.note.trim() ? priceChoice.note.trim() : undefined,
     });
     // The raw PostgREST message is English, technical, and sometimes names columns or
     // policies. Log it for whoever is debugging; show the user something they can act on.
@@ -403,6 +419,13 @@ function NewBookingForm() {
               })}
             </div>
 
+            {form.service && !blocker && (days !== null || !priced) && (
+              <div>
+                <FieldLabel icon={Euro}>{t("appPages.bookingsNew.priceChoiceLabel")}</FieldLabel>
+                <RequestPrice asking={asking} service={form.service} choice={priceChoice} onChange={setPriceChoice} />
+              </div>
+            )}
+
             <div>
               <FieldLabel icon={MapPin} optional={t("appPages.bookingsNew.optionalSuffix")} htmlFor="booking-address">
                 {t("appPages.bookingsNew.addressLabel")}
@@ -441,6 +464,7 @@ function NewBookingForm() {
             service={form.service}
             startAt={form.start_at}
             endAt={form.end_at}
+            offer={priceChoice.mode === "offer" && requestPriceValid(priceChoice, asking, form.service) ? Number(priceChoice.amount) : null}
           />
         </div>
       </div>

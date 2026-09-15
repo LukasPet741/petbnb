@@ -26,7 +26,10 @@ export type Database = {
       bookings: {
         Row: {
           address: string | null
+          agreed_price: number | null
+          asking_price: number | null
           created_at: string | null
+          days: number | null
           end_at: string
           id: string
           notes: string | null
@@ -40,7 +43,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          agreed_price?: number | null
+          asking_price?: number | null
           created_at?: string | null
+          days?: number | null
           end_at: string
           id?: string
           notes?: string | null
@@ -54,7 +60,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          agreed_price?: number | null
+          asking_price?: number | null
           created_at?: string | null
+          days?: number | null
           end_at?: string
           id?: string
           notes?: string | null
@@ -191,6 +200,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          amount: number | null
           body: string | null
           booking_id: string
           created_at: string
@@ -201,6 +211,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          amount?: number | null
           body?: string | null
           booking_id: string
           created_at?: string
@@ -211,6 +222,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          amount?: number | null
           body?: string | null
           booking_id?: string
           created_at?: string
@@ -356,6 +368,7 @@ export type Database = {
           last_active_at: string | null
           locale: string
           phone: string | null
+          prices: Json
           rate_per_hour: number | null
           services: Json | null
           smart_id_session_id: string | null
@@ -376,6 +389,7 @@ export type Database = {
           last_active_at?: string | null
           locale?: string
           phone?: string | null
+          prices?: Json
           rate_per_hour?: number | null
           services?: Json | null
           smart_id_session_id?: string | null
@@ -396,6 +410,7 @@ export type Database = {
           last_active_at?: string | null
           locale?: string
           phone?: string | null
+          prices?: Json
           rate_per_hour?: number | null
           services?: Json | null
           smart_id_session_id?: string | null
@@ -517,13 +532,34 @@ export type Database = {
       }
     }
     Functions: {
+      asking_price_for: {
+        Args: { p_days: number; p_prices: Json; p_service: string }
+        Returns: number
+      }
+      create_booking_request: {
+        Args: {
+          p_address?: string
+          p_end_at: string
+          p_notes?: string
+          p_offer_amount?: number
+          p_offer_note?: string
+          p_pet_id: string
+          p_service: string
+          p_sitter_id: string
+          p_start_at: string
+        }
+        Returns: string
+      }
       is_booking_party: { Args: { p_booking_id: string }; Returns: boolean }
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       mark_thread_read: { Args: { p_booking_id: string }; Returns: number }
+      price_amount_ok: { Args: { p_value: Json }; Returns: boolean }
       register_collar_device: {
         Args: { p_label?: string; p_secret: string }
         Returns: string
       }
+      stay_days: { Args: { p_end: string; p_start: string }; Returns: number }
+      valid_prices: { Args: { p_prices: Json }; Returns: boolean }
       verify_collar_device: {
         Args: { p_device_id: string; p_secret: string }
         Returns: {

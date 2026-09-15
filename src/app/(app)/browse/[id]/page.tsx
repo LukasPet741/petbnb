@@ -14,7 +14,7 @@ import RatingSummary from "@/components/RatingSummary";
 import ReviewList from "@/components/ReviewList";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
-import { formatCurrency } from "@/lib/utils";
+import PriceTag, { ServicePrice } from "@/components/PriceTag";
 
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 const RECENTLY_VIEWED_MAX = 6;
@@ -32,7 +32,7 @@ function rememberRecentlyViewed(sitterId: string) {
 }
 
 export default function SitterProfilePage() {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [sitter, setSitter] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -108,7 +108,7 @@ export default function SitterProfilePage() {
                       <span className="w-6 h-6 rounded-lg bg-brand-soft flex items-center justify-center"><Check className="w-3.5 h-3.5 text-brand" /></span>
                       {label}
                     </span>
-                    {sitter.rate_per_hour != null && <span className="text-sm text-ink-soft">{formatCurrency(sitter.rate_per_hour, locale)}{t("sitters.profile.ratePerHourShort")}</span>}
+                    <ServicePrice prices={sitter.prices} service={key} />
                   </div>
                 ))}
               </div>
@@ -126,8 +126,8 @@ export default function SitterProfilePage() {
           <motion.div initial={{ y: 12 }} animate={{ y: 0 }} transition={{ duration: 0.4, delay: 0.12 }}
             className="glass-panel rounded-2xl border p-5 sticky top-24">
             <div className="text-center pb-4 border-b border-black/5">
-              <div className="font-display text-3xl font-semibold text-ink">{sitter.rate_per_hour != null ? formatCurrency(sitter.rate_per_hour, locale) : "-"}</div>
-              <div className="text-sm text-ink-soft mt-0.5">{t("appPages.browse.perHour")}</div>
+              <PriceTag sitter={sitter} size="xl" />
+              <div className="text-xs text-ink-soft mt-1.5">{t("appPages.browse.priceNote")}</div>
             </div>
             <div className="pt-4 space-y-3">
               <Link href={`/bookings/new?sitter=${sitter.id}`} className="flex items-center justify-center gap-2 w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors">

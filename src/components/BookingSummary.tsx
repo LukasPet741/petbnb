@@ -2,7 +2,9 @@
 import Avatar from "@/components/Avatar";
 import { useLanguage } from "@/context/LanguageContext";
 import { formatCurrency, formatDate, formatTime } from "@/lib/utils";
-import { bookingDuration, estimatedTotal } from "@/lib/booking-duration";
+import { askingPrice, stayDays } from "@/lib/pricing";
+import { pluralForm } from "@/lib/i18n/plural";
+import { ServicePrice } from "@/components/PriceTag";
 import type { Profile, ServiceType } from "@/lib/types";
 
 /**
@@ -16,9 +18,9 @@ import type { Profile, ServiceType } from "@/lib/types";
  * It renders half-filled for most of the time anyone spends on this page, so every row
  * has a deliberate "not chosen yet" state rather than collapsing or showing a zero.
  *
- * It never prints the hourly rate. The only euro figure here is the computed estimate,
- * so a price on screen always corresponds to the booking actually described above it —
- * a standing rate beside an incomplete range reads as a quote, and it would be wrong.
+ * Since 2026-09-15 it counts the stay in 24-hour days and shows the asking price from the
+ * sitter's per-period prices (the same numbers enforce_booking_rules will freeze on the
+ * booking), plus the owner's opening offer if they make one. The final price is agreed in chat.
  */
 
 interface BookingSummaryProps {
@@ -27,6 +29,8 @@ interface BookingSummaryProps {
   /** Raw `datetime-local` values, straight from the form. */
   startAt: string;
   endAt: string;
+  /** The owner's opening offer, when they chose to make one. */
+  offer?: number | null;
 }
 
 /** One label/value row. Values that are not known yet get the muted placeholder. */
@@ -39,26 +43,25 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-export default function BookingSummary({ sitter, service, startAt, endAt }: BookingSummaryProps) {
+export default function BookingSummary({ sitter, service, startAt, endAt, offer = null }: BookingSummaryProps) {
   const { t, locale } = useLanguage();
   const notChosen = (
     <span className="text-ink-soft/60">{t("appPages.bookingsNew.summaryNotChosen")}</span>
   );
 
-  const duration = bookingDuration(startAt, endAt);
+  const days = stayDays(startAt, endAt);
   // datetime-local values are "YYYY-MM-DDTHH:mm" in local time, so the first ten
   // characters are the local calendar date.
   const sameDay = startAt.slice(0, 10) === endAt.slice(0, 10);
-  const total = duration.valid ? estimatedTotal(duration.hours, sitter?.rate_per_hour ?? null) : null;
+  const asking = days !== null && service ? askingPrice(sitter?.prices, service, days) : null;
 
-  // At most one decimal: 1.5 stays 1.5, 3 stays 3 rather than becoming 3.0.
-  const hoursLabel = duration.valid
-    ? t("appPages.bookingsNew.summaryDurationHours", {
-        hours: new Intl.NumberFormat(locale === "lt" ? "lt-LT" : "en-GB", {
-          maximumFractionDigits: 1,
-        }).format(duration.hours),
-      })
-    : null;
+  const daysLabel =
+    days !== null ? (
+      <span>
+        <span className="block">{t(`common.pricing.days.${pluralForm(locale, days)}`, { count: days })}</span>
+        <span className="block text-xs text-ink-soft">{t("appPages.bookingsNew.summaryCountedIn24h")}</span>
+      </span>
+    ) : null;
 
   return (
     <aside className="glass-panel border rounded-[var(--radius-card)] p-5">
@@ -110,7 +113,7 @@ export default function BookingSummary({ sitter, service, startAt, endAt }: Book
       </Row>
 
       <Row label={t("appPages.bookingsNew.summaryDurationLabel")}>
-        {hoursLabel ??
+        {daysLabel ??
           (startAt && endAt ? (
             // Both dates are chosen, so "not chosen yet" would be untrue. The form
             // names the actual problem beside the field; this only points at it.
@@ -120,17 +123,29 @@ export default function BookingSummary({ sitter, service, startAt, endAt }: Book
           ))}
       </Row>
 
+      {service && sitter && (
+        <Row label={t("appPages.bookingsNew.summaryRateLabel")}>
+          <ServicePrice prices={sitter.prices} service={service} />
+        </Row>
+      )}
+
       <Row label={t("appPages.bookingsNew.summaryEstimateLabel")}>
-        {total !== null ? (
-          <span className="font-semibold tabular-nums">{formatCurrency(total, locale)}</span>
+        {asking !== null ? (
+          <span className="font-semibold tabular-nums">{formatCurrency(asking, locale)}</span>
         ) : startAt && endAt ? (
-          // Both dates are in, yet no figure: a bad range, or a sitter with no rate.
+          // Both dates are in, yet no figure: a bad range, or a service with no price.
           // Unknown, not unchosen -- and never €0.
           <span className="text-ink-soft/60">—</span>
         ) : (
           notChosen
         )}
       </Row>
+
+      {offer !== null && asking !== null && (
+        <Row label={t("messages.offer.yours")}>
+          <span className="font-semibold tabular-nums text-brand-strong">{formatCurrency(offer, locale)}</span>
+        </Row>
+      )}
 
       <p className="text-xs text-ink-soft/70 mt-3">{t("appPages.bookingsNew.finalPriceNote")}</p>
     </aside>

@@ -32,6 +32,7 @@ function sitter(overrides: Partial<Profile> = {}): Profile {
     rate_per_hour: 12,
     experience_years: 3,
     services: { walking: true, boarding: false, daycare: false, grooming: false },
+    prices: { walking: { amount: 12, days: 1 } },
     about_me: "I have looked after dogs for years.",
     avatar_url: null,
     last_active_at: agoIso(5 * MINUTE),
@@ -181,41 +182,58 @@ describe("SitterMini activity line", () => {
   });
 });
 
-describe("hourly rate", () => {
-  // Fixed in the 2026-09-15 redesign: a sitter who has not set a price used to render a
-  // bare "€" with nothing after it. The price block is now left out instead.
-  it("leaves the price out for a null rate in SitterCard", () => {
-    render(<SitterCard sitter={sitter({ rate_per_hour: null })} />);
-    expect(screen.queryByText("€")).not.toBeInTheDocument();
-    expect(screen.queryByText("sitters.card.rateSuffix")).not.toBeInTheDocument();
+describe("price", () => {
+  // Per-period prices since 2026-09-15: a card leads with the cheapest daily rate, or a
+  // groomer's visit price, and leaves the price out rather than showing a bare "€".
+  it("leads with the cheapest daily rate on both cards", () => {
+    const priced = sitter({
+      services: { walking: true, boarding: true, daycare: false, grooming: false },
+      prices: { walking: { amount: 12, days: 1 }, boarding: { amount: 75, days: 3 } },
+    });
+    const { unmount } = render(<SitterCard sitter={priced} />);
+    expect(screen.getByText("€12")).toBeInTheDocument();
+    expect(screen.getByText("common.pricing.from")).toBeInTheDocument();
+    expect(screen.getByText("common.pricing.perDay")).toBeInTheDocument();
+    unmount();
+    render(<SitterMini sitter={priced} />);
+    expect(screen.getByText("€12")).toBeInTheDocument();
   });
 
-  it("leaves the price out for a null rate in SitterMini too", () => {
-    render(<SitterMini sitter={sitter({ rate_per_hour: null })} />);
-    expect(screen.queryByText("€")).not.toBeInTheDocument();
-    expect(screen.queryByText("appShell.sitterMini.rateSuffix")).not.toBeInTheDocument();
+  it("follows the service /browse is filtered to", () => {
+    const priced = sitter({
+      services: { walking: true, boarding: true, daycare: false, grooming: false },
+      prices: { walking: { amount: 12, days: 1 }, boarding: { amount: 75, days: 3 } },
+    });
+    render(<SitterCard sitter={priced} priceService="boarding" />);
+    expect(screen.getByText("€25")).toBeInTheDocument();
+  });
+
+  it("shows a groomer's visit price, without \"from\"", () => {
+    render(<SitterCard sitter={sitter({ services: { walking: false, boarding: false, daycare: false, grooming: true }, prices: { grooming: { amount: 36 } } })} />);
+    expect(screen.getByText("€36")).toBeInTheDocument();
+    expect(screen.getByText("common.pricing.perVisit")).toBeInTheDocument();
+    expect(screen.queryByText("common.pricing.from")).not.toBeInTheDocument();
+  });
+
+  it("leaves the price out on both cards when nothing offered has a price", () => {
+    const unpriced = sitter({ prices: {} });
+    const { unmount } = render(<SitterCard sitter={unpriced} />);
+    expect(screen.queryByText(/€/)).not.toBeInTheDocument();
+    unmount();
+    render(<SitterMini sitter={unpriced} />);
+    expect(screen.queryByText(/€/)).not.toBeInTheDocument();
   });
 
   // Lithuanian writes the amount first ("12 €"), as the browse design does; "€12" read as English.
   it.each([
     ["en", "€12"],
     ["lt", "12 €"],
-  ] as const)("writes the rate the %s way on both cards", async (locale, expected) => {
-    const { unmount } = renderIn(locale, <SitterCard sitter={sitter({ rate_per_hour: 12 })} />);
+  ] as const)("writes the price the %s way on both cards", async (locale, expected) => {
+    const { unmount } = renderIn(locale, <SitterCard sitter={sitter()} />);
     expect(await screen.findByText(expected)).toBeInTheDocument();
     unmount();
-    renderIn(locale, <SitterMini sitter={sitter({ rate_per_hour: 12 })} />);
+    renderIn(locale, <SitterMini sitter={sitter()} />);
     expect(await screen.findByText(expected)).toBeInTheDocument();
-  });
-
-  it("renders a zero rate as €0 rather than hiding it", () => {
-    render(<SitterCard sitter={sitter({ rate_per_hour: 0 })} />);
-    expect(screen.getByText("€0")).toBeInTheDocument();
-  });
-
-  it("renders a whole rate unformatted, with no decimal padding", () => {
-    render(<SitterCard sitter={sitter({ rate_per_hour: 12 })} />);
-    expect(screen.getByText("€12")).toBeInTheDocument();
   });
 });
 
@@ -408,30 +426,6 @@ describe("overflow guards", () => {
   it("truncates the SitterMini name and city", () => {
     render(<SitterMini sitter={sitter({ full_name: LONG_NAME, city: LONG_CITY })} />);
     expect(screen.getByText(LONG_NAME)).toHaveClass("truncate");
-  });
-});
-
-describe("rate suffix keys", () => {
-  // The two cards ask for DIFFERENT keys for the same concept, and the two keys carry
-  // different copy ("/ hour" vs "/ hr"). Renaming or deleting either one silently
-  // regresses one card, so both are pinned here.
-  it("uses sitters.card.rateSuffix in SitterCard and appShell.sitterMini.rateSuffix in SitterMini", () => {
-    render(<SitterCard sitter={sitter()} />);
-    expect(screen.getByText("sitters.card.rateSuffix")).toBeInTheDocument();
-    expect(screen.queryByText("appShell.sitterMini.rateSuffix")).not.toBeInTheDocument();
-
-    render(<SitterMini sitter={sitter()} />);
-    expect(screen.getByText("appShell.sitterMini.rateSuffix")).toBeInTheDocument();
-  });
-
-  it("resolves both keys in both dictionaries, to different English copy", () => {
-    for (const locale of ["en", "lt"] as const) {
-      expect(typeof lookup(dictionaries[locale], "sitters.card.rateSuffix")).toBe("string");
-      expect(typeof lookup(dictionaries[locale], "appShell.sitterMini.rateSuffix")).toBe("string");
-    }
-    expect(lookup(dictionaries.en, "sitters.card.rateSuffix")).not.toBe(
-      lookup(dictionaries.en, "appShell.sitterMini.rateSuffix"),
-    );
   });
 });
 

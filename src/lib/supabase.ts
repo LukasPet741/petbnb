@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database as Generated } from "./database.types";
+import type { SitterPrices } from "./pricing";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,7 +12,11 @@ export type { Json } from "./database.types";
  * Homomorphic, so Row keeps `services` required and Insert/Update keep it optional.
  */
 type WithServiceMap<T> = {
-  [K in keyof T]: K extends "services" ? Record<string, boolean> | null : T[K];
+  [K in keyof T]: K extends "services"
+    ? Record<string, boolean> | null
+    : K extends "prices"
+      ? SitterPrices
+      : T[K];
 };
 
 /**
@@ -24,7 +29,8 @@ type WithServiceMap<T> = {
  *    can only ever fail at the database. Narrowing it here makes that a type error
  *    instead of a round trip.
  *
- * 2. `profiles.services` is a flat service-name to boolean map, not arbitrary Json.
+ * 2. `profiles.services` is a flat service-name to boolean map, not arbitrary Json, and
+ *    `profiles.prices` is a SitterPrices map (a CHECK constraint, valid_prices, holds it to that).
  *    The column is jsonb, so the generator can only say `Json`, which admits arrays
  *    and bare strings and therefore does not overlap the app's own `Profile` type at
  *    all. Nothing but this app writes the column, and it only ever writes the map.

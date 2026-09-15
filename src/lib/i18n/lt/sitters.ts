@@ -19,7 +19,6 @@ const sitters = {
   card: {
     experienceSingular: "{years} m.",
     experiencePlural: "{years} m.",
-    rateSuffix: "/ val.",
     viewProfile: "Peržiūrėti profilį",
   },
   activity: {

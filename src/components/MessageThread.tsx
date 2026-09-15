@@ -8,10 +8,13 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotifications } from "@/context/NotificationsContext";
 import { STATUS_CONFIG, type BookingStatus, type MessageKind, type ServiceType, type SystemEvent } from "@/lib/types";
-import { cn, formatDate, formatTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, formatTime } from "@/lib/utils";
 import { fadeUp } from "@/lib/motion";
 import Avatar from "@/components/Avatar";
 import EmptyState from "@/components/EmptyState";
+import { OfferCard, OfferForm, PriceBar } from "@/components/OfferParts";
+import { canAccept, negotiation, newestFirst, offerBounds, type OfferLike, type Role } from "@/lib/pricing";
+import { pluralForm } from "@/lib/i18n/plural";
 
 interface ThreadParty {
   id: string;
@@ -27,6 +30,8 @@ interface ThreadBooking {
   end_at: string;
   owner_id: string;
   sitter_id: string;
+  asking_price: number | null;
+  agreed_price: number | null;
   owner: ThreadParty | null;
   sitter: ThreadParty | null;
   pet: { id: string; name: string; photo_url: string | null } | null;
@@ -39,6 +44,8 @@ interface ThreadMessage {
   kind: MessageKind;
   body: string | null;
   event: SystemEvent | null;
+  /** Whole euros, on offers only. */
+  amount: number | null;
   created_at: string;
   sender: ThreadParty | null;
   /** Stable React key: an optimistic row keeps its client key once the server row replaces it, so the bubble doesn't remount and replay its entrance. */
@@ -48,14 +55,14 @@ interface ThreadMessage {
 }
 
 const BOOKING_SELECT = `
-  id, status, service, start_at, end_at, owner_id, sitter_id,
+  id, status, service, start_at, end_at, owner_id, sitter_id, asking_price, agreed_price,
   owner:profiles!bookings_owner_id_fkey ( id, full_name, avatar_url ),
   sitter:profiles!bookings_sitter_id_fkey ( id, full_name, avatar_url ),
   pet:pets ( id, name, photo_url )
 `;
 
 const MESSAGE_SELECT = `
-  id, booking_id, sender_id, kind, body, event, created_at,
+  id, booking_id, sender_id, kind, body, event, amount, created_at,
   sender:profiles!messages_sender_id_fkey ( id, full_name, avatar_url )
 `;
 
@@ -96,6 +103,9 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [priceBusy, setPriceBusy] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -139,6 +149,20 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
     };
   }, [bookingId, user]);
 
+  const refetchBooking = useCallback(async () => {
+    const { data } = await supabase.from("bookings").select(BOOKING_SELECT).eq("id", bookingId).maybeSingle();
+    if (data) setBooking(data as unknown as ThreadBooking);
+  }, [bookingId]);
+
+  const refetchMessages = useCallback(async () => {
+    const { data } = await supabase
+      .from("messages")
+      .select(MESSAGE_SELECT)
+      .eq("booking_id", bookingId)
+      .order("created_at", { ascending: true });
+    if (data) setMessages(data.map((row) => toThreadMessage(row)));
+  }, [bookingId]);
+
   const appendMessage = useCallback((incoming: ThreadMessage) => {
     setMessages((prev) => {
       if (prev.some((m) => m.id === incoming.id)) return prev;
@@ -165,6 +189,8 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
         (payload) => {
           // Realtime rows are flat — no sender join. partyFor() resolves the name from the booking.
           appendMessage(toThreadMessage({ ...payload.new, sender: null }));
+          // A system row means the booking itself changed (accepted, agreed, declined...).
+          if (payload.new.kind === "system") void refetchBooking();
         }
       )
       .subscribe();
@@ -172,7 +198,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [bookingId, appendMessage]);
+  }, [bookingId, appendMessage, refetchBooking]);
 
   const messageCount = messages.length;
 
@@ -239,6 +265,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
       kind: "user",
       body,
       event: null,
+      amount: null,
       created_at: new Date().toISOString(),
       sender: partyFor(user.id),
       pending: true,
@@ -316,6 +343,71 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
   const petName = booking.pet?.name ?? t("messages.notifications.fallbackPet");
   const status = STATUS_CONFIG[booking.status];
 
+  // ---- Price (spec 2026-09-15): what is on the table, and what this viewer may do about it.
+  const role: Role = booking.owner_id === user?.id ? "owner" : "sitter";
+  const offerRows: OfferLike[] = messages
+    .filter((m) => m.kind === "offer" && m.amount != null && !m.pending)
+    .map((m) => ({ id: m.id, sender_id: m.sender_id, amount: m.amount as number, created_at: m.created_at }));
+  const newestOfferId = newestFirst(offerRows)[0]?.id ?? null;
+  const deal = negotiation(booking, offerRows);
+  const viewerCanAccept = canAccept(deal, role);
+  const bounds = offerBounds(deal, role);
+  const money = (amount: number) => formatCurrency(amount, locale);
+  const acceptLabel = deal.onTable
+    ? t(role === "sitter" ? "appPages.bookings.acceptForButton" : "appPages.bookings.agreeForButton", { price: money(deal.onTable.amount) })
+    : undefined;
+
+  const priceLine = (() => {
+    if ((booking.status === "signed" || booking.status === "completed") && booking.agreed_price != null) {
+      return t("messages.priceBar.agreed", { price: money(booking.agreed_price) });
+    }
+    if (booking.status !== "pending" || !deal.onTable) return null;
+    if (booking.service === "grooming") return t("messages.priceBar.fixed", { price: money(deal.onTable.amount) });
+    if (deal.onTable.by === "asking") return t("messages.priceBar.asking", { price: money(deal.onTable.amount) });
+    const by = deal.onTable.by === "owner" ? booking.owner : booking.sitter;
+    return t("messages.priceBar.onTable", { price: money(deal.onTable.amount), name: by?.full_name?.trim() || t("messages.unknownPerson") });
+  })();
+  const offersLeftLine = deal.offersAllowed
+    ? t(`messages.priceBar.offersLeft.${pluralForm(locale, deal.offersLeft[role])}`, { count: deal.offersLeft[role] })
+    : null;
+
+  const acceptPrice = async () => {
+    if (!deal.onTable || priceBusy) return;
+    setPriceBusy(true);
+    setPriceError(null);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "signed", agreed_price: deal.onTable.amount })
+      .eq("id", booking.id);
+    setPriceBusy(false);
+    if (error) {
+      setPriceError(t(error.hint === "price_changed" ? "messages.offer.priceChanged" : "messages.offer.acceptFailed"));
+      void refetchMessages();
+    }
+    void refetchBooking();
+  };
+
+  const sendOffer = async (amount: number, note: string) => {
+    if (!user || priceBusy) return;
+    setPriceBusy(true);
+    setPriceError(null);
+    // A trigger checks the bounds and rounds again, and notifies the other side.
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ booking_id: booking.id, sender_id: user.id, kind: "offer", amount, body: note || null })
+      .select(MESSAGE_SELECT)
+      .single();
+    setPriceBusy(false);
+    if (error || !data) {
+      setPriceError(t("messages.offer.failed"));
+      void refetchMessages();
+      void refetchBooking();
+      return;
+    }
+    appendMessage(toThreadMessage(data));
+    setOfferOpen(false);
+  };
+
   return (
     <div className="h-[calc(100dvh-3.5rem)] lg:h-[100dvh] flex flex-col">
       <header className="flex-shrink-0 glass border-b">
@@ -347,6 +439,18 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
             </span>
           </Link>
         </div>
+        {priceLine && (
+          <PriceBar
+            line={priceLine}
+            sub={offersLeftLine}
+            acceptLabel={acceptLabel}
+            onAccept={viewerCanAccept ? () => void acceptPrice() : undefined}
+            offerLabel={t(deal.onTable?.by === "asking" ? "messages.offer.makeOffer" : "messages.offer.counter")}
+            onOffer={bounds && !offerOpen ? () => setOfferOpen(true) : undefined}
+            busy={priceBusy}
+            error={priceError}
+          />
+        )}
       </header>
 
       <div ref={listRef} role="log" aria-live="polite" aria-label={headerTitle} className="flex-1 overflow-y-auto overscroll-contain">
@@ -372,9 +476,30 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
               );
             }
 
+            if (m.kind === "offer" && m.amount != null) {
+              const own = m.sender_id === user?.id;
+              const newest = m.id === newestOfferId && booking.status === "pending";
+              return (
+                <div key={m.key} className={cn(!previous || startsDay ? "" : "mt-3")}>
+                  {divider}
+                  <OfferCard
+                    amount={m.amount}
+                    note={m.body}
+                    own={own}
+                    time={formatTime(m.created_at, locale)}
+                    replaced={!newest && booking.status === "pending"}
+                    acceptLabel={acceptLabel}
+                    onAccept={newest && !own && viewerCanAccept ? () => void acceptPrice() : undefined}
+                    onCounter={newest && !own && bounds ? () => setOfferOpen(true) : undefined}
+                    busy={priceBusy}
+                  />
+                </div>
+              );
+            }
+
             const own = m.sender_id === user?.id;
             const startsRun =
-              startsDay || !previous || previous.kind === "system" || previous.sender_id !== m.sender_id;
+              startsDay || !previous || previous.kind !== "user" || previous.sender_id !== m.sender_id;
             // The day divider brings its own vertical rhythm, so bubbles under one add no margin.
             const spacing = !previous || startsDay ? "" : startsRun ? "mt-3" : "mt-1";
 
@@ -416,6 +541,9 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
 
       <div className="flex-shrink-0 glass border-t pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-3">
+          {offerOpen && bounds && (
+            <OfferForm bounds={bounds} onSubmit={(amount, note) => void sendOffer(amount, note)} onCancel={() => setOfferOpen(false)} busy={priceBusy} />
+          )}
           {sendError && (
             <p role="alert" className="flex items-center gap-1.5 text-xs text-danger mb-2">
               <TriangleAlert className="w-4 h-4 flex-shrink-0" />

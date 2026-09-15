@@ -8,12 +8,11 @@ import type { Profile } from "@/lib/types";
  *
  * Like the review components it renders without a LanguageProvider, so `t` is the
  * identity function and every visible label is the translation key it asked for.
- * That is why assertions below look for "appPages.bookingsNew.summaryNotChosen"
- * rather than "Not chosen yet".
  *
- * It owns no data access: the page hands it a sitter, a service and two date strings.
- * The whole point is that it renders sensibly while the form is still half empty,
- * which is its state for most of the time a user spends on the page.
+ * It owns no data access: the page hands it a sitter, a service, two date strings and the
+ * owner's offer. It renders sensibly while the form is still half empty, which is its state
+ * for most of the time a user spends on the page. Since 2026-09-15 it shows the stay in days
+ * and the asking price from the sitter's per-period prices; the real price is agreed in chat.
  */
 
 const sitter = {
@@ -21,9 +20,10 @@ const sitter = {
   full_name: "Simona Barauskaitė",
   city: "Vilnius",
   is_sitter: true,
-  rate_per_hour: 20,
+  rate_per_hour: null,
   experience_years: 3,
   services: { walking: true, boarding: true, daycare: false, grooming: false },
+  prices: { walking: { amount: 10, days: 1 }, boarding: { amount: 75, days: 3 } },
   about_me: null,
   avatar_url: null,
   last_active_at: "2026-09-13T10:00:00Z",
@@ -31,10 +31,11 @@ const sitter = {
 
 const NOT_CHOSEN = "appPages.bookingsNew.summaryNotChosen";
 
+/** The value beside the asking-price label. The sitter price row also shows euros. */
+const askingValue = () => screen.getByText("appPages.bookingsNew.summaryEstimateLabel").nextElementSibling as HTMLElement;
+
 function renderSummary(props: Partial<React.ComponentProps<typeof BookingSummary>> = {}) {
-  return render(
-    <BookingSummary sitter={sitter} service="" startAt="" endAt="" {...props} />,
-  );
+  return render(<BookingSummary sitter={sitter} service="" startAt="" endAt="" {...props} />);
 }
 
 describe("BookingSummary", () => {
@@ -44,7 +45,6 @@ describe("BookingSummary", () => {
   });
 
   it("says nothing is chosen yet while the form is empty", () => {
-    // Its opening state, and the one a user looks at longest.
     renderSummary();
     expect(screen.getAllByText(NOT_CHOSEN).length).toBeGreaterThan(0);
   });
@@ -54,40 +54,51 @@ describe("BookingSummary", () => {
     expect(screen.getByText("common.services.boarding")).toBeInTheDocument();
   });
 
-  it("shows a duration and an estimate once both dates are filled", () => {
-    renderSummary({ service: "walking", startAt: "2026-09-14T09:00", endAt: "2026-09-14T12:00" });
-    expect(screen.getByText("appPages.bookingsNew.summaryDurationHours")).toBeInTheDocument();
-    // 3h at €20 = €60, formatted through formatCurrency.
-    expect(screen.getByText(/60/)).toBeInTheDocument();
+  it("counts the stay in 24-hour days and stretches the price for a longer stay", () => {
+    // Mon 09:00 → Wed 18:00 is 57 hours: 3 days, 3 × 10 € = 30 €.
+    renderSummary({ service: "walking", startAt: "2026-09-14T09:00", endAt: "2026-09-16T18:00" });
+    expect(screen.getByText("common.pricing.days.other")).toBeInTheDocument();
+    expect(screen.getByText("appPages.bookingsNew.summaryCountedIn24h")).toBeInTheDocument();
+    expect(askingValue()).toHaveTextContent("€30");
   });
 
-  it("shows no estimate while only one date is filled", () => {
-    // Half-filled is the normal case, not an edge case: the summary must not flash a
-    // price computed from one date.
+  it("charges the whole period price for a stay shorter than the period", () => {
+    renderSummary({ service: "boarding", startAt: "2026-09-14T09:00", endAt: "2026-09-15T09:00" });
+    expect(askingValue()).toHaveTextContent("€75");
+  });
+
+  it("shows the owner's offer beside the asking price", () => {
+    renderSummary({ service: "boarding", startAt: "2026-09-14T09:00", endAt: "2026-09-15T09:00", offer: 60 });
+    expect(screen.getByText("messages.offer.yours")).toBeInTheDocument();
+    expect(screen.getByText("€60")).toBeInTheDocument();
+  });
+
+  it("shows the sitter's price list but no asking price while only one date is filled", () => {
     renderSummary({ service: "walking", startAt: "2026-09-14T09:00" });
-    expect(screen.queryByText(/€/)).not.toBeInTheDocument();
+    expect(screen.getByText("appPages.bookingsNew.summaryRateLabel")).toBeInTheDocument();
+    expect(askingValue()).not.toHaveTextContent("€");
   });
 
-  it("shows no estimate when the range is reversed", () => {
-    // Typing the end before the start is ordinary. A negative price must never render.
+  it("flags a reversed range and shows no price", () => {
     renderSummary({ service: "walking", startAt: "2026-09-14T12:00", endAt: "2026-09-14T09:00" });
-    expect(screen.queryByText(/€/)).not.toBeInTheDocument();
+    expect(screen.getByText("appPages.bookingsNew.summaryInvalidRange")).toBeInTheDocument();
+    expect(askingValue()).not.toHaveTextContent("€");
+    expect(screen.queryByText(NOT_CHOSEN)).not.toBeInTheDocument();
   });
 
-  it("shows no estimate when the sitter has no rate, even with valid dates", () => {
-    // rate_per_hour is nullable. "Cannot say" must not render as €0.
+  it("shows a dash, not 'not chosen' and never €0, when the service has no price", () => {
     renderSummary({
-      sitter: { ...sitter, rate_per_hour: null } as Profile,
+      sitter: { ...sitter, prices: {} } as Profile,
       service: "walking",
       startAt: "2026-09-14T09:00",
       endAt: "2026-09-14T12:00",
     });
+    expect(screen.queryByText(NOT_CHOSEN)).not.toBeInTheDocument();
     expect(screen.queryByText(/€0/)).not.toBeInTheDocument();
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
   it("prints the date once for a booking that starts and ends on the same day", () => {
-    // "14 Sept 2026 09:00 → 14 Sept 2026 12:00" wraps into ragged lines in a 20rem
-    // column. A same-day walk needs the date once and a time range.
     const { container } = renderSummary({ startAt: "2026-09-14T09:00", endAt: "2026-09-14T12:00" });
     expect(container.textContent?.match(/2026/g)?.length).toBe(1);
   });
@@ -97,32 +108,7 @@ describe("BookingSummary", () => {
     expect(container.textContent?.match(/2026/g)?.length).toBe(2);
   });
 
-  it("flags a reversed range instead of calling the duration not chosen", () => {
-    // Both dates ARE chosen. "Not chosen yet" was simply untrue here.
-    renderSummary({ service: "walking", startAt: "2026-09-14T12:00", endAt: "2026-09-14T09:00" });
-    expect(screen.getByText("appPages.bookingsNew.summaryInvalidRange")).toBeInTheDocument();
-  });
-
-  it("never claims the dates are unchosen once both are filled", () => {
-    // A reversed range, and a sitter with no rate, both leave the estimate unknown —
-    // but neither is "not chosen yet". Unknown gets a dash.
-    renderSummary({ service: "walking", startAt: "2026-09-14T12:00", endAt: "2026-09-14T09:00" });
-    expect(screen.queryByText(NOT_CHOSEN)).not.toBeInTheDocument();
-  });
-
-  it("shows a dash, not 'not chosen', when the sitter has no rate", () => {
-    renderSummary({
-      sitter: { ...sitter, rate_per_hour: null } as Profile,
-      service: "walking",
-      startAt: "2026-09-14T09:00",
-      endAt: "2026-09-14T12:00",
-    });
-    expect(screen.queryByText(NOT_CHOSEN)).not.toBeInTheDocument();
-    expect(screen.getByText("—")).toBeInTheDocument();
-  });
-
   it("renders without a sitter at all", () => {
-    // /bookings/new is reachable with no ?sitter= in the URL.
     render(<BookingSummary sitter={null} service="" startAt="" endAt="" />);
     expect(screen.getByText("appPages.bookingsNew.summaryTitle")).toBeInTheDocument();
   });

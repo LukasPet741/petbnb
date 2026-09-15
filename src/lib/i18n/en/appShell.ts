@@ -25,9 +25,6 @@ const appShell = {
     noUpcomingBookings: "No upcoming bookings",
     sitterSpotlight: "Sitter spotlight",
   },
-  sitterMini: {
-    rateSuffix: "/ hr",
-  },
   dashboard: {
     greeting: {
       morning: "Good morning",

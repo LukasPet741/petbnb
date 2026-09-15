@@ -3,7 +3,7 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "./Avatar";
-import { formatCurrency } from "@/lib/utils";
+import PriceTag from "./PriceTag";
 import type { Profile } from "@/lib/types";
 
 /** Buckets a sitter's last_active_at into a coarse, non-exact trust signal.
@@ -26,7 +26,7 @@ export function getActivityBucket(lastActiveAt: string | null | undefined): Acti
 }
 
 export default function SitterMini({ sitter }: { sitter: Profile }) {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const activityBucket = getActivityBucket(sitter.last_active_at);
   return (
     <Link href={`/browse/${sitter.id}`} className="group flex items-center gap-3 glass-card rounded-2xl border p-3.5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:-translate-y-px active:shadow-[var(--shadow-sm)]">
@@ -41,12 +41,7 @@ export default function SitterMini({ sitter }: { sitter: Profile }) {
           </div>
         )}
       </div>
-      {sitter.rate_per_hour != null && (
-        <div className="text-right flex-shrink-0">
-          <div className="text-sm font-semibold text-ink">{formatCurrency(sitter.rate_per_hour, locale)}</div>
-          <div className="text-[10px] text-ink-soft">{t("appShell.sitterMini.rateSuffix")}</div>
-        </div>
-      )}
+      <PriceTag sitter={sitter} size="sm" />
     </Link>
   );
 }

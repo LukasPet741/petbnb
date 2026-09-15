@@ -1,11 +1,12 @@
 import { SERVICE_LABELS, type Profile, type ServiceType } from "@/lib/types";
+import { comparablePrice } from "@/lib/pricing";
 import { normaliseCity } from "@/lib/utils";
 
 export type SortKey = "experience" | "price" | "active";
 export const SORT_KEYS: SortKey[] = ["experience", "price", "active"];
 
-/** The hourly caps the price chip offers; null means any price. */
-export const PRICE_CAPS = [15, 20, 25, 30] as const;
+/** The daily caps the price chip offers (a visit price once grooming is chosen); null means any. */
+export const PRICE_CAPS = [10, 20, 30, 50] as const;
 
 /** Higher first, with a missing value always last whichever way the list sorts. */
 const byDesc = (value: (p: Profile) => number | null) => (a: Profile, b: Profile) => {
@@ -16,12 +17,18 @@ const byDesc = (value: (p: Profile) => number | null) => (a: Profile, b: Profile
 
 const lastActive = (p: Profile) => (p.last_active_at ? Date.parse(p.last_active_at) : null);
 
-/** A sorted copy. Ratings are not a sort: production has no reviews yet, so it would sort nothing. */
-export function sortSitters(sitters: Profile[], sort: SortKey): Profile[] {
+/**
+ * A sorted copy. Ratings are not a sort: production has no reviews yet, so it would sort nothing.
+ * Price compares the daily rate, or the chosen service's price (see comparablePrice).
+ */
+export function sortSitters(sitters: Profile[], sort: SortKey, service?: ServiceType | ""): Profile[] {
   const copy = [...sitters];
   if (sort === "price") {
-    const rate = (p: Profile) => (p.rate_per_hour == null ? null : -p.rate_per_hour);
-    return copy.sort(byDesc(rate));
+    const price = (p: Profile) => {
+      const value = comparablePrice(p, service);
+      return value === null ? null : -value;
+    };
+    return copy.sort(byDesc(price));
   }
   if (sort === "active") return copy.sort(byDesc(lastActive));
   return copy.sort(byDesc((p) => p.experience_years ?? null));

@@ -1,58 +1,8 @@
 /**
- * How long a booking lasts, and what that costs at the sitter's hourly rate.
- *
- * Both pure and deliberately outside the page: the live summary on /bookings/new asks
- * these questions on every keystroke, so they are called with HALF-FILLED input far
- * more often than with a complete booking. An empty field, a reversed range and a
- * sitter with no rate are the ordinary cases here, not the exotic ones — so both
- * functions answer "cannot say" rather than throwing or inventing a number.
+ * What is wrong with a booking's dates as typed, for /bookings/new. Pure, because the form asks
+ * on every keystroke with half-filled input. How long a stay is and what it costs moved to
+ * src/lib/pricing.ts with per-period prices (2026-09-15).
  */
-
-export interface BookingDuration {
-  /** False whenever the range cannot be priced: empty, unparseable, reversed or zero-length. */
-  valid: boolean;
-  /** Hours between the two instants, fractional. 0 whenever `valid` is false. */
-  hours: number;
-}
-
-const MS_PER_HOUR = 3_600_000;
-
-/**
- * The gap between two `datetime-local` values, in hours.
- *
- * Measures real elapsed time, so a range crossing a daylight-saving boundary is
- * counted in hours actually worked rather than hours on the calendar: midnight to
- * midnight across the spring jump is 23, not 24. Date arithmetic in the local zone
- * gets this right for free; subtracting calendar fields would not.
- */
-export function bookingDuration(startAt: string, endAt: string): BookingDuration {
-  const none: BookingDuration = { valid: false, hours: 0 };
-  if (!startAt || !endAt) return none;
-
-  const start = new Date(startAt).getTime();
-  const end = new Date(endAt).getTime();
-  if (Number.isNaN(start) || Number.isNaN(end)) return none;
-
-  const hours = (end - start) / MS_PER_HOUR;
-  // Zero-length is rejected along with reversed: a booking that ends when it starts
-  // is not a booking, and pricing it at €0 would look like a working quote.
-  if (hours <= 0) return none;
-
-  return { valid: true, hours };
-}
-
-/**
- * What that duration costs, or null when it cannot be said.
- *
- * Null rather than 0 for the same reason SitterRating.average is null rather than 0:
- * the summary must render a dash for "unknown", and a zero here would read as a
- * genuine quote of nothing. `rate_per_hour` is nullable on profiles, so a sitter with
- * no rate is a real row, not a defensive hypothetical.
- */
-export function estimatedTotal(hours: number, ratePerHour: number | null): number | null {
-  if (hours <= 0 || ratePerHour === null || !Number.isFinite(ratePerHour)) return null;
-  return hours * ratePerHour;
-}
 
 export type BookingRangeProblem = "startInPast" | "endBeforeStart";
 

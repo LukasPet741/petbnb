@@ -577,3 +577,34 @@ describe("read receipts", () => {
     expect(h.markThreadRead).not.toHaveBeenCalled();
   });
 });
+
+describe("price and offers (2026-09-15)", () => {
+  const future = new Date(Date.now() + 5 * 86_400_000).toISOString();
+
+  it("shows the agreed price on a confirmed booking", async () => {
+    h.bookingResult = { data: bookingRow({ status: "signed", asking_price: 125, agreed_price: 115 }), error: null };
+    await mount();
+    expect(screen.getByText("Agreed price €115")).toBeInTheDocument();
+  });
+
+  it("shows the sitter's counter as the newest offer, replaces the older one, and lets the owner accept it", async () => {
+    h.bookingResult = { data: bookingRow({ status: "pending", service: "boarding", start_at: future, asking_price: 125, agreed_price: null }), error: null };
+    await mount([
+      messageRow({ kind: "offer", amount: 100, body: null, sender_id: OWNER, created_at: "2026-09-01T10:00:00Z" }),
+      messageRow({ kind: "offer", amount: 115, body: "Two walks a day", sender_id: SITTER, sender: party(SITTER, "Jonas Sitter"), created_at: "2026-09-01T10:05:00Z" }),
+    ]);
+    expect(screen.getByText("Offered €115 · Jonas Sitter")).toBeInTheDocument();
+    expect(screen.getByText("Replaced")).toBeInTheDocument();
+    expect(screen.getByText("Two walks a day")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Accept €115" }).length).toBeGreaterThan(0);
+    expect(screen.getByText("You have 2 offers left")).toBeInTheDocument();
+  });
+
+  it("gives the sitter no accept on their own counter", async () => {
+    h.user = { id: SITTER };
+    h.bookingResult = { data: bookingRow({ status: "pending", service: "boarding", start_at: future, asking_price: 125, agreed_price: null }), error: null };
+    await mount([messageRow({ kind: "offer", amount: 115, body: null, sender_id: SITTER, created_at: "2026-09-01T10:05:00Z" })]);
+    expect(screen.queryByRole("button", { name: /Accept/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Your offer")).toBeInTheDocument();
+  });
+});

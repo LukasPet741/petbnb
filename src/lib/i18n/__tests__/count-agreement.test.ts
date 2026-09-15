@@ -32,6 +32,8 @@ const COUNTING_KEYS = [
   "appShell.dashboard.hero.moreRequests",
   "appShell.dashboard.feed.newCount",
   "sitters.reviews.count",
+  "common.pricing.days",
+  "messages.priceBar.offersLeft",
 ] as const;
 
 const FORMS = ["one", "few", "other"] as const;

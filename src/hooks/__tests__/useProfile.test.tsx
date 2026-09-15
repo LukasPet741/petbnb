@@ -42,6 +42,7 @@ function makeProfile(over: Partial<ProfileRow> = {}): ProfileRow {
     rate_per_hour: null,
     experience_years: null,
     services: null,
+    prices: {},
     about_me: null,
     avatar_url: null,
     last_active_at: "2026-01-01T00:00:00Z",

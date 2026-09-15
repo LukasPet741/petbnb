@@ -19,7 +19,6 @@ const sitters = {
   card: {
     experienceSingular: "{years} yr",
     experiencePlural: "{years} yrs",
-    rateSuffix: "/ hour",
     viewProfile: "View profile",
   },
   activity: {

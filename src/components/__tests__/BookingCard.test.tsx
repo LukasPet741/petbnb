@@ -425,3 +425,29 @@ describe("getRelativeLabel", () => {
     );
   });
 });
+
+describe("price (per-period prices and offers, 2026-09-15)", () => {
+  it("shows the price line on a pending card and on a resolved one", () => {
+    const { unmount } = renderCard({ priceLine: "Asking €125" });
+    expect(screen.getByText("Asking €125")).toBeInTheDocument();
+    unmount();
+    renderCard({ booking: booking({ status: "signed" }), priceLine: "Agreed €115" });
+    expect(screen.getByText("Agreed €115")).toBeInTheDocument();
+  });
+
+  it("names the amount on the sitter's accept button", () => {
+    renderCard({ isSitterView: true, acceptLabel: "Accept at €100" });
+    expect(buttonKeys()).toEqual(["Accept at €100", K.decline]);
+  });
+
+  it("gives the owner an accept button when the sitter's counter is on the table", () => {
+    renderCard({ isSitterView: false, canAccept: true, acceptLabel: "Accept €115" });
+    expect(buttonKeys()).toEqual(["Accept €115", K.cancel]);
+  });
+
+  it("tells a sitter who is waiting on the owner, instead of offering accept", () => {
+    renderCard({ isSitterView: true, canAccept: false, waitingLabel: "Waiting for the owner" });
+    expect(buttonKeys()).toEqual([K.decline]);
+    expect(screen.getByText("Waiting for the owner")).toBeInTheDocument();
+  });
+});

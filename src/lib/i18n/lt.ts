@@ -31,6 +31,32 @@ const lt = {
       daycare: "Dienos priežiūra",
       grooming: "Kirpimas",
     },
+    // Kainos: laikotarpio kaina yra mažiausia; ilgesnė viešnagė skaičiuojama proporcingai.
+    pricing: {
+      from: "nuo",
+      perDay: "/ d.",
+      perDays: "/ {count} d.",
+      perVisit: "/ vizitas",
+      approxPerDay: "≈ {price} / d.",
+      noPrice: "Kaina nenurodyta",
+      // Galininkas po „už“: 75 € už 3 dienas.
+      periods: {
+        "1": "1 dieną",
+        "3": "3 dienas",
+        "7": "1 savaitę",
+        "10": "10 dienų",
+        "14": "2 savaites",
+        "30": "1 mėnesį",
+      },
+      days: {
+        one: "{count} diena",
+        few: "{count} dienos",
+        other: "{count} dienų",
+      },
+      asking: "Prašoma {price}",
+      offered: "Siūloma {price}",
+      agreed: "Sutarta {price}",
+    },
     petTypes: {
       dog: "Šuo",
       cat: "Katė",

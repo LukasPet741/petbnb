@@ -13,17 +13,26 @@ const ids = (list: Profile[]) => list.map((p) => p.id);
 
 describe("sortSitters", () => {
   const list = [
-    s({ id: "cheap-new", rate_per_hour: 12, experience_years: 1, last_active_at: "2026-09-01T00:00:00Z" }),
-    s({ id: "pricey-veteran", rate_per_hour: 30, experience_years: 12, last_active_at: "2026-09-14T00:00:00Z" }),
-    s({ id: "no-rate", rate_per_hour: null, experience_years: null, last_active_at: null }),
+    s({ id: "cheap-new", services: { walking: true }, prices: { walking: { amount: 12, days: 1 } }, experience_years: 1, last_active_at: "2026-09-01T00:00:00Z" }),
+    s({ id: "pricey-veteran", services: { boarding: true }, prices: { boarding: { amount: 90, days: 3 } }, experience_years: 12, last_active_at: "2026-09-14T00:00:00Z" }),
+    s({ id: "no-rate", services: { walking: true }, prices: {}, experience_years: null, last_active_at: null }),
   ];
 
   it("puts the most experienced first by default, unknowns last", () => {
     expect(ids(sortSitters(list, "experience"))).toEqual(["pricey-veteran", "cheap-new", "no-rate"]);
   });
 
-  it("puts the cheapest first, unknown rates last", () => {
+  it("puts the cheapest daily rate first, unknown prices last", () => {
     expect(ids(sortSitters(list, "price"))).toEqual(["cheap-new", "pricey-veteran", "no-rate"]);
+  });
+
+  it("compares the chosen service's price when a service is chosen", () => {
+    const both = [
+      s({ id: "walks-cheap-boards-dear", services: { walking: true, boarding: true }, prices: { walking: { amount: 8, days: 1 }, boarding: { amount: 120, days: 3 } } }),
+      s({ id: "boards-cheap", services: { boarding: true }, prices: { boarding: { amount: 60, days: 3 } } }),
+    ];
+    expect(ids(sortSitters(both, "price"))).toEqual(["walks-cheap-boards-dear", "boards-cheap"]);
+    expect(ids(sortSitters(both, "price", "boarding"))).toEqual(["boards-cheap", "walks-cheap-boards-dear"]);
   });
 
   it("puts the most recently active first, never-active last", () => {

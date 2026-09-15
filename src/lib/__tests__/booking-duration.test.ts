@@ -1,108 +1,18 @@
 import { describe, it, expect } from "vitest";
-import {
-  bookingDuration,
-  bookingRangeProblem,
-  estimatedTotal,
-  toDateTimeLocalValue,
-} from "@/lib/booking-duration";
+import { bookingRangeProblem, toDateTimeLocalValue } from "@/lib/booking-duration";
 
 /**
- * How long a booking lasts, and what that costs at the sitter's hourly rate.
+ * What is wrong with a booking's dates as typed. (Duration and price moved to
+ * src/lib/pricing.ts with per-period prices, 2026-09-15.)
  *
  * Written for the live summary on /bookings/new, which fills in as the form is typed
  * — so every one of these functions is asked about HALF-FILLED input far more often
  * than about a complete booking. An empty field, a reversed range and a sitter with
  * no rate are the normal cases here, not the edge cases.
  *
- * Pure, and outside the page, so the arithmetic can be tested without a browser. The
- * harness pins TZ=Europe/Vilnius (vitest.config.mts), which is what makes the DST
- * assertion below portable rather than a machine-specific accident.
+ * Pure, and outside the page, so it can be tested without a browser. The harness pins
+ * TZ=Europe/Vilnius (vitest.config.mts).
  */
-
-describe("bookingDuration", () => {
-  it("measures a simple range in hours", () => {
-    expect(bookingDuration("2026-09-14T09:00", "2026-09-14T12:00")).toEqual({
-      valid: true,
-      hours: 3,
-    });
-  });
-
-  it("keeps fractional hours rather than rounding them away", () => {
-    // A 90-minute walk is a real booking, and rounding it to 1 or 2 would misprice it.
-    expect(bookingDuration("2026-09-14T09:00", "2026-09-14T10:30")).toEqual({
-      valid: true,
-      hours: 1.5,
-    });
-  });
-
-  it("spans days", () => {
-    expect(bookingDuration("2026-09-14T09:00", "2026-09-16T09:00")).toEqual({
-      valid: true,
-      hours: 48,
-    });
-  });
-
-  it("is not valid until both ends are filled in", () => {
-    // The summary renders from the moment the page loads, with both fields empty.
-    expect(bookingDuration("", "")).toEqual({ valid: false, hours: 0 });
-    expect(bookingDuration("2026-09-14T09:00", "")).toEqual({ valid: false, hours: 0 });
-    expect(bookingDuration("", "2026-09-14T12:00")).toEqual({ valid: false, hours: 0 });
-  });
-
-  it("is not valid when the end is before the start", () => {
-    // Reachable by typing: nothing stops someone filling the end first, or picking
-    // the wrong day. The summary must not show a negative duration or a negative price.
-    expect(bookingDuration("2026-09-14T12:00", "2026-09-14T09:00")).toEqual({
-      valid: false,
-      hours: 0,
-    });
-  });
-
-  it("is not valid for a zero-length booking", () => {
-    expect(bookingDuration("2026-09-14T09:00", "2026-09-14T09:00")).toEqual({
-      valid: false,
-      hours: 0,
-    });
-  });
-
-  it("is not valid for an unparseable date", () => {
-    expect(bookingDuration("not a date", "2026-09-14T12:00")).toEqual({
-      valid: false,
-      hours: 0,
-    });
-  });
-
-  it("counts wall-clock hours across the spring DST jump", () => {
-    // Europe/Vilnius loses an hour at 03:00 on the last Sunday of March. Midnight to
-    // midnight is 23 real hours, and the sitter is paid for hours worked, not for
-    // hours on the calendar. Pinned because getting this wrong overcharges by an hour
-    // exactly once a year, which is precisely the kind of bug nobody reproduces.
-    expect(bookingDuration("2027-03-28T00:00", "2027-03-29T00:00")).toEqual({
-      valid: true,
-      hours: 23,
-    });
-  });
-});
-
-describe("estimatedTotal", () => {
-  it("multiplies hours by the rate", () => {
-    expect(estimatedTotal(3, 20)).toBe(60);
-  });
-
-  it("handles fractional hours", () => {
-    expect(estimatedTotal(1.5, 20)).toBe(30);
-  });
-
-  it("returns null when the sitter has no rate", () => {
-    // rate_per_hour is nullable on profiles, so a sitter can genuinely have none.
-    // Null means "cannot say", which the summary shows as a dash — never as €0.
-    expect(estimatedTotal(3, null)).toBeNull();
-  });
-
-  it("returns null for a duration that is not valid", () => {
-    expect(estimatedTotal(0, 20)).toBeNull();
-  });
-});
 
 describe("bookingRangeProblem", () => {
   // 14:05:30 on the 13th, Vilnius time. Seconds on purpose: datetime-local has minute

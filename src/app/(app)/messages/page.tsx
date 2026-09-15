@@ -10,7 +10,7 @@ import Avatar from "@/components/Avatar";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import { stagger, fadeUp } from "@/lib/motion";
-import { timeAgo } from "@/lib/utils";
+import { formatCurrency, timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Booking, Message, Thread } from "@/lib/types";
 
@@ -29,7 +29,7 @@ function lastMessageTime(thread: Thread) {
 }
 
 export default function MessagesPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { user } = useAuth();
   const { profile } = useProfile();
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -121,7 +121,10 @@ export default function MessagesPage() {
           : counterpartyName;
       return t(`messages.systemEvent.${message.event}`, { actor });
     }
-    const body = message.body ?? "";
+    // An offer's note is optional, so its preview is the amount.
+    const body = message.kind === "offer" && message.amount != null
+      ? t("messages.threadListOffer", { price: formatCurrency(message.amount, locale) })
+      : message.body ?? "";
     return message.sender_id === user?.id ? `${t("messages.threadListYouPrefix")}${body}` : body;
   };
 

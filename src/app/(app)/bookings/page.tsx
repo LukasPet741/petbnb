@@ -17,10 +17,14 @@ import SuccessToast from "@/components/SuccessToast";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { pluralForm } from "@/lib/i18n/plural";
+import { bookingPriceView } from "@/lib/booking-price-view";
+import type { OfferLike } from "@/lib/pricing";
+import type { ServiceType } from "@/lib/types";
 
 interface Booking {
-  id: string; status: string; service: string; start_at: string; end_at: string; notes: string | null; address: string | null;
-  sitter: { id: string; full_name: string | null; avatar_url: string | null; rate_per_hour: number | null } | null;
+  id: string; status: string; service: ServiceType; start_at: string; end_at: string; notes: string | null; address: string | null;
+  owner_id: string; sitter_id: string; asking_price: number | null; agreed_price: number | null;
+  sitter: { id: string; full_name: string | null; avatar_url: string | null } | null;
   owner: { id: string; full_name: string | null; avatar_url: string | null } | null;
   pet: { id: string; name: string; photo_url: string | null } | null;
 }
@@ -39,6 +43,8 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  // Offers per booking: what is on the table decides the price line and who may accept.
+  const [offers, setOffers] = useState<Map<string, OfferLike[]>>(new Map());
 
   // Two directions, one query each, rather than one query per card. A user who sits as
   // well as owns appears on both lists, for different bookings — the same person can
@@ -55,11 +61,30 @@ export default function BookingsPage() {
 
   const load = async () => {
     if (!user) return;
-    const q = supabase.from("bookings").select("*, sitter:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url,rate_per_hour), owner:profiles!bookings_owner_id_fkey(id,full_name,avatar_url), pet:pets(id,name,photo_url)");
+    const q = supabase.from("bookings").select("*, sitter:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url), owner:profiles!bookings_owner_id_fkey(id,full_name,avatar_url), pet:pets(id,name,photo_url)");
     const { data } = profile?.is_sitter
       ? await q.or(`owner_id.eq.${user.id},sitter_id.eq.${user.id}`).order("start_at")
       : await q.eq("owner_id", user.id).order("start_at");
-    setBookings((data as unknown as Booking[]) ?? []);
+    const rows = (data as unknown as Booking[]) ?? [];
+    setBookings(rows);
+    const pendingIds = rows.filter((b) => b.status === "pending").map((b) => b.id);
+    if (pendingIds.length > 0) {
+      const { data: offerRows } = await supabase
+        .from("messages")
+        .select("id, booking_id, sender_id, amount, created_at")
+        .eq("kind", "offer")
+        .in("booking_id", pendingIds);
+      const byBooking = new Map<string, OfferLike[]>();
+      for (const row of offerRows ?? []) {
+        if (row.amount == null) continue;
+        const list = byBooking.get(row.booking_id) ?? [];
+        list.push({ id: row.id, sender_id: row.sender_id, amount: row.amount, created_at: row.created_at });
+        byBooking.set(row.booking_id, list);
+      }
+      setOffers(byBooking);
+    } else {
+      setOffers(new Map());
+    }
     setLoading(false);
   };
 
@@ -80,17 +105,29 @@ export default function BookingsPage() {
 
   const handleCancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
-    if (error) return;
+    if (error) { setToastMessage(t("appPages.bookings.actionFailed")); return; }
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: "cancelled" } : b));
     setToastMessage(t("appPages.bookings.toastCancelled"));
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-    if (error) return;
+    if (error) { setToastMessage(t("appPages.bookings.actionFailed")); return; }
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status } : b));
     const toastKey = status === "signed" ? "toastAccepted" : status === "declined" ? "toastDeclined" : status === "completed" ? "toastCompleted" : null;
     if (toastKey) setToastMessage(t(`appPages.bookings.${toastKey}`));
+  };
+
+  // Accepting sends the amount the viewer saw; the database refuses it if the table has moved on.
+  const handleAccept = async (id: string, amount: number) => {
+    const { error } = await supabase.from("bookings").update({ status: "signed", agreed_price: amount }).eq("id", id);
+    if (error) {
+      setToastMessage(t(error.hint === "price_changed" ? "appPages.bookings.priceChanged" : "appPages.bookings.actionFailed"));
+      void load();
+      return;
+    }
+    setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status: "signed", agreed_price: amount } : b)));
+    setToastMessage(t("appPages.bookings.toastAccepted"));
   };
 
   const renderBookingItem = (booking: Booking) => {
@@ -103,6 +140,7 @@ export default function BookingsPage() {
     const counterpartId = isSitterView ? booking.owner?.id : booking.sitter?.id;
     const reviewable = booking.status === "completed" && counterpartId && user?.id;
     const reviewSet = isSitterView ? myReviewsOfOwners : myReviewsOfSitters;
+    const price = bookingPriceView(booking, offers.get(booking.id) ?? [], isSitterView ? "sitter" : "owner", t, locale);
     return (
       <motion.div key={booking.id} variants={fadeUp}>
         <BookingCard
@@ -111,7 +149,11 @@ export default function BookingsPage() {
           displayProfile={displayProfile}
           displayLabel={displayLabel}
           onCancel={() => handleCancel(booking.id)}
-          onAccept={() => handleUpdateStatus(booking.id, "signed")}
+          onAccept={() => { if (price.acceptAmount !== null) void handleAccept(booking.id, price.acceptAmount); }}
+          priceLine={price.priceLine}
+          canAccept={price.canAccept}
+          acceptLabel={price.acceptLabel}
+          waitingLabel={price.waitingLabel}
           onDecline={() => handleUpdateStatus(booking.id, "declined")}
           onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
           reviewSlot={

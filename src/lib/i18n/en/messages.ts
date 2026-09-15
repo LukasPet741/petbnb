@@ -23,6 +23,36 @@ const messages = {
   sendFailed: "Message not sent. Check your connection and try again.",
   today: "Today",
   yesterday: "Yesterday",
+  threadListOffer: "Offer: {price}",
+
+  offer: {
+    title: "Offer",
+    yours: "Your offer",
+    replaced: "Replaced",
+    acceptFor: "Accept {price}",
+    counter: "Offer another price",
+    makeOffer: "Make an offer",
+    submit: "Send offer",
+    cancel: "Cancel",
+    amountLabel: "Your price, €",
+    range: "Between {min} and {max}",
+    noteLabel: "Note (optional)",
+    failed: "Offer not sent. Please try again.",
+    priceChanged: "The price just changed.",
+    acceptFailed: "Couldn't accept the price. Please try again.",
+  },
+
+  priceBar: {
+    asking: "Asking {price}",
+    onTable: "Offered {price} · {name}",
+    agreed: "Agreed price {price}",
+    fixed: "Fixed price {price}",
+    offersLeft: {
+      one: "You have {count} offer left",
+      few: "You have {count} offers left",
+      other: "You have {count} offers left",
+    },
+  },
 
   // System rows: the DB stores only an `event`, so both languages render freely.
   systemEvent: {
@@ -31,6 +61,7 @@ const messages = {
     declined: "{actor} declined the request",
     cancelled: "{actor} cancelled the request",
     completed: "{actor} marked the booking as completed",
+    agreed: "{actor} accepted the price, booking confirmed",
   },
 
   notifications: {
@@ -47,6 +78,8 @@ const messages = {
     booking_cancelled: "{actor} cancelled a booking",
     booking_completed: "{actor} marked a booking as completed",
     message_received: "{actor} sent you a message",
+    offer_received: "{actor} sent you a price offer",
+    price_agreed: "{actor} accepted your price",
     fallbackPet: "your pet",
   },
 };

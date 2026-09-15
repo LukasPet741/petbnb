@@ -14,8 +14,9 @@ import PageHeader from "@/components/PageHeader";
 import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
-import { normaliseCity } from "@/lib/utils";
+import { cn, normaliseCity } from "@/lib/utils";
 import { nextFromSearch } from "@/lib/next-path";
+import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -28,7 +29,9 @@ export default function ProfilePage() {
   const router = useRouter();
   const [tab, setTab] = useState<"personal" | "sitter" | "collars">("personal");
   const [isSitter, setIsSitter] = useState(false);
-  const [form, setForm] = useState({ full_name: "", phone: "", city: "", about_me: "", rate_per_hour: "", experience_years: "", services: { walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean> });
+  const [form, setForm] = useState({ full_name: "", phone: "", city: "", about_me: "", experience_years: "", services: { walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean> });
+  const [priceDrafts, setPriceDrafts] = useState<PriceDrafts>(() => draftsFromPrices({}));
+  const [missingPrices, setMissingPrices] = useState<ServiceType[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -41,15 +44,29 @@ export default function ProfilePage() {
       phone: profile.phone ?? "",
       city: profile.city ?? "",
       about_me: profile.about_me ?? "",
-      rate_per_hour: profile.rate_per_hour?.toString() ?? "",
       experience_years: profile.experience_years?.toString() ?? "",
       services: Object.assign({ walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean>, (profile.services as Record<ServiceType, boolean> ?? {})),
     });
+    setPriceDrafts(draftsFromPrices(profile.prices));
   }, [profile]);
+
+  const setDraft = (service: ServiceType, patch: Partial<PriceDrafts[ServiceType]>) => {
+    setPriceDrafts((d) => ({ ...d, [service]: { ...d[service], ...patch } }));
+    setMissingPrices((m) => m.filter((s) => s !== service));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    // A sitter prices every service they offer: a service without a price cannot be requested.
+    const { prices, missing } = pricesFromDrafts(priceDrafts, form.services);
+    if (isSitter && missing.length > 0) {
+      setMissingPrices(missing);
+      setTab("sitter");
+      setError(t("appPages.profile.priceRequired"));
+      return;
+    }
+    setMissingPrices([]);
     setSaving(true); setError("");
     // .update(), never .upsert(). PostgREST's upsert emits `insert ... on conflict do
     // update`, which requires SELECT on every column it names, and authenticated holds
@@ -60,7 +77,7 @@ export default function ProfilePage() {
     const { error: err } = await supabase.from("profiles").update({
       full_name: form.full_name, phone: form.phone, city: normaliseCity(form.city),
       about_me: form.about_me || null, is_sitter: isSitter,
-      rate_per_hour: form.rate_per_hour ? Number(form.rate_per_hour) : null,
+      prices,
       experience_years: form.experience_years ? Number(form.experience_years) : null,
       services: form.services, last_active_at: new Date().toISOString(),
     }).eq("id", user.id);
@@ -235,11 +252,6 @@ export default function ProfilePage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.rateLabel")}</label>
-                          <input type="number" value={form.rate_per_hour} onChange={(e) => setForm({ ...form, rate_per_hour: e.target.value })}
-                            placeholder={t("appPages.profile.ratePlaceholder")} min="1" step="1" inputMode="numeric" className={inputCls} />
-                        </div>
-                        <div>
                           <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.experienceLabel")}</label>
                           <input type="number" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
                             placeholder={t("appPages.profile.experiencePlaceholder")} min="0" step="1" inputMode="numeric" className={inputCls} />
@@ -260,6 +272,48 @@ export default function ProfilePage() {
                           ))}
                         </div>
                       </div>
+                      {SERVICES.some(([k]) => form.services[k]) && (
+                        <fieldset>
+                          <legend className="block text-sm font-medium text-ink">{t("appPages.profile.pricesLabel")}</legend>
+                          <p className="text-xs text-ink-soft mt-1 mb-3">{t("appPages.profile.pricesHint")}</p>
+                          <div className="space-y-2.5">
+                            {SERVICES.filter(([k]) => form.services[k]).map(([k, label]) => {
+                              const invalid = missingPrices.includes(k);
+                              return (
+                                <div key={k} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-xl border border-black/10 bg-surface/60">
+                                  <span className="w-full sm:w-auto sm:flex-1 text-sm font-medium text-ink">{label}</span>
+                                  <span className="flex items-center gap-2">
+                                    <input
+                                      type="number" min="1" max="10000" step="1" inputMode="numeric"
+                                      value={priceDrafts[k].amount}
+                                      onChange={(e) => setDraft(k, { amount: e.target.value })}
+                                      aria-label={t("appPages.profile.priceAmountLabel", { service: label })}
+                                      aria-invalid={invalid || undefined}
+                                      className={cn(inputCls, "w-24", invalid && "border-danger/60 focus:ring-danger")}
+                                    />
+                                    <span className="text-sm text-ink-soft">€</span>
+                                  </span>
+                                  {k === "grooming" ? (
+                                    <span className="text-sm text-ink-soft">{t("appPages.profile.pricePerVisit")}</span>
+                                  ) : (
+                                    <span className="flex items-center gap-2">
+                                      <span className="text-sm text-ink-soft">{t("appPages.profile.pricePeriodFor")}</span>
+                                      <select
+                                        value={priceDrafts[k].days}
+                                        onChange={(e) => setDraft(k, { days: Number(e.target.value) as PeriodDays })}
+                                        aria-label={t("appPages.profile.pricePeriodLabel", { service: label })}
+                                        className={cn(inputCls, "w-36")}
+                                      >
+                                        {PERIOD_DAYS.map((d) => <option key={d} value={d}>{t(`common.pricing.periods.${d}`)}</option>)}
+                                      </select>
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
+                      )}
                     </div>
                   </motion.div>
                 )}

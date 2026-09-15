@@ -12,6 +12,7 @@ import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 import { pluralForm } from "@/lib/i18n/plural";
 import { PRICE_CAPS, SORT_KEYS, countByService, filtersFromSearch, sameCity, sortSitters, type SortKey } from "@/lib/browse-filters";
+import { comparablePrice } from "@/lib/pricing";
 import { cn, normaliseCity } from "@/lib/utils";
 import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
 
@@ -100,11 +101,14 @@ export default function BrowsePage() {
   const beforeService = sitters.filter((s) => {
     if (search && !s.full_name?.toLowerCase().includes(search.toLowerCase())) return false;
     if (city !== ALL_CITIES && !sameCity(s.city, city)) return false;
-    if (maxRate !== null && s.rate_per_hour != null && s.rate_per_hour > maxRate) return false;
+    if (maxRate !== null) {
+      const price = comparablePrice(s, service);
+      if (price !== null && price > maxRate) return false;
+    }
     return true;
   });
   const serviceCounts = countByService(beforeService);
-  const filtered = sortSitters(service ? beforeService.filter((s) => s.services?.[service]) : beforeService, sort);
+  const filtered = sortSitters(service ? beforeService.filter((s) => s.services?.[service]) : beforeService, sort, service);
   // Photos are picked for the grid as it is laid out, so two neighbouring cards never share one,
   // and remembered so a card's profile opens on the same picture. Keyed on the order, not the array.
   const coverOrder = filtered.map((s) => s.id).join(",");
@@ -204,7 +208,7 @@ export default function BrowsePage() {
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.05)} initial="hidden" animate="show">
           {filtered.map((sitter) => (
             <motion.div key={sitter.id} variants={fadeUp}>
-              <SitterCard sitter={sitter} showFavorite rating={ratings.get(sitter.id) ?? null} coverPhotoId={covers.get(sitter.id)} />
+              <SitterCard sitter={sitter} showFavorite rating={ratings.get(sitter.id) ?? null} coverPhotoId={covers.get(sitter.id)} priceService={service} />
             </motion.div>
           ))}
         </motion.div>

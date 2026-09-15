@@ -25,9 +25,6 @@ const appShell = {
     noUpcomingBookings: "Artėjančių užsakymų nėra",
     sitterSpotlight: "Rekomenduojamas globėjas",
   },
-  sitterMini: {
-    rateSuffix: "/ val.",
-  },
   dashboard: {
     greeting: {
       morning: "Labas rytas",

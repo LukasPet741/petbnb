@@ -1,3 +1,5 @@
+import type { SitterPrices } from "@/lib/pricing";
+
 export type ServiceType = "walking" | "boarding" | "daycare" | "grooming";
 export type PetType = "dog" | "cat" | "bird" | "reptile" | "small_mammal" | "fish" | "other";
 export type BookingStatus = "pending" | "signed" | "declined" | "cancelled" | "completed";
@@ -14,9 +16,12 @@ export interface Profile {
   phone?: string | null;
   city: string;
   is_sitter: boolean;
+  /** Unused since per-period prices (2026-09-15); kept until a cleanup migration drops it. */
   rate_per_hour: number | null;
   experience_years: number | null;
   services: Record<ServiceType, boolean>;
+  /** Per-period prices, see src/lib/pricing.ts. Optional so older fixtures still type. */
+  prices?: SitterPrices;
   about_me: string | null;
   avatar_url: string | null;
   last_active_at: string;
@@ -46,6 +51,11 @@ export interface Booking {
   notes: string | null;
   status: BookingStatus;
   created_at: string;
+  /** Set by the database when the request is made (enforce_booking_rules). */
+  days?: number | null;
+  asking_price?: number | null;
+  /** Set when the booking is confirmed, from what was on the table. */
+  agreed_price?: number | null;
   owner?: Profile;
   sitter?: Profile;
   pet?: Pet;
@@ -144,7 +154,7 @@ export interface SitterRating {
  * one place phone is readable. See useProfile.
  */
 export const PUBLIC_PROFILE_COLUMNS =
-  "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, last_active_at, is_sitter";
+  "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, prices, last_active_at, is_sitter";
 
 export const SERVICE_LABELS: Record<ServiceType, string> = {
   walking: "Dog Walking",
@@ -171,18 +181,20 @@ export const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string
   completed: { label: "Completed", color: "bg-brand-softer text-brand ring-1 ring-inset ring-brand/10" },
 };
 
-export type MessageKind = "user" | "system";
-export type SystemEvent = "requested" | "accepted" | "declined" | "cancelled" | "completed";
+export type MessageKind = "user" | "system" | "offer";
+export type SystemEvent = "requested" | "accepted" | "declined" | "cancelled" | "completed" | "agreed";
 
 export interface Message {
   id: string;
   booking_id: string;
   sender_id: string;
   kind: MessageKind;
-  /** Set only when kind === "user". */
+  /** The text of a user message, or an offer's optional note. */
   body: string | null;
   /** Set only when kind === "system". The UI translates this; no display text is stored. */
   event: SystemEvent | null;
+  /** Set only when kind === "offer": whole euros. */
+  amount?: number | null;
   read_at: string | null;
   created_at: string;
   sender?: Profile;
@@ -194,7 +206,9 @@ export type NotificationType =
   | "booking_declined"
   | "booking_cancelled"
   | "booking_completed"
-  | "message_received";
+  | "message_received"
+  | "offer_received"
+  | "price_agreed";
 
 export interface AppNotification {
   id: string;
