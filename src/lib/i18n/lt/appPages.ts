@@ -11,6 +11,14 @@ const appPages = {
     allCitiesOption: "Visi miestai",
     maxRateLabel: "Maks. įkainis: {rate} €/val.",
     upToRateChip: "Iki {rate} €/val.",
+    sortLabel: "Rūšiuoti",
+    sort: {
+      experience: "Didžiausia patirtis",
+      price: "Mažiausia kaina",
+      active: "Neseniai aktyvūs",
+    },
+    priceLabel: "Kaina",
+    priceAny: "Bet kokia kaina",
     clearAllButton: "Išvalyti viską",
     loadingText: "Kraunama…",
     // Trys formos: dalyvis derinamas kartu su daiktavardžiu.

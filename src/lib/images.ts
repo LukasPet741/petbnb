@@ -66,6 +66,114 @@ export function servicePhoto(service: ServiceType, w: number): string {
   return p(SERVICE_PHOTO_ID[service], w, Math.round((w * 2) / 3));
 }
 
+/**
+ * More than one photograph per service, for places that show many sitters at once. Found in
+ * the 2026-09-15 review of /browse: most sitters offer walking first, so one photo per service
+ * put the same two dogs on seventeen cards. Each pool starts with SERVICE_PHOTO_ID, so the
+ * landing tiles still match. Chosen from a contact sheet of 25 candidates, all 200 on
+ * 2026-09-15, keeping calm natural frames that show the service and dropping studio
+ * backdrops and a photo with a brand logo in it.
+ */
+export const SERVICE_PHOTO_POOL: Record<ServiceType, readonly string[]> = {
+  walking: [
+    SERVICE_PHOTO_ID.walking,
+    "photo-1477884213360-7e9d7dcc1e48", // a spotted dog on a walk down a street
+    "photo-1518717758536-85ae29035b6d", // a brown dog on a garden path
+    "photo-1543466835-00a7907e9de1", // a beagle outdoors
+  ],
+  boarding: [
+    SERVICE_PHOTO_ID.boarding,
+    "photo-1495360010541-f48722b34f7d", // a tabby cat on the stairs at home
+    "photo-1519052537078-e6302a4968d4", // a ginger cat asleep on a wooden floor
+  ],
+  daycare: [
+    SERVICE_PHOTO_ID.daycare,
+    "photo-1507146426996-ef05306b995a", // a puppy indoors by its water bowl
+    "photo-1581888227599-779811939961", // a dog in its bed in a bright room
+  ],
+  grooming: [
+    SERVICE_PHOTO_ID.grooming,
+    "photo-1516734212186-a967f81ad0d7", // a retriever being brushed
+  ],
+};
+
+/** FNV-1a: a cheap, stable string hash, so a sitter keeps the same photo across visits. */
+function stableHash(value: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
+/**
+ * The pool photo for one sitter and service, at width `w`, at the photos' own 3:2 aspect: `pick`
+ * when a grid chose one from this service's pool (see spreadCoverPhotos), else the sitter's own hash.
+ */
+export function sitterCoverPhoto(sitterId: string, service: ServiceType, w: number, pick?: string): string {
+  const pool = SERVICE_PHOTO_POOL[service];
+  const photoId = pick && pool.includes(pick) ? pick : pool[stableHash(sitterId) % pool.length];
+  return p(photoId, w, Math.round((w * 2) / 3));
+}
+
+/** How far back a card looks for photos to avoid: its left neighbour, and the card above it in a two- or three-column grid. */
+const COVER_WINDOW = 3;
+
+/**
+ * The cover photo for each card of a grid, in display order. Found in the 2026-09-15 review of
+ * /browse: pools of two to four photos still put the same ginger cat on two neighbouring cards,
+ * and only the grid knows which cards end up side by side. Each sitter starts from their own
+ * hashed pick and moves along their pool to the first photo not used in the last three cards;
+ * when the pool is too small for that, the photo used longest ago. Sitters who offer nothing
+ * get no entry.
+ */
+export function spreadCoverPhotos(
+  sitters: { id: string; services: Partial<Record<string, unknown>> | null | undefined }[],
+): Map<string, string> {
+  const picks = new Map<string, string>();
+  const lastUsed = new Map<string, number>();
+  sitters.forEach((sitter, position) => {
+    const service = coverService(sitter.services);
+    if (!service) return;
+    const pool = SERVICE_PHOTO_POOL[service];
+    const start = stableHash(sitter.id) % pool.length;
+    let pick = pool[start];
+    let pickAge = -Infinity;
+    for (let step = 0; step < pool.length; step++) {
+      const photo = pool[(start + step) % pool.length];
+      const used = lastUsed.get(photo);
+      const age = used === undefined ? Infinity : position - used;
+      if (age > pickAge) {
+        pick = photo;
+        pickAge = age;
+      }
+      if (age > COVER_WINDOW) break;
+    }
+    picks.set(sitter.id, pick);
+    lastUsed.set(pick, position);
+  });
+  return picks;
+}
+
+// What the last grid showed, so opening a card (a client-side navigation) keeps its picture on
+// the profile. Module state on purpose: a full page load starts empty and falls back to the hash.
+const rememberedCovers = new Map<string, string>();
+
+export function rememberCovers(picks: Map<string, string>): void {
+  for (const [sitterId, photoId] of picks) rememberedCovers.set(sitterId, photoId);
+}
+
+/** The photo a profile shows: the one its card just showed, else the sitter's own hashed pick. */
+export function coverPhotoFor(sitterId: string, service: ServiceType, w: number): string {
+  return sitterCoverPhoto(sitterId, service, w, rememberedCovers.get(sitterId));
+}
+
+/** Where to aim the crop: the tuned focus for a service's own photo, a gentle upper-middle otherwise. */
+export function coverFocus(src: string, service: ServiceType): string {
+  return src.includes(SERVICE_PHOTO_ID[service]) ? SERVICE_PHOTO_FOCUS[service] : "50% 40%";
+}
+
 /** The service a sitter's cover illustrates: the first one they offer, or null. */
 export function coverService(
   services: Partial<Record<string, unknown>> | null | undefined,

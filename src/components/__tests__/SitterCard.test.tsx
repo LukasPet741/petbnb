@@ -3,9 +3,10 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SitterCard, { getActivityBucket as bucketFromCard } from "@/components/SitterCard";
 import SitterMini, { getActivityBucket as bucketFromMini } from "@/components/SitterMini";
-import { lookup } from "@/context/LanguageContext";
+import { LanguageProvider, lookup } from "@/context/LanguageContext";
 import { dictionaries } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
+import { SERVICE_PHOTO_POOL } from "@/lib/images";
 
 // Neither component touches Supabase or the router - only useLanguage, next/link,
 // Avatar, Badge and (optionally) FavoriteButton. Rendered without a LanguageProvider
@@ -38,8 +39,25 @@ function sitter(overrides: Partial<Profile> = {}): Profile {
   };
 }
 
+// Only LanguageProvider reaches for Supabase (to mirror the locale onto the profile).
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn(async () => ({ data: { session: null } })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+    },
+  },
+}));
+
+/** Renders with the real dictionaries in the given locale, for copy that differs by language. */
+function renderIn(locale: "en" | "lt", ui: React.ReactElement) {
+  window.localStorage.setItem("petbnb-locale", locale);
+  return render(<LanguageProvider>{ui}</LanguageProvider>);
+}
+
 afterEach(() => {
   vi.useRealTimers();
+  window.localStorage.clear();
 });
 
 // ---------------------------------------------------------------------------
@@ -164,20 +182,30 @@ describe("SitterMini activity line", () => {
 });
 
 describe("hourly rate", () => {
-  // BUG: the rate is interpolated as `€{sitter.rate_per_hour}` with no guard, but
-  // Profile.rate_per_hour is `number | null` - an owner-only profile, or a sitter
-  // who has not set a price, renders a bare "€" with nothing after it. Correct
-  // behaviour would be to hide the block or show a "rate not set" string.
-  it("renders a bare currency symbol for a null rate in SitterCard (current buggy behaviour)", () => {
+  // Fixed in the 2026-09-15 redesign: a sitter who has not set a price used to render a
+  // bare "€" with nothing after it. The price block is now left out instead.
+  it("leaves the price out for a null rate in SitterCard", () => {
     render(<SitterCard sitter={sitter({ rate_per_hour: null })} />);
-    expect(screen.getByText("€")).toBeInTheDocument();
-    expect(screen.queryByText(/€\s*\d/)).not.toBeInTheDocument();
+    expect(screen.queryByText("€")).not.toBeInTheDocument();
+    expect(screen.queryByText("sitters.card.rateSuffix")).not.toBeInTheDocument();
   });
 
-  // Same bug, duplicated in the compact card.
-  it("renders a bare currency symbol for a null rate in SitterMini (current buggy behaviour)", () => {
+  it("leaves the price out for a null rate in SitterMini too", () => {
     render(<SitterMini sitter={sitter({ rate_per_hour: null })} />);
-    expect(screen.getByText("€")).toBeInTheDocument();
+    expect(screen.queryByText("€")).not.toBeInTheDocument();
+    expect(screen.queryByText("appShell.sitterMini.rateSuffix")).not.toBeInTheDocument();
+  });
+
+  // Lithuanian writes the amount first ("12 €"), as the browse design does; "€12" read as English.
+  it.each([
+    ["en", "€12"],
+    ["lt", "12 €"],
+  ] as const)("writes the rate the %s way on both cards", async (locale, expected) => {
+    const { unmount } = renderIn(locale, <SitterCard sitter={sitter({ rate_per_hour: 12 })} />);
+    expect(await screen.findByText(expected)).toBeInTheDocument();
+    unmount();
+    renderIn(locale, <SitterMini sitter={sitter({ rate_per_hour: 12 })} />);
+    expect(await screen.findByText(expected)).toBeInTheDocument();
   });
 
   it("renders a zero rate as €0 rather than hiding it", () => {
@@ -205,14 +233,11 @@ describe("null full name", () => {
     expect(container.querySelector("div.rounded-full")).toHaveTextContent("A");
   });
 
-  // BUG: the heading interpolates sitter.full_name with NO fallback, even though the
-  // Avatar two lines above HAS one. A nameless sitter renders an empty <h3> - an
-  // anonymous card with a price and a "View profile" link. Correct behaviour would
-  // be to reuse the same t("appShell.sitterFallback") fallback in the heading.
-  it("renders an empty heading in SitterCard (current buggy behaviour)", () => {
+  // Fixed in the 2026-09-15 redesign: the heading used to interpolate full_name with no
+  // fallback, so a nameless sitter rendered an empty <h3>. It now uses the Avatar's fallback.
+  it("names a nameless sitter with the placeholder in the SitterCard heading too", () => {
     const { container } = render(<SitterCard sitter={sitter(NAMELESS)} />);
-    expect(container.querySelector("h3")).not.toBeNull();
-    expect(container.querySelector("h3")?.textContent).toBe("");
+    expect(container.querySelector("h3")?.textContent).toBe("appShell.sitterFallback");
   });
 
   // BUG: SitterMini passes sitter.full_name straight to Avatar, which calls
@@ -436,5 +461,30 @@ describe("SitterCard rating", () => {
     // prop is absent for a beat on every page load.
     const { container } = render(<SitterCard sitter={sitter()} />);
     expect(container.querySelectorAll("[data-star]")).toHaveLength(0);
+  });
+});
+
+describe("cover photo", () => {
+  // The 2026-09-15 browse redesign gives each card a cover: the photo of the first service the
+  // sitter offers, the same picture their profile cover and the landing tiles use.
+  it("shows the photo of the first offered service", () => {
+    const { container } = render(
+      <SitterCard sitter={sitter({ services: { walking: false, boarding: true, daycare: true, grooming: false } })} />,
+    );
+    const src = container.querySelector("img")?.getAttribute("src") ?? "";
+    expect(SERVICE_PHOTO_POOL.boarding.some((id) => src.includes(id))).toBe(true);
+  });
+
+  it("shows the photo the grid picked for it, so neighbouring cards differ", () => {
+    const pick = SERVICE_PHOTO_POOL.walking[3];
+    const { container } = render(<SitterCard sitter={sitter()} coverPhotoId={pick} />);
+    expect(container.querySelector("img")?.getAttribute("src")).toContain(pick);
+  });
+
+  it("draws no photo for a sitter who offers nothing yet", () => {
+    const { container } = render(
+      <SitterCard sitter={sitter({ services: { walking: false, boarding: false, daycare: false, grooming: false } })} />,
+    );
+    expect(container.querySelector("img")).toBeNull();
   });
 });

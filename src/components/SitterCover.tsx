@@ -1,6 +1,6 @@
 "use client";
 import type { Profile } from "@/lib/types";
-import { HERO, SERVICE_PHOTO_FOCUS, coverService, servicePhoto } from "@/lib/images";
+import { HERO, SERVICE_PHOTO_FOCUS, coverFocus, coverPhotoFor, coverService } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
 
 /**
@@ -15,12 +15,13 @@ import { useLanguage } from "@/context/LanguageContext";
  * aria-hidden as a whole: the caption repeats a service badge the header card already
  * announces, and the image is decoration.
  */
-export default function SitterCover({ sitter }: { sitter: Pick<Profile, "services"> }) {
+export default function SitterCover({ sitter }: { sitter: Pick<Profile, "id" | "services"> }) {
   const { t } = useLanguage();
   const service = coverService(sitter.services);
-  const src = service ? servicePhoto(service, 1600) : HERO.wide;
+  // The same pick as the sitter's card in /browse, so opening a card keeps its picture.
+  const src = service ? coverPhotoFor(sitter.id, service, 1600) : HERO.wide;
   // HERO.wide is the walking frame, so the fallback shares walking's focus.
-  const focus = SERVICE_PHOTO_FOCUS[service ?? "walking"];
+  const focus = service ? coverFocus(src, service) : SERVICE_PHOTO_FOCUS.walking;
 
   return (
     <div aria-hidden className="relative h-44 sm:h-60 overflow-hidden rounded-[var(--radius-card)] bg-surface-2">

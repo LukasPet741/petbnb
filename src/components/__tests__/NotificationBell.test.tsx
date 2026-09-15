@@ -474,15 +474,25 @@ const TYPES: NotificationType[] = [
   "message_received",
 ];
 
+/** Raw text of the nth row's line under the sentence: pet · service · time. */
+function rawMeta(container: HTMLElement, index = 0): string {
+  const p = rows(container)[index].querySelectorAll("p")[1];
+  if (!p) throw new Error("expected a meta paragraph");
+  return p.textContent ?? "";
+}
+
+// The sentence names only who did what; the pet and the service go on the line under it.
+// Slotted mid-sentence they needed a Lithuanian case the data does not carry ("pateikė Šunų
+// vedžiojimas užklausą"), and a missing booking join left a double space behind.
 describe("sentence building", () => {
   it.each([
-    ["booking_requested", "Jonas Petraitis requested Dog Walking for Rex"],
-    ["booking_accepted", "Jonas Petraitis confirmed your booking for Rex"],
-    ["booking_declined", "Jonas Petraitis declined your request for Rex"],
-    ["booking_cancelled", "Jonas Petraitis cancelled the booking for Rex"],
-    ["booking_completed", "Jonas Petraitis marked Rex's booking as completed"],
+    ["booking_requested", "Jonas Petraitis sent you a booking request"],
+    ["booking_accepted", "Jonas Petraitis confirmed your booking"],
+    ["booking_declined", "Jonas Petraitis declined your request"],
+    ["booking_cancelled", "Jonas Petraitis cancelled a booking"],
+    ["booking_completed", "Jonas Petraitis marked a booking as completed"],
     ["message_received", "Jonas Petraitis sent you a message"],
-  ])("builds the English sentence for %s from the joined actor, pet and booking", async (type, expected) => {
+  ])("builds the English sentence for %s from the joined actor", async (type, expected) => {
     const user = userEvent.setup();
     setContext({
       loading: false,
@@ -491,6 +501,7 @@ describe("sentence building", () => {
     const { container } = renderTranslated("en");
     await openPanel(user);
     expect(rawSentence(container)).toBe(expected);
+    expect(rawMeta(container)).toMatch(/^Rex · Dog Walking · /);
   });
 
   it.each(TYPES)("falls back to the unknown-person copy for %s when the actor join is missing", async (type) => {
@@ -502,7 +513,7 @@ describe("sentence building", () => {
     expect(rawSentence(container)).not.toContain("Jonas");
   });
 
-  it.each(TYPES)("falls back to the generic pet copy for %s when the pet join is missing", async (type) => {
+  it.each(TYPES)("leaves the pet off the meta line for %s when the pet join is missing", async (type) => {
     const user = userEvent.setup();
     setContext({
       loading: false,
@@ -510,87 +521,33 @@ describe("sentence building", () => {
     });
     const { container } = renderTranslated("en");
     await openPanel(user);
-    const text = rawSentence(container);
-    expect(text).not.toContain("Rex");
-    // message_received interpolates neither {pet} nor {service}.
-    if (type !== "message_received") expect(text).toContain("your pet");
+    expect(rawSentence(container)).not.toContain("Rex");
+    expect(rawMeta(container)).toMatch(/^Dog Walking · /);
   });
 
-  it.each(TYPES)("falls back to the generic pet copy for %s when the whole booking join is missing", async (type) => {
+  it.each(TYPES)("shows only the time for %s when the whole booking join is missing", async (type) => {
     const user = userEvent.setup();
     setContext({ loading: false, notifications: [notif({ type, booking: undefined })] });
     const { container } = renderTranslated("en");
     await openPanel(user);
-    const text = rawSentence(container);
-    expect(text).not.toContain("Rex");
-    expect(text).not.toContain("{"); // no raw placeholder ever leaks
-    if (type !== "message_received") expect(text).toContain("your pet");
+    expect(rawSentence(container)).not.toContain("{"); // no raw placeholder ever leaks
+    expect(rawSentence(container)).not.toContain("  ");
+    expect(rawMeta(container)).not.toContain("·");
   });
 
-  // BUG: actorName uses `n.actor?.full_name ?? t("messages.unknownPerson")`. Nullish
-  // coalescing only catches null/undefined, so an actor row whose full_name is the
-  // empty string renders as an empty actor and the sentence gains a LEADING SPACE
-  // (" sent you a message"). MessageThread guards the same field correctly with
-  // `full_name?.trim() || t("messages.unknownPerson")`, so the two screens disagree
-  // about the same profile. Correct behaviour here would be the trim-then-|| form.
-  // src/components/NotificationBell.tsx:48 vs src/components/MessageThread.tsx:218.
-  it("renders a leading space instead of the unknown-person fallback for an empty actor name (current buggy behaviour)", async () => {
+  it.each([[""], ["   "]])("falls back to the unknown-person copy for an actor named %j", async (fullName) => {
     const user = userEvent.setup();
     setContext({
       loading: false,
-      notifications: [notif({ actor: profile({ full_name: "" }) })],
+      notifications: [notif({ actor: profile({ full_name: fullName }) })],
     });
     const { container } = renderTranslated("en");
     await openPanel(user);
-    // Read raw text: toHaveTextContent would normalise the leading space away.
-    expect(rawSentence(container)).toBe(" sent you a message");
-    expect(rawSentence(container)).not.toContain("Someone");
+    // Read raw text: toHaveTextContent would normalise a leading space away.
+    expect(rawSentence(container)).toBe("Someone sent you a message");
   });
 
-  it("also renders a leading space for a whitespace-only actor name (current buggy behaviour)", async () => {
-    const user = userEvent.setup();
-    setContext({
-      loading: false,
-      notifications: [notif({ actor: profile({ full_name: "   " }) })],
-    });
-    const { container } = renderTranslated("en");
-    await openPanel(user);
-    expect(rawSentence(container)).toBe("    sent you a message");
-  });
-
-  // BUG: booking_requested is the only type that interpolates {service}, and without
-  // the booking join `service` is deliberately set to "" rather than a raw key. That
-  // leaves a DOUBLE SPACE mid-sentence in both locales: "requested  for your pet".
-  // Correct behaviour would be a service-less variant of the string per locale.
-  // src/components/NotificationBell.tsx:58.
-  it("renders a doubled space in the English booking_requested sentence when the booking join is missing (current buggy behaviour)", async () => {
-    const user = userEvent.setup();
-    setContext({
-      loading: false,
-      notifications: [notif({ type: "booking_requested", booking: undefined })],
-    });
-    const { container } = renderTranslated("en");
-    await openPanel(user);
-    // container.textContent, not toHaveTextContent: the latter collapses whitespace
-    // and would report this sentence as perfectly fine.
-    expect(rawSentence(container)).toBe("Jonas Petraitis requested  for your pet");
-    expect(rawSentence(container)).toContain("  ");
-  });
-
-  it("renders a doubled space in the Lithuanian booking_requested sentence when the booking join is missing (current buggy behaviour)", async () => {
-    const user = userEvent.setup();
-    setContext({
-      loading: false,
-      notifications: [notif({ type: "booking_requested", booking: undefined })],
-    });
-    const { container } = renderTranslated("lt");
-    await openPanel(user);
-    expect(rawSentence(container)).toBe(
-      "Jonas Petraitis pateikė  užklausą augintiniui jūsų augintinis",
-    );
-  });
-
-  it("builds the Lithuanian booking_requested sentence with the localised service name when the booking is joined", async () => {
+  it("builds the Lithuanian booking_requested sentence with the actor as its only name", async () => {
     const user = userEvent.setup();
     setContext({
       loading: false,
@@ -598,9 +555,8 @@ describe("sentence building", () => {
     });
     const { container } = renderTranslated("lt");
     await openPanel(user);
-    expect(rawSentence(container)).toBe(
-      "Jonas Petraitis pateikė Šunų vedžiojimas užklausą augintiniui Rex",
-    );
+    expect(rawSentence(container)).toBe("Jonas Petraitis atsiuntė jums užklausą");
+    expect(rawMeta(container)).toMatch(/^Rex · Šunų vedžiojimas · /);
   });
 });
 
@@ -675,19 +631,20 @@ describe("row rendering", () => {
       loading: false,
       notifications: [notif({ created_at: new Date(Date.now() - 5 * 60_000).toISOString() })],
     });
-    renderBell();
+    const { container } = renderBell();
     await openPanel(user);
-    expect(screen.getByText("common.timeAgo.minutesAgo")).toBeInTheDocument();
+    // After the pet and the service on the line under the sentence.
+    expect(rawMeta(container)).toBe("Rex · common.services.walking · common.timeAgo.minutesAgo");
   });
 
   it("clamps a created_at in the future to the just-now copy", async () => {
     const user = userEvent.setup();
     setContext({ loading: false, notifications: [notif({ created_at: "2099-01-01T00:00:00Z" })] });
-    renderBell();
+    const { container } = renderBell();
     await openPanel(user);
     // timeAgo floors the elapsed seconds at 0, so a clock-skewed row never says
     // "-52560000m ago".
-    expect(screen.getByText(K.justNow)).toBeInTheDocument();
+    expect(rawMeta(container).endsWith(K.justNow)).toBe(true);
   });
 
   it("labels the row avatar with the same actor name the sentence uses", async () => {

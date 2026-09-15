@@ -5,9 +5,10 @@ import { Bell } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotifications } from "@/context/NotificationsContext";
-import { cn, timeAgo } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { fadeUp, stagger } from "@/lib/motion";
 import type { AppNotification } from "@/lib/types";
+import { notificationActor, notificationMeta, notificationSentence } from "@/lib/notification-text";
 import Avatar from "./Avatar";
 
 /**
@@ -45,18 +46,9 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
     };
   }, [open]);
 
-  const actorName = (n: AppNotification) => n.actor?.full_name ?? t("messages.unknownPerson");
-
-  // No display text is stored on the row: the sentence is rebuilt from the type
-  // plus the joined actor/booking/pet on every render, in the active locale.
-  const sentence = (n: AppNotification) =>
-    t(`messages.notifications.${n.type}`, {
-      actor: actorName(n),
-      pet: n.booking?.pet?.name ?? t("messages.notifications.fallbackPet"),
-      // Only booking_requested interpolates {service}; without the booking join it
-      // collapses to nothing rather than leaking a raw translation key.
-      service: n.booking?.service ? t(`common.services.${n.booking.service}`) : "",
-    });
+  // Shared with the dashboard's feed, so a notification reads the same in both places.
+  const actorName = (n: AppNotification) => notificationActor(n, t);
+  const sentence = (n: AppNotification) => notificationSentence(n, t);
 
   const openRow = (n: AppNotification) => {
     if (!n.read_at) void markRead([n.id]);
@@ -159,7 +151,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
                       <Avatar name={actorName(n)} url={n.actor?.avatar_url} size="sm" />
                       <div className="min-w-0 flex-1">
                         <p className="text-sm text-ink leading-snug">{sentence(n)}</p>
-                        <p className="text-xs text-ink-soft mt-0.5">{timeAgo(n.created_at, t)}</p>
+                        <p className="text-xs text-ink-soft mt-0.5">{notificationMeta(n, t)}</p>
                       </div>
                       {!n.read_at && (
                         <span aria-hidden="true" className="w-2 h-2 mt-1.5 rounded-full bg-brand flex-shrink-0" />

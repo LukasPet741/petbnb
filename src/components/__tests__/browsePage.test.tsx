@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import BrowsePage from "@/app/(app)/browse/page";
 
 /**
@@ -40,6 +40,50 @@ describe("/browse", () => {
   it("lists everyone when the link carries no filters", async () => {
     window.history.replaceState({}, "", "/browse");
     render(<BrowsePage />);
+    expect(await cards()).toHaveLength(4);
+  });
+});
+
+describe("/browse filter bar (variant A, 2026-09-15)", () => {
+  const pill = (service: string) => screen.getByRole("button", { name: new RegExp(`common\\.services\\.${service}`) });
+
+  it("says on each service pill how many sitters it would show, and filters when pressed", async () => {
+    window.history.replaceState({}, "", "/browse");
+    render(<BrowsePage />);
+    await cards();
+
+    expect(pill("grooming")).toHaveTextContent("3");
+    expect(pill("walking")).toHaveTextContent("1");
+
+    fireEvent.click(pill("walking"));
+    expect(pill("walking")).toHaveAttribute("aria-pressed", "true");
+    expect(await cards()).toEqual(["card:kaunas-walker"]);
+  });
+
+  it("sorts by lowest price", async () => {
+    window.history.replaceState({}, "", "/browse");
+    render(<BrowsePage />);
+    await cards();
+
+    fireEvent.change(screen.getByRole("combobox", { name: "appPages.browse.sortLabel" }), { target: { value: "price" } });
+    expect(await cards()).toEqual(["card:kaunas-walker", "card:kaunas-groomer", "card:kaunas-groomer-2", "card:vilnius-groomer"]);
+  });
+
+  it("caps the hourly price", async () => {
+    window.history.replaceState({}, "", "/browse");
+    render(<BrowsePage />);
+    await cards();
+
+    fireEvent.change(screen.getByRole("combobox", { name: "appPages.browse.priceLabel" }), { target: { value: "20" } });
+    expect(await cards()).toEqual(["card:kaunas-groomer", "card:kaunas-walker"]);
+  });
+
+  it("clears every filter at once", async () => {
+    window.history.replaceState({}, "", "/browse?service=grooming&city=kaunas");
+    render(<BrowsePage />);
+    await cards();
+
+    fireEvent.click(screen.getByRole("button", { name: "appPages.browse.clearAllButton" }));
     expect(await cards()).toHaveLength(4);
   });
 });

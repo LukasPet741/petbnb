@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +13,7 @@ import { type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
+import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
 
 export default function SavedPage() {
   const { t } = useLanguage();
@@ -36,6 +37,11 @@ export default function SavedPage() {
 
   // Reflect optimistic un-saving immediately.
   const visible = sitters.filter((s) => favorites.has(s.id));
+  // Photos are picked for the grid as it is laid out, so two neighbouring cards never share one,
+  // and remembered so a card's profile opens on the same picture. Keyed on the order, not the array.
+  const coverOrder = visible.map((s) => s.id).join(",");
+  const covers = useMemo(() => spreadCoverPhotos(visible), [coverOrder]);
+  useEffect(() => rememberCovers(covers), [covers]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -53,7 +59,7 @@ export default function SavedPage() {
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.07)} initial="hidden" animate="show">
           {visible.map((s) => (
             <motion.div key={s.id} variants={fadeUp} layout>
-              <SitterCard sitter={s} showFavorite rating={ratings.get(s.id) ?? null} />
+              <SitterCard sitter={s} showFavorite rating={ratings.get(s.id) ?? null} coverPhotoId={covers.get(s.id)} />
             </motion.div>
           ))}
         </motion.div>

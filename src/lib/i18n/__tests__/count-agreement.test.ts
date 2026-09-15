@@ -28,7 +28,9 @@ const COUNTING_KEYS = [
   "appPages.bookings.count",
   "appPages.pets.count",
   "appPages.collars.routeNotEnough",
-  "appShell.dashboard.summary.pendingCount",
+  "appShell.dashboard.saved.count",
+  "appShell.dashboard.hero.moreRequests",
+  "appShell.dashboard.feed.newCount",
   "sitters.reviews.count",
 ] as const;
 
