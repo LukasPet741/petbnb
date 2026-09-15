@@ -8,11 +8,16 @@ import { signIn, matchAuthErrorKey } from "@/lib/auth";
 import { AUTH } from "@/lib/images";
 import { fadeUp, stagger, slideRight } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { useRedirectIfSignedIn } from "@/hooks/useRedirectIfSignedIn";
+import { useNextPath } from "@/hooks/useNextPath";
+import { nextFromSearch, withNext } from "@/lib/next-path";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Logo from "@/components/Logo";
 
 export default function LoginClient() {
   const { t } = useLanguage();
+  useRedirectIfSignedIn();
+  const next = useNextPath();
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +31,7 @@ export default function LoginClient() {
     setLoading(true);
     try {
       await signIn(email, password);
-      router.push("/dashboard");
+      router.push(nextFromSearch(window.location.search) ?? "/dashboard");
     } catch (err: unknown) {
       const key = err instanceof Error ? matchAuthErrorKey(err.message) : null;
       setError(key ? t(key) : t("auth.login.errorFallback"));
@@ -36,7 +41,7 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-canvas flex">
+    <div className="min-h-[100dvh] flex">
       <LanguageSwitcher className="fixed top-4 right-4 z-10 glass-panel border rounded-full" />
       {/* Left - photography */}
       <motion.div
@@ -57,8 +62,9 @@ export default function LoginClient() {
       </motion.div>
 
       {/* Right - form */}
-      <motion.div className="flex-1 flex items-center justify-center p-6" variants={slideRight} initial="hidden" animate="show">
-        <motion.div className="w-full max-w-md" variants={stagger(0.09)} initial="hidden" animate="show">
+      <motion.div className="flex-1 flex items-center justify-center p-4 sm:p-6" variants={slideRight} initial="hidden" animate="show">
+        {/* The form rests on the ambient field as a glass card; the inputs inside stay solid. */}
+        <motion.div className="w-full max-w-md glass-card rounded-[var(--radius-card)] border p-5 sm:p-8" variants={stagger(0.09)} initial="hidden" animate="show">
           <motion.div variants={fadeUp} className="lg:hidden mb-8">
             <Logo size={36} showWordmark />
           </motion.div>
@@ -100,7 +106,7 @@ export default function LoginClient() {
 
           <motion.p variants={fadeUp} className="text-center text-sm text-ink-soft mt-6">
             {t("auth.login.noAccount")}{" "}
-            <Link href="/signup" className="text-brand font-medium hover:underline">{t("auth.login.createOneFree")}</Link>
+            <Link href={withNext("/signup", next)} className="text-brand font-medium hover:underline">{t("auth.login.createOneFree")}</Link>
           </motion.p>
           <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
             {t("auth.login.termsAgreementPrefix")} <Link href="/legal/terms" className="underline">{t("common.terms")}</Link>.

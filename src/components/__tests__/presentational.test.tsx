@@ -126,7 +126,7 @@ describe("EmptyState", () => {
     const { container } = render(<EmptyState icon={TestIcon} title="No bookings yet" />);
     expect(screen.getByText("No bookings yet")).toBeInTheDocument();
     expect(screen.getByTestId("icon")).toBeInTheDocument();
-    expect(container.firstElementChild).toHaveClass("bg-surface", "rounded-2xl", "text-center");
+    expect(container.firstElementChild).toHaveClass("glass-card", "rounded-2xl", "text-center");
   });
 
   it("sizes the caller's icon component through its className prop", () => {
@@ -349,41 +349,17 @@ describe("Logo", () => {
 });
 
 describe("Atmosphere", () => {
-  it("is hidden from assistive tech and inert to the pointer", () => {
+  it("is one empty element, hidden from assistive tech, styled by globals.css", () => {
+    // The blooms, the grain and the stacking all live in the .atmosphere rule, where
+    // glass-system.test.ts pins them. jsdom could not check them here anyway: its CSS
+    // parser drops radial-gradient() and data-URI backgrounds from inline styles.
     const { container } = render(<Atmosphere />);
+    expect(container.children).toHaveLength(1);
     const root = container.firstElementChild as HTMLElement;
     expect(root).toHaveAttribute("aria-hidden", "true");
-    expect(root.style.pointerEvents).toBe("none");
-    expect(root.style.position).toBe("fixed");
+    expect(root).toHaveClass("atmosphere");
+    expect(root.children).toHaveLength(0);
     // Nothing focusable and nothing readable: it is pure atmosphere.
     expect(container.textContent).toBe("");
-  });
-
-  it("stacks the bloom layer behind the grain layer, both behind the page", () => {
-    const { container } = render(<Atmosphere />);
-    const layers = Array.from(
-      (container.firstElementChild as HTMLElement).children,
-    ) as HTMLElement[];
-    expect(layers).toHaveLength(2);
-    expect(layers[0].style.zIndex).toBe("-2");
-    expect(layers[1].style.zIndex).toBe("-1");
-    // Negative z-index is what puts them behind the content of every page.
-    expect(layers.every((l) => l.style.pointerEvents === "none")).toBe(true);
-    expect(layers.every((l) => l.style.position === "fixed")).toBe(true);
-  });
-
-  it("blends the grain layer at a low opacity so it reads as paper, not texture", () => {
-    // Only the properties jsdom can actually represent are asserted here.
-    // Its CSS parser silently drops both the `background` shorthand carrying
-    // radial-gradient() and the `background-image` data URI - they do not even
-    // survive into the style attribute - so the bloom gradients and the grain
-    // SVG cannot be checked in this environment. The visual layering contract
-    // is covered by the z-index/position test above instead.
-    const { container } = render(<Atmosphere />);
-    const [, grain] = Array.from(
-      (container.firstElementChild as HTMLElement).children,
-    ) as HTMLElement[];
-    expect(grain.style.mixBlendMode).toBe("overlay");
-    expect(grain.style.opacity).toBe("0.045");
   });
 });

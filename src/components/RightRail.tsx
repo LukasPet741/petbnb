@@ -43,7 +43,7 @@ export default function RightRail({ showNextBooking = true }: { showNextBooking?
   return (
     <aside className="hidden lg:block space-y-6">
       {showNextBooking && (
-        <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5">
+        <div className="glass-card rounded-2xl border p-5">
           <h3 className="text-sm font-semibold text-ink mb-3">{t("appShell.rightRail.nextBooking")}</h3>
           {next ? (
             <Link href="/bookings" className="flex items-center gap-3">

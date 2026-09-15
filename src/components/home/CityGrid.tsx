@@ -40,7 +40,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
             <p className="text-ink-soft">{t("home.cities.subtitle")}</p>
           </div>
           <Link
-            href="/sitters"
+            href="/browse"
             className="min-h-[44px] inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:gap-2.5 transition-all whitespace-nowrap"
           >
             {t("home.cities.seeAll")} <ArrowRight className="w-4 h-4" />
@@ -52,7 +52,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
             {CELLS.map((cell, i) => (
               <div
                 key={i}
-                className={`${cell} min-h-[140px] rounded-[var(--radius-card)] bg-surface-2 animate-pulse`}
+                className={`${cell} min-h-[140px] rounded-[var(--radius-card)] bg-white/50 animate-pulse`}
               />
             ))}
           </div>
@@ -88,9 +88,12 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
                   className={CELLS[i]}
                 >
                   <Link
-                    href={`/sitters?city=${encodeURIComponent(city.name)}`}
-                    className={`group relative flex h-full min-h-[140px] flex-col justify-end overflow-hidden rounded-[var(--radius-card)] border border-black/5 p-5 shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)] ${
-                      lead ? "text-white" : "bg-surface text-ink"
+                    href={`/browse?city=${encodeURIComponent(city.name)}`}
+                    // Two complete recipes, not a shared border colour plus a variant:
+                    // .glass-card sets its own border and shadow, and two utilities setting
+                    // one property are ordered by the bundle, not by this attribute.
+                    className={`group relative flex h-full min-h-[140px] flex-col justify-end overflow-hidden rounded-[var(--radius-card)] border p-5 transition-shadow hover:shadow-[var(--shadow-md)] ${
+                      lead ? "border-black/5 text-white shadow-[var(--shadow-sm)]" : "glass-card text-ink"
                     }`}
                   >
                     {/* The lead cell carries a photograph so the grid is not five

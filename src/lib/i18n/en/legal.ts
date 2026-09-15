@@ -10,6 +10,7 @@
 
 const legal = {
   backLink: "Back to home",
+  backToDashboard: "Back to dashboard",
   nav: {
     terms: "Terms",
     privacy: "Privacy",

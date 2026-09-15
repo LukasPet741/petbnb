@@ -4,50 +4,65 @@ const home = {
     titleLine1: "Care from people",
     titleLine2: "who live nearby.",
     subtitle:
-      "Walking, boarding, daycare and grooming, arranged directly with a sitter in your own city.",
+      "Dog walking, boarding, daycare and grooming, arranged directly with someone in your own city.",
     searchButton: "Find sitters",
     cityPlaceholder: "Your city",
     photoAlt: "A dog being looked after by a sitter in Lithuania",
   },
   services: {
     railLabel: "Browse by service",
-    title: "Four things a sitter can do",
-    subtitle: "Every card opens the sitters offering it, filtered to your city.",
+    eyebrow: "Services",
+    title: "What does your pet need?",
     items: {
       walking: {
-        desc: "A sitter comes to you and takes your dog out, usually for 30 to 60 minutes around your own streets and parks. The most common booking here, and the easiest place to start with someone new.",
+        line: "30–60 min around your neighbourhood",
+        point1: "The walker comes to you",
+        point2: "30 to 60 minutes on your own streets",
+        point3: "Short, so a good first meeting",
+        cta: "Find a dog walker",
       },
       boarding: {
-        desc: "Your pet stays overnight at the sitter's home while you are away. You agree drop-off and pick-up directly, and most sitters ask to meet the animal once before the first night.",
+        line: "While you're away",
+        point1: "Overnight at the sitter's home",
+        point2: "You arrange drop-off together",
+        point3: "Meet them first",
+        cta: "Find a sitter",
       },
       daycare: {
-        desc: "Daytime care at the sitter's place while you work, then home in the evening. Suited to animals that do not settle on their own, and to long days you cannot break up.",
+        line: "Days at the sitter's, home by evening",
+        point1: "While you're at work or away for the day",
+        point2: "For pets who don't like being alone",
+        point3: "Back home the same evening",
+        cta: "Find a sitter",
       },
       grooming: {
-        desc: "Washing, brushing, nail trimming and coat work. The most skill-dependent service on the site, so read the bio and ask what breeds and coats the sitter has handled before.",
+        line: "Bathing, trimming, nails",
+        point1: "Coat care suited to the breed",
+        point2: "Ask which breeds they have groomed",
+        point3: "Only a few offer it so far",
+        cta: "Find a groomer",
       },
     },
   },
 
   honest: {
-    title: "What this site does, and what it doesn't",
-    subtitle: "Most marketplaces bury this in a terms page. Ours is short enough to read here.",
+    title: "What we do, and what we don't",
     points: {
       fees: {
-        title: "No fees, no payments",
-        body: "PetBnB takes no commission and processes no money. Sitters set their own rate and you settle it between yourselves, away from the platform. Nothing here ever asks for card details.",
+        title: "PetBnB charges nothing",
+        body: "No commission, and the site never handles money. You pay whoever does the job, directly.",
       },
       vetting: {
-        title: "We do not vet sitters",
-        body: "No background checks, no interviews, no verified badges. Everything on a profile was written by that sitter. Meet before you book, and ask what you would ask anyone minding your animal.",
+        title: "We don't check profiles",
+        body: "Everything on a profile was written by that person. Meet before you book.",
       },
       insurance: {
-        title: "No insurance, no guarantee",
-        body: "If something goes wrong there is no cover behind it and no claims process. Bigger platforms offer one. This is a student project and does not, so the risk stays with you and the sitter.",
+        title: "No insurance",
+        body: "This is a university project: if something goes wrong, there is no cover behind it.",
       },
       data: {
-        title: "Your data stays in the EU",
-        body: "Accounts, pets and messages live in a Postgres database in Frankfurt. There is no analytics package, no tracking pixel and nobody measuring your visit.",
+        title: "Database in the EU",
+        body: "Accounts, pets and messages are stored in Frankfurt. No analytics, no tracking pixels.",
       },
     },
     termsLink: "Read the full terms",
@@ -56,7 +71,7 @@ const home = {
   cities: {
     title: "Start with your city",
     subtitle:
-      "Every sitter below signed up on their own. We are early, so some cities are still small.",
+      "We are early, so some cities are still small.",
     seeAll: "All cities",
     sitterCount: {
       one: "{count} sitter",
@@ -70,7 +85,7 @@ const home = {
   },
   voices: {
     title: "In their own words",
-    subtitle: "Every line here was written by the sitter who signed it.",
+    subtitle: "Lines taken from sitter profiles.",
     seeAll: "See all sitters",
     openProfile: "Open {name}'s profile",
     errorTitle: "Couldn't load sitters right now",
@@ -94,7 +109,7 @@ const home = {
       },
       confirm: {
         title: "They confirm",
-        desc: "Your sitter accepts the request and takes it from there.",
+        desc: "The sitter accepts, and you agree the details in messages.",
         note: "Sitters keep what they charge. PetBnB adds nothing on top.",
       },
     },
@@ -103,7 +118,7 @@ const home = {
     titleLine1: "Love animals?",
     titleLine2: "Earn doing it.",
     subtitle:
-      "PetBnB is a small Lithuanian project, still finding its first regulars. List yourself, set your own rate, and keep everything you charge.",
+      "PetBnB is a university project, not a company. List yourself, set your own rate, and keep everything you charge.",
     perks: {
       ownRate: "Set your own rate",
       chooseServices: "Choose your services",
@@ -118,7 +133,7 @@ const home = {
     items: {
       howItWorks: {
         q: "How does PetBnB work?",
-        a: "Browse local sitters, open a profile, and send a booking request for the dates and service you need. The sitter reviews it and either confirms or declines, and you can message each other here while you sort out the details. Nothing is charged and nothing is binding until you both agree.",
+        a: "Browse local sitters, open a profile, and send a booking request for the dates and service you need. The sitter reviews it and either confirms or declines, and you can message each other here while you sort out the details. PetBnB never charges anything, and a request binds nobody until you both agree.",
       },
       cost: {
         q: "How much does it cost?",

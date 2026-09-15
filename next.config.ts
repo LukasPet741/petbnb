@@ -98,6 +98,12 @@ const nextConfig: NextConfig = {
       // /legal/{terms,privacy}. Redirects are checked ahead of the filesystem,
       // so bookmarks and anything already linking to the old path still land.
       { source: "/terms", destination: "/legal/terms", permanent: true },
+      // Finding sitters needs an account since 2026-09-15: the public directory and profiles
+      // were removed, and their shared links, bookmarks and search results now land in the
+      // signed-in directory (the app shell sends a signed-out visitor to log in first, and
+      // back). Temporary on purpose, so browsers do not cache it if the decision changes.
+      { source: "/sitters", destination: "/browse", permanent: false },
+      { source: "/sitters/:id", destination: "/browse/:id", permanent: false },
     ];
   },
 };

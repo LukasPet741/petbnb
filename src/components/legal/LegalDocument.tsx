@@ -31,7 +31,7 @@ export default function LegalDocument({
         {sections.map((id) => (
           <section
             key={id}
-            className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6"
+            className="glass-card rounded-2xl border p-6"
           >
             <h2 className="font-semibold text-ink mb-2.5">
               {t(`legal.${doc}.sections.${id}.heading`)}

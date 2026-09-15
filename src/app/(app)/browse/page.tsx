@@ -11,6 +11,8 @@ import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 import { pluralForm } from "@/lib/i18n/plural";
+import { filtersFromSearch, sameCity } from "@/lib/browse-filters";
+import { normaliseCity } from "@/lib/utils";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
@@ -32,11 +34,18 @@ export default function BrowsePage() {
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
   useEffect(() => {
+    // The landing page's links arrive here filtered (?service=, ?city=) since the public
+    // directory went behind login.
+    const fromLink = filtersFromSearch(window.location.search);
+    if (fromLink.service) setService(fromLink.service);
+    if (fromLink.city) setCity(fromLink.city);
+
     supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).then(({ data }) => {
       const rows = (data ?? []) as Profile[];
       setSitters(rows);
-      const unique = ["All cities", ...Array.from(new Set(rows.map((s) => s.city).filter(Boolean)))];
-      setCities(unique as string[]);
+      // Display form, so production's "kaunas" and "Kaunas" are one option, not two.
+      const names = rows.map((s) => (s.city ? normaliseCity(s.city) : null)).filter((c): c is string => Boolean(c));
+      setCities(["All cities", ...Array.from(new Set(names))]);
       setLoading(false);
     });
     try {
@@ -54,7 +63,7 @@ export default function BrowsePage() {
 
   const filtered = sitters.filter((s) => {
     if (search && !s.full_name?.toLowerCase().includes(search.toLowerCase())) return false;
-    if (city !== "All cities" && s.city !== city) return false;
+    if (city !== "All cities" && !sameCity(s.city, city)) return false;
     if (service && !s.services?.[service]) return false;
     if (s.rate_per_hour && s.rate_per_hour > maxRate) return false;
     return true;
@@ -100,7 +109,7 @@ export default function BrowsePage() {
       <AnimatePresence>
         {showFilters && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden mb-4">
-            <div className="bg-surface rounded-2xl border border-black/5 p-5 sm:p-6 shadow-[var(--shadow-sm)]">
+            <div className="glass-card rounded-2xl border p-5 sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <div>
                   <label className="block text-xs font-medium text-ink-soft uppercase tracking-wide mb-2">{t("appPages.browse.cityLabel")}</label>
@@ -146,10 +155,10 @@ export default function BrowsePage() {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-surface rounded-2xl border border-black/5 h-56 animate-pulse" />)}
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-white/50 rounded-2xl border border-white/60 h-56 animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-surface rounded-2xl border border-black/5 p-16 text-center">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-2xl border p-16 text-center">
           <div className="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center mx-auto mb-4"><Search className="w-7 h-7 text-brand" /></div>
           <p className="text-ink font-medium">{t("appPages.browse.emptyTitle")}</p>
           <p className="text-ink-soft text-sm mt-1">{t("appPages.browse.emptyDescription")}</p>

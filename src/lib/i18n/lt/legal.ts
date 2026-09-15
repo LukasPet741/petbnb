@@ -10,6 +10,7 @@
 
 const legal = {
   backLink: "Grįžti į pradžią",
+  backToDashboard: "Grįžti į skydelį",
   nav: {
     terms: "Taisyklės",
     privacy: "Privatumas",

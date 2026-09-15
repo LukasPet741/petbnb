@@ -260,7 +260,7 @@ export default function CollarsPanel() {
 
   return (
     <div
-      className="bg-surface rounded-2xl p-6 sm:p-7"
+      className="glass-card rounded-2xl p-6 sm:p-7"
       style={{ boxShadow: "var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 0 0 1px rgb(31 92 71 / 0.08)" }}
     >
       <div className="flex items-center justify-between mb-5">

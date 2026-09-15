@@ -57,7 +57,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-[100dvh] bg-canvas">
+    <div className="min-h-[100dvh]">
       <PublicHeader />
       <main>
         <Hero />

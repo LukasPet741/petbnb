@@ -161,7 +161,7 @@ export default function MessagesPage() {
               <motion.div key={thread.booking.id} variants={fadeUp}>
                 <Link
                   href={`/messages/${thread.booking.id}`}
-                  className="flex items-start gap-4 bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-4 sm:p-5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:-translate-y-px active:shadow-[var(--shadow-sm)]"
+                  className="flex items-start gap-4 glass-card rounded-2xl border p-4 sm:p-5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:-translate-y-px active:shadow-[var(--shadow-sm)]"
                 >
                   <Avatar name={name} url={thread.counterparty?.avatar_url} size="lg" />
                   <div className="min-w-0 flex-1">

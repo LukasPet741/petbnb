@@ -79,7 +79,7 @@ describe("attribution", () => {
     render(<SitterVoices sitters={[sitter({ id: "abc-123" })]} status="ready" />);
     expect(screen.getByRole("link", { name: /home\.voices\.openProfile/ })).toHaveAttribute(
       "href",
-      "/sitters/abc-123"
+      "/browse/abc-123"
     );
   });
 
@@ -95,7 +95,7 @@ describe("attribution", () => {
     render(<SitterVoices sitters={[sitter()]} status="ready" />);
     expect(screen.getByRole("link", { name: /home\.voices\.seeAll/ })).toHaveAttribute(
       "href",
-      "/sitters"
+      "/browse"
     );
   });
 });

@@ -66,7 +66,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       <motion.div
         layout
         exit={{ opacity: 0, scale: 0.97 }}
-        className="bg-surface rounded-[var(--radius-card)] overflow-hidden grid grid-cols-1 sm:grid-cols-[180px_1fr]"
+        className="glass-card border rounded-[var(--radius-card)] overflow-hidden grid grid-cols-1 sm:grid-cols-[180px_1fr]"
         style={{ boxShadow: ELEVATED_SHADOW }}
       >
         <div className="relative h-40 sm:h-full">
@@ -132,7 +132,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
 
   // Resolved: a record, not a decision. Flat, compact, quiet — one small housekeeping action at most.
   return (
-    <motion.div layout exit={{ opacity: 0, scale: 0.97 }} className="bg-surface border border-black/5 rounded-[var(--radius-card)] px-4 py-3">
+    <motion.div layout exit={{ opacity: 0, scale: 0.97 }} className="glass-card border rounded-[var(--radius-card)] px-4 py-3">
       <div className="flex items-center gap-3">
       {photo ? (
         <img src={photo} alt={booking.pet?.name ?? ""} className="w-11 h-11 rounded-[var(--radius-input)] object-cover flex-shrink-0" />

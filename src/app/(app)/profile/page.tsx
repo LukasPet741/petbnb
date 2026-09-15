@@ -15,6 +15,7 @@ import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { normaliseCity } from "@/lib/utils";
+import { nextFromSearch } from "@/lib/next-path";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -65,6 +66,10 @@ export default function ProfilePage() {
     }).eq("id", user.id);
     if (err) { setError(err.message); setSaving(false); return; }
     await refresh();
+    // Finishing the profile is the login wall's last step for a new account: continue to
+    // the page the visitor was heading for (?next=, set by the app shell's bounce), if any.
+    const next = nextFromSearch(window.location.search);
+    if (next) { router.push(next); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
     setSaving(false);
@@ -92,7 +97,7 @@ export default function ProfilePage() {
       />
 
       {/* Avatar card */}
-      <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 mb-6">
+      <div className="glass-card rounded-2xl border p-6 mb-6">
         <div className="flex items-start gap-5">
           <ImageUpload
             userId={user?.id ?? ""}
@@ -158,7 +163,7 @@ export default function ProfilePage() {
         <AnimatePresence mode="wait">
           {tab === "personal" && (
             <motion.div key="personal" variants={stagger(0.07)} initial="hidden" animate="show" exit={{ opacity: 0, y: 8 }}
-              className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
+              className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
               {[
                 { label: t("appPages.profile.fullNameLabel"), type: "text", key: "full_name", placeholder: t("appPages.profile.fullNamePlaceholder"), req: true },
                 { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true },
@@ -205,7 +210,7 @@ export default function ProfilePage() {
           {tab === "sitter" && (
             <motion.div key="sitter" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.25 }} className="space-y-5">
               {/* Toggle */}
-              <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5 flex items-center justify-between gap-4">
+              <div className="glass-card rounded-2xl border p-5 flex items-center justify-between gap-4">
                 <div>
                   <div className="font-medium text-ink">{t("appPages.profile.sitterModeLabel")}</div>
                   <div className="text-sm text-ink-soft mt-0.5">{isSitter ? t("appPages.profile.sitterModeOnDescription") : t("appPages.profile.sitterModeOffDescription")}</div>
@@ -221,7 +226,7 @@ export default function ProfilePage() {
                 {isSitter && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }} className="overflow-hidden">
-                    <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
+                    <div className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
                       <div>
                         <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
                         <textarea value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}

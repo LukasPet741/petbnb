@@ -12,7 +12,7 @@ export default function Faq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="border-t border-black/5 bg-surface py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-2xl mx-auto px-4">
         <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink mb-8 text-center tracking-tight">
           {t("home.faq.title")}
@@ -21,7 +21,7 @@ export default function Faq() {
           {ITEMS.map((key, i) => {
             const expanded = open === i;
             return (
-              <div key={key} className="overflow-hidden rounded-[var(--radius-input)] border border-black/5 bg-canvas">
+              <div key={key} className="overflow-hidden rounded-[var(--radius-input)] glass-card border">
                 <button
                   type="button"
                   onClick={() => setOpen(expanded ? null : i)}

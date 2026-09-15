@@ -240,10 +240,12 @@ describe("dynamic key templates resolve in both languages", () => {
     }
   });
 
-  it("resolves a description for every service card", () => {
-    // ServiceCards builds t(`home.services.items.${key}.desc`) from the ServiceType
+  it("resolves every text on every service tile", () => {
+    // ServiceCards builds t(`home.services.items.${key}.${part}`) from the ServiceType
     // union. A miss prints the raw dot-path onto the landing page.
-    expectAllResolve("home.services.items", SERVICES, ".desc");
+    for (const part of ["line", "point1", "point2", "point3", "cta"]) {
+      expectAllResolve("home.services.items", SERVICES, `.${part}`);
+    }
   });
 
   it("resolves title and body for every honest-block point", () => {

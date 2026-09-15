@@ -20,7 +20,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
   const voices = pickVoices(sitters, MAX_VOICES);
 
   return (
-    <section className="border-y border-black/5 bg-surface py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div className="max-w-lg">
@@ -30,7 +30,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
             <p className="text-ink-soft">{t("home.voices.subtitle")}</p>
           </div>
           <Link
-            href="/sitters"
+            href="/browse"
             className="min-h-[44px] inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:gap-2.5 transition-all whitespace-nowrap"
           >
             {t("home.voices.seeAll")} <ArrowRight className="w-4 h-4" />
@@ -42,7 +42,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
             {Array.from({ length: MAX_VOICES }).map((_, i) => (
               <div
                 key={i}
-                className="mb-5 break-inside-avoid h-40 rounded-[var(--radius-card)] bg-canvas animate-pulse"
+                className="mb-5 break-inside-avoid h-40 rounded-[var(--radius-card)] bg-white/50 animate-pulse"
               />
             ))}
           </div>
@@ -78,9 +78,9 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
                   className="mb-5 break-inside-avoid"
                 >
                   <Link
-                    href={`/sitters/${sitter.id}`}
+                    href={`/browse/${sitter.id}`}
                     aria-label={t("home.voices.openProfile", { name })}
-                    className="group block rounded-[var(--radius-card)] border border-black/5 bg-canvas p-6 shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]"
+                    className="group block rounded-[var(--radius-card)] glass-card border p-6 transition-shadow hover:shadow-[var(--shadow-md)]"
                   >
                     <blockquote
                       className={`text-ink line-clamp-3 ${

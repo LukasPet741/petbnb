@@ -34,12 +34,12 @@ interface Pet { id: string; name: string; }
  *
  * globals.css states the rule: glass only where something varied actually passes
  * behind it, because over flat --canvas there is nothing to refract and it renders
- * grey. Two things supply that here. The app layout already paints an ambient field
- * behind every screen -- three large blurred colour blobs, (app)/layout.tsx -- which
- * the old opaque cards simply covered up. And the sitter's own avatar is blown up and
- * blurred behind the WHOLE grid, not just their card, so the form panel and the
- * summary both have colour to sample. Without that second layer the wide column lands
- * between the layout's blobs and the glass reads as plain white.
+ * grey. Two things supply that here. The root layout paints one ambient field behind
+ * every page -- the soft blooms of components/Atmosphere.tsx -- which the old opaque
+ * cards simply covered up. And the sitter's own avatar is blown up and blurred behind
+ * the WHOLE grid, not just their card, so the form panel and the summary both have
+ * colour to sample. These panels are .glass-panel, the heavier tint, so without that
+ * second layer they would read as plain white.
  *
  * NO ENTRANCE ANIMATION ON GLASS. Every variant in lib/motion.ts animates opacity,
  * and an ancestor with opacity < 1 becomes a backdrop root -- the blur samples nothing
@@ -197,20 +197,14 @@ function NewBookingForm() {
 
   return (
     <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14 pb-32">
-      {/* The colour the glass panels refract.
-          NOT an image. The first attempt blurred the sitter's avatar inside a box with
-          overflow-hidden, and a blur clipped by its own container leaves hard straight
-          edges -- measured at 1024x512, cutting a visible line across the middle of the
-          form panel. It also upscaled a 128px thumbnail twelvefold, which reads as a
-          smear rather than as light.
-          Circles blurred inside a viewport-sized layer have no such edge, which is
-          exactly how the ambient field in (app)/layout.tsx is built: clipping at the
-          viewport boundary is invisible, clipping mid-content is what looked broken.
-          Tints and opacities are the ones already proven there. */}
+      {/* The colour the glass panels refract, on top of the site-wide field.
+          The first attempt blurred the sitter's avatar inside a box with overflow-hidden,
+          and a blur clipped by its own container leaves hard straight edges -- measured at
+          1024x512, cutting a visible line across the middle of the form panel. Inside a
+          viewport-sized fixed layer the only clip is at the viewport boundary, where it is
+          invisible. This layer used to carry three palette blobs as well; the root
+          layout's Atmosphere now supplies that field for every page. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[46rem] h-[46rem] rounded-full bg-brand/10 blur-3xl" />
-        <div className="absolute top-56 -right-32 w-[34rem] h-[34rem] rounded-full bg-amber/15 blur-3xl" />
-        <div className="absolute -bottom-40 left-1/4 w-[32rem] h-[32rem] rounded-full bg-brand-soft/40 blur-3xl" />
         {/* The sitter's own colour, which is what actually makes the glass read as
             glass -- palette blobs alone leave the panels on near-flat canvas. A CIRCLE,
             not the earlier rectangle: a blurred circle has no straight edge to give

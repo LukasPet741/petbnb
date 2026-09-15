@@ -86,11 +86,11 @@ export default function EditPetPage() {
       <p className="text-ink-soft text-sm mt-2 mb-8">{t("appPages.petsEdit.subtitle")}</p>
 
       {notFound ? (
-        <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 text-sm text-ink-soft">
+        <div className="glass-card rounded-2xl border p-6 text-sm text-ink-soft">
           {t("appPages.petsEdit.notFound")}
         </div>
       ) : !initial ? (
-        <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 text-sm text-ink-soft">
+        <div className="glass-card rounded-2xl border p-6 text-sm text-ink-soft">
           {t("appPages.pets.loadingText")}
         </div>
       ) : (

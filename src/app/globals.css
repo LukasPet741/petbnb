@@ -51,6 +51,30 @@
   --glass-saturate: 1.6;
   --glass-border: rgb(19 26 23 / 0.08);    /* matches the existing border-ink/8 hairline */
   --glass-sheen: inset 0 1px 0 rgb(255 255 255 / 0.55); /* specular top edge */
+
+  /* .glass-card — a reading card resting on the ambient field. Far lighter than
+     --glass-tint-panel: that one sits on photographs and has to hold text over anything,
+     while the field behind a card is soft, pale and known. The white rim is what makes
+     the edge read as glass catching light rather than as a grey outline. */
+  --glass-tint-card: rgb(255 255 255 / 0.6);
+  --glass-blur-card: 14px;
+  --glass-border-card: rgb(255 255 255 / 0.7);
+
+  /* The ambient field behind every page (.atmosphere, below). Tame on purpose: each
+     bloom is a brand hue at low alpha, so the page reads as light falling on paper and
+     the glass cards have colour to sample, without the field becoming a picture. Tune
+     the whole site's backdrop here.
+
+     The ceiling is CONTRAST, not taste. Section subtitles are --ink-soft set straight on
+     the field, and a darker bloom darkens the ground under them. At these values the
+     worst point anywhere in the viewport keeps --ink-soft at 4.55:1; pine at 0.24 (tried
+     in the browser, and it looked lovely) drops it to 3.97:1. glass-system.test.ts
+     recomputes this from the rule below and fails under 4.5:1. */
+  --aurora-pine: rgb(31 92 71 / 0.16);    /* --brand */
+  --aurora-amber: rgb(220 154 53 / 0.22); /* --amber */
+  --aurora-slate: rgb(63 100 114 / 0.16); /* --slate */
+  --aurora-mist: rgb(31 92 71 / 0.11);    /* --brand, fainter */
+  --aurora-grain: 0.045;
 }
 
 @theme inline {
@@ -81,16 +105,24 @@
 /* ---------------------------------------------------------------------------
    Glass materials.
 
-   Four roles, deliberately named, because before this there were five accidental
+   Six roles, deliberately named, because before this there were five accidental
    recipes across seven surfaces and every new surface invented a sixth.
 
-     .glass        chrome that page content scrolls beneath — headers, sticky bars
-     .glass-panel  a panel floating over varied content — photos, map tiles
-     .glass-chip   a light frosted chip sitting directly on imagery
-     .glass-scrim  the dim behind a modal or drawer
+     .glass            chrome that page content scrolls beneath — headers, sticky bars
+     .glass-panel      a panel floating over varied content — photos, map tiles
+     .glass-card       a reading card resting on the ambient field — the default card
+     .glass-chip       a light frosted chip sitting directly on dark imagery
+     .glass-chip-dark  a dimmed chip carrying white text on a BRIGHT photograph
+     .glass-scrim      the dim behind a modal or drawer
 
    Rule of use: glass only where something varied actually passes behind it. Over
-   flat --canvas there is nothing to refract and it just renders grey.
+   flat --canvas there is nothing to refract and it just renders grey — which is why
+   every page now sits on .atmosphere, and why nothing may paint opaque --canvas over it.
+
+   Not glass, on purpose: form inputs (text over moving colour is harder to read),
+   dropdowns, toasts and dialogs (they sit over content, not over the field), and the
+   dark ink blocks — the landing page's closing call to action and the footer — which
+   would only turn grey.
 
    Written as @utility (Tailwind v4) rather than in tailwind.config.ts, which is
    DEAD in this project: there is no @config directive, so v4 never loads it.
@@ -114,11 +146,33 @@
   backdrop-filter: blur(var(--glass-blur-panel)) saturate(var(--glass-saturate));
 }
 
+/* No box-shadow of its own beyond the small one: a page carries dozens of these, and a
+   stack of medium shadows over a pale field reads as clutter rather than depth. Hover
+   states still layer --shadow-md on top, because a hover utility outranks this one. */
+@utility glass-card {
+  background-color: var(--glass-tint-card);
+  border-color: var(--glass-border-card);
+  box-shadow: var(--glass-sheen), var(--shadow-sm);
+  backdrop-filter: blur(var(--glass-blur-card)) saturate(var(--glass-saturate));
+}
+
 /* A light frosted chip sitting directly ON imagery — not a reading surface, so it
    can stay far more transparent than .glass-panel. Holds white content against a
    photo (the dashboard avatar), where an opaque plate would look pasted on. */
 @utility glass-chip {
   background-color: rgb(255 255 255 / 0.18);
+  backdrop-filter: blur(10px) saturate(var(--glass-saturate));
+}
+
+/* White text or an icon on a daylight photograph — the profile cover's service caption,
+   the landing page's service-card icons. .glass-chip's 18% white is right on the dashboard
+   banner, which is already darkened; on a bright photo white-on-white-frost fails.
+   Apple's clear material suggests a 35% dim, but that is not enough here: 0.6 is the
+   lowest ink alpha that keeps white text at 4.5:1 even if the blurred backdrop is pure
+   white, which a sky or a white dog can be. */
+@utility glass-chip-dark {
+  background-color: rgb(19 26 23 / 0.6);
+  border-color: rgb(255 255 255 / 0.18);
   backdrop-filter: blur(10px) saturate(var(--glass-saturate));
 }
 
@@ -139,7 +193,9 @@
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass { background-color: var(--canvas); }
   .glass-panel { background-color: var(--surface); }
+  .glass-card { background-color: var(--surface); border-color: var(--glass-border); }
   .glass-chip { background-color: rgb(19 26 23 / 0.45); }
+  .glass-chip-dark { background-color: rgb(19 26 23 / 0.72); }
   .glass-scrim { background-color: rgb(19 26 23 / 0.6); }
 }
 
@@ -155,8 +211,18 @@
     background-color: var(--surface);
     backdrop-filter: none;
   }
+  /* The white rim vanishes against an opaque white card; fall back to the ink hairline. */
+  .glass-card {
+    background-color: var(--surface);
+    border-color: var(--glass-border);
+    backdrop-filter: none;
+  }
   .glass-chip {
     background-color: rgb(19 26 23 / 0.45);
+    backdrop-filter: none;
+  }
+  .glass-chip-dark {
+    background-color: rgb(19 26 23 / 0.72);
     backdrop-filter: none;
   }
   .glass-scrim {
@@ -199,6 +265,45 @@ body {
   /* No pull-to-refresh: a stray downward drag in a message thread must not reload
      the page and discard the unsent draft. */
   overscroll-behavior-y: none;
+}
+
+/* The ambient field: one fixed layer behind every page, mounted once by the root layout
+   (components/Atmosphere.tsx). Tokens are the --aurora-* set in :root.
+
+   z-index -1 is load-bearing. position: fixed always creates a stacking context, and with
+   z-index auto that context is painted in the positioned layer — ABOVE every
+   non-positioned section. The previous version did exactly that: in Chrome it hit-tested
+   above the landing page's content and tinted it like a veil. At -1 the whole layer paints
+   between the canvas (body's background) and the page.
+
+   Gradients, not blurred circles: blur-3xl on a 40rem element is a large filter to
+   rasterise, a radial-gradient is a plain background, and it has no clip edge to give
+   away. Sized in percentages of the viewport so the composition holds from a phone to a
+   wide screen. The 100lvh height covers the strip a mobile browser's collapsing toolbar
+   uncovers; where lvh is unsupported the declaration drops and inset alone fills. */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  height: 100lvh;
+  z-index: -1;
+  pointer-events: none;
+  /* Centres sit INSIDE the viewport, not on its edge: a bloom centred off-screen loses
+     half its area, and the first version, placed that way, barely registered. */
+  background:
+    radial-gradient(55% 60% at 85% 8%, var(--aurora-pine), transparent 72%),
+    radial-gradient(45% 55% at 6% 48%, var(--aurora-amber), transparent 72%),
+    radial-gradient(50% 55% at 22% 100%, var(--aurora-slate), transparent 72%),
+    radial-gradient(40% 50% at 96% 72%, var(--aurora-mist), transparent 72%);
+}
+
+/* Grain, so the field reads as paper catching light rather than as a flat gradient. */
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--aurora-grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {

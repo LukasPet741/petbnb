@@ -131,7 +131,7 @@ export default function Sidebar() {
       </header>
 
       {/* Desktop fixed sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 bg-surface border-r border-ink/8 flex-col p-4 z-40">
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 glass border-r flex-col p-4 z-40">
         {Inner}
       </aside>
 

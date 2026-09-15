@@ -1,3 +1,6 @@
+import type { ServiceType } from "@/lib/types";
+import { offeredServices } from "@/lib/services";
+
 // Curated, verified imagery for the marketing/auth surfaces.
 // All URLs HEAD-checked to return 200. Real user/sitter/pet photos live in
 // the database (profiles.avatar_url / pets.photo_url); this module only holds
@@ -28,3 +31,44 @@ export const AUTH = {
   login: p("photo-1543466835-00a7907e9de1", 1000, 1400), // dog portrait
   signup: p("photo-1583337130417-3346a1be7dee", 1000, 1400), // dog, cozy
 };
+
+/**
+ * One photograph per service, for surfaces that show WHAT a sitter does rather than
+ * WHO they are: the profile cover and the landing page's service cards.
+ *
+ * Sitters upload an avatar and nothing else, so a profile cover cannot be of them. A
+ * picture of the service, captioned with its name, is honest where a stock "sitter"
+ * would not be. Each was picked by looking at it, and all four return 200 (checked
+ * 2026-09-14); the grooming frame is new, the other three were already on the site.
+ */
+export const SERVICE_PHOTO_ID: Record<ServiceType, string> = {
+  walking: "photo-1548199973-03cce0bbc87b", // two dogs out on a path
+  boarding: "photo-1494256997604-768d1f608cac", // a cat under a blanket at home
+  daycare: "photo-1444212477490-ca407925329e", // three puppies together
+  grooming: "photo-1719464454959-9cf304ef4774", // a poodle being trimmed
+};
+
+/**
+ * Where the animal is, as a CSS object-position. The cover is a wide band (up to ~3.5:1)
+ * cut from 3:2 photographs, and a centre crop took the walking dogs' ears off — found by
+ * looking at it. Requesting the photo at its own aspect and positioning it in CSS keeps
+ * one image good for every band shape.
+ */
+export const SERVICE_PHOTO_FOCUS: Record<ServiceType, string> = {
+  walking: "50% 30%",
+  boarding: "50% 50%",
+  daycare: "50% 50%",
+  grooming: "50% 35%",
+};
+
+/** The service's photograph at width `w`, at the photos' own 3:2 aspect. */
+export function servicePhoto(service: ServiceType, w: number): string {
+  return p(SERVICE_PHOTO_ID[service], w, Math.round((w * 2) / 3));
+}
+
+/** The service a sitter's cover illustrates: the first one they offer, or null. */
+export function coverService(
+  services: Partial<Record<string, unknown>> | null | undefined,
+): ServiceType | null {
+  return offeredServices(services)[0] ?? null;
+}

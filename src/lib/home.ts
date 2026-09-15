@@ -36,7 +36,7 @@ export function excerpt(text: string, max = MAX_QUOTE_LENGTH) {
 export interface CitySummary {
   /** Display spelling: the most common trimmed variant found in the data. */
   name: string;
-  /** Case-insensitive grouping key, also what /sitters?city= matches on. */
+  /** Case-insensitive grouping key, also what /browse?city= matches on. */
   key: string;
   sitters: Profile[];
 }

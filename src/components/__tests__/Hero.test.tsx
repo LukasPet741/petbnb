@@ -72,19 +72,19 @@ describe("photograph", () => {
 });
 
 describe("search form", () => {
-  it("navigates to the bare sitters route for an empty query", async () => {
+  it("navigates to the unfiltered directory for an empty query", async () => {
     const user = userEvent.setup();
     render(<Hero />);
     await user.click(submit());
-    expect(h.push).toHaveBeenCalledWith("/sitters");
+    expect(h.push).toHaveBeenCalledWith("/browse");
   });
 
-  it("navigates to the bare sitters route for a whitespace-only query", async () => {
+  it("navigates to the unfiltered directory for a whitespace-only query", async () => {
     const user = userEvent.setup();
     render(<Hero />);
     await user.type(searchBox(), "   ");
     await user.click(submit());
-    expect(h.push).toHaveBeenCalledWith("/sitters");
+    expect(h.push).toHaveBeenCalledWith("/browse");
   });
 
   it("percent-encodes a Lithuanian city name", async () => {
@@ -92,13 +92,13 @@ describe("search form", () => {
     render(<Hero />);
     await user.type(searchBox(), "Klaipėda");
     await user.click(submit());
-    expect(h.push).toHaveBeenCalledWith("/sitters?city=Klaip%C4%97da");
+    expect(h.push).toHaveBeenCalledWith("/browse?city=Klaip%C4%97da");
   });
 
   it.each([
-    ["an ampersand and equals", "a&b=c", "/sitters?city=a%26b%3Dc"],
-    ["a fragment character", "a#b", "/sitters?city=a%23b"],
-    ["a traversal attempt", "../../etc", "/sitters?city=..%2F..%2Fetc"],
+    ["an ampersand and equals", "a&b=c", "/browse?city=a%26b%3Dc"],
+    ["a fragment character", "a#b", "/browse?city=a%23b"],
+    ["a traversal attempt", "../../etc", "/browse?city=..%2F..%2Fetc"],
   ])("encodes %s rather than letting it alter the URL", async (_label, input, expected) => {
     const user = userEvent.setup();
     render(<Hero />);

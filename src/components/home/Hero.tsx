@@ -31,7 +31,7 @@ export default function Hero() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = city.trim();
-    router.push(q ? `/sitters?city=${encodeURIComponent(q)}` : "/sitters");
+    router.push(q ? `/browse?city=${encodeURIComponent(q)}` : "/browse");
   };
 
   return (

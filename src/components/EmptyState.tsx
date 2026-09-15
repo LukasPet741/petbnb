@@ -18,7 +18,7 @@ const toneClasses: Record<NonNullable<EmptyStateProps["tone"]>, string> = {
 
 export default function EmptyState({ icon: Icon, title, description, action, tone = "neutral" }: EmptyStateProps) {
   return (
-    <div className="bg-surface rounded-2xl border border-black/5 p-12 sm:p-16 text-center">
+    <div className="glass-card rounded-2xl border p-12 sm:p-16 text-center">
       <div className={`w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 ${toneClasses[tone]}`}>
         <Icon className="w-7 h-7" />
       </div>

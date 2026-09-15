@@ -82,7 +82,7 @@ export default function PetForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-6 sm:p-7 space-y-5">
+      <form onSubmit={handleSubmit} className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
         <div>
           <label className="block text-sm font-medium text-ink mb-2">
             {t("appPages.petsNew.photoLabel")}{" "}

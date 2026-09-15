@@ -79,6 +79,9 @@ const sitters = {
     perHour: "per hour",
     bookCta: "Sign up to book {name}",
     freeToJoinNote: "Free to join. {name} confirms before anything is booked.",
+    // Signed-in visitors: the same wording as appPages.browse.bookCta / paymentNote.
+    bookCtaSignedIn: "Book {name}",
+    paymentNoteSignedIn: "You won't be charged yet. The sitter confirms first.",
   },
 };
 

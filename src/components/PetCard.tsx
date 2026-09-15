@@ -19,7 +19,7 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
 
   return (
     <motion.div
-      className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-4 flex gap-4 items-start"
+      className="glass-card rounded-2xl border p-4 flex gap-4 items-start"
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}

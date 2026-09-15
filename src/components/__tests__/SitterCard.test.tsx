@@ -312,14 +312,6 @@ describe("link targets", () => {
     );
   });
 
-  it("uses the public sitters route when basePath says so", () => {
-    render(<SitterCard sitter={sitter({ id: "abc" })} basePath="/sitters" />);
-    expect(screen.getByRole("link", { name: /sitters\.card\.viewProfile/ })).toHaveAttribute(
-      "href",
-      "/sitters/abc",
-    );
-  });
-
   // SitterMini takes no basePath prop at all: its target is hardcoded to /browse,
   // which is an authenticated route. It is only ever rendered inside the app shell
   // today, but it cannot be reused on the public marketing pages without an edit.

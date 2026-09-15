@@ -106,7 +106,7 @@ export default function DashboardPage() {
       <motion.div className="grid grid-cols-3 gap-3 sm:gap-5" variants={stagger(0.08)} initial="hidden" animate="show">
         {stats.map(({ icon: Icon, label, value, color, href }) => (
           <motion.div key={label} variants={fadeUp}>
-            <Link href={href} className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-4 sm:p-6 block hover:shadow-[var(--shadow-md)] transition-shadow h-full">
+            <Link href={href} className="glass-card rounded-2xl border p-4 sm:p-6 block hover:shadow-[var(--shadow-md)] transition-shadow h-full">
               <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center mb-3 sm:mb-4 ${color}`}><Icon className="w-5 h-5" /></div>
               <div className="font-display text-3xl font-semibold text-ink leading-none">{value}</div>
               <div className="text-sm text-ink-soft mt-1.5">{label}</div>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 {bookings.slice(0, 3).map((booking) => {
                   const status = STATUS_CONFIG[booking.status as keyof typeof STATUS_CONFIG];
                   return (
-                    <motion.div key={booking.id} variants={fadeUp} className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5 flex items-center gap-4 hover:shadow-[var(--shadow-md)] transition-shadow">
+                    <motion.div key={booking.id} variants={fadeUp} className="glass-card rounded-2xl border p-5 flex items-center gap-4 hover:shadow-[var(--shadow-md)] transition-shadow">
                       <Avatar name={booking.sitter?.full_name ?? t("appShell.sitterFallback")} url={booking.sitter?.avatar_url} size="md" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -168,7 +168,7 @@ export default function DashboardPage() {
         {/* Right column */}
         <motion.aside className="space-y-6" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.15 }}>
           {/* Your pets */}
-          <div className="bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5">
+          <div className="glass-card rounded-2xl border p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-ink">{t("appShell.dashboard.pets.heading")}</h3>
               <Link href="/pets/new" className="text-ink-soft hover:text-brand transition-colors" title={t("appShell.dashboard.pets.addPetTitle")}><Plus className="w-4 h-4" /></Link>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Saved teaser */}
-          <Link href="/saved" className="block bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5 hover:shadow-[var(--shadow-md)] transition-shadow group">
+          <Link href="/saved" className="block glass-card rounded-2xl border p-5 hover:shadow-[var(--shadow-md)] transition-shadow group">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0"><Bookmark className="w-5 h-5 text-rose-500" /></div>
               <div className="flex-1 min-w-0">

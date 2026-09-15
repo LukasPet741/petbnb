@@ -16,6 +16,7 @@ const en = {
     },
     signIn: "Sign in",
     getStarted: "Get started",
+    dashboard: "Dashboard",
     createAccount: "Create account",
     terms: "Terms & Conditions",
     privacy: "Privacy Policy",

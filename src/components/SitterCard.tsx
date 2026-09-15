@@ -28,7 +28,7 @@ export function getActivityBucket(lastActiveAt: string | null | undefined): Acti
   return null;
 }
 
-export default function SitterCard({ sitter, showFavorite = false, basePath = "/browse", rating }: { sitter: Profile; showFavorite?: boolean; basePath?: string; rating?: SitterRating | null }) {
+export default function SitterCard({ sitter, showFavorite = false, rating }: { sitter: Profile; showFavorite?: boolean; rating?: SitterRating | null }) {
   const { t } = useLanguage();
   const activeServices = (Object.entries(sitter.services ?? {}) as [ServiceType, boolean][])
     .filter(([, v]) => v)
@@ -37,7 +37,7 @@ export default function SitterCard({ sitter, showFavorite = false, basePath = "/
 
   return (
     <motion.div
-      className="group bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-sm)] p-5 flex flex-col gap-4 h-full"
+      className="group glass-card rounded-2xl border p-5 flex flex-col gap-4 h-full"
       whileHover={{ y: -2, boxShadow: "0 6px 16px rgba(19, 26, 23, 0.10), 0 2px 6px rgba(19, 26, 23, 0.06)" }}
       whileTap={{ y: -1, boxShadow: "0 1px 2px rgba(19, 26, 23, 0.06), 0 1px 1px rgba(19, 26, 23, 0.04)" }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -82,7 +82,7 @@ export default function SitterCard({ sitter, showFavorite = false, basePath = "/
       )}
 
       <Link
-        href={`${basePath}/${sitter.id}`}
+        href={`/browse/${sitter.id}`}
         className="mt-auto inline-flex items-center justify-center gap-1.5 h-10 rounded-full border border-brand/20 text-brand font-medium text-sm hover:bg-brand-soft transition-colors"
       >
         {t("sitters.card.viewProfile")} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

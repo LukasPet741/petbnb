@@ -72,7 +72,7 @@ describe("legal document sections", () => {
 
   it("resolves the shared layout chrome", () => {
     expect(
-      unresolved(["legal.backLink", "legal.nav.terms", "legal.nav.privacy"]),
+      unresolved(["legal.backLink", "legal.backToDashboard", "legal.nav.terms", "legal.nav.privacy"]),
     ).toEqual([]);
   });
 

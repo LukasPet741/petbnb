@@ -16,6 +16,7 @@ const lt = {
     },
     signIn: "Prisijungti",
     getStarted: "Pradėti",
+    dashboard: "Skydelis",
     createAccount: "Sukurti paskyrą",
     terms: "Taisyklės ir sąlygos",
     privacy: "Privatumo politika",

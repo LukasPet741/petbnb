@@ -4,50 +4,65 @@ const home = {
     titleLine1: "Priežiūra iš žmonių,",
     titleLine2: "kurie gyvena šalia.",
     subtitle:
-      "Vedžiojimas, apgyvendinimas, dienos priežiūra ir kirpimas, sutariama tiesiogiai su globėju jūsų mieste.",
+      "Šunų vedžiojimas, apgyvendinimas, dienos priežiūra ir kirpimas, sutariama tiesiogiai su žmogumi jūsų mieste.",
     searchButton: "Ieškoti globėjų",
     cityPlaceholder: "Jūsų miestas",
     photoAlt: "Šuo, kurį Lietuvoje prižiūri globėjas",
   },
   services: {
     railLabel: "Naršyti pagal paslaugą",
-    title: "Keturi dalykai, kuriuos gali atlikti globėjas",
-    subtitle: "Kiekviena kortelė atveria tą paslaugą siūlančius globėjus jūsų mieste.",
+    eyebrow: "Paslaugos",
+    title: "Ko reikia jūsų augintiniui?",
     items: {
       walking: {
-        desc: "Globėjas atvyksta pas jus ir išveda šunį — paprastai 30–60 minučių jūsų pačių gatvėmis ir parkais. Dažniausias užsakymas čia ir paprasčiausias būdas išbandyti naują globėją.",
+        line: "30–60 min. jūsų rajone",
+        point1: "Vedžiotojas atvyksta pas jus",
+        point2: "30–60 minučių jūsų gatvėmis",
+        point3: "Trumpa, tad gera pirma pažintis",
+        cta: "Rasti vedžiotoją",
       },
       boarding: {
-        desc: "Jums išvykus, augintinis nakvoja globėjo namuose. Dėl atvežimo ir pasiėmimo tariatės tiesiogiai, o dauguma globėjų prašo bent kartą susipažinti su gyvūnu prieš pirmą naktį.",
+        line: "Kol esate išvykę",
+        point1: "Nakvynė globėjo namuose",
+        point2: "Atvežimą sutariate patys",
+        point3: "Pirmiausia susipažinkite",
+        cta: "Rasti globėją",
       },
       daycare: {
-        desc: "Dienos priežiūra pas globėją, kol dirbate, o vakare — namo. Tinka gyvūnams, kurie sunkiai lieka vieni, ir ilgoms dienoms, kurių niekaip nepertrauksite.",
+        line: "Dieną pas globėją, vakare namo",
+        point1: "Kol esate darbe ar išvykę dienai",
+        point2: "Augintiniams, kurie nemėgsta būti vieni",
+        point3: "Parsivežate tą patį vakarą",
+        cta: "Rasti globėją",
       },
       grooming: {
-        desc: "Maudymas, šukavimas, nagų kirpimas ir kailio priežiūra. Labiausiai nuo įgūdžių priklausanti paslauga svetainėje, tad perskaitykite aprašymą ir pasiteiraukite, su kokiomis veislėmis globėjas jau dirbo.",
+        line: "Maudymas, kirpimas, nagai",
+        point1: "Kailio priežiūra pagal veislę",
+        point2: "Paklauskite, kokias veisles jau kirpo",
+        point3: "Kol kas siūlo tik keli",
+        cta: "Rasti kirpėją",
       },
     },
   },
 
   honest: {
-    title: "Ką ši svetainė daro ir ko nedaro",
-    subtitle: "Daugelis platformų tai paslepia taisyklėse. Mūsų sąrašas pakankamai trumpas, kad perskaitytumėte čia pat.",
+    title: "Ką darome ir ko ne",
     points: {
       fees: {
-        title: "Jokių mokesčių, jokių mokėjimų",
-        body: "PetBnB neima komisinių ir netvarko pinigų. Globėjai patys nustato įkainį, o jūs atsiskaitote tarpusavyje, už platformos ribų. Niekur čia neprašoma kortelės duomenų.",
+        title: "PetBnB neima mokesčių",
+        body: "Jokių komisinių, o pinigų svetainė netvarko: už paslaugą mokate tiesiogiai tam, kas ją atlieka.",
       },
       vetting: {
-        title: "Globėjų netikriname",
-        body: "Jokių patikrų dėl praeities, jokių pokalbių, jokių patvirtinimo ženklelių. Viską profilyje parašė pats globėjas. Susitikite prieš užsakydami ir klauskite visko, ko klaustumėte bet kuriam žmogui, kuriam paliekate gyvūną.",
+        title: "Profilių netikriname",
+        body: "Kiekvieną profilį rašo pats žmogus. Susitikite prieš užsakydami.",
       },
       insurance: {
-        title: "Jokio draudimo, jokios garantijos",
-        body: "Jei kas nors nutiktų, už to nestovi jokia apsauga ir nėra žalos atlyginimo tvarkos. Didesnės platformos tai siūlo. Ši svetainė yra studento projektas ir to nesiūlo, tad rizika lieka jums ir globėjui.",
+        title: "Jokio draudimo",
+        body: "Tai universiteto projektas: jei kas nutiktų, jokia apsauga už jo nestovi.",
       },
       data: {
-        title: "Jūsų duomenys lieka ES",
-        body: "Paskyros, augintiniai ir žinutės saugomi „Postgres“ duomenų bazėje Frankfurte. Nėra jokios analitikos, jokio sekimo pikselio ir niekas nematuoja jūsų apsilankymo.",
+        title: "Duomenų bazė ES",
+        body: "Paskyros, augintiniai ir žinutės saugomi Frankfurte. Jokios analitikos ar sekimo pikselių.",
       },
     },
     termsLink: "Skaityti visas taisykles",
@@ -56,7 +71,7 @@ const home = {
   cities: {
     title: "Pradėkite nuo savo miesto",
     subtitle:
-      "Kiekvienas žemiau esantis globėjas užsiregistravo pats. Esame tik pradžioje, todėl kai kuriuose miestuose jų dar nedaug.",
+      "Esame tik pradžioje, todėl kai kuriuose miestuose globėjų dar nedaug.",
     seeAll: "Visi miestai",
     sitterCount: {
       one: "{count} globėjas",
@@ -70,7 +85,7 @@ const home = {
   },
   voices: {
     title: "Jų pačių žodžiais",
-    subtitle: "Kiekvieną čia esančią eilutę parašė ją pasirašęs globėjas.",
+    subtitle: "Ištraukos iš globėjų profilių.",
     seeAll: "Žiūrėti visus globėjus",
     openProfile: "Atidaryti {name} profilį",
     errorTitle: "Nepavyko įkelti globėjų",
@@ -94,7 +109,7 @@ const home = {
       },
       confirm: {
         title: "Globėjas patvirtina",
-        desc: "Globėjas priima užklausą ir toliau viskuo pasirūpina.",
+        desc: "Globėjas priima užklausą, o detales sutariate žinutėmis.",
         note: "Globėjai pasilieka viską, ką uždirba. PetBnB nieko neprideda.",
       },
     },
@@ -103,7 +118,7 @@ const home = {
     titleLine1: "Mylite gyvūnus?",
     titleLine2: "Uždirbkite tai darydami.",
     subtitle:
-      "PetBnB yra nedidelis lietuviškas projektas, dar tik ieškantis pirmųjų nuolatinių klientų. Užsiregistruokite, nusistatykite savo įkainį ir pasilikite viską, ką uždirbate.",
+      "PetBnB yra universiteto projektas, ne įmonė. Užsiregistruokite, nusistatykite savo įkainį ir pasilikite viską, ką uždirbate.",
     perks: {
       ownRate: "Nustatykite savo įkainį",
       chooseServices: "Pasirinkite paslaugas",
@@ -118,7 +133,7 @@ const home = {
     items: {
       howItWorks: {
         q: "Kaip veikia PetBnB?",
-        a: "Naršykite vietos globėjus, atsidarykite profilį ir išsiųskite užsakymo užklausą reikiamoms datoms bei paslaugai. Globėjas ją peržiūri ir arba patvirtina, arba atmeta, o detales galite aptarti susirašinėdami čia pat. Niekas neapmokestinama ir niekas neįpareigoja, kol abu nesutariate.",
+        a: "Naršykite vietos globėjus, atsidarykite profilį ir išsiųskite užsakymo užklausą reikiamoms datoms bei paslaugai. Globėjas ją peržiūri ir arba patvirtina, arba atmeta, o detales galite aptarti susirašinėdami čia pat. PetBnB nieko neapmokestina, o užklausa neįpareigoja, kol abu nesutariate.",
       },
       cost: {
         q: "Kiek tai kainuoja?",

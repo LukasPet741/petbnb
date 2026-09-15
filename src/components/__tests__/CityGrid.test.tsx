@@ -59,12 +59,12 @@ describe("cities", () => {
 
   it("links a city to its filtered sitter list, percent-encoded", () => {
     render(<CityGrid sitters={[sitter({ city: "Klaipėda" })]} status="ready" />);
-    expect(link(/Klaipėda/)).toHaveAttribute("href", "/sitters?city=Klaip%C4%97da");
+    expect(link(/Klaipėda/)).toHaveAttribute("href", "/browse?city=Klaip%C4%97da");
   });
 
   it("links the section header to the unfiltered list", () => {
     render(<CityGrid sitters={[sitter()]} status="ready" />);
-    expect(link(/home\.cities\.seeAll/)).toHaveAttribute("href", "/sitters");
+    expect(link(/home\.cities\.seeAll/)).toHaveAttribute("href", "/browse");
   });
 
   it("caps the grid at five cities so the bento has no spare cell", () => {
