@@ -43,6 +43,7 @@ function makeProfile(over: Partial<ProfileRow> = {}): ProfileRow {
     experience_years: null,
     services: null,
     prices: {},
+    verification_method: "none",
     about_me: null,
     avatar_url: null,
     last_active_at: "2026-01-01T00:00:00Z",

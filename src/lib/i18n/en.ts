@@ -55,6 +55,13 @@ const en = {
       offered: "Offered {price}",
       agreed: "Agreed {price}",
     },
+    verification: {
+      sealDemo: "Identity verified with Smart-ID (demo)",
+      seal: "Identity verified with Smart-ID",
+      rowTitle: "Identity verified with Smart-ID",
+      demoTag: "DEMO",
+      demoNote: "A demonstration check: no real person's identity was verified.",
+    },
     petTypes: {
       dog: "Dog",
       cat: "Cat",

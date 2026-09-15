@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "./Avatar";
 import PriceTag from "./PriceTag";
+import VerifiedSeal from "./VerifiedSeal";
 import type { Profile } from "@/lib/types";
 
 /** Buckets a sitter's last_active_at into a coarse, non-exact trust signal.
@@ -32,7 +33,10 @@ export default function SitterMini({ sitter }: { sitter: Profile }) {
     <Link href={`/browse/${sitter.id}`} className="group flex items-center gap-3 glass-card rounded-2xl border p-3.5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:-translate-y-px active:shadow-[var(--shadow-sm)]">
       <Avatar name={sitter.full_name} url={sitter.avatar_url} size="md" />
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium text-ink truncate">{sitter.full_name}</div>
+        <div className="flex items-center gap-1 min-w-0">
+          <div className="text-sm font-medium text-ink truncate">{sitter.full_name}</div>
+          <VerifiedSeal method={sitter.verification_method} size="xs" />
+        </div>
         <div className="flex items-center gap-1 text-xs text-ink-soft mt-0.5"><MapPin className="w-3 h-3" />{sitter.city}</div>
         {activityBucket && (
           <div className="flex items-center gap-1 text-[10px] text-ink-soft mt-0.5">

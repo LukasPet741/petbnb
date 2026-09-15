@@ -44,7 +44,7 @@ const legal = {
       },
       sitters: {
         heading: "6. Sitters",
-        body: "We do not vet, verify, interview or background-check sitters, and we do not check insurance, qualifications or references. Everything on a sitter profile is written by that sitter. Use your own judgement, meet before you book, and ask the questions you would ask anyone you were leaving an animal with.",
+        body: "We do not vet, verify, interview or background-check sitters, and we do not check insurance, qualifications or references. Everything on a sitter profile is written by that sitter. Use your own judgement, meet before you book, and ask the questions you would ask anyone you were leaving an animal with. The one exception is the Smart-ID badge, and on this prototype it is a demonstration: it is earned by completing SK ID Solutions' demo check with a test identity, and it proves nothing about who a sitter really is.",
       },
       conduct: {
         heading: "7. Acceptable use",
@@ -79,7 +79,7 @@ const legal = {
       },
       whatWeCollect: {
         heading: "2. What we collect",
-        body: "Only what the site needs to work: your name, email address and password credentials for the account; your city and phone number if you fill them in; a profile photo if you upload one; details of the pets you add, including species, age and care notes; your bookings; and the messages you exchange with other users. There is nothing else — no hidden profiling, no data bought from anywhere.",
+        body: "Only what the site needs to work: your name, email address and password credentials for the account; your city and phone number if you fill them in; a profile photo if you upload one; details of the pets you add, including species, age and care notes; your bookings; and the messages you exchange with other users. If you complete the Smart-ID demo, we also store that you did, when, and the demo session's identifier, but nothing from the certificate. There is nothing else — no hidden profiling, no data bought from anywhere.",
       },
       howWeUse: {
         heading: "3. What we use it for",
@@ -99,7 +99,7 @@ const legal = {
       },
       whoCanSee: {
         heading: "7. Who can see your data",
-        body: "Access is enforced by the database itself, not just by the interface. Every profile is public, owners' as well as sitters': anyone, signed in or not, can read the name, city, photo and description on it, plus a sitter's rate, services and experience. Being findable is the point. Your phone number is not public — you are the only person who can read it. Your pets are not public either: only you, and a sitter with an actual booking for that pet, can read them. Messages are readable only by the two people in the conversation.",
+        body: "Access is enforced by the database itself, not just by the interface. Every profile is public, owners' as well as sitters': anyone, signed in or not, can read the name, city, photo and description on it, plus a sitter's prices, services and experience, and whether a Smart-ID demo badge was earned. Being findable is the point. Your phone number is not public — you are the only person who can read it. Your pets are not public either: only you, and a sitter with an actual booking for that pet, can read them. Messages are readable only by the two people in the conversation.",
       },
       noTracking: {
         heading: "8. What we deliberately do not do",

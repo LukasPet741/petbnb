@@ -373,6 +373,7 @@ export type Database = {
           services: Json | null
           smart_id_session_id: string | null
           updated_at: string | null
+          verification_method: string
           verified_at: string | null
           verified_full_name: string | null
         }
@@ -394,6 +395,7 @@ export type Database = {
           services?: Json | null
           smart_id_session_id?: string | null
           updated_at?: string | null
+          verification_method?: string
           verified_at?: string | null
           verified_full_name?: string | null
         }
@@ -415,6 +417,7 @@ export type Database = {
           services?: Json | null
           smart_id_session_id?: string | null
           updated_at?: string | null
+          verification_method?: string
           verified_at?: string | null
           verified_full_name?: string | null
         }
@@ -490,6 +493,41 @@ export type Database = {
           },
         ]
       }
+      smart_id_demo_sessions: {
+        Row: {
+          created_at: string
+          finished_at: string | null
+          outcome: string
+          request_id: number | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          finished_at?: string | null
+          outcome?: string
+          request_id?: number | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          finished_at?: string | null
+          outcome?: string
+          request_id?: number | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_id_demo_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       owner_ratings: {
@@ -550,6 +588,10 @@ export type Database = {
         }
         Returns: string
       }
+      finish_smart_id_demo_verification: {
+        Args: { p_session_id: string }
+        Returns: string
+      }
       is_booking_party: { Args: { p_booking_id: string }; Returns: boolean }
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       mark_thread_read: { Args: { p_booking_id: string }; Returns: number }
@@ -557,6 +599,10 @@ export type Database = {
       register_collar_device: {
         Args: { p_label?: string; p_secret: string }
         Returns: string
+      }
+      request_smart_id_demo_verification: {
+        Args: { p_session_id: string }
+        Returns: undefined
       }
       stay_days: { Args: { p_end: string; p_start: string }; Returns: number }
       valid_prices: { Args: { p_prices: Json }; Returns: boolean }

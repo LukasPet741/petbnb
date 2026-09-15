@@ -44,7 +44,7 @@ const legal = {
       },
       sitters: {
         heading: "6. Globėjai",
-        body: "Mes netikriname globėjų, nerengiame pokalbių, nerenkame duomenų apie jų praeitį ir netikriname nei draudimo, nei kvalifikacijos, nei rekomendacijų. Viskas globėjo profilyje parašyta paties globėjo. Pasikliaukite savo nuovoka, susitikite prieš užsakydami ir užduokite tuos klausimus, kuriuos užduotumėte bet kam, kam paliekate gyvūną.",
+        body: "Mes netikriname globėjų, nerengiame pokalbių, nerenkame duomenų apie jų praeitį ir netikriname nei draudimo, nei kvalifikacijos, nei rekomendacijų. Viskas globėjo profilyje parašyta paties globėjo. Pasikliaukite savo nuovoka, susitikite prieš užsakydami ir užduokite tuos klausimus, kuriuos užduotumėte bet kam, kam paliekate gyvūną. Vienintelė išimtis — Smart-ID ženklelis, tačiau šiame prototipe jis demonstracinis: gaunamas atlikus SK ID Solutions demo patikrą su testiniu asmeniu ir nieko neįrodo apie tikrąją globėjo tapatybę.",
       },
       conduct: {
         heading: "7. Tinkamas naudojimasis",
@@ -79,7 +79,7 @@ const legal = {
       },
       whatWeCollect: {
         heading: "2. Ką renkame",
-        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Daugiau nieko — jokio slapto profiliavimo, jokių iš kitur nupirktų duomenų.",
+        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Jei atliekate Smart-ID demo patikrą, dar išsaugome, kad ją atlikote, kada ir demo sesijos identifikatorių, bet nieko iš sertifikato. Daugiau nieko — jokio slapto profiliavimo, jokių iš kitur nupirktų duomenų.",
       },
       howWeUse: {
         heading: "3. Kam tai naudojame",
@@ -99,7 +99,7 @@ const legal = {
       },
       whoCanSee: {
         heading: "7. Kas gali matyti jūsų duomenis",
-        body: "Prieigą riboja pati duomenų bazė, o ne vien naudotojo sąsaja. Vieši yra visi profiliai — ne tik globėjų, bet ir šeimininkų: bet kas, prisijungęs ar ne, gali matyti juose nurodytą vardą, miestą, nuotrauką ir aprašymą, o globėjų profiliuose — dar ir įkainį, paslaugas bei patirtį. Tokia ir esmė: kad jus būtų galima rasti. Jūsų telefono numeris nėra viešas — jį matote tik jūs. Jūsų augintiniai taip pat nėra vieši: juos skaityti gali tik jūs ir globėjas, turintis tikrą to augintinio užsakymą. Žinutes mato tik du pokalbio dalyviai.",
+        body: "Prieigą riboja pati duomenų bazė, o ne vien naudotojo sąsaja. Vieši yra visi profiliai — ne tik globėjų, bet ir šeimininkų: bet kas, prisijungęs ar ne, gali matyti juose nurodytą vardą, miestą, nuotrauką ir aprašymą, o globėjų profiliuose — dar ir kainas, paslaugas bei patirtį, taip pat ar gautas Smart-ID demo ženklelis. Tokia ir esmė: kad jus būtų galima rasti. Jūsų telefono numeris nėra viešas — jį matote tik jūs. Jūsų augintiniai taip pat nėra vieši: juos skaityti gali tik jūs ir globėjas, turintis tikrą to augintinio užsakymą. Žinutes mato tik du pokalbio dalyviai.",
       },
       noTracking: {
         heading: "8. Ko sąmoningai nedarome",

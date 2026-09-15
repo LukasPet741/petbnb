@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, Ban, Clock, Fingerprint, KeyRound, ShieldAlert, TriangleAlert } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { TEST_IDENTITIES, type DemoOutcome } from "@/lib/smart-id-demo-identities";
+import { saveDemoVerification, type SaveResult } from "@/lib/smart-id-demo-save";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,7 +24,7 @@ type Phase =
   | { name: "idle" }
   | { name: "starting" }
   | { name: "waiting"; code: string }
-  | { name: "done"; outcome: DemoOutcome; verification?: Verification };
+  | { name: "done"; outcome: DemoOutcome; verification?: Verification; save?: SaveResult | "saving" };
 
 /** The client gives up after this long, whatever SK is doing. */
 const CLIENT_TIMEOUT_MS = 90_000;
@@ -32,6 +34,13 @@ const OUTCOME_KEYS: Record<Exclude<DemoOutcome, "ok">, { title: string; text: st
   wrong_code: { title: "wrongCodeTitle", text: "wrongCodeText", icon: ShieldAlert },
   timeout: { title: "timeoutTitle", text: "timeoutText", icon: Clock },
   error: { title: "errorTitle", text: "errorText", icon: TriangleAlert },
+};
+
+const SAVE_KEYS: Record<SaveResult, string> = {
+  verified: "badgeSaved",
+  not_verified: "badgeNotVerified",
+  signed_out: "badgeSignedOut",
+  error: "badgeError",
 };
 
 async function callApi(body: Record<string, string>, signal: AbortSignal): Promise<Record<string, unknown> | null> {
@@ -49,7 +58,17 @@ async function callApi(body: Record<string, string>, signal: AbortSignal): Promi
   }
 }
 
-export default function SmartIdDemo({ codeDelayMs = 2000 }: { codeDelayMs?: number }) {
+export default function SmartIdDemo({
+  codeDelayMs = 2000,
+  saveVerification = saveDemoVerification,
+  onVerified,
+}: {
+  codeDelayMs?: number;
+  /** Saves a successful demo on the signed-in profile; injectable for tests. */
+  saveVerification?: (sessionId: string) => Promise<SaveResult>;
+  /** Called once the badge is saved, so the page can refresh the profile. */
+  onVerified?: () => void;
+}) {
   const { t } = useLanguage();
   const [identity, setIdentity] = useState(TEST_IDENTITIES[0].id);
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
@@ -80,7 +99,14 @@ export default function SmartIdDemo({ codeDelayMs = 2000 }: { codeDelayMs?: numb
       const polled = await callApi({ action: "poll", sessionId: started.sessionId, rpChallenge: started.rpChallenge }, signal);
       if (!polled) { finish({ name: "done", outcome: "error" }); return; }
       if (polled.state === "complete") {
-        finish({ name: "done", outcome: polled.outcome as DemoOutcome, verification: polled.verification as Verification | undefined });
+        const outcome = polled.outcome as DemoOutcome;
+        const verification = polled.verification as Verification | undefined;
+        if (outcome !== "ok") { finish({ name: "done", outcome, verification }); return; }
+        // A verified demo is saved on the profile: the database re-checks the session with SK.
+        finish({ name: "done", outcome, verification, save: "saving" });
+        const save = await saveVerification(started.sessionId);
+        finish({ name: "done", outcome, verification, save });
+        if (save === "verified" && !signal.aborted) onVerified?.();
         return;
       }
     }
@@ -167,6 +193,29 @@ export default function SmartIdDemo({ codeDelayMs = 2000 }: { codeDelayMs?: numb
                 <dd className="text-brand-strong font-medium text-right">{t("appPages.smartIdDemo.signatureValid")}</dd>
               </div>
             </dl>
+            {phase.save && (
+              <p
+                role="status"
+                className={cn(
+                  "mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3.5 py-2.5 text-sm",
+                  phase.save === "verified" ? "bg-brand-soft text-brand-strong" : phase.save === "saving" ? "bg-surface-2 text-ink-soft" : "bg-amber-soft text-amber-strong",
+                )}
+              >
+                {phase.save === "saving" ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+                    {t("appPages.smartIdDemo.savingBadge")}
+                  </>
+                ) : (
+                  <>
+                    <span>{t(`appPages.smartIdDemo.${SAVE_KEYS[phase.save]}`)}</span>
+                    {phase.save === "verified" && (
+                      <Link href="/profile" className="font-semibold underline underline-offset-2">{t("appPages.smartIdDemo.viewProfile")}</Link>
+                    )}
+                  </>
+                )}
+              </p>
+            )}
             <button type="button" onClick={reset} className="mt-5 h-11 px-5 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 text-sm font-semibold text-ink hover:bg-surface transition-colors">
               {t("appPages.smartIdDemo.again")}
             </button>

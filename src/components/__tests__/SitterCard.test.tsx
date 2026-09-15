@@ -482,3 +482,19 @@ describe("cover photo", () => {
     expect(container.querySelector("img")).toBeNull();
   });
 });
+
+describe("Smart-ID badge (2026-09-15)", () => {
+  it("shows the seal beside the name for a demo-verified sitter, on both cards", () => {
+    const verified = sitter({ verification_method: "smart_id_demo" });
+    const { unmount } = render(<SitterCard sitter={verified} />);
+    expect(screen.getByRole("img", { name: "common.verification.sealDemo" })).toBeInTheDocument();
+    unmount();
+    render(<SitterMini sitter={verified} />);
+    expect(screen.getByRole("img", { name: "common.verification.sealDemo" })).toBeInTheDocument();
+  });
+
+  it("shows no seal for a seeded sitter nobody verified", () => {
+    render(<SitterCard sitter={sitter({ verification_method: "seed" })} />);
+    expect(screen.queryByRole("img", { name: /common\.verification/ })).not.toBeInTheDocument();
+  });
+});

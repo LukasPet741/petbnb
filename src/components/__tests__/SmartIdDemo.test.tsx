@@ -2,6 +2,9 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import SmartIdDemo from "@/components/SmartIdDemo";
 
+// jsdom has no IntersectionObserver, which next/link uses to prefetch; a plain anchor is enough here.
+vi.mock("next/link", () => ({ default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => <a href={href} {...rest}>{children}</a> }));
+
 /**
  * The Smart-ID demo page's flow: pick one of SK's test identities, see the verification code,
  * then the outcome. /api/smart-id-demo is faked. Rendered without a LanguageProvider, so labels
@@ -80,5 +83,51 @@ describe("SmartIdDemo", () => {
     render(<SmartIdDemo codeDelayMs={0} />);
     fireEvent.click(screen.getByRole("button", { name: "appPages.smartIdDemo.start" }));
     expect(await screen.findByText("appPages.smartIdDemo.errorTitle")).toBeInTheDocument();
+  });
+});
+
+describe("saving the badge", () => {
+  const okPoll = {
+    state: "complete",
+    outcome: "ok",
+    verification: {
+      signatureValid: true,
+      identity: { givenName: "OK", surname: "TEST", country: "LT", personalCode: "404" },
+      certificateLevel: "QUALIFIED",
+      issuer: "TEST of SK ID Solutions EID-Q 2024E",
+    },
+  };
+
+  it("saves the verification after an OK result and says the badge was added", async () => {
+    fakeApi(okPoll);
+    const saveVerification = vi.fn(async () => "verified" as const);
+    const onVerified = vi.fn();
+    render(<SmartIdDemo codeDelayMs={0} saveVerification={saveVerification} onVerified={onVerified} />);
+    fireEvent.click(screen.getByRole("button", { name: "appPages.smartIdDemo.start" }));
+    expect(await screen.findByText("appPages.smartIdDemo.badgeSaved")).toBeInTheDocument();
+    expect(saveVerification).toHaveBeenCalledWith("s-1");
+    expect(onVerified).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["not_verified", "appPages.smartIdDemo.badgeNotVerified"],
+    ["signed_out", "appPages.smartIdDemo.badgeSignedOut"],
+    ["error", "appPages.smartIdDemo.badgeError"],
+  ] as const)("explains a %s save", async (result, message) => {
+    fakeApi(okPoll);
+    const onVerified = vi.fn();
+    render(<SmartIdDemo codeDelayMs={0} saveVerification={async () => result} onVerified={onVerified} />);
+    fireEvent.click(screen.getByRole("button", { name: "appPages.smartIdDemo.start" }));
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(onVerified).not.toHaveBeenCalled();
+  });
+
+  it("does not try to save a refusal", async () => {
+    fakeApi({ state: "complete", outcome: "refused" });
+    const saveVerification = vi.fn();
+    render(<SmartIdDemo codeDelayMs={0} saveVerification={saveVerification} />);
+    fireEvent.click(screen.getByRole("button", { name: "appPages.smartIdDemo.start" }));
+    expect(await screen.findByText("appPages.smartIdDemo.refusedTitle")).toBeInTheDocument();
+    expect(saveVerification).not.toHaveBeenCalled();
   });
 });

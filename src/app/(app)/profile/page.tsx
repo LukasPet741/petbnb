@@ -17,6 +17,8 @@ import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { cn, normaliseCity } from "@/lib/utils";
 import { nextFromSearch } from "@/lib/next-path";
+import VerifiedSeal from "@/components/VerifiedSeal";
+import type { VerificationMethod } from "@/lib/types";
 import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
@@ -133,7 +135,10 @@ export default function ProfilePage() {
             }
           />
           <div className="min-w-0 pt-1">
-            <h2 className="font-display text-xl font-semibold text-ink tracking-tight truncate">{form.full_name || t("appPages.profile.completeProfileFallback")}</h2>
+            <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-ink tracking-tight min-w-0">
+              <span className="truncate">{form.full_name || t("appPages.profile.completeProfileFallback")}</span>
+              <VerifiedSeal method={profile?.verification_method as VerificationMethod | null | undefined} size="md" />
+            </h2>
             <p className="text-ink-soft text-sm mt-0.5">{form.city || t("appPages.profile.noCitySetFallback")}</p>
             <p className="text-ink-soft/70 text-xs mt-1 truncate">{user?.email}</p>
             <div className="mt-2.5">
@@ -243,8 +248,8 @@ export default function ProfilePage() {
               <Link href="/smart-id-demo" className="group flex items-center gap-4 glass-card rounded-2xl border p-5 hover:shadow-[var(--shadow-md)] transition-shadow">
                 <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Fingerprint className="w-5 h-5" aria-hidden="true" /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-medium text-ink">{t("appPages.smartIdDemo.profileLinkTitle")}</span>
-                  <span className="block text-sm text-ink-soft mt-0.5">{t("appPages.smartIdDemo.profileLinkText")}</span>
+                  <span className="block font-medium text-ink">{t(profile?.verification_method === "smart_id_demo" ? "appPages.smartIdDemo.profileLinkVerifiedTitle" : "appPages.smartIdDemo.profileLinkTitle")}</span>
+                  <span className="block text-sm text-ink-soft mt-0.5">{t(profile?.verification_method === "smart_id_demo" ? "appPages.smartIdDemo.profileLinkVerifiedText" : "appPages.smartIdDemo.profileLinkText")}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-ink-soft group-hover:text-brand transition-colors" aria-hidden="true" />
               </Link>

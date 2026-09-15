@@ -57,6 +57,13 @@ const lt = {
       offered: "Siūloma {price}",
       agreed: "Sutarta {price}",
     },
+    verification: {
+      sealDemo: "Tapatybė patvirtinta per Smart-ID (demo)",
+      seal: "Tapatybė patvirtinta per Smart-ID",
+      rowTitle: "Tapatybė patvirtinta per Smart-ID",
+      demoTag: "DEMO",
+      demoNote: "Demonstracinė patikra: tikro asmens tapatybė nepatvirtinta.",
+    },
     petTypes: {
       dog: "Šuo",
       cat: "Katė",

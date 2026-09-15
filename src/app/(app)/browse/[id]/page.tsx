@@ -15,6 +15,7 @@ import ReviewList from "@/components/ReviewList";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 import PriceTag, { ServicePrice } from "@/components/PriceTag";
+import VerifiedSeal, { VerificationRow } from "@/components/VerifiedSeal";
 
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 const RECENTLY_VIEWED_MAX = 6;
@@ -74,7 +75,10 @@ export default function SitterProfilePage() {
             <div className="flex items-start gap-5">
               <Avatar name={sitter.full_name ?? t("appPages.browse.fallbackSitterName")} url={sitter.avatar_url} size="xl" />
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-2xl font-semibold text-ink tracking-tight">{sitter.full_name}</h1>
+                <h1 className="flex items-center gap-2 font-display text-2xl font-semibold text-ink tracking-tight">
+                  <span className="min-w-0">{sitter.full_name}</span>
+                  <VerifiedSeal method={sitter.verification_method} size="lg" />
+                </h1>
                 <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ink-soft">
                   <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{sitter.city}</span>
                   {sitter.experience_years != null && (
@@ -82,6 +86,7 @@ export default function SitterProfilePage() {
                   )}
                 </div>
                 <RatingSummary average={rating?.average ?? null} count={rating?.count ?? 0} size="md" emptyState="label" className="mt-2" />
+                <VerificationRow method={sitter.verification_method} verifiedAt={sitter.verified_at} className="mt-3" />
                 <div className="flex flex-wrap gap-2 mt-4">{activeServices.map(({ key, label }) => <Badge key={key} variant="brand">{label}</Badge>)}</div>
               </div>
               <FavoriteButton sitterId={sitter.id} />

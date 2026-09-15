@@ -3,6 +3,8 @@ import type { SitterPrices } from "@/lib/pricing";
 export type ServiceType = "walking" | "boarding" | "daycare" | "grooming";
 export type PetType = "dog" | "cat" | "bird" | "reptile" | "small_mammal" | "fish" | "other";
 export type BookingStatus = "pending" | "signed" | "declined" | "cancelled" | "completed";
+/** Matches the profiles.verification_method CHECK constraint (migration 20260915170921). */
+export type VerificationMethod = "none" | "seed" | "smart_id_demo" | "smart_id";
 
 export interface Profile {
   id: string;
@@ -22,6 +24,9 @@ export interface Profile {
   services: Record<ServiceType, boolean>;
   /** Per-period prices, see src/lib/pricing.ts. Optional so older fixtures still type. */
   prices?: SitterPrices;
+  /** How the identity was verified; only smart_id_demo and smart_id show a badge (VerifiedSeal). */
+  verification_method?: VerificationMethod;
+  verified_at?: string | null;
   about_me: string | null;
   avatar_url: string | null;
   last_active_at: string;
@@ -154,7 +159,7 @@ export interface SitterRating {
  * one place phone is readable. See useProfile.
  */
 export const PUBLIC_PROFILE_COLUMNS =
-  "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, prices, last_active_at, is_sitter";
+  "id, full_name, city, about_me, avatar_url, experience_years, rate_per_hour, services, prices, last_active_at, is_sitter, verification_method, verified_at";
 
 export const SERVICE_LABELS: Record<ServiceType, string> = {
   walking: "Dog Walking",

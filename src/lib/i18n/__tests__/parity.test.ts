@@ -125,6 +125,8 @@ describe("translation completeness", () => {
     "appPages.profile.phonePlaceholder",
     // The SI kilogram symbol is locale-invariant.
     "appPages.petCard.weightUnit",
+    // The badge's "DEMO" tag: an uppercase label kept identical so it reads the same on screenshots.
+    "common.verification.demoTag",
   ];
 
   it("has no untranslated Lithuanian string outside the documented allow-list", () => {

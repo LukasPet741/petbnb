@@ -7,6 +7,7 @@ import Badge from "./Badge";
 import FavoriteButton from "./FavoriteButton";
 import RatingSummary from "./RatingSummary";
 import PriceTag from "./PriceTag";
+import VerifiedSeal from "./VerifiedSeal";
 import { type Profile, type ServiceType, type SitterRating } from "@/lib/types";
 import { coverFocus, coverService, sitterCoverPhoto } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
@@ -94,7 +95,10 @@ export default function SitterCard({
       <div className="flex flex-1 min-w-0 flex-col gap-3 px-5 pb-5">
         <Avatar name={name} url={sitter.avatar_url} size="lg" className="relative -mt-8 ring-4 ring-white shadow-[var(--shadow-sm)]" />
         <div className="flex-1 min-w-0">
-          <h3 className="font-display text-lg font-semibold text-ink leading-tight tracking-tight truncate">{name}</h3>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h3 className="font-display text-lg font-semibold text-ink leading-tight tracking-tight truncate">{name}</h3>
+            <VerifiedSeal method={sitter.verification_method} size="md" />
+          </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-ink-soft">
             <span className="flex items-center gap-1 min-w-0"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{sitter.city}</span></span>
             {sitter.experience_years != null && (
