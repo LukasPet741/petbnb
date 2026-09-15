@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Save, User, Briefcase, Radar, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Save, User, Briefcase, Radar, LogOut, Fingerprint, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -238,6 +239,15 @@ export default function ProfilePage() {
                     className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[var(--shadow-sm)] ${isSitter ? "left-6" : "left-0.5"}`} />
                 </button>
               </div>
+
+              <Link href="/smart-id-demo" className="group flex items-center gap-4 glass-card rounded-2xl border p-5 hover:shadow-[var(--shadow-md)] transition-shadow">
+                <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Fingerprint className="w-5 h-5" aria-hidden="true" /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium text-ink">{t("appPages.smartIdDemo.profileLinkTitle")}</span>
+                  <span className="block text-sm text-ink-soft mt-0.5">{t("appPages.smartIdDemo.profileLinkText")}</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-ink-soft group-hover:text-brand transition-colors" aria-hidden="true" />
+              </Link>
 
               <AnimatePresence>
                 {isSitter && (

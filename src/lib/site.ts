@@ -46,4 +46,5 @@ export const PRIVATE_ROUTE_PREFIXES = [
   "/pets",
   "/profile",
   "/saved",
+  "/smart-id-demo",
 ] as const;
