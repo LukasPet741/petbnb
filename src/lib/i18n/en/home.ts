@@ -126,6 +126,7 @@ const home = {
       free: "Free to list",
     },
     cta: "Become a sitter",
+    ctaSignedIn: "Set up your sitter profile",
     imageAlt: "A happy dog with its sitter",
   },
   faq: {

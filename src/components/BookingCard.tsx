@@ -146,23 +146,34 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
   // Resolved: a record, not a decision. Flat, compact, quiet — one small housekeeping action at most.
   return (
     <motion.div layout exit={{ opacity: 0, scale: 0.97 }} className="glass-card border rounded-[var(--radius-card)] px-4 py-3">
-      <div className="flex items-center gap-3">
+      {/* Wraps rather than squeezing: at 390px the date and pet line is what gets crushed to
+          nothing when an action button shares the row, so the actions drop to a second line. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       {photo ? (
         <img src={photo} alt={booking.pet?.name ?? ""} className="w-11 h-11 rounded-[var(--radius-input)] object-cover flex-shrink-0" />
       ) : (
         <Avatar name={displayProfile?.full_name ?? booking.pet?.name ?? "?"} url={null} size="md" className="rounded-[var(--radius-input)]" />
       )}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-40">
         <div className="text-sm font-semibold text-ink truncate">
           {formatDate(booking.start_at, locale)}{relative ? ` · ${relative}` : ""} · {t(`common.services.${booking.service}`)}
         </div>
         <div className="text-xs text-ink-soft truncate">{booking.pet?.name} · {displayLabel} {displayProfile?.full_name}{priceLine && <> · <span className="font-medium text-ink">{priceLine}</span></>}</div>
       </div>
+      <div className="flex items-center gap-2 ml-auto flex-shrink-0">
       <Link href={threadHref} aria-label={messageLabel} title={messageLabel}
         className="text-xs font-semibold text-brand hover:text-brand-strong transition-colors inline-flex items-center justify-center gap-1 flex-shrink-0 min-w-11 min-h-11 -my-2 active:text-brand-strong sm:min-w-0 sm:min-h-0 sm:my-0">
         <MessageCircle className="w-4 h-4" />
         <span className="hidden sm:inline">{messageLabel}</span>
       </Link>
+      {/* enforce_booking_rules lets an owner cancel a signed booking; hiding the button left
+          them with no way out of the app once the sitter had accepted. */}
+      {!isSitterView && booking.status === "signed" && (
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onCancel}
+          className="px-3 py-1.5 bg-danger-soft text-danger rounded-full text-xs font-semibold hover:brightness-95 transition-all flex-shrink-0">
+          {t("appPages.bookings.cancelBookingButton")}
+        </motion.button>
+      )}
       {isSitterView && booking.status === "signed" && (
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onMarkCompleted}
           className="px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-semibold hover:brightness-95 transition-all flex-shrink-0">
@@ -172,6 +183,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${status?.color ?? ""}`}>
         {t(`common.bookingStatus.${booking.status}`)}
       </span>
+      </div>
       </div>
       {reviewSlot}
     </motion.div>

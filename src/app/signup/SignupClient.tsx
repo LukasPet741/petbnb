@@ -101,9 +101,9 @@ export default function SignupClient() {
               { label: t("auth.signup.form.confirmLabel"), type: "password", key: "confirm", placeholder: t("auth.signup.form.confirmPlaceholder") },
             ].map(({ label, type, key, placeholder }) => (
               <motion.div key={key} variants={fadeUp}>
-                <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
+                <label htmlFor={`signup-${key}`} className="block text-sm font-medium text-ink mb-1.5">{label}</label>
                 <div className="relative">
-                  <input type={type} value={form[key as keyof typeof form]}
+                  <input id={`signup-${key}`} type={type} value={form[key as keyof typeof form]}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                     placeholder={placeholder} required minLength={key === "password" ? 8 : undefined}
                     autoComplete={key === "email" ? "email" : "new-password"}

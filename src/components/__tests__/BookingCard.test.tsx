@@ -43,6 +43,7 @@ function renderCard(props: Partial<React.ComponentProps<typeof BookingCard>> = {
 
 const K = {
   cancel: "appPages.bookings.cancelRequestButton",
+  cancelBooking: "appPages.bookings.cancelBookingButton",
   accept: "appPages.bookings.acceptButton",
   decline: "appPages.bookings.declineButton",
   markCompleted: "appPages.bookings.markCompletedButton",
@@ -83,9 +84,20 @@ describe("state x viewer-role matrix", () => {
     expect(buttonKeys()).toEqual([K.markCompleted]);
   });
 
-  it("offers an owner no actions on a signed booking", () => {
+  it("lets an owner cancel a signed booking, which the database allows but the card used to hide", () => {
+    // enforce_booking_rules permits owner signed→cancelled. Without a button, plans that
+    // changed after the sitter accepted had no way out of the app at all.
     renderCard({ isSitterView: false, booking: booking({ status: "signed" }) });
-    expect(buttonKeys()).toEqual([]);
+    expect(buttonKeys()).toEqual([K.cancelBooking]);
+    expect(screen.queryByText(K.markCompleted)).not.toBeInTheDocument();
+  });
+
+  it("calls onCancel when an owner cancels a signed booking", async () => {
+    const onCancel = vi.fn();
+    const user = userEvent.setup();
+    renderCard({ isSitterView: false, booking: booking({ status: "signed" }), onCancel });
+    await user.click(screen.getByText(K.cancelBooking));
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it.each(["completed", "declined", "cancelled"])(

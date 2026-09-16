@@ -58,6 +58,7 @@ const appPages = {
     ownerLabel: "Šeimininkas",
     sitterLabel: "Globėjas",
     cancelRequestButton: "Atšaukti užklausą",
+    cancelBookingButton: "Atšaukti užsakymą",
     acceptButton: "Priimti",
     declineButton: "Atmesti",
     markCompletedButton: "Pažymėti kaip įvykdytą",

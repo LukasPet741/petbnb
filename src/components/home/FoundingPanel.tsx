@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { SECTION } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 
 const PERKS = ["ownRate", "chooseServices", "ownHours", "free"] as const;
 
@@ -15,6 +16,8 @@ const PERKS = ["ownRate", "chooseServices", "ownHours", "free"] as const;
 export default function FoundingPanel() {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion();
+  // Someone signed in has no account to create: Sitter mode lives on their profile.
+  const { user } = useAuth();
 
   return (
     <section className="py-12 md:py-16">
@@ -46,10 +49,10 @@ export default function FoundingPanel() {
               ))}
             </ul>
             <Link
-              href="/signup"
+              href={user ? "/profile" : "/signup"}
               className="inline-flex w-fit min-h-[44px] items-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-white transition-all hover:bg-brand-strong hover:shadow-[var(--shadow-sm)]"
             >
-              {t("home.becomeSitter.cta")} <ArrowRight className="h-4 w-4" />
+              {t(user ? "home.becomeSitter.ctaSignedIn" : "home.becomeSitter.cta")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="relative min-h-[240px] lg:min-h-0">

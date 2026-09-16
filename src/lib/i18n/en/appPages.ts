@@ -59,6 +59,7 @@ const appPages = {
     ownerLabel: "Owner",
     sitterLabel: "Sitter",
     cancelRequestButton: "Cancel request",
+    cancelBookingButton: "Cancel booking",
     acceptButton: "Accept",
     declineButton: "Decline",
     markCompletedButton: "Mark completed",

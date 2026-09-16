@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import PublicHeader from "@/components/PublicHeader";
+import PublicFooter from "@/components/PublicFooter";
+import FoundingPanel from "@/components/home/FoundingPanel";
 import LegalLayout from "@/app/legal/layout";
 import LoginClient from "@/app/login/LoginClient";
 import SignupClient from "@/app/signup/SignupClient";
@@ -68,6 +70,41 @@ describe("legal pages", () => {
     render(<LegalLayout><p>doc</p></LegalLayout>);
     expect(screen.getByRole("link", { name: /legal\.backToDashboard/ })).toHaveAttribute("href", "/dashboard");
     expect(hrefs()).not.toContain("/");
+  });
+});
+
+describe("public footer", () => {
+  it("offers sign in and sign up when signed out", () => {
+    render(<PublicFooter />);
+    expect(hrefs()).toEqual(expect.arrayContaining(["/login", "/signup"]));
+  });
+
+  it("offers the dashboard instead of sign in and sign up when signed in", () => {
+    h.auth = SIGNED_IN;
+    render(<PublicFooter />);
+    expect(screen.getByRole("link", { name: /common\.dashboard/ })).toHaveAttribute("href", "/dashboard");
+    expect(hrefs()).not.toContain("/login");
+    expect(hrefs()).not.toContain("/signup");
+  });
+
+  it("keeps the legal links whoever is reading", () => {
+    h.auth = SIGNED_IN;
+    render(<PublicFooter />);
+    expect(hrefs()).toEqual(expect.arrayContaining(["/legal/terms", "/legal/privacy"]));
+  });
+});
+
+describe("landing sitter panel", () => {
+  it("sends a signed-out visitor to sign up", () => {
+    render(<FoundingPanel />);
+    expect(screen.getByRole("link", { name: /home\.becomeSitter\.cta/ })).toHaveAttribute("href", "/signup");
+  });
+
+  it("sends a signed-in visitor to their profile, where Sitter mode lives", () => {
+    h.auth = SIGNED_IN;
+    render(<FoundingPanel />);
+    expect(screen.getByRole("link", { name: /home\.becomeSitter\.ctaSignedIn/ })).toHaveAttribute("href", "/profile");
+    expect(hrefs()).not.toContain("/signup");
   });
 });
 

@@ -126,6 +126,7 @@ const home = {
       free: "Registracija nemokama",
     },
     cta: "Tapti globėju",
+    ctaSignedIn: "Susitvarkykite globėjo profilį",
     imageAlt: "Laimingas šuo su savo globėju",
   },
   faq: {
