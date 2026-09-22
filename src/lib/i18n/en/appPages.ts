@@ -144,6 +144,8 @@ const appPages = {
     emptyDescription: "Add your first pet to start booking sitters and keep their details in one place.",
     addFirstPetButton: "Add your first pet",
     removeConfirm: "Remove this pet?",
+    removeFailed: "That pet could not be removed. Please try again.",
+    removeHasBookings: "This pet is on a booking, so it cannot be removed — removing it would delete that booking, its messages and its reviews.",
   },
   petsNew: {
     backToMyPets: "Back to my pets",
@@ -272,6 +274,9 @@ const appPages = {
   },
   petCard: {
     weightUnit: "kg",
+    // Both buttons are icon-only, so these are their whole accessible name.
+    editLabel: "Edit this pet",
+    removeLabel: "Remove this pet",
   },
   imageUpload: {
     addPhoto: "Add photo",

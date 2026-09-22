@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { PASSWORD_RESET_PATH } from "@/lib/auth";
+import { markPasswordRecovery } from "@/lib/password-recovery";
 
 interface AuthContextValue {
   session: Session | null;
@@ -29,8 +30,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       // A reset link normally lands on /reset-password, but when Supabase does not accept that
       // redirect it falls back to the Site URL. Wherever the link landed, finish the reset there.
-      if (event === "PASSWORD_RECOVERY" && window.location.pathname !== PASSWORD_RESET_PATH) {
-        router.replace(PASSWORD_RESET_PATH);
+      if (event === "PASSWORD_RECOVERY") {
+        // Second source for the marker the reset page gates on; the first is the link's own
+        // URL, read at module load in lib/supabase.ts before the client wipes it.
+        markPasswordRecovery();
+        if (window.location.pathname !== PASSWORD_RESET_PATH) router.replace(PASSWORD_RESET_PATH);
       }
     });
 

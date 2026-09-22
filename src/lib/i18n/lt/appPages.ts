@@ -143,6 +143,8 @@ const appPages = {
     emptyDescription: "Pridėkite pirmąjį augintinį, kad galėtumėte užsakyti globėjus ir saugoti visą informaciją vienoje vietoje.",
     addFirstPetButton: "Pridėkite pirmąjį augintinį",
     removeConfirm: "Pašalinti šį augintinį?",
+    removeFailed: "Augintinio pašalinti nepavyko. Bandykite dar kartą.",
+    removeHasBookings: "Šis augintinis yra užsakyme, todėl jo pašalinti negalima — kartu būtų ištrintas užsakymas, jo žinutės ir atsiliepimai.",
   },
   petsNew: {
     backToMyPets: "Grįžti į mano augintinius",
@@ -272,6 +274,8 @@ const appPages = {
   },
   petCard: {
     weightUnit: "kg",
+    editLabel: "Redaguoti šį augintinį",
+    removeLabel: "Pašalinti šį augintinį",
   },
   imageUpload: {
     addPhoto: "Pridėti nuotrauką",

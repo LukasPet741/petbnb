@@ -1,9 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database as Generated } from "./database.types";
 import type { SitterPrices } from "./pricing";
+import { capturePasswordRecoveryFromUrl } from "./password-recovery";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Must run before createClient below: the client reads `#…type=recovery` out of the
+// address bar as it starts and then clears it, and /reset-password has to know a
+// recovery visit from an ordinary signed-in one. See ./password-recovery.ts.
+capturePasswordRecoveryFromUrl();
 
 export type { Json } from "./database.types";
 

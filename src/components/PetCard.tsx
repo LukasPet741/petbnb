@@ -66,14 +66,16 @@ export default function PetCard({ pet, onEdit, onDelete }: PetCardProps) {
           <div className="flex items-center gap-2 flex-shrink-0">
             {onEdit && (
               <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={onEdit}
+                aria-label={t("appPages.petCard.editLabel")}
                 className="w-11 h-11 -my-2 flex items-center justify-center rounded-full hover:bg-stone-100 active:bg-stone-100 text-stone-400 hover:text-ink transition-colors">
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-4 h-4" aria-hidden />
               </motion.button>
             )}
             {onDelete && (
               <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} onClick={onDelete}
+                aria-label={t("appPages.petCard.removeLabel")}
                 className="w-11 h-11 -my-2 flex items-center justify-center rounded-full hover:bg-danger-soft active:bg-danger-soft text-danger/70 hover:text-danger transition-colors">
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" aria-hidden />
               </motion.button>
             )}
           </div>

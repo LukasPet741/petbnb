@@ -21,6 +21,7 @@ import VerifiedSeal from "@/components/VerifiedSeal";
 import type { VerificationMethod } from "@/lib/types";
 import { verificationLinkCopy } from "@/lib/verification-link";
 import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
+import { ABOUT_ME_MAX, CITY_MAX, FULL_NAME_MAX } from "@/lib/text-limits";
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -192,14 +193,14 @@ export default function ProfilePage() {
             <motion.div key="personal" variants={stagger(0.07)} initial="hidden" animate="show" exit={{ opacity: 0, y: 8 }}
               className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
               {[
-                { label: t("appPages.profile.fullNameLabel"), type: "text", key: "full_name", placeholder: t("appPages.profile.fullNamePlaceholder"), req: true },
-                { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true },
-              ].map(({ label, type, key, placeholder, req }) => (
+                { label: t("appPages.profile.fullNameLabel"), type: "text", key: "full_name", placeholder: t("appPages.profile.fullNamePlaceholder"), req: true, max: FULL_NAME_MAX },
+                { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true, max: CITY_MAX },
+              ].map(({ label, type, key, placeholder, req, max }) => (
                 <motion.div key={key} variants={fadeUp}>
                   <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
                   <input type={type} value={form[key as keyof typeof form] as string}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    placeholder={placeholder} required={req} className={inputCls}
+                    placeholder={placeholder} required={req} maxLength={max} className={inputCls}
                     autoComplete={key === "full_name" ? "name" : "address-level2"} />
                 </motion.div>
               ))}
@@ -266,7 +267,7 @@ export default function ProfilePage() {
                       <div>
                         <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
                         <textarea value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}
-                          placeholder={t("appPages.profile.aboutMePlaceholder")} rows={4}
+                          placeholder={t("appPages.profile.aboutMePlaceholder")} rows={4} maxLength={ABOUT_ME_MAX}
                           className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">

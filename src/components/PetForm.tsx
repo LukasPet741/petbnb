@@ -7,6 +7,7 @@ import { petColor, petIcon } from "@/lib/petVisuals";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import ImageUpload from "@/components/ImageUpload";
+import { PET_BIO_MAX, PET_NAME_MAX } from "@/lib/text-limits";
 
 const PET_TYPE_KEYS = Object.keys(PET_TYPE_LABELS) as PetType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -107,7 +108,7 @@ export default function PetForm({
           <label htmlFor="pet-name" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.petsNew.nameLabel")}</label>
           <input id="pet-name" type="text" value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder={t("appPages.petsNew.namePlaceholder")} required className={inputCls} />
+            placeholder={t("appPages.petsNew.namePlaceholder")} required maxLength={PET_NAME_MAX} className={inputCls} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -146,7 +147,7 @@ export default function PetForm({
           </label>
           <textarea id="pet-bio" value={form.bio}
             onChange={(e) => setForm({ ...form, bio: e.target.value })}
-            placeholder={t("appPages.petsNew.bioPlaceholder")} rows={4}
+            placeholder={t("appPages.petsNew.bioPlaceholder")} rows={4} maxLength={PET_BIO_MAX}
             className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
         </div>
 

@@ -22,6 +22,7 @@ export default function PetsPage() {
   const router = useRouter();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const load = async () => {
     if (!user) return;
@@ -34,11 +35,20 @@ export default function PetsPage() {
 
   const handleDelete = async (pet: Pet) => {
     if (!confirm(t("appPages.pets.removeConfirm"))) return;
-    // Drop the photo before the row: afterwards its URL is unrecoverable and
-    // the object would linger in the bucket with nothing pointing at it.
+    setError("");
+    // The row goes first, and only a confirmed delete takes the photo and the card
+    // with it. The other order loses the photo whenever the delete is refused — and
+    // it can be: a pet on a booking is kept, because deleting it would take the
+    // booking, its messages and its reviews with it (foreign key 23503).
+    const { error: err } = await supabase.from("pets").delete().eq("id", pet.id);
+    if (err) {
+      setError(t(err.code === "23503" ? "appPages.pets.removeHasBookings" : "appPages.pets.removeFailed"));
+      return;
+    }
+    // Afterwards the photo's URL is unrecoverable, so the object would linger in the
+    // bucket with nothing pointing at it.
     const path = storagePathFromPublicUrl(pet.photo_url);
     if (path) await supabase.storage.from(PHOTO_BUCKET).remove([path]);
-    await supabase.from("pets").delete().eq("id", pet.id);
     setPets((prev) => prev.filter((p) => p.id !== pet.id));
   };
 
@@ -53,6 +63,14 @@ export default function PetsPage() {
           </Link>
         ) : undefined}
       />
+
+      <AnimatePresence>
+        {error && (
+          <motion.div role="alert" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">{error}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 lg:gap-10">
         <div className="min-w-0">

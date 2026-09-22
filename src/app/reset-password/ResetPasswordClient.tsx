@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Link2Off, ShieldCheck } from "lucide-react";
 import { updatePassword, matchAuthErrorKey } from "@/lib/auth";
+import { isPasswordRecovery } from "@/lib/password-recovery";
 import { fadeUp } from "@/lib/motion";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -13,10 +14,19 @@ import PasswordShell, { FormError, Spinner, inputClass, primaryButtonClass } fro
  * Where a reset email's link lands. Supabase reads the link's tokens while the session loads, so
  * by the time `loading` is false a valid link has signed the person in for recovery. No session
  * then means the link was expired, already used, or opened in a different browser.
+ *
+ * A session on its own is not enough to see the form. A recovery session and an ordinary
+ * signed-in one are identical to `useAuth()`, and `updateUser` never asks for the current
+ * password — so gating on the session alone let anyone who found a signed-in browser change
+ * the password and own the account. The tab must also carry the recovery marker that the reset
+ * link left behind (lib/password-recovery.ts).
  */
 export default function ResetPasswordClient() {
   const { t } = useLanguage();
   const { user, loading: sessionLoading } = useAuth();
+  // Read once, at mount: the marker is set before React renders (lib/supabase.ts), and reading
+  // it during render keeps the expired screen from flashing on the way in.
+  const [recovering] = useState(() => isPasswordRecovery());
   const [form, setForm] = useState({ password: "", confirm: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
@@ -68,7 +78,7 @@ export default function ResetPasswordClient() {
     );
   }
 
-  if (!user || expired) {
+  if (!user || !recovering || expired) {
     return (
       <PasswordShell>
         <motion.div variants={fadeUp} className="w-12 h-12 rounded-2xl bg-amber-soft text-amber-strong flex items-center justify-center mb-5">

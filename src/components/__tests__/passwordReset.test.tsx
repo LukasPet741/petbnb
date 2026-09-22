@@ -38,7 +38,11 @@ const SIGNED_IN = { user: { id: "u1" }, session: {}, loading: false };
 const SIGNED_OUT = { user: null, session: null, loading: false };
 const LOADING = { user: null, session: null, loading: true };
 
+/** What the reset link leaves behind in the tab; without it the page treats a session as an ordinary one. */
+const arriveFromResetLink = () => window.sessionStorage.setItem("petbnb:password-recovery", "1");
+
 beforeEach(() => {
+  window.sessionStorage.clear();
   h.auth = SIGNED_OUT;
   h.push.mockReset();
   h.replace.mockReset();
@@ -111,8 +115,18 @@ describe("reset-password page", () => {
     expect(screen.getByRole("link", { name: "auth.reset.requestNew" }).getAttribute("href")).toBe("/forgot-password");
   });
 
+  it("refuses an ordinary signed-in session that did not come from a reset link", () => {
+    // The whole point of the marker: updateUser never asks for the current password, so a
+    // session alone must not be enough to set a new one.
+    h.auth = SIGNED_IN;
+    render(<ResetPasswordClient />);
+    expect(screen.getByText("auth.reset.expiredTitle")).toBeTruthy();
+    expect(screen.queryByLabelText("auth.reset.passwordLabel")).toBeNull();
+  });
+
   it("asks for the new password twice, at least 8 characters", () => {
     h.auth = SIGNED_IN;
+    arriveFromResetLink();
     render(<ResetPasswordClient />);
     expect(screen.getByLabelText("auth.reset.passwordLabel").getAttribute("minlength")).toBe("8");
     expect(screen.getByLabelText("auth.reset.passwordLabel").getAttribute("autocomplete")).toBe("new-password");
@@ -121,6 +135,7 @@ describe("reset-password page", () => {
 
   it("does not save when the two passwords differ", async () => {
     h.auth = SIGNED_IN;
+    arriveFromResetLink();
     render(<ResetPasswordClient />);
     fill("new-password-1", "new-password-2");
     await waitFor(() => expect(screen.getByText("auth.signup.passwordMismatch")).toBeTruthy());
@@ -129,6 +144,7 @@ describe("reset-password page", () => {
 
   it("saves the new password and then offers the dashboard", async () => {
     h.auth = SIGNED_IN;
+    arriveFromResetLink();
     render(<ResetPasswordClient />);
     fill("new-password-1", "new-password-1");
     await waitFor(() => expect(screen.getByText("auth.reset.doneTitle")).toBeTruthy());
@@ -138,6 +154,7 @@ describe("reset-password page", () => {
 
   it("says so when the new password is the old one", async () => {
     h.auth = SIGNED_IN;
+    arriveFromResetLink();
     h.updatePassword.mockRejectedValue(new Error("New password should be different from the old password."));
     render(<ResetPasswordClient />);
     fill("old-password", "old-password");
@@ -147,6 +164,7 @@ describe("reset-password page", () => {
 
   it("switches to the expired notice when the recovery session is gone by the time they save", async () => {
     h.auth = SIGNED_IN;
+    arriveFromResetLink();
     h.updatePassword.mockRejectedValue(new Error("Auth session missing!"));
     render(<ResetPasswordClient />);
     fill("new-password-1", "new-password-1");

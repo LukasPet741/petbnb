@@ -15,6 +15,7 @@ import EmptyState from "@/components/EmptyState";
 import { OfferCard, OfferForm, PriceBar } from "@/components/OfferParts";
 import { canAccept, negotiation, newestFirst, offerBounds, type OfferLike, type Role } from "@/lib/pricing";
 import { pluralForm } from "@/lib/i18n/plural";
+import { MESSAGE_BODY_MAX } from "@/lib/text-limits";
 
 interface ThreadParty {
   id: string;
@@ -564,6 +565,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
               enterKeyHint="send"
+              maxLength={MESSAGE_BODY_MAX}
               placeholder={t("messages.composerPlaceholder")}
               aria-label={t("messages.composerPlaceholder")}
               className={cn(INPUT_CLASS, "h-auto min-h-[2.75rem] max-h-40 py-3 leading-6 resize-none overflow-y-auto")}

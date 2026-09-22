@@ -22,6 +22,7 @@ import {
   truncate,
   type BookingRow,
   type EmailStatus,
+  type NotificationRecord,
   type Locale,
   type WebhookPayload,
 } from "./lib.ts";
@@ -31,11 +32,21 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")?.trim() ?? "";
 const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL")?.trim() ?? "";
 const SITE_URL = (Deno.env.get("NEXT_PUBLIC_SITE_URL")?.trim() || "http://localhost:3000").replace(/\/+$/, "");
+// Optional and inert until it is set on both sides -- see the check below.
+const WEBHOOK_SECRET = Deno.env.get("BOOKING_NOTIFY_SECRET")?.trim() ?? "";
 
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return json({ error: "Method not allowed" }, 405);
+  }
+
+  // verify_jwt only proves the caller holds *a* project key, and the anon key
+  // ships in every browser bundle -- so a valid JWT does not say this request
+  // came from the database webhook. When a shared secret is configured, require
+  // it; the trigger sends it as a header.
+  if (WEBHOOK_SECRET && req.headers.get("x-webhook-secret") !== WEBHOOK_SECRET) {
+    return json({ error: "Unauthorized" }, 401);
   }
 
   let payload: WebhookPayload;
@@ -45,8 +56,8 @@ Deno.serve(async (req) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const record = payload?.record;
-  if (!record || typeof record.id !== "string" || typeof record.user_id !== "string" || typeof record.type !== "string") {
+  const claimed = payload?.record;
+  if (!claimed || typeof claimed.id !== "string") {
     return json({ error: "Payload does not carry a notifications record" }, 400);
   }
   if (payload.type && payload.type !== "INSERT") {
@@ -56,6 +67,34 @@ Deno.serve(async (req) => {
   }
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+  // Nothing in the payload is trusted past the row id. The body arrives over the
+  // public internet from anyone holding the anon key, and its fields decide who
+  // gets mailed: taking user_id at face value made this an open "send PetBnB
+  // email to any account" endpoint. Re-read the row with the service role
+  // instead -- it is the row the trigger fired on, and it cannot be forged.
+  const { data: row, error: rowError } = await supabase
+    .from("notifications")
+    .select("id, user_id, actor_id, booking_id, type, created_at, email_status")
+    .eq("id", claimed.id)
+    .maybeSingle();
+  if (rowError) {
+    // Unreachable database: nothing has been sent, so a webhook retry is safe.
+    return json({ error: `Could not load notification: ${rowError.message}` }, 500);
+  }
+  if (!row) {
+    // A row id that does not exist is a deleted row or a forged payload. Either
+    // way there is nothing to send, and a non-2xx would only earn retries.
+    return json({ ok: true, status: "ignored", reason: "no_such_notification" }, 200);
+  }
+  // 'pending' is the column's default -- the state every row is inserted in. Anything
+  // else means this notification has already been decided once, and without this check
+  // replaying one captured payload re-sends the same mail as often as the caller likes.
+  if (row.email_status && row.email_status !== "pending") {
+    return json({ ok: true, status: "ignored", reason: `already_${row.email_status}` }, 200);
+  }
+
+  const record: NotificationRecord = row;
 
   // Chat messages stay in-app on purpose: one email per chat line is spam in a
   // busy thread and would exhaust the free Resend tier in a day.

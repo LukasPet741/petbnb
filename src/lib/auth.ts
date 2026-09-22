@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { clearPasswordRecovery } from "./password-recovery";
 
 const AUTH_ERROR_KEYS: [RegExp, string][] = [
   [/invalid login credentials/i, "invalidCredentials"],
@@ -31,6 +32,7 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  clearPasswordRecovery();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
@@ -54,8 +56,23 @@ export async function requestPasswordReset(email: string) {
   if (error) throw error;
 }
 
-/** Sets a new password for whoever is signed in — after a reset link, that is the recovery session. */
+/**
+ * Sets a new password for whoever is signed in — after a reset link, that is the recovery session.
+ *
+ * Then drops every OTHER session for that account. A reset is normally done because the
+ * password was forgotten or feared stolen, and leaving the old sessions signed in would
+ * let whoever prompted the reset keep using the account. The current session stays, so
+ * the page can go on to the dashboard. GoTrue may already do this depending on the
+ * project's settings; doing it here does not depend on which way that is configured.
+ */
 export async function updatePassword(password: string) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) throw error;
+  clearPasswordRecovery();
+  try {
+    await supabase.auth.signOut({ scope: "others" });
+  } catch {
+    // The password is already changed; failing to tidy up the other sessions is not
+    // worth showing the person an error over.
+  }
 }
