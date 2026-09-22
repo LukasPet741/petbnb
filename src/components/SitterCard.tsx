@@ -118,7 +118,7 @@ export default function SitterCard({
         )}
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-1">
-          {rating ? <RatingSummary average={rating.average} count={rating.count} /> : <span />}
+          {rating ? <RatingSummary average={rating.average} count={rating.count} animate /> : <span />}
           <PriceTag sitter={sitter} service={priceService} />
         </div>
       </div>

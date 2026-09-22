@@ -87,3 +87,21 @@ describe("Stars", () => {
     for (const svg of svgs) expect(svg).toHaveAttribute("aria-hidden", "true");
   });
 });
+
+describe("animate", () => {
+  // The pop-in is decoration: it must never change which stars are filled.
+  it("renders the same stars whether or not it animates", () => {
+    const { container: still } = render(<Stars value={4.5} />);
+    const { container: moving } = render(<Stars value={4.5} animate />);
+    const states = (c: HTMLElement) => [...c.querySelectorAll("[data-star]")].map((n) => n.getAttribute("data-star"));
+    expect(states(moving)).toEqual(states(still));
+    expect(states(moving)).toEqual(["full", "full", "full", "full", "half"]);
+  });
+
+  it("marks itself as animated only when asked, so the pop-in is opt-in", () => {
+    const { container: still } = render(<Stars value={3} />);
+    const { container: moving } = render(<Stars value={3} animate />);
+    expect(still.querySelector("[data-animated]")).toBeNull();
+    expect(moving.querySelector("[data-animated='true']")).not.toBeNull();
+  });
+});

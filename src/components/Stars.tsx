@@ -1,5 +1,6 @@
 "use client";
 import { Star, StarHalf } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { formatAverage } from "@/lib/reviews";
 
@@ -42,8 +43,19 @@ function stateAt(index: number, fill: number): StarState {
  * is given, including zero. Deciding that an unrated sitter shows no stars at all
  * belongs to RatingSummary, which is the component that knows the review count.
  */
-export default function Stars({ value, size = "sm" }: { value: number; size?: StarSize }) {
+export default function Stars({
+  value,
+  size = "sm",
+  animate = false,
+}: {
+  value: number;
+  size?: StarSize;
+  /** Filled stars pop in one after another as they scroll into view. Off under reduced motion. */
+  animate?: boolean;
+}) {
   const { t, locale } = useLanguage();
+  const reduceMotion = useReducedMotion();
+  const moving = animate && !reduceMotion;
   const fill = starFill(value);
   const iconClass = `${SIZE_CLASS[size]} text-amber`;
   const safeValue = Number.isFinite(value) ? Math.min(MAX_STARS, Math.max(0, value)) : 0;
@@ -55,12 +67,23 @@ export default function Stars({ value, size = "sm" }: { value: number; size?: St
         rating: formatAverage(locale, safeValue),
         max: MAX_STARS,
       })}
+      data-animated={moving || undefined}
       className="inline-flex items-center gap-0.5"
     >
       {Array.from({ length: MAX_STARS }, (_, i) => {
         const state = stateAt(i, fill);
+        // whileInView rather than on mount, so cards further down the grid pop in as they
+        // scroll into sight. Empty stars stay still: only the rating itself is the moment.
         return (
-          <span key={i} data-star={state} className="inline-flex">
+          <motion.span
+            key={i}
+            data-star={state}
+            className="inline-flex"
+            initial={moving && state !== "empty" ? { scale: 0.4, opacity: 0 } : false}
+            whileInView={moving ? { scale: 1, opacity: 1 } : undefined}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 420, damping: 18, delay: i * 0.06 }}
+          >
             {state === "half" ? (
               <StarHalf className={iconClass} fill="currentColor" aria-hidden="true" />
             ) : (
@@ -70,7 +93,7 @@ export default function Stars({ value, size = "sm" }: { value: number; size?: St
                 aria-hidden="true"
               />
             )}
-          </span>
+          </motion.span>
         );
       })}
     </span>

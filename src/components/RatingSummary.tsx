@@ -31,6 +31,7 @@ export default function RatingSummary({
   size = "sm",
   emptyState = "hide",
   className = "",
+  animate = false,
 }: {
   average: number | null;
   count: number;
@@ -39,6 +40,8 @@ export default function RatingSummary({
   /** Spacing from the caller. Applied to whichever state renders, so a hidden
    *  summary leaves no empty, margined box behind on the card. */
   className?: string;
+  /** Let the stars pop in (see Stars). Used on browse cards. */
+  animate?: boolean;
 }) {
   const { t, locale } = useLanguage();
   const isRated = average != null && Number.isFinite(average) && count > 0;
@@ -56,7 +59,7 @@ export default function RatingSummary({
 
   return (
     <span className={`inline-flex items-center gap-1.5 ${TEXT_CLASS[size]} ${className}`}>
-      <Stars value={average} size={size} />
+      <Stars value={average} size={size} animate={animate} />
       <span className="font-medium text-ink">{formatAverage(locale, average)}</span>
       <span className="text-ink-soft/50" aria-hidden="true">
         ·
