@@ -1,4 +1,12 @@
 const appPages = {
+  availability: {
+    heading: "Užimtumas",
+    editHint: "Pažymėkite dienas, kai negalite priimti gyvūnų. Numatyta, kad esate laisvi.",
+    viewHint: "Dienų, pažymėtų kaip „Išvykęs“ ar „Užimta“, užsakyti negalima.",
+    legend: "Kalendoriaus žymėjimai",
+    state: { free: "Laisva", off: "Išvykęs", booked: "Užimta" },
+    saveFailed: "Nepavyko išsaugoti dienos. Bandykite dar kartą.",
+  },
   browse: {
     title: "Raskite globėją",
     subtitle: "Naršykite vietos globėjus ir filtruokite pagal miestą, paslaugą bei kainą.",

@@ -1,4 +1,12 @@
 const appPages = {
+  availability: {
+    heading: "Availability",
+    editHint: "Tap the days you can't take pets. Everyone is free by default.",
+    viewHint: "Days marked away or booked can't be requested.",
+    legend: "Calendar key",
+    state: { free: "Free", off: "Away", booked: "Booked" },
+    saveFailed: "Couldn't save that day. Please try again.",
+  },
   browse: {
     title: "Find a sitter",
     subtitle: "Browse local pet sitters and filter by city, service and price.",
