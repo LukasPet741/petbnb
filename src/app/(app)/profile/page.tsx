@@ -22,6 +22,12 @@ import type { VerificationMethod } from "@/lib/types";
 import { verificationLinkCopy } from "@/lib/verification-link";
 import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
 import { ABOUT_ME_MAX, CITY_MAX, FULL_NAME_MAX } from "@/lib/text-limits";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import { useBusyDays } from "@/hooks/useBusyDays";
+import { addDays, vilniusDay } from "@/lib/availability";
+
+/** How far ahead the sitter's own calendar reads: the two months it shows, from today. */
+const CALENDAR_DAYS = 70;
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -40,6 +46,23 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const today = vilniusDay(new Date());
+  const { busy, reload: reloadBusy } = useBusyDays(isSitter ? user?.id ?? null : null, today, addDays(today, CALENDAR_DAYS));
+  const [savingDay, setSavingDay] = useState<string | null>(null);
+  const [dayError, setDayError] = useState("");
+
+  // A day off is its own table, so a tap saves at once rather than waiting for "Save profile".
+  const toggleDayOff = async (day: string, makeOff: boolean) => {
+    if (!user) return;
+    setSavingDay(day);
+    setDayError("");
+    const { error: err } = makeOff
+      ? await supabase.from("sitter_days_off").insert({ sitter_id: user.id, day })
+      : await supabase.from("sitter_days_off").delete().eq("sitter_id", user.id).eq("day", day);
+    if (err) setDayError(t("appPages.availability.saveFailed"));
+    reloadBusy();
+    setSavingDay(null);
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -334,6 +357,12 @@ export default function ProfilePage() {
                           </div>
                         </fieldset>
                       )}
+                    </div>
+                    <div className="glass-card rounded-2xl border p-6 sm:p-7 mt-5">
+                      <h2 className="font-medium text-ink">{t("appPages.availability.heading")}</h2>
+                      <p className="text-sm text-ink-soft mt-0.5 mb-4">{t("appPages.availability.editHint")}</p>
+                      <AvailabilityCalendar busy={busy} today={today} mode="edit" onToggle={toggleDayOff} savingDay={savingDay} />
+                      {dayError && <p role="alert" className="mt-3 text-sm text-danger">{dayError}</p>}
                     </div>
                   </motion.div>
                 )}
