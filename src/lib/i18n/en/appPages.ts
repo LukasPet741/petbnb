@@ -27,6 +27,8 @@ const appPages = {
     },
     priceLabel: "Price",
     priceAny: "Any price",
+    fromLabel: "Free from",
+    toLabel: "Free until",
     clearAllButton: "Clear all",
     loadingText: "Loading…",
     // Three forms because Lithuanian needs three; English resolves "few" never,

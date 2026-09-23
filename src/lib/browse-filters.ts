@@ -50,8 +50,20 @@ export function countByService(sitters: Profile[]): Record<ServiceType, number> 
  * its hero search and city tiles ?city=; since the public directory went behind login
  * (2026-09-15) /browse is where they land.
  */
-export function filtersFromSearch(search: string): { city: string | null; service: ServiceType | null } {
+export function filtersFromSearch(search: string): {
+  city: string | null;
+  service: ServiceType | null;
+  /** A stay as two calendar days ("YYYY-MM-DD"), both or neither: ?from=&to= (2026-09-23). */
+  from: string | null;
+  to: string | null;
+} {
   const params = new URLSearchParams(search);
+
+  const rawFrom = params.get("from");
+  const rawTo = params.get("to");
+  const datesOk = isCalendarDay(rawFrom) && isCalendarDay(rawTo) && rawFrom <= rawTo;
+  const from = datesOk ? rawFrom : null;
+  const to = datesOk ? rawTo : null;
 
   const rawService = params.get("service");
   const service = rawService && Object.hasOwn(SERVICE_LABELS, rawService) ? (rawService as ServiceType) : null;
@@ -59,7 +71,14 @@ export function filtersFromSearch(search: string): { city: string | null; servic
   const rawCity = params.get("city");
   const city = rawCity ? normaliseCity(rawCity) : null;
 
-  return { city, service };
+  return { city, service, from, to };
+}
+
+/** A real calendar day written YYYY-MM-DD: "2026-02-30" is refused, not rolled into March. */
+function isCalendarDay(value: string | null): value is string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 /**

@@ -27,6 +27,8 @@ const appPages = {
     },
     priceLabel: "Kaina",
     priceAny: "Bet kokia kaina",
+    fromLabel: "Laisvas nuo",
+    toLabel: "Laisvas iki",
     clearAllButton: "Išvalyti viską",
     loadingText: "Kraunama…",
     // Trys formos: dalyvis derinamas kartu su daiktavardžiu.

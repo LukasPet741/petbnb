@@ -9,20 +9,34 @@ import { filtersFromSearch, sameCity } from "@/lib/browse-filters";
 
 describe("filtersFromSearch", () => {
   it("reads a known service", () => {
-    expect(filtersFromSearch("?service=grooming")).toEqual({ city: null, service: "grooming" });
+    expect(filtersFromSearch("?service=grooming")).toEqual({ city: null, service: "grooming", from: null, to: null });
   });
 
   it("ignores a service that does not exist", () => {
-    expect(filtersFromSearch("?service=surfing")).toEqual({ city: null, service: null });
+    expect(filtersFromSearch("?service=surfing")).toEqual({ city: null, service: null, from: null, to: null });
   });
 
   it("reads a city in its display form, whatever case it was typed in", () => {
-    expect(filtersFromSearch("?city=%20klaip%C4%97da%20")).toEqual({ city: "Klaipėda", service: null });
+    expect(filtersFromSearch("?city=%20klaip%C4%97da%20")).toEqual({ city: "Klaipėda", service: null, from: null, to: null });
   });
 
   it("reads both at once, and nothing from an empty search", () => {
-    expect(filtersFromSearch("?city=Kaunas&service=walking")).toEqual({ city: "Kaunas", service: "walking" });
-    expect(filtersFromSearch("")).toEqual({ city: null, service: null });
+    expect(filtersFromSearch("?city=Kaunas&service=walking")).toEqual({ city: "Kaunas", service: "walking", from: null, to: null });
+    expect(filtersFromSearch("")).toEqual({ city: null, service: null, from: null, to: null });
+  });
+});
+
+describe("filtersFromSearch dates", () => {
+  // A link can carry a stay, so a demo link or a landing search lands on the free sitters.
+  it("reads a from/to pair of calendar days", () => {
+    expect(filtersFromSearch("?from=2026-10-01&to=2026-10-05")).toMatchObject({ from: "2026-10-01", to: "2026-10-05" });
+    expect(filtersFromSearch("?from=2026-10-01&to=2026-10-01")).toMatchObject({ from: "2026-10-01", to: "2026-10-01" });
+  });
+
+  it("drops both when they are reversed, malformed or half there", () => {
+    for (const q of ["?from=2026-10-05&to=2026-10-01", "?from=nonsense&to=2026-10-01", "?from=2026-10-01", "?from=2026-10-01&to=2026-13-45x"]) {
+      expect(filtersFromSearch(q)).toMatchObject({ from: null, to: null });
+    }
   });
 });
 

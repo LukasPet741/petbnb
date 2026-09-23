@@ -15,6 +15,7 @@ import { PRICE_CAPS, SORT_KEYS, countByService, filtersFromSearch, sameCity, sor
 import { comparablePrice } from "@/lib/pricing";
 import { cn, normaliseCity } from "@/lib/utils";
 import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
+import { vilniusDay } from "@/lib/availability";
 
 const SERVICES: { key: ServiceType; icon: LucideIcon }[] = [
   { key: "walking", icon: Dog },
@@ -29,6 +30,12 @@ const pillClass = (on: boolean) =>
   cn(
     "inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
     on ? "border-ink bg-ink text-white" : "border-ink/10 bg-white/75 text-ink hover:bg-white",
+  );
+
+const dateClass = (on: boolean) =>
+  cn(
+    "h-11 rounded-full border px-4 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+    on ? "border-ink bg-ink text-white [color-scheme:dark]" : "border-ink/10 bg-white/80 text-ink hover:bg-white",
   );
 
 /** A native select dressed as a chip: keyboard, screen readers and phone pickers come for free. */
@@ -68,6 +75,11 @@ export default function BrowsePage() {
   const [sort, setSort] = useState<SortKey>("experience");
   const [cities, setCities] = useState<string[]>([ALL_CITIES]);
   const [recentIds, setRecentIds] = useState<string[]>([]);
+  // A stay as two calendar days; "" is unset. Sitters not free for it are hidden.
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [unavailable, setUnavailable] = useState<Set<string>>(() => new Set());
+  const today = vilniusDay(new Date());
 
   useEffect(() => {
     // The landing page's links arrive here filtered (?service=, ?city=) since the public
@@ -75,6 +87,7 @@ export default function BrowsePage() {
     const fromLink = filtersFromSearch(window.location.search);
     if (fromLink.service) setService(fromLink.service);
     if (fromLink.city) setCity(fromLink.city);
+    if (fromLink.from && fromLink.to) { setFrom(fromLink.from); setTo(fromLink.to); }
 
     supabase.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("is_sitter", true).then(({ data }) => {
       const rows = (data ?? []) as Profile[];
@@ -93,12 +106,29 @@ export default function BrowsePage() {
     }
   }, []);
 
+  // One call per chosen stay, not one per card. Kept in the URL so a link reproduces the view.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (from) params.set("from", from); else params.delete("from");
+    if (to) params.set("to", to); else params.delete("to");
+    const query = params.toString();
+    window.history.replaceState(window.history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+
+    if (!from || !to || from > to) { setUnavailable(new Set()); return; }
+    let active = true;
+    supabase.rpc("sitters_unavailable_between", { p_from: from, p_to: to }).then(({ data }) => {
+      if (active) setUnavailable(new Set(data ?? []));
+    });
+    return () => { active = false; };
+  }, [from, to]);
+
   const recentSitters = recentIds
     .map((rid) => sitters.find((s) => s.id === rid))
     .filter((s): s is Profile => Boolean(s));
 
   // Everything but the service, so each pill can say what pressing it would leave.
   const beforeService = sitters.filter((s) => {
+    if (unavailable.has(s.id)) return false;
     if (search && !s.full_name?.toLowerCase().includes(search.toLowerCase())) return false;
     if (city !== ALL_CITIES && !sameCity(s.city, city)) return false;
     if (maxRate !== null) {
@@ -115,8 +145,8 @@ export default function BrowsePage() {
   const covers = useMemo(() => spreadCoverPhotos(filtered), [coverOrder]);
   useEffect(() => rememberCovers(covers), [covers]);
 
-  const anyFilter = Boolean(search) || city !== ALL_CITIES || Boolean(service) || maxRate !== null;
-  const clearAll = () => { setSearch(""); setCity(ALL_CITIES); setService(""); setMaxRate(null); };
+  const anyFilter = Boolean(search) || city !== ALL_CITIES || Boolean(service) || maxRate !== null || Boolean(from) || Boolean(to);
+  const clearAll = () => { setSearch(""); setCity(ALL_CITIES); setService(""); setMaxRate(null); setFrom(""); setTo(""); };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -166,6 +196,26 @@ export default function BrowsePage() {
           <ChipSelect label={t("appPages.browse.sortLabel")} value={sort} onChange={(v) => setSort(v as SortKey)}>
             {SORT_KEYS.map((key) => <option key={key} value={key}>{t(`appPages.browse.sort.${key}`)}</option>)}
           </ChipSelect>
+          {/* Native date pickers: the phone's own calendar, keyboard and screen reader for free. */}
+          <span className="inline-flex shrink-0 items-center gap-1.5">
+            <input
+              type="date"
+              aria-label={t("appPages.browse.fromLabel")}
+              value={from}
+              min={today}
+              onChange={(e) => { setFrom(e.target.value); if (to && e.target.value > to) setTo(e.target.value); }}
+              className={dateClass(Boolean(from))}
+            />
+            <span aria-hidden="true" className="text-ink-soft">–</span>
+            <input
+              type="date"
+              aria-label={t("appPages.browse.toLabel")}
+              value={to}
+              min={from || today}
+              onChange={(e) => setTo(e.target.value)}
+              className={dateClass(Boolean(to))}
+            />
+          </span>
           </div>
         </div>
 

@@ -9,6 +9,8 @@ import BrowsePage from "@/app/(app)/browse/page";
  * Rendered without a LanguageProvider, so `t` is the identity function.
  */
 
+const { rpcMock } = vi.hoisted(() => ({ rpcMock: vi.fn() }));
+
 vi.mock("@/lib/supabase", () => {
   const rows = [
     { id: "kaunas-groomer", full_name: "A", city: "kaunas", services: { grooming: true }, prices: { grooming: { amount: 20 } } },
@@ -20,7 +22,7 @@ vi.mock("@/lib/supabase", () => {
     select: () => chain,
     eq: () => ({ then: (cb: (r: { data: typeof rows }) => void) => Promise.resolve(cb({ data: rows })) }),
   };
-  return { supabase: { from: () => chain } };
+  return { supabase: { from: () => chain, rpc: rpcMock } };
 });
 vi.mock("@/hooks/useSitterRatings", () => ({ useSitterRatings: () => new Map() }));
 vi.mock("@/components/SitterCard", () => ({ default: ({ sitter }: { sitter: { id: string } }) => <p>card:{sitter.id}</p> }));
@@ -88,5 +90,40 @@ describe("/browse filter bar (variant A, 2026-09-15)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "appPages.browse.clearAllButton" }));
     expect(await cards()).toHaveLength(4);
+  });
+});
+
+describe("/browse date filter", () => {
+  it("hides the sitters who are not free for the chosen days, in one call", async () => {
+    rpcMock.mockReset();
+    rpcMock.mockResolvedValue({ data: ["kaunas-walker"], error: null });
+    window.history.replaceState({}, "", "/browse?from=2026-10-01&to=2026-10-05");
+    render(<BrowsePage />);
+    await vi.waitFor(() => expect(rpcMock).toHaveBeenCalledWith("sitters_unavailable_between", { p_from: "2026-10-01", p_to: "2026-10-05" }));
+    await vi.waitFor(async () => expect(await cards()).toHaveLength(3));
+    expect(await cards()).not.toContain("card:kaunas-walker");
+    expect(rpcMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText("appPages.browse.fromLabel")).toHaveValue("2026-10-01");
+    expect(screen.getByLabelText("appPages.browse.toLabel")).toHaveValue("2026-10-05");
+  });
+
+  it("asks nothing until both days are set", async () => {
+    rpcMock.mockReset();
+    window.history.replaceState({}, "", "/browse");
+    render(<BrowsePage />);
+    expect(await cards()).toHaveLength(4);
+    fireEvent.change(screen.getByLabelText("appPages.browse.fromLabel"), { target: { value: "2026-10-01" } });
+    expect(rpcMock).not.toHaveBeenCalled();
+  });
+
+  it("clear all resets the dates too", async () => {
+    rpcMock.mockReset();
+    rpcMock.mockResolvedValue({ data: ["kaunas-walker"], error: null });
+    window.history.replaceState({}, "", "/browse?from=2026-10-01&to=2026-10-05");
+    render(<BrowsePage />);
+    await vi.waitFor(async () => expect(await cards()).toHaveLength(3));
+    fireEvent.click(screen.getByRole("button", { name: "appPages.browse.clearAllButton" }));
+    await vi.waitFor(async () => expect(await cards()).toHaveLength(4));
+    expect(screen.getByLabelText("appPages.browse.fromLabel")).toHaveValue("");
   });
 });
