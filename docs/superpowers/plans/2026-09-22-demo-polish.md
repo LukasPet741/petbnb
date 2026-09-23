@@ -337,7 +337,6 @@ export function timelineSteps(status: string, startAt: string, endAt: string, no
 }
 ```
 
-(`startAt` stays in the signature because Step 3 of Task 5 shows "starts in N days" next to it. If an executor finds it unused by the end of Task 5, remove it from both.)
 
 - [ ] **Step 4:** Run it again. Expected: PASS (7 tests).
 - [ ] **Step 5: Commit**
@@ -405,7 +404,7 @@ export default function BookingTimeline({ status, startAt, endAt, now = Date.now
 }) {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion();
-  const steps = timelineSteps(status, startAt, endAt, now);
+  const steps = timelineSteps(status, endAt, now);
   if (!steps) return null;
 
   return (
@@ -444,7 +443,6 @@ export default function BookingTimeline({ status, startAt, endAt, now = Date.now
 }
 ```
 
-Remove `startAt` from `timelineSteps` and this component if it is still unused (see the Task 4 note), and update the tests to match.
 
 - [ ] **Step 4: Wire it into `BookingCard.tsx`**
   - Pending card: directly after `{priceLine && ...}` insert `<BookingTimeline status={booking.status} startAt={booking.start_at} endAt={booking.end_at} className="mt-4 max-w-sm" />`.
