@@ -16,6 +16,12 @@ import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 import PriceTag, { ServicePrice } from "@/components/PriceTag";
 import VerifiedSeal, { VerificationRow } from "@/components/VerifiedSeal";
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import { useBusyDays } from "@/hooks/useBusyDays";
+import { addDays, vilniusDay } from "@/lib/availability";
+
+/** How far ahead the calendar reads: the two months it shows, from today. */
+const CALENDAR_DAYS = 70;
 
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 const RECENTLY_VIEWED_MAX = 6;
@@ -50,6 +56,8 @@ export default function SitterProfilePage() {
   // branch, and the empty id list means an unloaded sitter issues no query.
   const ratings = useSitterRatings(sitter ? [sitter.id] : []);
   const rating = ratings.get(sitter?.id ?? "") ?? null;
+  const today = vilniusDay(new Date());
+  const { busy } = useBusyDays(sitter?.id ?? null, today, addDays(today, CALENDAR_DAYS));
 
   if (loading) return <div className="flex items-center justify-center py-24"><div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" /></div>;
   if (!sitter) return <div className="max-w-4xl mx-auto px-4 py-16 text-center"><p className="text-ink-soft">{t("appPages.browse.sitterNotFound")}</p><Link href="/browse" className="text-brand hover:underline mt-2 inline-block">{t("appPages.browse.backToBrowse")}</Link></div>;
@@ -118,6 +126,14 @@ export default function SitterProfilePage() {
                 ))}
               </div>
             )}
+          </motion.div>
+
+          {/* Availability: which days are taken, never by whom. */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.12 }}
+            className="glass-card rounded-2xl border p-6">
+            <h2 className="font-semibold text-ink">{t("appPages.availability.heading")}</h2>
+            <p className="text-sm text-ink-soft mt-0.5 mb-4">{t("appPages.availability.viewHint")}</p>
+            <AvailabilityCalendar busy={busy} today={today} mode="view" />
           </motion.div>
           {/* Reviews */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.16 }}
