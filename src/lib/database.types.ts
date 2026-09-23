@@ -493,6 +493,32 @@ export type Database = {
           },
         ]
       }
+      sitter_days_off: {
+        Row: {
+          created_at: string
+          day: string
+          sitter_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          sitter_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          sitter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_days_off_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       smart_id_demo_sessions: {
         Row: {
           created_at: string
@@ -603,6 +629,26 @@ export type Database = {
       request_smart_id_demo_verification: {
         Args: { p_session_id: string }
         Returns: undefined
+      }
+      sitter_availability_problem: {
+        Args: {
+          p_end: string
+          p_ignore_booking?: string
+          p_sitter: string
+          p_start: string
+        }
+        Returns: string
+      }
+      sitter_busy_days: {
+        Args: { p_from: string; p_sitter: string; p_to: string }
+        Returns: {
+          day: string
+          kind: string
+        }[]
+      }
+      sitters_unavailable_between: {
+        Args: { p_from: string; p_to: string }
+        Returns: string[]
       }
       stay_days: { Args: { p_end: string; p_start: string }; Returns: number }
       valid_prices: { Args: { p_prices: Json }; Returns: boolean }
