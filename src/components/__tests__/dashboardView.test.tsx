@@ -3,6 +3,7 @@ import { render, screen, within, fireEvent } from "@testing-library/react";
 import DashboardView, { type DashboardViewProps } from "@/components/dashboard/DashboardView";
 import type { DashBooking } from "@/lib/dashboard";
 import type { AppNotification } from "@/lib/types";
+import type { OnboardingStep } from "@/lib/sitter-onboarding";
 
 /**
  * Dashboard variant A (2026-09-15): one hero card for what needs the visitor next, the latest
@@ -139,5 +140,37 @@ describe("side column", () => {
     render(<DashboardView {...props()} />);
     expect(screen.getByRole("link", { name: /Rudis/ })).toHaveAttribute("href", "/pets");
     expect(screen.getByRole("link", { name: /appShell\.dashboard\.saved\.heading/ })).toHaveAttribute("href", "/saved");
+  });
+});
+
+describe("onboarding ring", () => {
+  const steps: OnboardingStep[] = [
+    { key: "photo", done: true, href: "/profile" },
+    { key: "bio", done: false, href: "/profile" },
+    { key: "services", done: true, href: "/profile" },
+    { key: "prices", done: true, href: "/profile" },
+    { key: "verified", done: false, href: "/smart-id-demo" },
+  ];
+  const RING = { name: "appShell.dashboard.onboarding.title" };
+
+  it("shows a sitter how far along they are and links each missing step", () => {
+    render(<DashboardView {...props({ onboarding: steps })} />);
+    expect(screen.getByRole("progressbar", RING)).toHaveAttribute("aria-valuenow", "60");
+    expect(hrefOf("appShell.dashboard.onboarding.steps.verified")).toBe("/smart-id-demo");
+    expect(hrefOf("appShell.dashboard.onboarding.steps.bio")).toBe("/profile");
+  });
+
+  it("does not link steps that are already done", () => {
+    render(<DashboardView {...props({ onboarding: steps })} />);
+    expect(screen.getByText("appShell.dashboard.onboarding.steps.photo").closest("a")).toBeNull();
+  });
+
+  it("disappears once everything is done, and for anyone who is not a sitter", () => {
+    const { rerender } = render(<DashboardView {...props({ onboarding: steps.map((s) => ({ ...s, done: true })) })} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    rerender(<DashboardView {...props({ onboarding: null })} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    rerender(<DashboardView {...props()} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });

@@ -8,6 +8,7 @@ import { useNotifications } from "@/context/NotificationsContext";
 import { useLanguage } from "@/context/LanguageContext";
 import DashboardView from "@/components/dashboard/DashboardView";
 import { pickHero, waitingList, type DashBooking } from "@/lib/dashboard";
+import { onboardingSteps } from "@/lib/sitter-onboarding";
 
 interface Pet { id: string; name: string; type: string; photo_url: string | null; }
 
@@ -59,6 +60,7 @@ export default function DashboardPage() {
       unreadCount={unreadCount}
       onMarkAllRead={() => void markAllRead()}
       onOpenNotification={(n) => { if (!n.read_at) void markRead([n.id]); }}
+      onboarding={isSitter && profile ? onboardingSteps(profile) : null}
     />
   );
 }

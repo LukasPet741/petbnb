@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import Avatar from "@/components/Avatar";
 import NextUpCard from "@/components/dashboard/NextUpCard";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
+import OnboardingRing from "@/components/dashboard/OnboardingRing";
+import { onboardingPercent, type OnboardingStep } from "@/lib/sitter-onboarding";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp, stagger } from "@/lib/motion";
 import { pluralForm } from "@/lib/i18n/plural";
@@ -24,6 +26,8 @@ export interface DashboardViewProps {
   unreadCount: number;
   onMarkAllRead: () => void;
   onOpenNotification: (n: AppNotification) => void;
+  /** A sitter's steps towards being bookable; null for everyone else. Hidden once all are done. */
+  onboarding?: OnboardingStep[] | null;
 }
 
 function greetingKey(hour: number) {
@@ -63,6 +67,12 @@ export default function DashboardView(props: DashboardViewProps) {
           <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </Link>
       </motion.header>
+
+      {props.onboarding && onboardingPercent(props.onboarding) < 100 && (
+        <motion.div variants={fadeUp}>
+          <OnboardingRing steps={props.onboarding} />
+        </motion.div>
+      )}
 
       <motion.div variants={fadeUp}>
         <NextUpCard hero={props.hero} hasPets={props.pets.length > 0} now={props.now} />

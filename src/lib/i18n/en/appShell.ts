@@ -26,6 +26,17 @@ const appShell = {
     sitterSpotlight: "Sitter spotlight",
   },
   dashboard: {
+    onboarding: {
+      title: "Get bookable",
+      subtitle: "Owners can book you once these are done.",
+      steps: {
+        photo: "Add a profile photo",
+        bio: "Write a few words about you",
+        services: "Choose your services",
+        prices: "Price every service",
+        verified: "Confirm your identity with Smart-ID",
+      },
+    },
     greeting: {
       morning: "Good morning",
       afternoon: "Good afternoon",

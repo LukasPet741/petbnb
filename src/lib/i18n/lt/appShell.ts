@@ -26,6 +26,17 @@ const appShell = {
     sitterSpotlight: "Rekomenduojamas globėjas",
   },
   dashboard: {
+    onboarding: {
+      title: "Pasiruoškite užsakymams",
+      subtitle: "Šeimininkai galės jus užsakyti, kai atliksite šiuos žingsnius.",
+      steps: {
+        photo: "Įkelkite profilio nuotrauką",
+        bio: "Parašykite kelis žodžius apie save",
+        services: "Pasirinkite paslaugas",
+        prices: "Nurodykite kiekvienos paslaugos kainą",
+        verified: "Patvirtinkite tapatybę su Smart-ID",
+      },
+    },
     greeting: {
       morning: "Labas rytas",
       afternoon: "Laba diena",
