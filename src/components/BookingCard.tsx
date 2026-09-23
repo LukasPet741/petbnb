@@ -6,6 +6,7 @@ import { STATUS_CONFIG, type BookingStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "@/components/Avatar";
+import BookingTimeline from "@/components/BookingTimeline";
 
 interface BookingCardBooking {
   id: string;
@@ -107,6 +108,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
             {booking.pet?.name} · {t(`common.services.${booking.service}`)} · {displayLabel} {displayProfile?.full_name}
           </p>
           {priceLine && <p className="text-sm font-semibold text-ink mt-2 tabular-nums">{priceLine}</p>}
+          <BookingTimeline status={booking.status} endAt={booking.end_at} className="mt-4 max-w-sm" />
           {(booking.notes || booking.address) && (
             <div className="mt-3 space-y-1">
               {booking.address && <span className="flex items-center gap-1.5 text-xs text-ink-soft"><MapPin className="w-3.5 h-3.5" />{booking.address}</span>}
@@ -185,6 +187,8 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       </span>
       </div>
       </div>
+      {/* Hides itself on cancelled and declined cards. */}
+      <BookingTimeline status={booking.status} endAt={booking.end_at} className="mt-3" />
       {reviewSlot}
     </motion.div>
   );

@@ -44,6 +44,13 @@ const appPages = {
   },
   bookings: {
     title: "Užsakymai",
+    timeline: {
+      label: "Užsakymo eiga",
+      requested: "Užklausa",
+      accepted: "Priimta",
+      inProgress: "Vyksta",
+      completed: "Baigta",
+    },
     loadingText: "Kraunama…",
     count: {
       one: "Iš viso {count} užsakymas",

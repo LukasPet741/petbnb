@@ -45,6 +45,13 @@ const appPages = {
   },
   bookings: {
     title: "Bookings",
+    timeline: {
+      label: "Booking progress",
+      requested: "Requested",
+      accepted: "Accepted",
+      inProgress: "In progress",
+      completed: "Completed",
+    },
     loadingText: "Loading…",
     count: {
       one: "{count} booking in total",

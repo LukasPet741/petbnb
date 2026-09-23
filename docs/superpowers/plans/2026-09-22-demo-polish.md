@@ -258,7 +258,7 @@ select count(*) from public.notifications where created_at > now() - interval '1
   export type TimelineStepKey = "requested" | "accepted" | "inProgress" | "completed";
   export type StepState = "done" | "current" | "todo";
   export interface TimelineStep { key: TimelineStepKey; state: StepState }
-  export function timelineSteps(status: string, startAt: string, endAt: string, now: number): TimelineStep[] | null;
+  export function timelineSteps(status: string, endAt: string, now: number): TimelineStep[] | null; // startAt dropped 2026-09-23: unused
   ```
 
 - [ ] **Step 1: Write the failing tests**

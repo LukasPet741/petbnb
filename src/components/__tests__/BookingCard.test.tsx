@@ -463,3 +463,23 @@ describe("price (per-period prices and offers, 2026-09-15)", () => {
     expect(screen.getByText("Waiting for the owner")).toBeInTheDocument();
   });
 });
+
+describe("timeline", () => {
+  const TIMELINE = { name: "appPages.bookings.timeline.label" };
+
+  it("shows the booking's progress on a pending card and on a confirmed one", () => {
+    const { unmount } = renderCard();
+    expect(screen.getByRole("list", TIMELINE)).toBeInTheDocument();
+    unmount();
+    renderCard({ booking: booking({ status: "signed" }) });
+    expect(screen.getByRole("list", TIMELINE)).toBeInTheDocument();
+  });
+
+  it("leaves it off cancelled and declined cards", () => {
+    const { unmount } = renderCard({ booking: booking({ status: "cancelled" }) });
+    expect(screen.queryByRole("list", TIMELINE)).toBeNull();
+    unmount();
+    renderCard({ booking: booking({ status: "declined" }) });
+    expect(screen.queryByRole("list", TIMELINE)).toBeNull();
+  });
+});
