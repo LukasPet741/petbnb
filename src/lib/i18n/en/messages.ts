@@ -39,6 +39,8 @@ const messages = {
     noteLabel: "Note (optional)",
     failed: "Offer not sent. Please try again.",
     priceChanged: "The price just changed.",
+    sitterUnavailable: "You've marked some of these days as away. Free them in your profile to accept.",
+    alreadyBooked: "You already accepted a booking that overlaps these dates.",
     acceptFailed: "Couldn't accept the price. Please try again.",
   },
 

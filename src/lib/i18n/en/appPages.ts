@@ -95,6 +95,8 @@ const appPages = {
     waitingForSitter: "Waiting for the sitter",
     negotiateLink: "Negotiate in chat",
     priceChanged: "The price just changed. Check the chat.",
+    sitterUnavailable: "You've marked some of these days as away. Free them in your profile to accept.",
+    alreadyBooked: "You already accepted a booking that overlaps these dates.",
     actionFailed: "That didn't work. Please try again.",
   },
   bookingsNew: {
@@ -147,6 +149,9 @@ const appPages = {
     cancelButton: "Cancel",
     sendRequestButton: "Send request",
     submitError: "Couldn't send the request. Please try again.",
+    sitterUnavailable: "This sitter is away on some of these days. Pick other dates.",
+    alreadyBooked: "This sitter was booked for these dates in the meantime. Pick other dates.",
+    busyWarning: "The sitter already has a booking on one of these days. They may not be able to accept.",
   },
   pets: {
     title: "My pets",

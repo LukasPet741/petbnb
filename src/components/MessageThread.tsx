@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, MessageCircleOff, Send, TriangleAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { problemFromHint } from "@/lib/availability";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotifications } from "@/context/NotificationsContext";
@@ -382,7 +383,13 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
       .eq("id", booking.id);
     setPriceBusy(false);
     if (error) {
-      setPriceError(t(error.hint === "price_changed" ? "messages.offer.priceChanged" : "messages.offer.acceptFailed"));
+      const problem = problemFromHint(error.hint);
+      setPriceError(t(
+        problem === "sitter_unavailable" ? "messages.offer.sitterUnavailable"
+          : problem === "already_booked" ? "messages.offer.alreadyBooked"
+          : error.hint === "price_changed" ? "messages.offer.priceChanged"
+          : "messages.offer.acceptFailed",
+      ));
       void refetchMessages();
     }
     void refetchBooking();

@@ -85,6 +85,8 @@ const appPages = {
     waitingForSitter: "Laukiama globėjo atsakymo",
     negotiateLink: "Derėtis pokalbyje",
     priceChanged: "Kaina ką tik pasikeitė. Patikrinkite pokalbį.",
+    sitterUnavailable: "Kai kurias šias dienas pažymėjote kaip išvykimo. Atlaisvinkite jas profilyje, kad priimtumėte.",
+    alreadyBooked: "Jau priėmėte užsakymą, kuris sutampa su šiomis datomis.",
     actionFailed: "Nepavyko. Bandykite dar kartą.",
     relativeToday: "Šiandien",
     relativeTomorrow: "Rytoj",
@@ -146,6 +148,9 @@ const appPages = {
     cancelButton: "Atšaukti",
     sendRequestButton: "Siųsti užklausą",
     submitError: "Nepavyko išsiųsti užklausos. Bandykite dar kartą.",
+    sitterUnavailable: "Šiomis dienomis globėjas išvykęs. Pasirinkite kitas datas.",
+    alreadyBooked: "Šioms datoms globėjas jau užsakytas. Pasirinkite kitas datas.",
+    busyWarning: "Vieną iš šių dienų globėjas jau turi užsakymą, todėl gali nepriimti.",
   },
   pets: {
     title: "Mano augintiniai",

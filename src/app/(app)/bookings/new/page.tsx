@@ -24,6 +24,8 @@ import { type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/ty
 import { offeredServices, resolveService } from "@/lib/services";
 import { bookingRangeProblem, toDateTimeLocalValue } from "@/lib/booking-duration";
 import { sitterBlocker } from "@/lib/sitter-blocker";
+import { addDays, formClash, problemFromHint, vilniusDay } from "@/lib/availability";
+import { useBusyDays } from "@/hooks/useBusyDays";
 import Avatar from "@/components/Avatar";
 import BookingSummary from "@/components/BookingSummary";
 import RequestPrice, { requestPriceValid, type PriceChoice } from "@/components/RequestPrice";
@@ -165,6 +167,13 @@ function NewBookingForm() {
   const rangeProblem = bookingRangeProblem(form.start_at, form.end_at, now);
   const minStart = toDateTimeLocalValue(now);
 
+  // A day off blocks (the database refuses it); a booked day only warns, see formClash.
+  const today = vilniusDay(now);
+  const { busy } = useBusyDays(bookableSitter?.id ?? null, today, addDays(today, 400));
+  const clash = form.start_at && form.end_at && !rangeProblem
+    ? formClash(new Date(form.start_at).toISOString(), new Date(form.end_at).toISOString(), busy)
+    : null;
+
   // The same numbers enforce_booking_rules freezes on the booking when it is saved. The price
   // choice waits for the dates, so it never quotes a stay nobody has described; a service with
   // no price at all is said at once.
@@ -175,6 +184,7 @@ function NewBookingForm() {
   const canSubmit =
     Boolean(form.sitter_id && form.pet_id && form.service && form.start_at && form.end_at) &&
     !rangeProblem &&
+    !clash?.block &&
     !blocker &&
     requestPriceValid(priceChoice, asking, form.service) &&
     !loading;
@@ -204,7 +214,12 @@ function NewBookingForm() {
     // policies. Log it for whoever is debugging; show the user something they can act on.
     if (err) {
       console.error("booking insert failed", err);
-      setError(t("appPages.bookingsNew.submitError"));
+      const problem = problemFromHint(err.hint);
+      setError(t(
+        problem === "sitter_unavailable" ? "appPages.bookingsNew.sitterUnavailable"
+          : problem === "already_booked" ? "appPages.bookingsNew.alreadyBooked"
+          : "appPages.bookingsNew.submitError",
+      ));
       setLoading(false);
       return;
     }
@@ -418,6 +433,12 @@ function NewBookingForm() {
                 );
               })}
             </div>
+            {clash?.block && (
+              <p role="alert" className="text-sm text-danger">{t("appPages.bookingsNew.sitterUnavailable")}</p>
+            )}
+            {clash && !clash.block && (
+              <p className="text-sm text-amber-strong">{t("appPages.bookingsNew.busyWarning")}</p>
+            )}
 
             {form.service && !blocker && (days !== null || !priced) && (
               <div>

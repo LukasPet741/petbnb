@@ -39,6 +39,8 @@ const messages = {
     noteLabel: "Žinutė (neprivaloma)",
     failed: "Pasiūlymas neišsiųstas. Bandykite dar kartą.",
     priceChanged: "Kaina ką tik pasikeitė.",
+    sitterUnavailable: "Kai kurias šias dienas pažymėjote kaip išvykimo. Atlaisvinkite jas profilyje, kad priimtumėte.",
+    alreadyBooked: "Jau priėmėte užsakymą, kuris sutampa su šiomis datomis.",
     acceptFailed: "Nepavyko priimti kainos. Bandykite dar kartą.",
   },
 

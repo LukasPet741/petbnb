@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { problemFromHint } from "@/lib/availability";
 import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { type BookingStatus } from "@/lib/types";
@@ -105,7 +106,15 @@ export default function BookingsPage() {
 
   const handleCancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
-    if (error) { setToastMessage(t("appPages.bookings.actionFailed")); return; }
+    if (error) {
+      const problem = problemFromHint(error.hint);
+      setToastMessage(t(
+        problem === "sitter_unavailable" ? "appPages.bookings.sitterUnavailable"
+          : problem === "already_booked" ? "appPages.bookings.alreadyBooked"
+          : "appPages.bookings.actionFailed",
+      ));
+      return;
+    }
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: "cancelled" } : b));
     setToastMessage(t("appPages.bookings.toastCancelled"));
   };
@@ -122,7 +131,13 @@ export default function BookingsPage() {
   const handleAccept = async (id: string, amount: number) => {
     const { error } = await supabase.from("bookings").update({ status: "signed", agreed_price: amount }).eq("id", id);
     if (error) {
-      setToastMessage(t(error.hint === "price_changed" ? "appPages.bookings.priceChanged" : "appPages.bookings.actionFailed"));
+      const problem = problemFromHint(error.hint);
+      setToastMessage(t(
+        problem === "sitter_unavailable" ? "appPages.bookings.sitterUnavailable"
+          : problem === "already_booked" ? "appPages.bookings.alreadyBooked"
+          : error.hint === "price_changed" ? "appPages.bookings.priceChanged"
+          : "appPages.bookings.actionFailed",
+      ));
       void load();
       return;
     }
