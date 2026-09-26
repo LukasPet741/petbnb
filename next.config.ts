@@ -56,7 +56,8 @@ const csp = [
   // the Supabase storage bucket already covered below.
   `img-src 'self' data: blob: https://images.unsplash.com https://randomuser.me https://*.tile.openstreetmap.org ${supabaseHttp.join(" ")}`,
   `font-src 'self' data:`,
-  `connect-src 'self' ${[...supabaseHttp, ...supabaseWs].join(" ")}`,
+  // Nominatim: the collar page's place name ("Vingis Park"), throttled in src/lib/collar/placeName.ts.
+  `connect-src 'self' ${[...supabaseHttp, ...supabaseWs].join(" ")} https://nominatim.openstreetmap.org`,
   `worker-src 'self' blob:`,
   `frame-ancestors 'none'`,
   `base-uri 'self'`,
