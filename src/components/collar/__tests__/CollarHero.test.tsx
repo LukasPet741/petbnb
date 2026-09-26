@@ -84,6 +84,13 @@ describe("CollarHero", () => {
     expect(onPlay).toHaveBeenCalled();
   });
 
+  it("keeps the map's layers inside its own box, under the page's dialogs", () => {
+    hero("live");
+    // Leaflet's panes (z 200–1000) and the z-800 cards otherwise paint over the pairing wizard
+    // and the rename/remove dialogs (z-50) that open on this page — seen in the /dev sandbox.
+    expect(screen.getByTestId("map").closest(".isolate")).not.toBeNull();
+  });
+
   it("says when there is no recording yet", () => {
     hero("searching", { replayError: "no_recording" });
     expect(screen.getByText("appPages.collar.replay.noRecording")).toBeTruthy();

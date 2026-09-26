@@ -107,9 +107,12 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[13.5px] font-semibold text-ink">{t("appShell.spotlight.smartIdTitle")}</div>
-          <div className={cn("flex items-center gap-1 truncate text-[11.5px] font-medium", verified ? "text-brand" : "text-amber-strong")}>
-            {verified && <Check className="h-3 w-3" strokeWidth={2.6} aria-hidden="true" />}
-            {verified ? t("appShell.spotlight.smartIdVerified") : t("appShell.spotlight.smartIdTodo")}
+          <div className={cn("flex min-w-0 items-center gap-1 text-[11.5px] font-medium", verified ? "text-brand" : "text-amber-strong")}>
+            {verified && <Check className="h-3 w-3 flex-shrink-0" strokeWidth={2.6} aria-hidden="true" />}
+            {/* Its own span: text-overflow works on a block, not on the flex line around it. */}
+            <span className="truncate">
+              {verified ? t("appShell.spotlight.smartIdVerified") : t("appShell.spotlight.smartIdTodo")}
+            </span>
           </div>
         </div>
         {verified ? (

@@ -49,7 +49,9 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
 
   return (
     <>
-      <div className="relative h-[330px] overflow-hidden rounded-[20px] shadow-[var(--shadow-md)] sm:h-[420px] lg:h-[486px]">
+      {/* isolate: Leaflet's panes (z 200–1000) and the z-800 cards stay inside this box, so the
+          pairing wizard and the rename/remove dialogs (z-50) open above the map, not under it. */}
+      <div className="relative isolate h-[330px] overflow-hidden rounded-[20px] shadow-[var(--shadow-md)] sm:h-[420px] lg:h-[486px]">
         <div className={cn("h-full w-full", muted && "grayscale-[60%] opacity-80")}>
           <LazyCollarMap
             lat={center.lat}
@@ -64,10 +66,13 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
 
         {state === "live" && latest && <StatusCard device={device} latest={latest} place={place} />}
         {state === "live" && latest && (
-          <div className="glass-panel absolute bottom-3 left-3 z-[800] flex items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px] font-medium sm:hidden">
+          // bottom-6, not bottom-3: the OpenStreetMap credit sits in the bottom-right corner.
+          <div className="glass-panel absolute bottom-6 left-3 z-[800] flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px] font-medium sm:hidden">
             <LiveDot />
-            {t("appPages.collar.updatedAgo", { ago: timeAgo(latest.recorded_at, t, "appPages.collar.ago") })}
-            {place ? ` · ${place}` : ""}
+            <span className="truncate">
+              {t("appPages.collar.updatedAgo", { ago: timeAgo(latest.recorded_at, t, "appPages.collar.ago") })}
+              {place ? ` · ${place}` : ""}
+            </span>
           </div>
         )}
         {state === "live" && today && (

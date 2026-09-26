@@ -146,8 +146,9 @@ export default function Sidebar() {
         </div>
       </header>
 
-      {/* Desktop fixed sidebar. Scrolls on short screens now that it carries the spotlight cards. */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 glass border-r flex-col p-4 z-40 overflow-y-auto">
+      {/* Desktop fixed sidebar. Scrolls on short screens now that it carries the spotlight cards,
+          without a visible scrollbar: a 10 px Windows one narrowed the cards and clipped their text. */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 glass border-r flex-col p-4 z-40 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {Inner}
       </aside>
 

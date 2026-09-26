@@ -154,8 +154,9 @@ export default function CollarMap({ lat, lng, label, path, showMarker = true, st
   return (
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
+      {/* Not on phones: fingers pinch to zoom, and the state cards there need the whole map. */}
       {controls && (
-        <div className="glass-panel absolute right-4 top-4 z-[800] flex flex-col rounded-[14px] border p-0.5">
+        <div className="glass-panel absolute right-4 top-4 z-[800] hidden flex-col rounded-[14px] border p-0.5 sm:flex">
           <button type="button" aria-label={controls.zoomIn} onClick={() => mapRef.current?.zoomIn()} className="grid h-9 w-9 place-items-center text-ink-soft hover:text-ink">
             <Plus className="h-4 w-4" aria-hidden="true" />
           </button>

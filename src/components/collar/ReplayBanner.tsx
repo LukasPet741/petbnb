@@ -30,8 +30,9 @@ export default function ReplayBanner({ replay, onStop }: { replay: ReplayProgres
           <div className="h-full rounded-full bg-amber transition-[width] duration-500" style={{ width: known ? `${(replay.idx / replay.total) * 100}%` : "0%" }} />
         </div>
       </div>
+      {/* bottom-6, not bottom-3: the OpenStreetMap credit sits in the bottom-right corner. */}
       <button type="button" onClick={onStop}
-        className="glass-panel absolute bottom-3 right-3 z-[800] flex h-10 items-center gap-2 rounded-xl border px-3.5 text-[13px] font-semibold text-ink">
+        className="glass-panel absolute bottom-6 right-3 z-[800] flex h-10 items-center gap-2 rounded-xl border px-3.5 text-[13px] font-semibold text-ink">
         <Square className="h-3.5 w-3.5" aria-hidden="true" />
         {t("appPages.collar.stop")}
       </button>

@@ -120,6 +120,21 @@ describe("the collar and Smart-ID cards", () => {
     expect(within(card).getByText("appShell.spotlight.demo")).toBeTruthy();
   });
 
+  it("ellipsizes the Smart-ID line rather than clipping it on a narrow rail", () => {
+    // text-overflow works on a block, not on a flex container: the text needs its own span.
+    render(<Sidebar />);
+    const card = first(/appShell\.spotlight\.smartIdTitle/);
+    const line = within(card).getByText("appShell.spotlight.smartIdTodo");
+    expect(line.tagName).toBe("SPAN");
+    expect(line.className).toContain("truncate");
+  });
+
+  it("lets the desktop rail scroll without a scrollbar taking the cards' width", () => {
+    // Below ~800 px tall the rail scrolls; a 10 px Windows scrollbar clipped the LT Smart-ID line.
+    render(<Sidebar />);
+    expect(screen.getByRole("complementary").className).toContain("[scrollbar-width:none]");
+  });
+
   it("puts a collar button in the phone's top bar", () => {
     render(<Sidebar />);
     expect(screen.getByRole("link", { name: "appShell.spotlight.collarButton" }).getAttribute("href")).toBe("/collar");
