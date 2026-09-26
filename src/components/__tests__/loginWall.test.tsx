@@ -46,6 +46,7 @@ vi.mock("@/components/CollarsPanel", () => ({ default: () => null }));
 vi.mock("@/components/ImageUpload", () => ({ default: () => null }));
 vi.mock("@/context/FavoritesContext", () => ({ FavoritesProvider: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/context/NotificationsContext", () => ({ NotificationsProvider: ({ children }: { children: React.ReactNode }) => children }));
+vi.mock("@/context/CollarLiveContext", () => ({ CollarLiveProvider: ({ children }: { children: React.ReactNode }) => children }));
 
 const SIGNED_IN = { user: { id: "u1" }, session: {}, loading: false };
 const SIGNED_OUT = { user: null, session: null, loading: false };

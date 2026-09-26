@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { NotificationsProvider } from "@/context/NotificationsContext";
+import { CollarLiveProvider } from "@/context/CollarLiveContext";
 import { withNext } from "@/lib/next-path";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -37,15 +38,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <FavoritesProvider>
       <NotificationsProvider>
-        {/* No backdrop of its own: the root layout's Atmosphere is the one ambient
-            field behind every page, signed in or not. */}
-        <div className="min-h-[100dvh]">
-          <Sidebar />
+        <CollarLiveProvider>
+          {/* No backdrop of its own: the root layout's Atmosphere is the one ambient
+              field behind every page, signed in or not. */}
+          <div className="min-h-[100dvh]">
+            <Sidebar />
 
-          <div className="lg:pl-64 relative z-10">
-            <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
+            <div className="lg:pl-64 relative z-10">
+              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
+            </div>
           </div>
-        </div>
+        </CollarLiveProvider>
       </NotificationsProvider>
     </FavoritesProvider>
   );
