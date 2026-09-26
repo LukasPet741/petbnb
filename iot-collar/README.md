@@ -144,18 +144,59 @@ Log out and back in (or reboot) after `usermod` for the group change to apply.
 
 ## Provisioning a collar (once per device)
 
-Provisioning now happens in the app itself: sign in, go to **Profile → My
-Collars → Add a collar**, give it a label, and the app calls the
-`register_collar_device` RPC for you (`owner_id` is taken from your session,
-never from client input) and shows you the generated device id + secret
-**once**. Copy both into the Pi's `.env` as `DEVICE_ID` / `DEVICE_SECRET`.
+Collars are registered before anyone owns them. The owner pairs one in the app by typing the code
+from its sticker (Collar → Pair a collar).
 
-The plaintext secret is never stored — only its bcrypt hash — so if you lose
-it, delete that collar in the UI and add a new one.
+On the laptop:
 
-(If you need to provision without the UI, the same RPC works from the SQL
-editor: `select register_collar_device(p_secret := '<random string>', p_label := 'Rex''s collar');`
-while signed in as that user.)
+```bash
+cd iot-collar
+.venv/Scripts/python -m tools.provision      # Windows; .venv/bin/python on macOS/Linux
+```
+
+It writes `DEVICE_ID`/`DEVICE_SECRET` into `iot-collar/.env` (fill in `SUPABASE_ANON_KEY` once),
+prints an `insert` for the Supabase SQL editor, and prints the sticker text
+(`PETBNB COLLAR · PAIRING CODE 7K3Q-9D2M`). Run the insert (a prod write), print the sticker, then
+copy the `.env` to the Pi:
+
+```bash
+scp .env <your-username>@petbnb-collar.local:~/petbnb-collar/.env
+ssh <your-username>@petbnb-collar.local 'sudo systemctl restart petbnb-collar'
+```
+
+The plain secret lives only in that `.env`; Supabase keeps a bcrypt hash. Removing the collar in
+the app unpairs it (its history is deleted) and the sticker code works again.
+
+## Testing on the laptop
+
+```bash
+cd iot-collar
+py -3.12 -m venv .venv && .venv/Scripts/python -m pip install -r requirements-dev.txt
+.venv/Scripts/python -m pytest -q
+```
+
+`requirements-dev.txt` leaves out bluezero (Linux-only); the tests never import it.
+
+## At the defence
+
+- Put the Pi on a phone hotspot: eduroam-style university WiFi is hard for a Pi.
+- Indoors the GPS usually cannot lock. The collar still checks in, and the site shows
+  "Online · looking for satellites"; play the recorded walk for movement.
+- Switch the Pi off when not demoing: while on it calls collar-ingest about 5,800 times a day.
+
+## Recording a walk
+
+Walk the paired collar outdoors for 30–40 minutes, starting and ending somewhere public. Then, with
+Lukas's yes, copy that window into `collar_recordings` (newest recording is the one replayed):
+
+```sql
+insert into public.collar_recordings (name, recorded_on, points)
+select 'Vingis Park', min(recorded_at)::date,
+       jsonb_agg(jsonb_build_object('lat', lat, 'lng', lng, 'speed_kmh', speed_kmh) order by recorded_at)
+from public.collar_locations
+where device_id = '<collar id>' and source = 'collar'
+  and recorded_at between '<walk start>' and '<walk end>';
+```
 
 ## Running it
 
@@ -164,10 +205,9 @@ it to a systemd service:
 ```bash
 python -m collar.main
 ```
-You should see log lines like `Fix: 54.898500, 23.903600 @ 0.0 km/h` once the
-GPS gets a lock, `BLE peripheral advertising as GATT service …`, and either
-silence (uplink succeeded) or a warning + queued-fix message if WiFi/the
-backend is unreachable. To confirm BLE is actually visible, scan for it from
+You should see log lines like `Fix: 54.683300, 25.233300 @ 4.2 km/h, 7 satellites` once the GPS
+locks, or `No GPS fix: 3 satellite(s) in view` before that (each one is sent as a check-in), and
+`BLE peripheral advertising as GATT service …`. To confirm BLE is actually visible, scan for it from
 a phone with a generic BLE scanner app (e.g. **nRF Connect** on Android/iOS)
 — you should see a device named "PetBnB Collar" advertising. To confirm the
 WiFi leg, check **Profile → My collars** on the site after a fix logs — the
