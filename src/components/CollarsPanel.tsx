@@ -8,6 +8,7 @@ import { timeAgo } from "@/lib/utils";
 import EmptyState from "@/components/EmptyState";
 import { useLanguage } from "@/context/LanguageContext";
 import { pluralForm } from "@/lib/i18n/plural";
+import { todayInputValue, routeStats, lastSevenDates, weekdayShort, ACTIVITY_RESTING_MAX_KMH, ACTIVITY_WALKING_MAX_KMH } from "@/lib/collar/stats";
 
 const CollarMap = dynamic(() => import("@/components/CollarMap"), { ssr: false });
 
@@ -43,58 +44,6 @@ interface WeeklyStats {
 }
 
 const POLL_INTERVAL_MS = 30_000;
-
-// Activity-level thresholds (km/h) used to bucket points from the weekly route history.
-const ACTIVITY_RESTING_MAX_KMH = 1;
-const ACTIVITY_WALKING_MAX_KMH = 7;
-
-export function todayInputValue(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
-}
-
-export function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const R = 6371;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
-export function routeStats(points: RoutePoint[]): { distanceKm: number; durationMin: number } | null {
-  if (points.length < 2) return null;
-  let distanceKm = 0;
-  for (let i = 1; i < points.length; i++) distanceKm += haversineKm(points[i - 1], points[i]);
-  const durationMin = (new Date(points[points.length - 1].recorded_at).getTime() - new Date(points[0].recorded_at).getTime()) / 60_000;
-  return { distanceKm, durationMin };
-}
-
-/** Monday-through-Sunday date strings (YYYY-MM-DD, local time) for the week containing today. */
-export function currentWeekDates(): string[] {
-  const now = new Date();
-  const day = now.getDay(); // 0 = Sun ... 6 = Sat
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + mondayOffset);
-  const dates: string[] = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const offset = d.getTimezoneOffset();
-    dates.push(new Date(d.getTime() - offset * 60_000).toISOString().slice(0, 10));
-  }
-  return dates;
-}
-
-export function weekdayShort(dateStr: string, locale: string): string {
-  const date = new Date(`${dateStr}T00:00:00`);
-  const raw = new Intl.DateTimeFormat(locale === "lt" ? "lt-LT" : "en-US", { weekday: "short" }).format(date);
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
-}
 
 export default function CollarsPanel() {
   const { t, locale } = useLanguage();
@@ -138,7 +87,7 @@ export default function CollarsPanel() {
   // silent truncation from a single wide range query — so each day is fetched as its own
   // request (mirroring the single-day route query above) and aggregated client-side.
   const loadWeeklyStats = useCallback(async (deviceIds: string[]) => {
-    const weekDates = currentWeekDates();
+    const weekDates = lastSevenDates();
     const entries = await Promise.all(
       deviceIds.map(async (id) => {
         const dayResults = await Promise.all(

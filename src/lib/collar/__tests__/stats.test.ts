@@ -3,11 +3,17 @@ import {
   todayInputValue,
   haversineKm,
   routeStats,
-  currentWeekDates,
+  lastSevenDates,
   weekdayShort,
-} from "@/components/CollarsPanel";
+  activityOf,
+  activityMix,
+  summarizeWeek,
+  formatClock,
+  formatDayMonth,
+  dayBounds,
+} from "@/lib/collar/stats";
 
-// The pure date/geo maths behind the collar panel. All of it is timezone
+// The pure date/geo maths behind the collar page. All of it is timezone
 // sensitive and the suite pins TZ to Europe/Vilnius.
 
 const pt = (lat: number, lng: number, recorded_at: string) => ({ lat, lng, recorded_at });
@@ -65,7 +71,7 @@ describe("haversineKm", () => {
   });
 
   it("lets a NaN distance slip past the panel's positivity guard", () => {
-    // Demonstrates the exact condition CollarsPanel uses before rendering.
+    // Demonstrates the exact condition the old collar panel used before rendering.
     const total = haversineKm({ lat: NaN, lng: 0 }, { lat: 1, lng: 1 });
     expect(total <= 0).toBe(false);
     expect(Number.isNaN(total)).toBe(true);
@@ -156,91 +162,72 @@ describe("routeStats", () => {
   });
 });
 
-describe("currentWeekDates", () => {
-  const weekAt = (iso: string) => {
+describe("lastSevenDates", () => {
+  const daysAt = (iso: string) => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(iso));
-    return currentWeekDates();
+    return lastSevenDates();
   };
 
-  it("starts the week on Monday when today is Monday", () => {
-    // 2026-09-07 is a Monday.
-    const week = weekAt("2026-09-07T12:00:00+03:00");
-    expect(week[0]).toBe("2026-09-07");
-    expect(week[6]).toBe("2026-09-13");
+  it("ends today and starts six days back", () => {
+    expect(daysAt("2026-09-10T12:00:00+03:00")).toEqual([
+      "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10",
+    ]);
   });
 
-  it("puts a midweek day in its correct slot", () => {
-    // 2026-09-10 is a Thursday, so index 3.
-    const week = weekAt("2026-09-10T12:00:00+03:00");
-    expect(week[3]).toBe("2026-09-10");
-    expect(week[0]).toBe("2026-09-07");
-  });
-
-  // The single most important branch: getDay() is 0 on Sunday, so a naive
-  // `1 - day` would jump forward to the NEXT Monday. The -6 special case makes
-  // Sunday belong to the week that is ending, which is what a user expects
-  // from a "this week" summary.
-  it("treats Sunday as the last day of the week that is ending, not the first of the next", () => {
-    // 2026-09-13 is a Sunday.
-    const week = weekAt("2026-09-13T12:00:00+03:00");
-    expect(week[0]).toBe("2026-09-07");
-    expect(week[6]).toBe("2026-09-13");
-  });
-
-  it("rolls back into the previous month when the week straddles it", () => {
-    // 2026-03-01 is a Sunday, so its week starts in February.
-    const week = weekAt("2026-03-01T12:00:00+02:00");
-    expect(week[0]).toBe("2026-02-23");
-    expect(week[6]).toBe("2026-03-01");
+  it("rolls back into the previous month", () => {
+    expect(daysAt("2026-03-02T12:00:00+02:00")[0]).toBe("2026-02-24");
   });
 
   it("rolls back across a year boundary", () => {
-    // 2026-01-01 is a Thursday; its Monday is in December 2025.
-    const week = weekAt("2026-01-01T12:00:00+02:00");
-    expect(week[0]).toBe("2025-12-29");
-    expect(week[6]).toBe("2026-01-04");
+    expect(daysAt("2026-01-03T12:00:00+02:00")[0]).toBe("2025-12-28");
   });
 
-  it("includes the leap day in the right week", () => {
-    // 2028-02-29 is a Tuesday.
-    const week = weekAt("2028-02-29T12:00:00+02:00");
-    expect(week).toContain("2028-02-29");
-    expect(week[0]).toBe("2028-02-28");
-  });
-
-  it("stays consecutive across the spring DST transition", () => {
-    // The week containing 2026-03-29, when local clocks lose an hour.
-    const week = weekAt("2026-03-29T12:00:00+03:00");
-    expect(week).toContain("2026-03-29");
-    expect(week[0]).toBe("2026-03-23");
+  it("includes the leap day", () => {
+    expect(daysAt("2028-03-02T12:00:00+02:00")).toContain("2028-02-29");
   });
 
   it("does not slip a day when called just before local midnight", () => {
-    const week = weekAt("2026-09-10T23:59:00+03:00");
-    expect(week[3]).toBe("2026-09-10");
+    const days = daysAt("2026-09-10T23:59:00+03:00");
+    expect(days[6]).toBe("2026-09-10");
   });
 
   it.each([
     "2026-09-07T08:00:00+03:00",
-    "2026-09-08T23:30:00+03:00",
     "2026-09-13T00:01:00+03:00",
-    "2026-01-01T12:00:00+02:00",
     "2026-03-29T12:00:00+03:00",
     "2026-10-25T12:00:00+03:00",
     "2028-02-29T12:00:00+02:00",
   ])("always returns seven distinct consecutive dates, seeded at %s", (iso) => {
-    const week = weekAt(iso);
-    expect(week).toHaveLength(7);
-    expect(new Set(week).size).toBe(7);
-    expect([...week].sort()).toEqual(week);
-    for (const d of week) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    // Consecutive: each entry is exactly one day after the previous.
-    for (let i = 1; i < week.length; i++) {
-      const prev = new Date(`${week[i - 1]}T00:00:00Z`).getTime();
-      const cur = new Date(`${week[i]}T00:00:00Z`).getTime();
+    const days = daysAt(iso);
+    expect(days).toHaveLength(7);
+    for (let i = 1; i < days.length; i++) {
+      const prev = new Date(`${days[i - 1]}T00:00:00Z`).getTime();
+      const cur = new Date(`${days[i]}T00:00:00Z`).getTime();
       expect(cur - prev).toBe(86_400_000);
     }
+  });
+});
+
+describe("dayBounds", () => {
+  it("covers the whole local day", () => {
+    expect(dayBounds("2026-09-26")).toEqual({
+      from: "2026-09-25T21:00:00.000Z",
+      to: "2026-09-26T20:59:59.999Z",
+    });
+  });
+});
+
+describe("formatClock and formatDayMonth", () => {
+  it("prints local 24-hour time", () => {
+    expect(formatClock("2026-09-26T11:32:00Z", "en")).toBe("14:32");
+    expect(formatClock("2026-09-26T11:32:00Z", "lt")).toBe("14:32");
+  });
+
+  it("prints the day and month in each language", () => {
+    // Long month on purpose: CLDR's short Lithuanian form is "09-24", which reads like a code.
+    expect(formatDayMonth("2026-09-24T10:00:00Z", "en")).toBe("24 September");
+    expect(formatDayMonth("2026-09-24T10:00:00Z", "lt")).toBe("rugsėjo 24 d.");
   });
 });
 
@@ -314,26 +301,17 @@ describe("weekdayShort", () => {
     expect(() => weekdayShort(value, "en")).toThrow(RangeError);
   });
 
-  it("formats every date currentWeekDates produces without throwing", () => {
-    // Ties the two helpers together: whatever the week generator emits must be
-    // safe to feed to the formatter.
+  it("formats every date lastSevenDates produces without throwing", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-10T12:00:00+03:00"));
-    for (const date of currentWeekDates()) {
+    for (const date of lastSevenDates()) {
       expect(() => weekdayShort(date, "lt")).not.toThrow();
       expect(weekdayShort(date, "lt")).toMatch(/^\p{Lu}/u);
     }
   });
 });
 
-describe("activity bucketing thresholds", () => {
-  // The panel buckets each fix by speed inline. Reproduced here exactly so the
-  // boundaries and the NaN hole are pinned; the constants are 1 and 7 km/h.
-  const RESTING_MAX = 1;
-  const WALKING_MAX = 7;
-  const bucket = (speed: number) =>
-    speed < RESTING_MAX ? "resting" : speed <= WALKING_MAX ? "walking" : "running";
-
+describe("activityOf", () => {
   it.each([
     [0, "resting"],
     [0.99, "resting"],
@@ -341,34 +319,47 @@ describe("activity bucketing thresholds", () => {
     [7, "walking"],
     [7.0001, "running"],
     [20, "running"],
-  ])("buckets %p km/h as %s", (speed, expected) => {
-    expect(bucket(speed)).toBe(expected);
+    [-5, "resting"],
+  ] as const)("buckets %p km/h as %s", (speed, expected) => {
+    expect(activityOf(speed)).toBe(expected);
   });
 
-  it("buckets a negative speed as resting", () => {
-    expect(bucket(-5)).toBe("resting");
+  // Fixed 2026-09-26: a NaN speed used to fall through both comparisons and count as running.
+  it("does not bucket a NaN speed at all", () => {
+    expect(activityOf(NaN)).toBeNull();
+  });
+});
+
+describe("activityMix", () => {
+  // Fixed 2026-09-26: the three percentages were rounded independently and summed to 99 or 101.
+  it("sums to exactly 100 for an even three-way split", () => {
+    const mix = activityMix({ resting: 1, walking: 1, running: 1 });
+    expect(mix).not.toBeNull();
+    expect(mix!.restingPct + mix!.walkingPct + mix!.runningPct).toBe(100);
   });
 
-  // BUG: every comparison against NaN is false, so a NaN speed falls through
-  // both branches and is counted as RUNNING - the most active bucket, from the
-  // least trustworthy data.
-  it("buckets a NaN speed as running (current buggy behaviour)", () => {
-    expect(bucket(NaN)).toBe("running");
+  it("sums to exactly 100 for a one-sixth split", () => {
+    const mix = activityMix({ resting: 1, walking: 1, running: 4 });
+    expect(mix).toEqual({ restingPct: 17, walkingPct: 17, runningPct: 66 });
   });
 
-  // BUG: the three percentages are rounded independently, so they need not sum
-  // to 100. With one point in each bucket the bar renders 33/33/33 and leaves
-  // a visible 1% gap; other splits overflow to 101%.
-  it("produces percentages that do not sum to 100 for an even three-way split", () => {
-    const total = 3;
-    const pct = (n: number) => Math.round((n / total) * 100);
-    const sum = pct(1) + pct(1) + pct(1);
-    expect(sum).toBe(99);
+  it("is null when nothing moved", () => {
+    expect(activityMix({ resting: 0, walking: 0, running: 0 })).toBeNull();
   });
+});
 
-  it("produces percentages that overflow past 100 for a one-sixth split", () => {
-    const total = 6;
-    const pct = (n: number) => Math.round((n / total) * 100);
-    expect(pct(1) + pct(1) + pct(4)).toBe(101);
+describe("summarizeWeek", () => {
+  const p = (lat: number, recorded_at: string, speed_kmh: number | null = 4) => ({ lat, lng: 25.28, recorded_at, speed_kmh });
+
+  it("adds up each day and the week, and mixes activity over every point with a speed", () => {
+    const summary = summarizeWeek([
+      { date: "2026-09-25", points: [p(54.68, "2026-09-25T10:00:00Z", 0.5), p(54.69, "2026-09-25T10:15:00Z", 5)] },
+      { date: "2026-09-26", points: [p(54.68, "2026-09-26T10:00:00Z", null)] },
+    ]);
+    expect(summary.days.map((d) => d.date)).toEqual(["2026-09-25", "2026-09-26"]);
+    expect(summary.days[0].distanceKm).toBeCloseTo(1.112, 2);
+    expect(summary.days[1].distanceKm).toBe(0);
+    expect(summary.totalDistanceKm).toBeCloseTo(1.112, 2);
+    expect(summary.activity).toEqual({ restingPct: 50, walkingPct: 50, runningPct: 0 });
   });
 });
