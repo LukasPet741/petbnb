@@ -10,7 +10,11 @@ vi.mock("@/context/CollarLiveContext", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/context/CollarLiveContext")>();
   return { ...actual, useCollarLive: () => h.live };
 });
-vi.mock("@/components/collar/CollarHero", () => ({ default: (p: { state: string }) => <div data-testid="hero">{p.state}</div> }));
+vi.mock("@/components/collar/CollarHero", () => ({
+  default: (p: { state: string; latest: { source: string } | null }) => (
+    <div data-testid="hero" data-latest={p.latest ? p.latest.source : "none"}>{p.state}</div>
+  ),
+}));
 vi.mock("@/components/collar/WeekCard", () => ({ default: () => <div data-testid="week" /> }));
 vi.mock("@/components/collar/useCollarTrail", () => ({ useCollarTrail: () => [] }));
 vi.mock("@/components/collar/PairingWizard", () => ({
@@ -74,6 +78,20 @@ describe("CollarPage", () => {
     render(<CollarPage />);
     fireEvent.click(screen.getAllByRole("button", { name: /appPages\.collar\.stop/ })[0]);
     expect(h.live.stopReplay).toHaveBeenCalled();
+  });
+
+  it("shows the collar's own position after a replay, not the recording's end point (review I2)", () => {
+    const replayEnd = { device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: "2026-09-26T11:59:00Z", source: "replay" as const };
+    h.live = live({ state: "searching", latest: replayEnd, latestReal: null });
+    render(<CollarPage />);
+    expect(screen.getByTestId("hero").dataset.latest).toBe("none");
+  });
+
+  it("shows the recording's point while it plays", () => {
+    const point = { device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: "2026-09-26T11:59:58Z", source: "replay" as const };
+    h.live = live({ state: "replaying", latest: point, latestReal: null, replay: { deviceId: "c1", idx: 3, total: 64 } });
+    render(<CollarPage />);
+    expect(screen.getByTestId("hero").dataset.latest).toBe("replay");
   });
 
   it("names a demo collar in the page language and hides the week", () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  collarState, isOnline, msSincePaired, LIVE_MAX_AGE_MS, REPLAY_MAX_AGE_MS, SEEN_MAX_AGE_MS,
+  collarState, isOnline, msSincePaired, shownPosition, LIVE_MAX_AGE_MS, REPLAY_MAX_AGE_MS, SEEN_MAX_AGE_MS,
 } from "@/lib/collar/status";
 import type { CollarDevice, CollarPosition } from "@/lib/collar/types";
 
@@ -86,5 +86,27 @@ describe("helpers", () => {
     expect(isOnline(device({ last_seen_at: ago(90_000) }), NOW)).toBe(true);
     expect(isOnline(device({ last_seen_at: ago(90_001) }), NOW)).toBe(false);
     expect(isOnline(device({ last_seen_at: null }), NOW)).toBe(false);
+  });
+});
+
+describe("shownPosition", () => {
+  // Review I2 (2026-09-26): after a replay on a real collar, its last point stayed on the map and in
+  // the sidebar as if it were where the collar is, with "looking for satellites" beside it.
+  const real: CollarPosition = { device_id: "c1", lat: 54.70, lng: 25.30, speed_kmh: 0, recorded_at: ago(3_600_000), source: "collar" };
+  const replayEnd: CollarPosition = { device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: ago(5_000), source: "replay" };
+
+  it("shows the replay's point only while it plays", () => {
+    expect(shownPosition("replaying", device(), replayEnd, real)).toBe(replayEnd);
+  });
+
+  it("shows the collar's own last fix once the replay is over, or nothing", () => {
+    for (const state of ["searching", "offline", "live", "waiting"] as const) {
+      expect(shownPosition(state, device(), replayEnd, real)).toBe(real);
+      expect(shownPosition(state, device(), replayEnd, null)).toBeNull();
+    }
+  });
+
+  it("always shows the demo collar's points, which are all replays", () => {
+    expect(shownPosition("demo_idle", device({ is_demo: true }), replayEnd, null)).toBe(replayEnd);
   });
 });

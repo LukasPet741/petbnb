@@ -84,6 +84,12 @@ describe("CollarHero", () => {
     expect(onPlay).toHaveBeenCalled();
   });
 
+  it("draws no marker while searching, even when a last position is known", () => {
+    // The approved mockup: "looking for satellites" has no dot; one would claim a position (review I2).
+    hero("searching");
+    expect(screen.getByTestId("map").dataset.marker).toBe("false");
+  });
+
   it("keeps the map's layers inside its own box, under the page's dialogs", () => {
     hero("live");
     // Leaflet's panes (z 200–1000) and the z-800 cards otherwise paint over the pairing wizard

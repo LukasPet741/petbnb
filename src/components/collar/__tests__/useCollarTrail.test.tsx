@@ -37,6 +37,19 @@ describe("useCollarTrail", () => {
     expect(result.current).toHaveLength(2);
   });
 
+  it("brings back today's real route when a replay ends, even with no real position since", async () => {
+    // Review I2: indoors, a replay that stopped left its route on the map under "looking for satellites".
+    const { result, rerender } = renderHook(({ latest, replaying }) => useCollarTrail("c1", latest, null, replaying), {
+      initialProps: { latest: null as CollarPosition | null, replaying: false },
+    });
+    await waitFor(() => expect(result.current).toHaveLength(2));
+    rerender({ latest: p(40, "replay"), replaying: true });
+    expect(result.current.map((x) => x.source)).toEqual(["replay"]);
+    rerender({ latest: null, replaying: false });
+    await waitFor(() => expect(result.current.map((x) => x.source)).toEqual(["collar", "collar"]));
+    expect(h.loadPositions).toHaveBeenCalledTimes(2);
+  });
+
   it("shows a picked day's route and ignores live positions meanwhile", async () => {
     const { result, rerender } = renderHook(({ latest, day }) => useCollarTrail("c1", latest, day), {
       initialProps: { latest: null as CollarPosition | null, day: "2026-09-24" as string | null },

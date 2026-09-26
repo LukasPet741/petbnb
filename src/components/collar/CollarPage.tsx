@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCollarLive } from "@/context/CollarLiveContext";
+import { shownPosition } from "@/lib/collar/status";
 import { cn } from "@/lib/utils";
 import CollarEmpty from "./CollarEmpty";
 import CollarHeader from "./CollarHeader";
@@ -21,7 +22,9 @@ export default function CollarPage() {
   const [removing, setRemoving] = useState(false);
   const [day, setDay] = useState<string | null>(null);
   const selectedId = live.selected?.id ?? null;
-  const trail = useCollarTrail(selectedId, live.latest, day);
+  // The replay's point only while it plays; otherwise the collar's own last fix (review I2).
+  const shown = shownPosition(live.state, live.selected, live.latest, live.latestReal);
+  const trail = useCollarTrail(selectedId, shown, day, live.state === "replaying");
 
   useEffect(() => {
     setDay(null);
@@ -75,7 +78,7 @@ export default function CollarPage() {
       <CollarHero
         state={state}
         device={device}
-        latest={day ? trail[trail.length - 1] ?? null : live.latest}
+        latest={day ? trail[trail.length - 1] ?? null : shown}
         trail={trail}
         fitKey={`${device.id}:${day ?? (state === "replaying" ? "replay" : "today")}`}
         now={live.now}

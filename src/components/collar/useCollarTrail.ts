@@ -16,7 +16,12 @@ function append(list: CollarPosition[], position: CollarPosition): CollarPositio
  * The route drawn on the map: today's real positions growing as new ones arrive; a replay's
  * points from its first one; or a picked day's route (live points do not touch it).
  */
-export function useCollarTrail(deviceId: string | null, latest: CollarPosition | null, day: string | null): CollarPosition[] {
+export function useCollarTrail(
+  deviceId: string | null,
+  latest: CollarPosition | null,
+  day: string | null,
+  replaying = false,
+): CollarPosition[] {
   const [trail, setTrail] = useState<CollarPosition[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
   const modeRef = useRef<Mode>("today");
@@ -57,6 +62,14 @@ export function useCollarTrail(deviceId: string | null, latest: CollarPosition |
     }
     setTrail((prev) => append(prev, latest));
   }, [latest, deviceId, day]);
+
+  // A replay that ends with no real position since (indoors) must not leave its route on the map.
+  useEffect(() => {
+    if (!replaying && modeRef.current === "replay") {
+      modeRef.current = "today";
+      setReloadKey((k) => k + 1);
+    }
+  }, [replaying]);
 
   return trail;
 }

@@ -44,3 +44,17 @@ export function collarState({ device, latest, latestReal, replayingHere, now }: 
   if (!device.last_seen_at || Date.parse(device.last_seen_at) < Date.parse(pairedAt(device))) return "waiting";
   return "offline";
 }
+
+/**
+ * The position to show for a collar: a replay's point only while it plays (and always for the demo
+ * collar, whose every point is a replay); otherwise the collar's own last fix, or none. After a
+ * replay on a real collar its last point is not where the collar is (review I2, 2026-09-26).
+ */
+export function shownPosition(
+  state: CollarState,
+  device: CollarDevice | null,
+  latest: CollarPosition | null,
+  latestReal: CollarPosition | null,
+): CollarPosition | null {
+  return state === "replaying" || device?.is_demo ? latest : latestReal;
+}

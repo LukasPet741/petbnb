@@ -57,7 +57,7 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
             lat={center.lat}
             lng={center.lng}
             path={trail.slice(0, -1)}
-            showMarker={!!latest && state !== "waiting"}
+            showMarker={!!latest && state !== "waiting" && state !== "searching"}
             stale={state === "offline" || state === "demo_idle"}
             fitKey={fitKey}
             controls={{ zoomIn: t("appPages.collar.zoomIn"), zoomOut: t("appPages.collar.zoomOut"), locate: t("appPages.collar.locate") }}

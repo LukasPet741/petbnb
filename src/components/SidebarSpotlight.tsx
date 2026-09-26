@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Check, ChevronRight, Radar, ShieldCheck } from "lucide-react";
 import { useCollarLive } from "@/context/CollarLiveContext";
+import { shownPosition } from "@/lib/collar/status";
 import { useProfile } from "@/hooks/useProfile";
 import { useLanguage } from "@/context/LanguageContext";
 import { cn, timeAgo } from "@/lib/utils";
@@ -18,7 +19,10 @@ import { collarName } from "@/components/collar/names";
 export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => void }) {
   const { t, locale } = useLanguage();
   const pathname = usePathname();
-  const { selected, latest, state } = useCollarLive();
+  const live = useCollarLive();
+  const { selected, state } = live;
+  // The replay's point only while it plays; otherwise the collar's own last fix (review I2).
+  const latest = shownPosition(state, selected, live.latest, live.latestReal);
   const { profile } = useProfile();
   const verified = !!profile?.is_verified;
   const onCollar = pathname === "/collar";
@@ -61,7 +65,7 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
       >
         {selected && latest && (
           <div className="relative">
-            <MiniMap lat={latest.lat} lng={latest.lng} height={56} muted={state === "offline" || state === "demo_idle"} />
+            <MiniMap lat={latest.lat} lng={latest.lng} height={56} muted={state !== "live" && state !== "replaying"} />
             {(state === "live" || state === "replaying") && (
               <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2 py-px text-[9.5px] font-bold tracking-[0.08em] text-ink shadow-sm">
                 <LiveDot className="h-1.5 w-1.5" />

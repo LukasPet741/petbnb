@@ -37,6 +37,8 @@ const LIVE_COLLAR: CollarLiveValue = {
   collars: [{ id: "c1", label: "Reksas", is_demo: false, claimed_at: null, created_at: "2026-09-26T08:00:00Z", last_seen_at: "2026-09-26T11:59:58Z", gps_locked: true, gps_satellites: 7 }],
   selected: { id: "c1", label: "Reksas", is_demo: false, claimed_at: null, created_at: "2026-09-26T08:00:00Z", last_seen_at: "2026-09-26T11:59:58Z", gps_locked: true, gps_satellites: 7 },
   latest: { device_id: "c1", lat: 54.683, lng: 25.233, speed_kmh: 4.2, recorded_at: new Date().toISOString(), source: "collar" },
+  // Live is derived from the newest real fix, so a live collar always has one.
+  latestReal: { device_id: "c1", lat: 54.683, lng: 25.233, speed_kmh: 4.2, recorded_at: new Date().toISOString(), source: "collar" },
   state: "live",
 };
 
@@ -103,6 +105,26 @@ describe("the collar and Smart-ID cards", () => {
     expect(card.getAttribute("href")).toBe("/collar");
     expect(within(card).getByText("appShell.spotlight.live")).toBeTruthy();
     expect(within(card).getByText("appShell.spotlight.lineLive")).toBeTruthy();
+  });
+
+  it("does not show a finished replay's end point as the collar's position (review I2)", () => {
+    h.collar = {
+      ...LIVE_COLLAR,
+      latest: { device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: new Date().toISOString(), source: "replay" },
+      latestReal: null,
+      state: "searching",
+    };
+    render(<Sidebar />);
+    expect(first(/Reksas/).querySelector("[data-dot]")).toBeNull();
+  });
+
+  it("mutes the last real position while the collar is looking for satellites", () => {
+    const real = { device_id: "c1", lat: 54.70, lng: 25.30, speed_kmh: 0, recorded_at: "2026-09-26T10:00:00Z", source: "collar" as const };
+    h.collar = { ...LIVE_COLLAR, latest: real, latestReal: real, state: "searching" };
+    render(<Sidebar />);
+    const dot = first(/Reksas/).querySelector("[data-dot]");
+    expect(dot).not.toBeNull();
+    expect(dot!.querySelector(".animate-ping")).toBeNull();
   });
 
   it("says Smart-ID is not verified yet, and links to the demo", () => {
