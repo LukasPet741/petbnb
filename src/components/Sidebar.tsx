@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut, FileText } from "lucide-react";
+import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut, Radar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -9,11 +9,16 @@ import { useProfile } from "@/hooks/useProfile";
 import { signOut } from "@/lib/auth";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotifications } from "@/context/NotificationsContext";
+import { useCollarLive } from "@/context/CollarLiveContext";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "@/components/NotificationBell";
+import SidebarSpotlight from "@/components/SidebarSpotlight";
+import LiveDot from "@/components/collar/LiveDot";
 
+// Legal moved into the footer line (2026-09-26): the collar and Smart-ID cards took its height,
+// and it is reference material, not somewhere anyone came here to go.
 const LINKS = [
   { href: "/dashboard", key: "appShell.sidebar.nav.dashboard", icon: LayoutDashboard },
   { href: "/browse", key: "appShell.sidebar.nav.browse", icon: Search },
@@ -22,9 +27,6 @@ const LINKS = [
   { href: "/messages", key: "appShell.sidebar.nav.messages", icon: MessageCircle },
   { href: "/saved", key: "appShell.sidebar.nav.saved", icon: Bookmark },
   { href: "/profile", key: "appShell.sidebar.nav.profile", icon: User },
-  // Last on purpose: reference material, not somewhere anyone came here to go.
-  // /legal redirects to /legal/terms, so this stays current on the privacy tab too.
-  { href: "/legal", key: "appShell.sidebar.nav.legal", icon: FileText },
 ];
 
 export default function Sidebar() {
@@ -33,6 +35,7 @@ export default function Sidebar() {
   const { t } = useLanguage();
   const { profile } = useProfile();
   const { unreadCount } = useNotifications();
+  const { state: collarState } = useCollarLive();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -53,6 +56,10 @@ export default function Sidebar() {
   }, [open]);
 
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
+  const close = () => setOpen(false);
+  // /legal redirects to /legal/terms, so this stays current on the privacy tab too.
+  const legalActive = pathname === "/legal" || pathname.startsWith("/legal/");
+  const collarPulsing = collarState === "live" || collarState === "replaying";
 
   // Shared by the desktop rail and the mobile drawer. The drawer is opened from the mobile
   // top bar, which carries its own bell, so this one is hidden below lg to avoid two bells
@@ -60,8 +67,8 @@ export default function Sidebar() {
   // left edge of this 256px rail.
   const Inner = (
     <>
-      <div className="flex items-center justify-between px-2 mb-6">
-        <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center">
+      <div className="flex items-center justify-between px-2 mb-4">
+        <Link href="/dashboard" onClick={close} className="flex items-center">
           <Logo size={32} showWordmark />
         </Link>
         <div className="hidden lg:block -mr-1">
@@ -69,12 +76,14 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="space-y-1">
+      <SidebarSpotlight onNavigate={close} />
+
+      <nav className="space-y-0.5">
         {LINKS.map(({ href, key, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           const badge = href === "/messages" ? unreadCount : 0;
           return (
-            <Link key={href} href={href} onClick={() => setOpen(false)}
+            <Link key={href} href={href} onClick={close}
               // The active state used to be styling only, and colour alone does not
               // tell a screen reader which section it is in.
               aria-current={active ? "page" : undefined}
@@ -90,18 +99,14 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <Link href="/browse" onClick={() => setOpen(false)} className="mt-5 flex items-center justify-center gap-2 h-11 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors">
-        <Search className="w-4 h-4" />{t("appShell.findASitter")}
-      </Link>
-
       <div className="flex-1" />
 
       <div className="px-1 mt-2">
         <LanguageSwitcher />
       </div>
 
-      {profile && (
-        <div className="border-t border-ink/8 pt-4 mt-4">
+      <div className="border-t border-ink/8 pt-4 mt-4">
+        {profile && (
           <div className="flex items-center gap-3 px-1">
             <Avatar name={profile.full_name ?? t("appShell.sidebar.youFallback")} url={profile.avatar_url} size="sm" />
             <div className="min-w-0 flex-1">
@@ -110,9 +115,15 @@ export default function Sidebar() {
             </div>
             <button onClick={handleSignOut} title={t("appShell.sidebar.signOut")} className="p-2 rounded-lg text-ink-soft hover:text-ink hover:bg-brand-softer transition-colors"><LogOut className="w-4 h-4" /></button>
           </div>
-          <p className="text-[11px] text-ink-soft/60 px-1 mt-3">{t("appShell.sidebar.footerNote")}</p>
-        </div>
-      )}
+        )}
+        <p className="text-[11px] text-ink-soft/60 px-1 mt-3">
+          {t("appShell.sidebar.footerNote")} ·{" "}
+          <Link href="/legal" onClick={close} aria-current={legalActive ? "page" : undefined}
+            className={cn("underline-offset-2 hover:underline", legalActive ? "font-medium text-ink" : "text-ink-soft")}>
+            {t("appShell.sidebar.nav.legal")}
+          </Link>
+        </p>
+      </div>
     </>
   );
 
@@ -123,15 +134,20 @@ export default function Sidebar() {
         <Link href="/dashboard" className="flex items-center">
           <Logo size={28} showWordmark />
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <Link href="/collar" aria-label={t("appShell.spotlight.collarButton")}
+            className="relative grid h-9 w-9 place-items-center rounded-xl bg-slate text-white">
+            <Radar className="h-[17px] w-[17px]" aria-hidden="true" />
+            {collarPulsing && <LiveDot className="absolute -right-0.5 -top-0.5" />}
+          </Link>
           <LanguageSwitcher />
           <NotificationBell />
           <button onClick={() => setOpen(true)} className="p-2 rounded-lg text-ink-soft hover:bg-brand-softer"><Menu className="w-5 h-5" /></button>
         </div>
       </header>
 
-      {/* Desktop fixed sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 glass border-r flex-col p-4 z-40">
+      {/* Desktop fixed sidebar. Scrolls on short screens now that it carries the spotlight cards. */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 glass border-r flex-col p-4 z-40 overflow-y-auto">
         {Inner}
       </aside>
 
@@ -139,10 +155,10 @@ export default function Sidebar() {
       <AnimatePresence>
         {open && (
           <div className="lg:hidden">
-            <motion.div className="fixed inset-0 glass-scrim z-50 touch-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(false)} />
+            <motion.div className="fixed inset-0 glass-scrim z-50 touch-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close} />
             <motion.aside className="fixed inset-y-0 left-0 w-72 bg-surface flex flex-col z-50 overflow-y-auto overscroll-contain pl-[max(1rem,env(safe-area-inset-left))] pr-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)]"
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 400, damping: 38 }}>
-              <button onClick={() => setOpen(false)} className="self-end p-2 rounded-lg text-ink-soft hover:bg-brand-softer -mt-1 mb-1"><X className="w-5 h-5" /></button>
+              <button onClick={close} className="self-end p-2 rounded-lg text-ink-soft hover:bg-brand-softer -mt-1 mb-1"><X className="w-5 h-5" /></button>
               {Inner}
             </motion.aside>
           </div>
