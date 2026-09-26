@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PetBnB showcase mockup: Collar page</title>
+<style>
+:root{--bg-primary:#f5f5f7;--bg-secondary:#fff;--bg-tertiary:#e5e5e7;--border:#d1d1d6;--text-primary:#1d1d1f;--text-secondary:#6e6e73;--accent:#0071e3;--success:#34c759;--error:#ff3b30;--selected-bg:#e8f4fd;--selected-border:#0071e3}
+body{margin:0;padding:2rem;font-family:system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5}
+h2{font-size:1.5rem;margin:0 0 .5rem}h3{font-size:1.1rem;margin:0 0 .25rem}
+.subtitle{color:var(--text-secondary);margin:0 0 1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-body{padding:1rem}.card-body p{color:var(--text-secondary);font-size:.85rem}
+.mockup-note{font-size:.85rem;color:var(--text-secondary);margin:0 0 1.25rem;padding:.6rem .8rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-secondary)}
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="mockup-note"><b>Approved mockup, 2026-09-26.</b> Approved as shown (the "How it works" diagram was removed at Lukas's request). Design spec: <code>../2026-09-26-showcase-collar-smartid-design.md</code>. The map is drawn for the mockup; the app uses OpenStreetMap tiles.</p>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- petbnb tokens, scoped ---------- */
+.pb{--brand:#1f5c47;--brand-strong:#153f2f;--brand-soft:#dfe9e2;--brand-softer:#eef3ef;--ink:#131a17;--ink-soft:#56635c;--amber:#dc9a35;--amber-soft:#faf1de;--amber-strong:#8a5c1f;--slate:#3f6472;--slate-soft:#e4eaec;--danger:#b8443a;--danger-soft:#f6e5e2;--surface-2:#e9ede8;
+  --shadow-sm:0 1px 2px rgb(19 26 23/.06),0 1px 1px rgb(19 26 23/.04);--shadow-md:0 6px 16px rgb(19 26 23/.10),0 2px 6px rgb(19 26 23/.06);--shadow-lg:0 16px 40px rgb(19 26 23/.14),0 6px 14px rgb(19 26 23/.08);
+  font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.45;text-align:left}
+.pb *{box-sizing:border-box;margin:0}
+.pb a{color:inherit;text-decoration:none}
+.pb .disp{font-family:"Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.02em}
+.pb .muted{color:var(--ink-soft)}
+.aur{background:radial-gradient(55% 60% at 85% 8%,rgb(31 92 71/.16),transparent 72%),radial-gradient(45% 55% at 6% 48%,rgb(220 154 53/.22),transparent 72%),radial-gradient(50% 55% at 22% 100%,rgb(63 100 114/.16),transparent 72%),#f4f6f4}
+.pb .i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.pb .pl{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.pb .gc{background:rgb(255 255 255/.6);border:1px solid rgb(255 255 255/.7);box-shadow:inset 0 1px 0 rgb(255 255 255/.55),var(--shadow-sm);border-radius:16px}
+.pb .gp{background:rgb(255 255 255/.88);border:1px solid rgb(19 26 23/.08);backdrop-filter:blur(16px) saturate(1.6);-webkit-backdrop-filter:blur(16px) saturate(1.6);box-shadow:inset 0 1px 0 rgb(255 255 255/.55),var(--shadow-md);border-radius:14px}
+@keyframes pbpulse{0%{transform:scale(.7);opacity:.5}75%,100%{transform:scale(2.4);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pb .ld{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.pb .ld::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--amber);animation:pbpulse 2.2s ease-out infinite}
+.pb .demo{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--amber-strong);background:var(--amber-soft);border-radius:6px;padding:2px 6px;line-height:14px}
+.pb .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:600;background:var(--brand);color:#fff;white-space:nowrap}
+.pb .btn .i{width:16px;height:16px}
+.pb .btn.light{background:rgb(255 255 255/.85);color:var(--ink);border:1px solid rgb(19 26 23/.08)}
+.pb .btn.icon{width:40px;padding:0}
+.pb .btn.full{width:100%;height:44px}
+.pb .livepill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:var(--amber-soft);color:var(--amber-strong);font-size:11.5px;font-weight:700;letter-spacing:.07em}
+
+/* ---------- rail (sidebar A) ---------- */
+.pb .rail{position:absolute;inset:0 auto 0 0;width:256px;padding:16px;display:flex;flex-direction:column;background:rgb(244 246 244/.72);border-right:1px solid rgb(19 26 23/.08);backdrop-filter:blur(12px) saturate(1.6);z-index:2}
+.pb .top{display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 8px;margin-bottom:16px}
+.pb .logo{display:flex;align-items:center;gap:8px}
+.pb .wm{font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.pb .bell{position:relative;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:var(--ink-soft)}
+.pb .bell .bd{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 2px #f4f6f4}
+.pb .nav{display:flex;flex-direction:column;gap:2px}
+.pb .nv{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:12px;font-size:14px;font-weight:500;color:var(--ink-soft)}
+.pb .nb{margin-left:auto;background:var(--brand);color:#fff;font-size:11px;font-weight:600;border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center}
+.pb .grow{flex:1}
+.pb .lang{align-self:flex-start;margin:8px 4px 0;display:inline-flex;gap:4px;padding:2px;border:1px solid rgb(19 26 23/.1);background:#fff;border-radius:999px;font-size:12px;font-weight:500}
+.pb .lang span{min-width:44px;height:44px;padding:0 12px;display:grid;place-items:center;border-radius:999px;color:var(--ink-soft)}
+.pb .lang .on{background:var(--brand);color:#fff}
+.pb .foot{border-top:1px solid rgb(19 26 23/.08);padding-top:16px;margin-top:16px}
+.pb .me{display:flex;align-items:center;gap:12px;padding:0 4px}
+.pb .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-strong);font-size:12px;font-weight:600;flex-shrink:0}
+.pb .me b{display:block;font-size:14px;font-weight:500;line-height:20px}
+.pb .me small{display:block;font-size:12px;color:var(--ink-soft);line-height:16px}
+.pb .me .out{margin-left:auto;color:var(--ink-soft);width:16px;height:16px}
+.pb .note{font-size:11px;color:rgb(86 99 92/.65);padding:0 4px;margin-top:8px;line-height:16px}
+.pb .lc{display:block;overflow:hidden}
+.pb .lc.cur{box-shadow:0 0 0 2px var(--brand),inset 0 1px 0 rgb(255 255 255/.55),var(--shadow-sm)}
+.pb .mm{position:relative;height:56px;overflow:hidden;border-bottom:1px solid rgb(19 26 23/.06)}
+.pb .mm svg{position:absolute;inset:0;width:100%;height:100%}
+.pb .mm .lpill{position:absolute;left:8px;top:8px;display:inline-flex;align-items:center;gap:5px;background:rgb(255 255 255/.92);border-radius:999px;padding:1px 8px 1px 7px;font-size:9.5px;font-weight:700;letter-spacing:.08em;line-height:16px;box-shadow:0 1px 2px rgb(19 26 23/.12)}
+.pb .lcb{padding:8px 12px 9px}
+.pb .lct{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;line-height:19px}
+.pb .lct .k{font-weight:500;color:var(--ink-soft)}
+.pb .lcs{font-size:11.5px;color:var(--ink-soft);line-height:16px;margin-top:1px}
+.pb .idc{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:8px 0 14px}
+.pb .idi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,#2a7a5e,#153f2f);color:#fff;flex-shrink:0}
+.pb .idi .i{width:17px;height:17px}
+.pb .idc b{display:block;font-size:13.5px;font-weight:600;line-height:18px}
+.pb .idc small{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--brand);font-weight:500;line-height:16px}
+.pb .idc small .i{width:12px;height:12px;stroke-width:2.5}
+.pb .idc .demo{margin-left:auto}
+
+/* ---------- frames ---------- */
+.frow{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin:6px 0 10px}
+.dk{position:relative;width:1280px;height:800px;overflow:hidden;border-radius:16px;zoom:.72;box-shadow:0 12px 36px rgb(0 0 0/.22)}
+.phone{width:414px;height:868px;padding:12px;border-radius:60px;background:#0f1412;box-shadow:0 12px 36px rgb(0 0 0/.28),inset 0 0 0 2px #2c3531;flex-shrink:0}
+.z72{zoom:.72}.z62{zoom:.62}
+.scr{position:relative;width:390px;height:844px;border-radius:48px;overflow:hidden}
+.island{position:absolute;top:11px;left:50%;width:122px;height:35px;margin-left:-61px;border-radius:20px;background:#000;z-index:40}
+.sbar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:8px 30px 0 36px;font-size:15px;font-weight:600;position:relative;z-index:5}
+.sbar svg{height:12px}
+.cap{font-size:.8rem;color:var(--text-secondary);margin-top:8px;text-align:center}
+
+/* ---------- desktop collar page ---------- */
+.pb .dmain{position:absolute;left:256px;top:0;right:0;bottom:0;padding:24px 32px}
+.pb .phd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.pb .ttl{display:flex;align-items:center;gap:12px;margin-top:2px}
+.pb .ttl h1{font-size:34px;font-weight:600;line-height:1.15}
+.pb .sub{font-size:13px;color:var(--ink-soft);margin-top:3px}
+.pb .acts{display:flex;gap:8px}
+.pb .hero{position:relative;height:486px;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-md)}
+.pb svg.map{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pb .gp.stc{position:absolute;left:16px;top:16px;width:236px;padding:13px 16px 14px}
+.pb .sttop{display:flex;align-items:center;gap:7px;font-size:12px}
+.pb .sttop b{font-size:11px;letter-spacing:.08em}
+.pb .big{font-size:34px;font-weight:600;line-height:1.1;margin-top:8px}
+.pb .big small{font-size:15px;font-weight:500;color:var(--ink-soft);letter-spacing:0}
+.pb .stmeta{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid rgb(19 26 23/.08);font-size:12px;color:var(--ink-soft)}
+.pb .stmeta span{display:flex;align-items:center;gap:7px}
+.pb .stmeta .i{width:14px;height:14px;color:var(--slate)}
+.pb .gp.ctl{position:absolute;right:16px;top:16px;display:flex;flex-direction:column;padding:3px}
+.pb .gp.ctl span{width:34px;height:34px;display:grid;place-items:center;color:var(--ink-soft)}
+.pb .gp.ctl span+span{border-top:1px solid rgb(19 26 23/.07)}
+.pb .gp.today{position:absolute;left:16px;bottom:16px;padding:9px 14px;display:flex;gap:14px;align-items:center;font-size:13px}
+.pb .gp.today b{font-weight:600}
+.pb .gp.today .i{width:15px;height:15px;color:var(--slate)}
+.pb .attr{position:absolute;right:8px;bottom:6px;font-size:10px;color:rgb(19 26 23/.55);background:rgb(255 255 255/.7);padding:1px 6px;border-radius:4px}
+.pb .srow{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:14px}
+.pb .sc{padding:14px 16px}
+.pb .sch{display:flex;justify-content:space-between;align-items:baseline}
+.pb .s12{font-size:12px}
+.pb .wk{display:flex;align-items:flex-end;gap:22px;margin-top:6px}
+.pb .wkv{font-size:30px;font-weight:600;line-height:1}
+.pb .wkv small{font-size:14px;color:var(--ink-soft);font-weight:500;letter-spacing:0}
+.pb .bars{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:58px}
+.pb .bar{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.pb .bar i{width:100%;max-width:30px;border-radius:6px 6px 3px 3px;background:var(--slate-soft)}
+.pb .bar.sel i{background:var(--brand)}
+.pb .bar span{font-size:10.5px;color:var(--ink-soft);line-height:1}
+.pb .bar.sel span{color:var(--brand);font-weight:700}
+.pb .act{display:flex;height:8px;border-radius:999px;overflow:hidden;margin-top:14px;background:var(--surface-2)}
+.pb .act i{display:block;height:100%}
+.pb .act .r{background:#c9d6db}.pb .act .w{background:#9cc4b0}.pb .act .u{background:#e9c07e}
+.pb .actl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-soft);margin-top:8px}
+.pb .actl b{color:var(--ink);font-weight:600}
+.pb .pipe{padding:14px 16px 16px;margin-top:14px}
+.pb .pph{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.pb .pph b{font-size:14px}
+.pb .pph span{font-size:12px;color:var(--ink-soft)}
+.pb .pph span b{font-size:12px;color:var(--ink)}
+.pb .stages{position:relative;display:grid;grid-template-columns:repeat(6,1fr)}
+.pb .stages::before{content:"";position:absolute;left:8.33%;right:8.33%;top:19px;height:2px;background:repeating-linear-gradient(90deg,rgb(63 100 114/.4) 0 6px,transparent 6px 11px)}
+.pb .stg{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 6px}
+.pb .si{width:40px;height:40px;border-radius:12px;background:#fff;border:1px solid rgb(19 26 23/.08);display:grid;place-items:center;color:var(--slate);box-shadow:var(--shadow-sm);position:relative;z-index:1;animation:flash 3.2s linear infinite}
+.pb .stg b{font-size:12.5px;margin-top:7px;line-height:1.3}
+.pb .stg small{font-size:11px;color:var(--ink-soft);line-height:1.35;margin-top:1px}
+.pb .stg .ble{display:inline-flex;align-items:center;gap:3px;margin-top:4px;font-size:10.5px;color:var(--slate);background:var(--slate-soft);border-radius:999px;padding:1px 7px}
+.pb .stg .ble .i{width:11px;height:11px}
+.pb .pkt{position:absolute;top:14px;left:8.33%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px rgb(220 154 53/.25);z-index:2;animation:pkt 3.2s linear infinite}
+@keyframes pkt{0%{left:8.33%;opacity:0}4%{opacity:1}70%{left:91.67%;opacity:1}78%,100%{left:91.67%;opacity:0}}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgb(220 154 53/0),var(--shadow-sm);color:var(--slate)}4%{box-shadow:0 0 0 5px rgb(220 154 53/.35),var(--shadow-sm);color:var(--amber-strong)}16%,100%{box-shadow:0 0 0 0 rgb(220 154 53/0),var(--shadow-sm);color:var(--slate)}}
+.pb .stg:nth-child(3) .si{animation-delay:.448s}.pb .stg:nth-child(4) .si{animation-delay:.896s}.pb .stg:nth-child(5) .si{animation-delay:1.344s}.pb .stg:nth-child(6) .si{animation-delay:1.792s}.pb .stg:nth-child(7) .si{animation-delay:2.24s}
+
+/* ---------- phone collar page ---------- */
+.pb .mtop{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgb(244 246 244/.72);border-bottom:1px solid rgb(19 26 23/.08);position:relative;z-index:5}
+.pb .mtop .wm{font-size:17px}
+.pb .mtr{display:flex;align-items:center;gap:6px}
+.pb .mtr .lang{margin:0}
+.pb .cchip{position:relative;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--slate);color:#fff}
+.pb .cchip .i{width:17px;height:17px}
+.pb .cchip .ld{position:absolute;top:-2px;right:-2px;box-shadow:0 0 0 2px #f4f6f4}
+.pb .mico{width:36px;height:36px;display:grid;place-items:center;color:var(--ink-soft)}
+.pb .mc{padding:16px}
+.pb .mh .ttl h1{font-size:28px}
+.pb .mmap{position:relative;height:330px;border-radius:18px;overflow:hidden;margin-top:12px;box-shadow:var(--shadow-md)}
+.pb .mmap .gp{position:absolute}
+.pb .mchip{left:10px;bottom:10px;padding:7px 11px;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500}
+.pb .mloc{right:10px;top:10px;width:38px;height:38px;display:grid;place-items:center;color:var(--ink-soft)}
+.pb .m3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pb .m3 .gc{padding:10px 12px}
+.pb .m3 b{display:block;font-size:19px;font-weight:600;line-height:1.2;margin-top:2px}
+.pb .m3 b small{font-size:11.5px;font-weight:500;color:var(--ink-soft);letter-spacing:0}
+.pb .m3 .pl{font-size:10px}
+.pb .mweek{margin-top:10px;padding:12px 12px 12px 14px}
+.pb .days{display:flex;gap:6px;margin-top:8px}
+.pb .day{flex:1;border-radius:10px;background:rgb(255 255 255/.75);border:1px solid rgb(19 26 23/.06);text-align:center;padding:6px 0 5px}
+.pb .day b{display:block;font-size:10.5px;color:var(--ink-soft);font-weight:600}
+.pb .day span{font-size:12px;font-weight:600}
+.pb .day.sel{background:var(--brand);border-color:var(--brand)}
+.pb .day.sel b,.pb .day.sel span{color:#fff}
+.pb .mpipe{margin-top:10px;padding:12px 14px}
+.pb .vst{position:relative;margin-top:8px}
+.pb .vst::before{content:"";position:absolute;left:15px;top:14px;bottom:14px;width:2px;background:repeating-linear-gradient(180deg,rgb(63 100 114/.4) 0 5px,transparent 5px 9px)}
+.pb .vs{position:relative;display:flex;align-items:center;gap:12px;padding:5px 0}
+.pb .vs .si{width:32px;height:32px;border-radius:10px}
+.pb .vs .si .i{width:15px;height:15px}
+.pb .vs b{font-size:13px;display:block;line-height:1.25}
+.pb .vs small{font-size:11px;color:var(--ink-soft)}
+
+/* ---------- state panels ---------- */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:18px;margin:8px 0 6px}
+.st{background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.sth{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:.85rem;border-bottom:1px solid var(--border)}
+.sth .n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;flex-shrink:0}
+.sth .n.e{background:#d9822b}
+.sth b{font-weight:600}
+.tg{margin-left:auto;font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.tg.new{background:#faf1de;color:#8a5c1f}
+.tg.ok{background:#dfe9e2;color:#153f2f}
+.stb{position:relative;min-height:392px;display:flex;align-items:center;justify-content:center;padding:18px 14px}
+.stb.dim::before{content:"";position:absolute;inset:0;background:rgb(19 26 23/.38)}
+.stn{font-size:.78rem;color:var(--text-secondary);padding:9px 12px 11px;border-top:1px solid var(--border);line-height:1.45}
+.pb .mdl{position:relative;width:100%;max-width:300px;background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow-lg),inset 0 0 0 1px rgb(31 92 71/.08)}
+.pb .mdl h4{font-family:"Bricolage Grotesque",Inter,sans-serif;font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.pb .mdl p.t{font-size:13px;color:var(--ink-soft);margin-top:4px}
+.pb .stp{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pb .stp span{font-size:11px;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+.pb .stp .sg{flex:1;display:flex;gap:4px}
+.pb .stp .sg i{flex:1;height:4px;border-radius:2px;background:var(--surface-2)}
+.pb .stp .sg i.on{background:var(--brand)}
+.pb .x{position:absolute;right:12px;top:12px;width:28px;height:28px;display:grid;place-items:center;color:var(--ink-soft)}
+.pb .x .i{width:16px;height:16px}
+.pb .art{display:block;width:100%;height:104px;margin:12px 0 10px;border-radius:14px;background:linear-gradient(160deg,var(--brand-softer),#fff)}
+.pb .code{display:flex;align-items:center;gap:5px;margin:14px 0 6px}
+.pb .code span{width:29px;height:40px;border-radius:9px;border:1.5px solid rgb(19 26 23/.14);display:grid;place-items:center;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:17px;background:#fff}
+.pb .code span.cur{border-color:var(--brand);box-shadow:0 0 0 3px rgb(31 92 71/.15)}
+.pb .code i{width:8px;height:2px;background:var(--ink-soft);border-radius:1px;margin:0 1px}
+.pb .code.bad span{border-color:var(--danger);color:var(--danger);background:var(--danger-soft)}
+.pb .hint{font-size:11.5px;color:var(--ink-soft);margin-bottom:12px}
+.pb .sticker{display:flex;align-items:center;gap:10px;margin-top:12px;padding:9px 11px;border-radius:10px;background:#fbfbf8;border:1px dashed rgb(19 26 23/.2)}
+.pb .sticker .l{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft)}
+.pb .sticker .c{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:700;font-size:14px;letter-spacing:.04em}
+.pb .msg{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:9px 11px;font-size:12.5px;line-height:1.4;margin-bottom:12px}
+.pb .msg .i{width:16px;height:16px;margin-top:1px}
+.pb .msg.err{background:var(--danger-soft);color:#8e2f27}
+.pb .msg.warn{background:var(--amber-soft);color:var(--amber-strong)}
+.pb .msg.info{background:var(--slate-soft);color:#2f4d58}
+.pb .pets{display:flex;gap:8px;margin:14px 0 12px;flex-wrap:wrap}
+.pb .pet{display:flex;align-items:center;gap:7px;height:38px;padding:0 12px 0 5px;border-radius:999px;border:1.5px solid rgb(19 26 23/.12);font-size:13px;font-weight:600}
+.pb .pet .av{width:28px;height:28px;font-size:11px}
+.pb .pet.sel{border-color:var(--brand);background:var(--brand-softer)}
+.pb .pet.sel .i{width:14px;height:14px;color:var(--brand);stroke-width:2.6}
+.pb .pet.add{border-style:dashed;padding:0 12px;color:var(--ink-soft);font-weight:500}
+.pb .fld{font-size:12px;font-weight:600;margin-bottom:5px}
+.pb .inp{height:42px;border-radius:12px;border:1px solid rgb(19 26 23/.12);display:flex;align-items:center;padding:0 12px;font-size:14px;margin-bottom:14px}
+.pb .chk{list-style:none;padding:0;margin:14px 0 12px;display:flex;flex-direction:column;gap:11px}
+.pb .chk li{display:flex;gap:10px;align-items:flex-start}
+.pb .ck{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;border:2px solid rgb(19 26 23/.14)}
+.pb .done .ck{background:var(--brand);border-color:var(--brand);color:#fff}
+.pb .done .ck .i{width:13px;height:13px;stroke-width:3}
+.pb .actv .ck{border-color:var(--brand-soft);border-top-color:var(--brand);animation:spin .9s linear infinite}
+.pb .wrn .ck{border-color:var(--amber);background:var(--amber-soft);color:var(--amber-strong)}
+.pb .wrn .ck .i{width:12px;height:12px;stroke-width:2.6}
+.pb .chk b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+.pb .chk small{display:block;font-size:12px;color:var(--ink-soft)}
+.pb .wait b{color:var(--ink-soft);font-weight:500}
+.pb .sats{display:flex;gap:3px;margin-top:5px}
+.pb .sats i{width:18px;height:5px;border-radius:3px;background:var(--brand)}
+.pb .sats i.off{background:var(--surface-2)}
+.pb .tmr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--ink-soft)}
+.pb .foot2{font-size:12px;color:var(--ink-soft);border-top:1px solid rgb(19 26 23/.08);padding-top:11px;line-height:1.45}
+.pb .foot2 a{color:var(--brand);font-weight:600}
+.pb .tips{list-style:none;padding:0;margin:0 0 12px;font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.pb .tips li{display:flex;gap:7px}
+.pb .tips li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink-soft);margin-top:7px;flex-shrink:0}
+.pb .two{display:flex;gap:8px}
+.pb .two .btn{flex:1;height:42px;font-size:13px;padding:0 10px}
+.pb .pm{position:relative;width:100%;height:392px;border-radius:0;overflow:hidden}
+.pb .pm .gp{position:absolute}
+.pb .ov{left:12px;right:12px;bottom:12px;padding:13px 14px}
+.pb .ov h5{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+.pb .ov p{font-size:12.5px;color:var(--ink-soft);margin:4px 0 11px;line-height:1.45}
+.pb .bubble{left:0;top:0;transform:translate(-50%,-100%);padding:5px 9px;font-size:11.5px;font-weight:600;white-space:nowrap;border-radius:10px}
+.pb .rbar{left:12px;right:12px;top:12px;padding:10px 12px}
+.pb .rbar .rt{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.pb .rbar .rt .demo{margin-left:auto}
+.pb .rbar .rs{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.pb .prog{height:5px;border-radius:3px;background:var(--surface-2);margin-top:8px;overflow:hidden}
+.pb .prog i{display:block;height:100%;width:36%;background:var(--amber);border-radius:3px;animation:prog 10s linear infinite}
+@keyframes prog{from{width:0}to{width:100%}}
+.pb .stopb{right:12px;bottom:12px;height:38px;padding:0 14px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.pb .empty{width:100%;max-width:300px;text-align:center}
+.pb .empty h4{font-family:"Bricolage Grotesque",Inter,sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.2;margin-top:4px}
+.pb .empty p.t{font-size:13px;color:var(--ink-soft);margin:6px auto 14px;max-width:260px}
+.pb .empty .btn{margin-bottom:8px}
+
+/* ---------- sheet + drawer ---------- */
+.pb .scrim{position:absolute;inset:0;background:rgb(19 26 23/.42);z-index:10}
+.pb .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:10px 20px 34px;z-index:11;box-shadow:var(--shadow-lg)}
+.pb .grab{width:40px;height:5px;border-radius:3px;background:rgb(19 26 23/.15);margin:0 auto 14px}
+.pb .drawer{position:absolute;left:0;top:0;bottom:0;width:288px;background:#fff;z-index:11;padding:58px 16px 30px;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.pb .drawer .xbtn{align-self:flex-end;width:36px;height:36px;display:grid;place-items:center;color:var(--ink-soft);margin:-6px -4px 2px 0}
+
+/* ---------- page text ---------- */
+.sec{margin-top:2.2rem}
+.sec h3{font-size:1.15rem}
+.lead{color:var(--text-secondary);font-size:.9rem;margin:.2rem 0 .6rem;max-width:62rem}
+.needs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:.6rem}
+.need{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:.84rem;color:var(--text-secondary);line-height:1.45}
+.need b{display:block;color:var(--text-primary);font-size:.9rem;margin-bottom:3px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="devg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d3833"/><stop offset="1" stop-color="#151b18"/></linearGradient>
+<symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+<symbol id="i-bm" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+<symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-sat" viewBox="0 0 24 24"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></symbol>
+<symbol id="i-cpu" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></symbol>
+<symbol id="i-wifioff" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></symbol>
+<symbol id="i-bt" viewBox="0 0 24 24"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect width="14" height="14" x="5" y="5" rx="2"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-locate" viewBox="0 0 24 24"><path d="M2 12h3"/><path d="M19 12h3"/><path d="M12 2v3"/><path d="M12 19v3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+<symbol id="i-logo" viewBox="0 0 120 120"><rect x="6" y="6" width="108" height="108" rx="26" fill="#131a17" stroke="none"/><circle cx="54" cy="44" r="19" fill="#1f5c47" stroke="none"/><circle cx="54" cy="77" r="21" fill="#1f5c47" stroke="none"/><rect x="32" y="27" width="16" height="66" rx="5" fill="#153f2f" stroke="none"/><circle cx="48" cy="60" r="6" fill="#dc9a35" stroke="none"/></symbol>
+
+<!-- the collar, drawn -->
+<symbol id="collar-art" viewBox="0 0 300 104">
+  <rect x="10" y="40" width="280" height="30" rx="15" fill="#1f5c47"/>
+  <path d="M26 47.5H274M26 62.5H274" stroke="#3b8467" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <rect x="26" y="35" width="26" height="40" rx="7" fill="none" stroke="#b9c3bd" stroke-width="4"/>
+  <circle cx="258" cy="55" r="3.4" fill="#153f2f"/><circle cx="240" cy="55" r="3.4" fill="#153f2f"/><circle cx="222" cy="55" r="3.4" fill="#153f2f"/>
+  <rect x="100" y="18" width="104" height="72" rx="18" fill="url(#devg)"/>
+  <rect x="100.5" y="18.5" width="103" height="71" rx="17.5" fill="none" stroke="#3a4741"/>
+  <use href="#i-logo" x="137" y="33" width="30" height="30"/>
+  <circle cx="186" cy="31" r="3.4" fill="#3fd18a"><animate attributeName="opacity" values="1;.2;1" dur="1.1s" repeatCount="indefinite"/></circle>
+  <text x="152" y="80" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="700" letter-spacing="1.6" fill="#8fa39a">GPS · WIFI · BLE</text>
+</symbol>
+
+<!-- Vingis Park, drawn in muted OpenStreetMap colours -->
+<symbol id="map-base" viewBox="0 0 960 360">
+  <rect width="960" height="360" fill="#efece6"/>
+  <g fill="#e2ddd4"><rect x="806" y="64" width="62" height="42" rx="2"/><rect x="886" y="62" width="90" height="44" rx="2"/><rect x="800" y="128" width="66" height="52" rx="2"/><rect x="886" y="126" width="90" height="56" rx="2"/><rect x="792" y="204" width="74" height="54" rx="2"/><rect x="886" y="202" width="90" height="56" rx="2"/><rect x="780" y="282" width="86" height="70" rx="2"/><rect x="886" y="280" width="90" height="72" rx="2"/></g>
+  <path d="M-10 380 L-10 250 C30 170 120 112 250 92 C380 72 520 70 640 84 C712 92 752 118 766 160 L754 380 Z" fill="#d6e8cd"/>
+  <g fill="#c7ddbc"><path d="M70 252 C90 200 160 182 200 200 C232 216 222 262 180 278 C128 294 58 292 70 252Z"/><path d="M596 108 C640 98 700 112 716 140 C726 164 700 178 662 172 C624 166 580 132 596 108Z"/><path d="M296 302 C328 280 402 284 422 306 C438 328 400 352 350 352 C300 350 278 322 296 302Z"/><path d="M180 120 C220 104 262 110 270 128 C276 146 244 156 212 152 C180 148 160 132 180 120Z"/></g>
+  <path d="M990 12 C840 26 720 40 580 36 S320 22 200 56 S50 140 -30 228" fill="none" stroke="#bcd6e0" stroke-width="30" stroke-linecap="round"/>
+  <path d="M960 44 C840 54 720 66 590 62 S330 50 216 84 S76 160 0 246" fill="none" stroke="#ffffff" stroke-width="3" opacity=".9"/>
+  <path d="M740 380 C750 280 768 170 794 40" fill="none" stroke="#d9d3c8" stroke-width="13"/>
+  <path d="M740 380 C750 280 768 170 794 40" fill="none" stroke="#fff" stroke-width="9.5"/>
+  <g fill="none" stroke-linecap="round"><g stroke="#d9d3c8" stroke-width="8.5"><path d="M784 118 H990"/><path d="M776 192 H990"/><path d="M764 270 H990"/><path d="M876 40 V380"/></g><g stroke="#fff" stroke-width="5.5"><path d="M784 118 H990"/><path d="M776 192 H990"/><path d="M764 270 H990"/><path d="M876 40 V380"/></g></g>
+  <g fill="none" stroke="#e0a58f" stroke-width="1.7" stroke-dasharray="4 3" stroke-linecap="round">
+    <path d="M748 262 C700 258 648 240 612 228 S560 196 538 170 S486 128 440 132 S368 150 356 190 S380 252 424 256 S482 246 498 232"/>
+    <path d="M498 232 C540 250 600 290 640 380"/><path d="M356 190 C300 180 240 172 180 190"/><path d="M538 170 C560 130 600 100 660 96"/><path d="M440 132 C430 104 400 92 360 86"/><path d="M424 256 C400 292 380 324 372 380"/><path d="M612 228 C650 202 700 192 756 198"/><path d="M180 190 C160 230 120 262 60 290"/>
+  </g>
+  <path d="M254 214 a24 24 0 0 1 48 0 Z" fill="#e6e1d8" stroke="#d3ccbf"/>
+  <text x="206" y="252" font-family="Inter,sans-serif" font-style="italic" font-size="15" fill="#6b8c62">Vingio parkas</text>
+  <text x="444" y="33" font-family="Inter,sans-serif" font-style="italic" font-size="13" fill="#6a93a8">Neris</text>
+  <text transform="translate(783 262) rotate(-81)" font-family="Inter,sans-serif" font-size="10.5" fill="#8b857a">M. K. Čiurlionio g.</text>
+</symbol>
+<path id="rp" d="M748 262 C700 258 648 240 612 228 S560 196 538 170 S486 128 440 132 S368 150 356 190 S380 252 424 256 S482 246 498 232"/>
+<g id="trail"><use href="#rp" fill="none" stroke="#3f6472" stroke-opacity=".25" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><use href="#rp" fill="none" stroke="#1f5c47" stroke-opacity=".9" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><g fill="#dc9a35" stroke="#fff" stroke-width="1.6"><circle cx="612" cy="228" r="3.6"/><circle cx="538" cy="170" r="3.6"/><circle cx="440" cy="132" r="3.6"/><circle cx="356" cy="190" r="3.6"/><circle cx="424" cy="256" r="3.6"/></g><circle cx="748" cy="262" r="6" fill="#fff" stroke="#3f6472" stroke-width="3"/></g>
+<g id="livedot"><circle cx="498" cy="232" r="8" fill="#dc9a35" opacity=".5"><animate attributeName="r" values="6;22" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".5;0" dur="2.2s" repeatCount="indefinite"/></circle><circle cx="498" cy="232" r="8.5" fill="#fff"/><circle cx="498" cy="232" r="6.5" fill="#dc9a35"/></g>
+</defs></svg>
+
+<h2>Collar page: the live view, the connection and the fallbacks</h2>
+<p class="subtitle">Everything below uses the same demo collar, "Reksas", on a walk in Vingis Park. The map is drawn for the mockup; the real page keeps today's OpenStreetMap tiles. The dots move the way they would live.</p>
+
+<!-- =================== 1. LIVE VIEW =================== -->
+<h3>1 · Live view: desktop + phone</h3>
+<p class="lead">The map comes first and takes most of the page. The live status floats on it in glass; the week and the activity mix sit underneath.</p>
+<div class="frow">
+
+  <!-- desktop -->
+  <div style="width:922px;flex:none">
+  <div class="pb dk aur">
+    <aside class="rail">
+      <div class="top"><div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><span class="bell"><svg class="i"><use href="#i-bell"/></svg><i class="bd"></i></span></div>
+      <a class="gc lc cur">
+        <div class="mm"><svg viewBox="398 204 222 56" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/><use href="#trail"/><use href="#livedot"/></svg><span class="lpill"><span class="ld" style="width:6px;height:6px"></span>LIVE</span></div>
+        <div class="lcb"><div class="lct">Reksas <span class="k">· GPS collar</span></div><div class="lcs">Vingis Park · 3 s ago · 4.2 km/h</div></div>
+      </a>
+      <a class="gc idc"><span class="idi"><svg class="i"><use href="#i-shield"/></svg></span><div><b>Smart-ID</b><small><svg class="i"><use href="#i-check"/></svg>Identity verified</small></div><span class="demo">DEMO</span></a>
+      <nav class="nav">
+        <a class="nv"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a><a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a><a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a><a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a><a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a><a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a><a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+      </nav>
+      <div class="grow"></div>
+      <div class="lang"><span class="on">EN</span><span>LT</span></div>
+      <div class="foot"><div class="me"><span class="av">L</span><div><b>Lukas</b><small>Vilnius</small></div><svg class="i out"><use href="#i-out"/></svg></div><p class="note">PetBnB · a student project · Legal</p></div>
+    </aside>
+
+    <main class="dmain">
+      <div class="phd">
+        <div>
+          <p class="pl">GPS collar</p>
+          <div class="ttl"><h1 class="disp">Reksas</h1><span class="livepill"><span class="ld"></span>LIVE</span></div>
+          <p class="sub">Raspberry Pi + NEO-6M GPS · paired 24 Sep · sends a position every 15 s</p>
+        </div>
+        <div class="acts"><a class="btn light"><svg class="i"><use href="#i-play"/></svg>Play a recorded walk</a><a class="btn light icon"><svg class="i"><use href="#i-more"/></svg></a></div>
+      </div>
+
+      <div class="hero">
+        <svg class="map" viewBox="0 0 960 360" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/><use href="#trail"/><use href="#livedot"/></svg>
+        <div class="gp stc">
+          <div class="sttop"><span class="ld"></span><b>LIVE</b><span class="muted">· updated 3 s ago</span></div>
+          <div class="big disp">4.2 <small>km/h</small></div>
+          <div class="muted" style="font-size:13px">Walking · Vingis Park</div>
+          <div class="stmeta"><span><svg class="i"><use href="#i-sat"/></svg>7 satellites locked</span><span><svg class="i"><use href="#i-wifi"/></svg>Connected over WiFi</span></div>
+        </div>
+        <div class="gp ctl"><span><svg class="i"><use href="#i-plus"/></svg></span><span><svg class="i"><use href="#i-minus"/></svg></span><span><svg class="i"><use href="#i-locate"/></svg></span></div>
+        <div class="gp today"><svg class="i"><use href="#i-route"/></svg><span>Today <b>2.4 km</b></span><span><b>38 min</b> out</span><span class="muted">started 13:24</span></div>
+        <span class="attr">© OpenStreetMap</span>
+      </div>
+
+      <div class="srow">
+        <div class="gc sc">
+          <div class="sch"><p class="pl">This week</p><span class="muted s12">Pick a day to draw its route</span></div>
+          <div class="wk">
+            <div class="wkv disp">12.6 <small>km</small></div>
+            <div class="bars">
+              <div class="bar"><i style="height:30%"></i><span>M</span></div><div class="bar"><i style="height:22%"></i><span>T</span></div><div class="bar"><i style="height:78%"></i><span>W</span></div><div class="bar"><i style="height:44%"></i><span>T</span></div><div class="bar"><i style="height:30%"></i><span>F</span></div><div class="bar sel"><i style="height:66%"></i><span>S</span></div><div class="bar"><i style="height:6%"></i><span>S</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="gc sc">
+          <p class="pl">Activity this week</p>
+          <div class="act"><i class="r" style="width:52%"></i><i class="w" style="width:38%"></i><i class="u" style="width:10%"></i></div>
+          <div class="actl"><span>Resting <b>52%</b></span><span>Walking <b>38%</b></span><span>Running <b>10%</b></span></div>
+        </div>
+      </div>    </main>
+  </div>
+  <p class="cap">Desktop, 1280 × 800, shown at 72 %</p>
+  </div>
+
+  <!-- phone -->
+  <div style="width:298px;flex:none">
+  <div class="phone z72"><div class="scr pb aur">
+    <div class="island"></div>
+    <div class="sbar"><span>14:02</span><svg viewBox="0 0 70 12"><g fill="#131a17"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/><path d="M31 11.5 l-2.4-2.6a3.4 3.4 0 0 1 4.8 0z M26 6.6a7 7 0 0 1 10 0 l-1.4 1.4a5 5 0 0 0-7.2 0z M23.6 4.2a10.4 10.4 0 0 1 14.8 0 l-1.4 1.4a8.4 8.4 0 0 0-12 0z"/><rect x="44" y="1" width="22" height="11" rx="3" fill="none" stroke="#131a17" stroke-width="1.2"/><rect x="46" y="3" width="15" height="7" rx="1.5"/><rect x="67" y="4.5" width="2" height="4" rx="1"/></g></svg></div>
+    <div class="mtop">
+      <div class="logo"><svg width="28" height="28"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div>
+      <div class="mtr"><span class="cchip"><svg class="i"><use href="#i-radar"/></svg><span class="ld"></span></span><div class="lang"><span class="on">EN</span><span>LT</span></div><span class="mico"><svg class="i"><use href="#i-bell"/></svg></span><span class="mico"><svg class="i"><use href="#i-menu"/></svg></span></div>
+    </div>
+    <div class="mc">
+      <div class="mh"><p class="pl">GPS collar</p><div class="ttl"><h1 class="disp">Reksas</h1><span class="livepill"><span class="ld"></span>LIVE</span></div></div>
+      <div class="mmap">
+        <svg class="map" viewBox="0 0 960 360" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/><use href="#trail"/><use href="#livedot"/></svg>
+        <div class="gp mchip"><span class="ld"></span>Updated 3 s ago · Vingis Park</div>
+        <div class="gp mloc"><svg class="i"><use href="#i-locate"/></svg></div>
+      </div>
+      <div class="m3">
+        <div class="gc"><p class="pl">Speed</p><b>4.2 <small>km/h</small></b></div>
+        <div class="gc"><p class="pl">Today</p><b>2.4 <small>km</small></b></div>
+        <div class="gc"><p class="pl">Satellites</p><b>7</b></div>
+      </div>
+      <div class="gc mweek">
+        <div class="sch" style="display:flex;justify-content:space-between"><p class="pl">This week · 12.6 km</p></div>
+        <div class="days"><div class="day"><b>M</b><span>1.8</span></div><div class="day"><b>T</b><span>1.3</span></div><div class="day"><b>W</b><span>3.1</span></div><div class="day"><b>T</b><span>2.2</span></div><div class="day"><b>F</b><span>1.8</span></div><div class="day sel"><b>S</b><span>2.4</span></div><div class="day"><b>S</b><span>–</span></div></div>
+      </div>    </div>
+  </div></div>
+  <p class="cap">Phone, 390 × 844, at 72 % — the pulsing collar button in the top bar opens this page</p>
+  </div>
+</div>
+
+<!-- =================== 2. DEMO PATH =================== -->
+<div class="sec">
+<h3>2 · How it connects: the path you click through at the defence</h3>
+<p class="lead">Consumer-style pairing: switch it on, type the code from the sticker, say who wears it, then watch the collar check in live. No more copying a DEVICE_SECRET into a .env file.</p>
+<div class="sgrid">
+
+  <div class="st"><div class="sth"><span class="n">1</span><b>No collar yet</b><span class="tg ok">REWORK</span></div>
+    <div class="stb pb aur"><div class="empty">
+      <p class="pl">GPS collar</p>
+      <h4>See every walk, live</h4>
+      <svg class="art" viewBox="0 0 300 104"><use href="#collar-art"/></svg>
+      <p class="t">Pair a PetBnB collar and follow your dog on a map while a sitter has them.</p>
+      <a class="btn full">Pair a collar</a>
+      <a class="btn light full"><svg class="i"><use href="#i-play"/></svg>Play a recorded walk</a>
+    </div></div>
+    <p class="stn">The page before anything is paired.</p></div>
+
+  <div class="st"><div class="sth"><span class="n">2</span><b>Switch it on</b><span class="tg ok">NEW UI</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      <span class="x"><svg class="i"><use href="#i-x"/></svg></span>
+      <div class="stp"><span>Step 1 of 4</span><div class="sg"><i class="on"></i><i></i><i></i><i></i></div></div>
+      <h4>Switch the collar on</h4>
+      <svg class="art" viewBox="0 0 300 104"><use href="#collar-art"/></svg>
+      <p class="t">Plug in its battery. The green light flickers while it starts up, about 40 seconds.</p>
+      <div style="height:14px"></div>
+      <a class="btn full">It's on</a>
+    </div></div>
+    <p class="stn">The Pi's own activity LED is the "light". Boot takes ~30–60 s.</p></div>
+
+  <div class="st"><div class="sth"><span class="n">3</span><b>Enter the code</b><span class="tg new">NEW · CLAIM CODES</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      <span class="x"><svg class="i"><use href="#i-x"/></svg></span>
+      <div class="stp"><span>Step 2 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <h4>Enter the pairing code</h4>
+      <p class="t">It's on the sticker under the collar.</p>
+      <div class="sticker"><svg width="26" height="26"><use href="#i-logo"/></svg><div><div class="l">PETBNB COLLAR · PAIRING CODE</div><div class="c">7K3Q-9D2M</div></div></div>
+      <div class="code"><span>7</span><span>K</span><span>3</span><span>Q</span><i></i><span>9</span><span>D</span><span>2</span><span class="cur">M</span></div>
+      <p class="hint">Letters and numbers. O and 0 count as the same.</p>
+      <a class="btn full">Pair collar</a>
+    </div></div>
+    <p class="stn">Each collar ships with its own code (you print the sticker). The code claims that one device for your account.</p></div>
+
+  <div class="st"><div class="sth"><span class="n">4</span><b>Who wears it?</b><span class="tg ok">NEW UI</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      <span class="x"><svg class="i"><use href="#i-x"/></svg></span>
+      <div class="stp"><span>Step 3 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+      <h4>Who's wearing it?</h4>
+      <p class="t">Pick from your pets, or give the collar any name.</p>
+      <div class="pets"><span class="pet sel"><span class="av" style="background:var(--amber-soft);color:var(--amber-strong)">R</span>Reksas<svg class="i"><use href="#i-check"/></svg></span><span class="pet"><span class="av">M</span>Mica</span><span class="pet add">+ Other</span></div>
+      <p class="fld">Collar name</p>
+      <div class="inp">Reksas</div>
+      <a class="btn full">Start tracking</a>
+    </div></div>
+    <p class="stn">Uses your pets from My pets; the name is just the collar's label (collars belong to the account, not a pet).</p></div>
+
+  <div class="st"><div class="sth"><span class="n">5</span><b>Connecting, live</b><span class="tg new">NEW · PI CHECK-IN</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      
+      <div class="stp"><span>Step 4 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="tmr">0:34</span></div>
+      <h4>Connecting to Reksas</h4>
+      <ul class="chk">
+        <li class="done"><span class="ck"><svg class="i"><use href="#i-check"/></svg></span><div><b>Paired to your account</b><small>14:01:52</small></div></li>
+        <li class="done"><span class="ck"><svg class="i"><use href="#i-check"/></svg></span><div><b>Collar online</b><small>checked in over WiFi · 14:02:05</small></div></li>
+        <li class="actv"><span class="ck"></span><div><b>Finding satellites</b><small>3 in view, needs 4 for a position</small><div class="sats"><i></i><i></i><i></i><i class="off"></i></div></div></li>
+        <li class="wait"><span class="ck"></span><div><b>First position on the map</b></div></li>
+      </ul>
+      <p class="foot2">Indoors the GPS may never lock. <a>Play a recorded walk instead</a></p>
+    </div></div>
+    <p class="stn">Ticks itself off as the collar reports in. The last tick closes the dialog onto the live map.</p></div>
+
+</div>
+</div>
+
+<!-- =================== 3. FALLBACKS =================== -->
+<div class="sec">
+<h3>3 · When it goes wrong: every failure says why and offers a way on</h3>
+<p class="lead">The one to plan for: the defence room is indoors, where the NEO-6M usually can't see enough satellites. So "online but no GPS" (d) is a normal state with a clear next step, and the recorded walk (f) keeps the map moving.</p>
+<div class="sgrid">
+
+  <div class="st"><div class="sth"><span class="n e">a</span><b>Code not found</b><span class="tg new">NEW · CLAIM CODES</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      <div class="stp"><span>Step 2 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <h4>Enter the pairing code</h4>
+      <div class="code bad"><span>7</span><span>K</span><span>3</span><span>Q</span><i></i><span>9</span><span>D</span><span>2</span><span>N</span></div>
+      <div class="msg err"><svg class="i"><use href="#i-alert"/></svg><span>No collar has this code. Check the sticker: 8 characters, like 7K3Q-9D2M.</span></div>
+      <a class="btn full">Try again</a>
+    </div></div>
+    <p class="stn">Typo or a code that was never registered.</p></div>
+
+  <div class="st"><div class="sth"><span class="n e">b</span><b>Already paired elsewhere</b><span class="tg new">NEW · CLAIM CODES</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      <div class="stp"><span>Step 2 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <h4>Enter the pairing code</h4>
+      <div class="code"><span>7</span><span>K</span><span>3</span><span>Q</span><i></i><span>9</span><span>D</span><span>2</span><span>M</span></div>
+      <div class="msg err"><svg class="i"><use href="#i-alert"/></svg><span>This collar is paired to another account. It has to be removed there before you can pair it.</span></div>
+      <a class="btn light full">Back</a>
+    </div></div>
+    <p class="stn">Stops two people tracking one collar. Removing it from your account frees the code again.</p></div>
+
+  <div class="st"><div class="sth"><span class="n e">c</span><b>Collar hasn't checked in</b><span class="tg new">NEW · PI CHECK-IN</span></div>
+    <div class="stb pb aur dim"><div class="mdl">
+      
+      <div class="stp"><span>Step 4 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="tmr">1:30</span></div>
+      <h4>No word from the collar yet</h4>
+      <ul class="chk" style="margin-bottom:8px"><li class="done"><span class="ck"><svg class="i"><use href="#i-check"/></svg></span><div><b>Paired to your account</b></div></li><li class="wrn"><span class="ck"><svg class="i"><use href="#i-alert"/></svg></span><div><b>Waiting for it to go online</b><small>90 s and counting</small></div></li></ul>
+      <ul class="tips"><li>Is the green light on?</li><li>Is it near the WiFi it was set up with?</li><li>Just switched on? It needs about a minute.</li></ul>
+      <div class="two"><a class="btn light">Keep waiting</a><a class="btn"><svg class="i"><use href="#i-play"/></svg>Recorded walk</a></div>
+    </div></div>
+    <p class="stn">After 90 s with no message. Waiting keeps listening; nothing is lost.</p></div>
+
+  <div class="st"><div class="sth"><span class="n e">d</span><b>Online, but no GPS (indoors)</b><span class="tg new">NEW · PI CHECK-IN</span></div>
+    <div class="stb pb" style="padding:0"><div class="pm">
+      <svg class="map" viewBox="0 0 960 360" preserveAspectRatio="xMidYMid slice" style="filter:grayscale(.6) opacity(.75)"><use href="#map-base" width="960" height="360"/></svg>
+      <div class="gp ov">
+        <h5><span class="ld" style="background:var(--slate)"></span>Online · looking for satellites</h5>
+        <div class="sats" style="margin-top:8px"><i></i><i></i><i class="off"></i><i class="off"></i><span style="font-size:11.5px;color:var(--ink-soft);margin-left:6px">2 of 4 needed</span></div>
+        <p>The collar is connected, but it can't see the sky. Put it by a window, or play a walk it recorded outside.</p>
+        <a class="btn full"><svg class="i"><use href="#i-play"/></svg>Play a recorded walk</a>
+      </div>
+    </div></div>
+    <p class="stn">The collar still reports in without a fix, so the page can tell "no signal" apart from "off".</p></div>
+
+  <div class="st"><div class="sth"><span class="n e">e</span><b>Offline</b><span class="tg ok">WORKS TODAY*</span></div>
+    <div class="stb pb" style="padding:0"><div class="pm">
+      <svg class="map" viewBox="0 0 960 360" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/><g style="filter:grayscale(1)" opacity=".55"><use href="#trail"/></g><circle cx="498" cy="232" r="8.5" fill="#fff"/><circle cx="498" cy="232" r="6.5" fill="#8a948f"/></svg>
+      <div class="gp" style="left:50%;top:34%;transform:translate(-50%,-100%);padding:5px 10px;font-size:11.5px;font-weight:600;border-radius:10px;white-space:nowrap">Last seen 14:32</div>
+      <div class="gp ov">
+        <h5><svg class="i" style="width:16px;height:16px;color:var(--ink-soft)"><use href="#i-wifioff"/></svg>Offline for 12 min</h5>
+        <p>Out of WiFi range, or the battery ran out. Positions it records meanwhile upload when it's back.</p>
+        <div class="two"><a class="btn light">Route today</a><a class="btn"><svg class="i"><use href="#i-play"/></svg>Recorded walk</a></div>
+      </div>
+    </div></div>
+    <p class="stn">*From the last position's time. The offline queue on the Pi is real: late fixes arrive in a burst.</p></div>
+
+  <div class="st"><div class="sth"><span class="n e">f</span><b>Playing a recorded walk</b><span class="tg new">NEW · REPLAY</span></div>
+    <div class="stb pb" style="padding:0"><div class="pm">
+      <svg class="map" viewBox="0 0 960 360" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/>
+        <path d="M748 262 C700 258 648 240 612 228 S560 196 538 170 S486 128 440 132 S368 150 356 190 S380 252 424 256 S482 246 498 232" pathLength="1" fill="none" stroke="#1f5c47" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="1 1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" values="1;0" dur="10s" repeatCount="indefinite"/></path>
+        <circle r="7" fill="#dc9a35" stroke="#fff" stroke-width="2.4"><animateMotion dur="10s" repeatCount="indefinite"><mpath href="#rp"/></animateMotion></circle>
+      </svg>
+      <div class="gp rbar"><div class="rt"><svg class="i" style="width:15px;height:15px;color:var(--amber-strong)"><use href="#i-play"/></svg>Recorded walk · Vingis Park<span class="demo">DEMO</span></div><div class="rs">Taken by this collar on 25 Sep · sent through the same pipeline</div><div class="prog"><i></i></div></div>
+      <div class="gp stopb"><svg class="i" style="width:14px;height:14px"><use href="#i-stop"/></svg>Stop</div>
+    </div></div>
+    <p class="stn">Positions go through collar-ingest and the database like live ones. Always labelled as a recording.</p></div>
+
+</div>
+</div>
+
+<!-- =================== 4. PHONE =================== -->
+<div class="sec">
+<h3>4 · On a phone: pairing sheet + the sidebar card in the menu</h3>
+<p class="lead">Yes, everything is designed for phones too. The pairing steps become a bottom sheet. Sidebar A becomes the top of the menu drawer, and the pulsing collar button in the top bar is always one tap away.</p>
+<div class="frow">
+  <div style="width:257px;flex:none">
+  <div class="phone z62"><div class="scr pb aur">
+    <div class="island"></div>
+    <div class="sbar"><span>14:01</span><span></span></div>
+    <div class="mtop"><div class="logo"><svg width="28" height="28"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><div class="mtr"><div class="lang"><span class="on">EN</span><span>LT</span></div><span class="mico"><svg class="i"><use href="#i-bell"/></svg></span><span class="mico"><svg class="i"><use href="#i-menu"/></svg></span></div></div>
+    <div class="mc"><div class="empty" style="max-width:none;margin-top:30px"><p class="pl">GPS collar</p><h4>See every walk, live</h4><svg class="art" viewBox="0 0 300 104"><use href="#collar-art"/></svg></div></div>
+    <div class="scrim"></div>
+    <div class="sheet pb">
+      <div class="grab"></div>
+      <div class="stp"><span>Step 2 of 4</span><div class="sg"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <h4 class="disp" style="font-size:22px;font-weight:600">Enter the pairing code</h4>
+      <p class="muted" style="font-size:14px;margin-top:4px">It's on the sticker under the collar.</p>
+      <div class="code" style="gap:6px;margin:18px 0 8px"><span style="width:36px;height:48px;font-size:20px">7</span><span style="width:36px;height:48px;font-size:20px">K</span><span style="width:36px;height:48px;font-size:20px">3</span><span style="width:36px;height:48px;font-size:20px">Q</span><i></i><span style="width:36px;height:48px;font-size:20px">9</span><span style="width:36px;height:48px;font-size:20px">D</span><span class="cur" style="width:36px;height:48px;font-size:20px">2</span><span style="width:36px;height:48px;font-size:20px"></span></div>
+      <p class="hint" style="font-size:12.5px">Letters and numbers. O and 0 count as the same.</p>
+      <a class="btn full" style="height:50px;font-size:15px;opacity:.55">Pair collar</a>
+    </div>
+  </div></div>
+  <p class="cap">Pairing as a bottom sheet (62 %)</p>
+  </div>
+
+  <div style="width:257px;flex:none">
+  <div class="phone z62"><div class="scr pb aur">
+    <div class="island"></div>
+    <div class="sbar"><span>14:02</span><span></span></div>
+    <div class="mtop"><div class="logo"><svg width="28" height="28"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><div class="mtr"><span class="cchip"><svg class="i"><use href="#i-radar"/></svg><span class="ld"></span></span><span class="mico"><svg class="i"><use href="#i-menu"/></svg></span></div></div>
+    <div class="scrim"></div>
+    <div class="drawer pb">
+      <span class="xbtn"><svg class="i"><use href="#i-x"/></svg></span>
+      <div class="top" style="margin-bottom:14px"><div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div></div>
+      <a class="gc lc" style="background:#fff;border-color:rgb(19 26 23/.08)">
+        <div class="mm"><svg viewBox="398 204 222 56" preserveAspectRatio="xMidYMid slice"><use href="#map-base" width="960" height="360"/><use href="#trail"/><use href="#livedot"/></svg><span class="lpill"><span class="ld" style="width:6px;height:6px"></span>LIVE</span></div>
+        <div class="lcb"><div class="lct">Reksas <span class="k">· GPS collar</span></div><div class="lcs">Vingis Park · 3 s ago · 4.2 km/h</div></div>
+      </a>
+      <a class="gc idc" style="background:#fff;border-color:rgb(19 26 23/.08)"><span class="idi"><svg class="i"><use href="#i-shield"/></svg></span><div><b>Smart-ID</b><small><svg class="i"><use href="#i-check"/></svg>Identity verified</small></div><span class="demo">DEMO</span></a>
+      <nav class="nav">
+        <a class="nv" style="background:var(--brand-soft);color:var(--brand-strong)"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a><a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a><a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a><a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a><a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a><a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a><a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+      </nav>
+    </div>
+  </div></div>
+  <p class="cap">Menu drawer with sidebar A on top (62 %)</p>
+  </div>
+</div>
+</div>
+
+<!-- =================== 5. WHAT IT NEEDS =================== -->
+<div class="sec">
+<h3>What this needs that doesn't exist yet</h3>
+<div class="needs">
+  <div class="need"><b>Pi check-in without a fix</b>Today the Pi only sends when it has a position. It should also report "online, N satellites" each tick. Small change to the Pi code and to collar-ingest; drives 5, c and d.</div>
+  <div class="need"><b>Claim codes</b>Collars get registered once, before anyone owns them, with a sticker code; pairing claims one. Replaces the .env copy-paste. One migration.</div>
+  <div class="need"><b>Recorded-walk replay</b>Re-sends a walk the collar really recorded through collar-ingest, clearly marked as a recording. Needs a mechanism we pick in the approaches step.</div>
+  <div class="need"><b>Live push</b>The page polls every 30 s today. Realtime makes each position appear in about a second, which the demo depends on.</div>
+  <div class="need"><b>Battery: left out on purpose</b>The Pi doesn't measure it yet (it sends nothing), so no battery is shown anywhere. The sidebar mockup's "82 %" goes.</div>
+</div>
+</div>
+
+</body>
+</html>

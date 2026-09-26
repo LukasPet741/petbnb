@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PetBnB showcase mockup: Sidebar options</title>
+<style>
+:root{--bg-primary:#f5f5f7;--bg-secondary:#fff;--bg-tertiary:#e5e5e7;--border:#d1d1d6;--text-primary:#1d1d1f;--text-secondary:#6e6e73;--accent:#0071e3;--success:#34c759;--error:#ff3b30;--selected-bg:#e8f4fd;--selected-border:#0071e3}
+body{margin:0;padding:2rem;font-family:system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5}
+h2{font-size:1.5rem;margin:0 0 .5rem}h3{font-size:1.1rem;margin:0 0 .25rem}
+.subtitle{color:var(--text-secondary);margin:0 0 1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-body{padding:1rem}.card-body p{color:var(--text-secondary);font-size:.85rem}
+.mockup-note{font-size:.85rem;color:var(--text-secondary);margin:0 0 1.25rem;padding:.6rem .8rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-secondary)}
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="mockup-note"><b>Approved mockup, 2026-09-26.</b> Option A (live cards) was chosen. The battery "82%" was dropped later: the Pi has no fuel gauge. Design spec: <code>../2026-09-26-showcase-collar-smartid-design.md</code>. The map is drawn for the mockup; the app uses OpenStreetMap tiles.</p>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.pb-cards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))!important;align-items:start}
+.pb{--brand:#1f5c47;--brand-strong:#153f2f;--brand-soft:#dfe9e2;--brand-softer:#eef3ef;--ink:#131a17;--ink-soft:#56635c;--amber:#dc9a35;--amber-soft:#faf1de;--amber-strong:#8a5c1f;--slate:#3f6472;--slate-soft:#e4eaec;
+  font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.45}
+.pb *{box-sizing:border-box;margin:0}
+.pb a{color:inherit;text-decoration:none}
+.pb .disp{font-family:"Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.02em}
+.pb.screen{position:relative;height:720px;overflow:hidden;
+  background:radial-gradient(55% 60% at 85% 8%,rgb(31 92 71/.16),transparent 72%),radial-gradient(45% 55% at 6% 48%,rgb(220 154 53/.22),transparent 72%),radial-gradient(50% 55% at 22% 100%,rgb(63 100 114/.16),transparent 72%),#f4f6f4}
+.pb .rail{position:absolute;inset:0 auto 0 0;width:256px;padding:16px;display:flex;flex-direction:column;background:rgb(244 246 244/.72);border-right:1px solid rgb(19 26 23/.08);backdrop-filter:blur(12px) saturate(1.6);-webkit-backdrop-filter:blur(12px) saturate(1.6);z-index:2}
+.pb .top{display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 8px;margin-bottom:24px}
+.pb .top.tight{margin-bottom:16px}
+.pb .logo{display:flex;align-items:center;gap:8px}
+.pb .wm{font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.pb .bell{position:relative;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:var(--ink-soft)}
+.pb .bell .bd{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 2px #f4f6f4}
+.pb .i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.pb .nav{display:flex;flex-direction:column;gap:2px}
+.pb .nv{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:12px;font-size:14px;font-weight:500;color:var(--ink-soft)}
+.pb .nv.on{background:var(--brand-soft);color:var(--brand-strong)}
+.pb .nb{margin-left:auto;background:var(--brand);color:#fff;font-size:11px;font-weight:600;border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center}
+.pb .grow{flex:1}
+.pb .lang{align-self:flex-start;margin:8px 4px 0;display:inline-flex;gap:4px;padding:2px;border:1px solid rgb(19 26 23/.1);background:#fff;border-radius:999px;font-size:12px;font-weight:500}
+.pb .lang span{min-width:44px;height:44px;padding:0 12px;display:grid;place-items:center;border-radius:999px;color:var(--ink-soft)}
+.pb .lang .on{background:var(--brand);color:#fff}
+.pb .foot{border-top:1px solid rgb(19 26 23/.08);padding-top:16px;margin-top:16px}
+.pb .me{display:flex;align-items:center;gap:12px;padding:0 4px}
+.pb .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-strong);font-size:12px;font-weight:600;flex-shrink:0}
+.pb .me b{display:block;font-size:14px;font-weight:500;line-height:20px}
+.pb .me small{display:block;font-size:12px;color:var(--ink-soft);line-height:16px}
+.pb .me .out{margin-left:auto;color:var(--ink-soft);width:16px;height:16px}
+.pb .note{font-size:11px;color:rgb(86 99 92/.65);padding:0 4px;margin-top:8px;line-height:16px}
+.pb .note u{text-decoration:none;color:var(--ink-soft)}
+/* glass card, as .glass-card in globals.css */
+.pb .gc{background:rgb(255 255 255/.6);border:1px solid rgb(255 255 255/.7);box-shadow:inset 0 1px 0 rgb(255 255 255/.55),0 1px 2px rgb(19 26 23/.06),0 1px 1px rgb(19 26 23/.04);border-radius:16px}
+/* live dot, as the collar map's marker */
+@keyframes pbpulse{0%{transform:scale(.7);opacity:.5}75%,100%{transform:scale(2.4);opacity:0}}
+.pb .ld{position:relative;display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.pb .ld::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--amber);animation:pbpulse 2.2s ease-out infinite}
+.pb .demo{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--amber-strong);background:var(--amber-soft);border-radius:6px;padding:2px 6px;line-height:14px}
+
+/* A — live cards */
+.pb .lc{display:block;overflow:hidden}
+.pb .mm{position:relative;height:56px;overflow:hidden;background:#e7ece6;border-bottom:1px solid rgb(19 26 23/.06)}
+.pb .mm .base{position:absolute;inset:0;width:100%;height:100%}
+.pb .mm img{position:absolute;left:-17px;top:-100px;width:256px;height:256px;filter:saturate(.55) contrast(.96) brightness(1.03)}
+.pb .mm .rt{position:absolute;inset:0;width:100%;height:100%}
+.pb .mm .pos{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px}
+.pb .mm .pos::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--amber);animation:pbpulse 2.2s ease-out infinite}
+.pb .mm .pos::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 2px #fff,0 2px 6px rgb(19 26 23/.35)}
+.pb .livepill{position:absolute;left:8px;top:8px;display:inline-flex;align-items:center;gap:5px;background:rgb(255 255 255/.92);border-radius:999px;padding:1px 8px 1px 7px;font-size:9.5px;font-weight:700;letter-spacing:.08em;line-height:16px;box-shadow:0 1px 2px rgb(19 26 23/.12)}
+.pb .lcb{padding:8px 12px 9px}
+.pb .lct{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;line-height:19px}
+.pb .lct .k{font-weight:500;color:var(--ink-soft)}
+.pb .lct .i{margin-left:auto;width:15px;height:15px;color:rgb(86 99 92/.7)}
+.pb .lcs{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft);line-height:16px;margin-top:1px}
+.pb .lcs .i{width:13px;height:13px}
+.pb .idc{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:8px 0 14px}
+.pb .idi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,#2a7a5e,#153f2f);color:#fff;box-shadow:inset 0 1px 0 rgb(255 255 255/.25);flex-shrink:0}
+.pb .idi .i{width:17px;height:17px}
+.pb .idc b{display:block;font-size:13.5px;font-weight:600;line-height:18px}
+.pb .idc small{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--brand);font-weight:500;line-height:16px}
+.pb .idc small .i{width:12px;height:12px;stroke-width:2.5}
+.pb .idc .demo{margin-left:auto}
+
+/* B — twin tiles */
+.pb .twins{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.pb .tile{position:relative;padding:12px;display:flex;flex-direction:column;overflow:hidden}
+.pb .tile.col{background:linear-gradient(160deg,rgb(63 100 114/.18),rgb(255 255 255/.6) 72%)}
+.pb .tile.sid{background:linear-gradient(160deg,rgb(31 92 71/.16),rgb(255 255 255/.6) 72%)}
+.pb .ti{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;position:relative;z-index:1}
+.pb .col .ti{background:var(--slate)}
+.pb .sid .ti{background:linear-gradient(150deg,#2a7a5e,#153f2f)}
+.pb .ti .i{width:16px;height:16px}
+.pb .tile b{font-size:13.5px;font-weight:600;margin-top:10px;line-height:18px;position:relative}
+.pb .tile small{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft);line-height:16px;position:relative}
+.pb .tile.sid small{color:var(--brand);font-weight:500}
+.pb .tile small .i{width:12px;height:12px;stroke-width:2.5}
+.pb .tile .rings{position:absolute;right:-26px;top:-26px;width:84px;height:84px}
+.pb .tile .corner{position:absolute;right:10px;top:10px}
+
+/* C — featured group */
+.pb .gl{font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);padding:0 12px;margin-bottom:6px;line-height:16px}
+.pb .gl.m2{margin-top:14px}
+.pb .ft{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:4px;border-radius:14px}
+.pb .fi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;flex-shrink:0}
+.pb .fi.s{background:var(--slate)}
+.pb .fi.p{background:linear-gradient(150deg,#2a7a5e,#153f2f)}
+.pb .fi .i{width:17px;height:17px}
+.pb .ft b{display:block;font-size:13.5px;font-weight:600;line-height:18px}
+.pb .ft small{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft);line-height:16px}
+.pb .ft .chev{margin-left:auto;width:15px;height:15px;color:rgb(86 99 92/.7)}
+
+/* page sliver to the right of the rail */
+.pb .pg{position:absolute;left:256px;top:0;right:0;bottom:0;padding:30px 0 0 28px;z-index:1;white-space:nowrap}
+.pb .pl{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.pb .ph{font-size:30px;font-weight:600;margin:4px 0 18px}
+.pb .pcard{width:420px;padding:16px 18px;margin-bottom:12px}
+.pb .prow{display:flex;align-items:center;gap:12px;margin-top:10px}
+.pb .prow b{display:block;font-size:14px;font-weight:600}
+.pb .prow small{display:block;font-size:12.5px;color:var(--ink-soft)}
+.pb .av.a2{background:var(--amber-soft);color:var(--amber-strong);width:40px;height:40px;font-size:14px}
+
+/* card text */
+.pc{list-style:none;padding:0;margin:.5rem 0 0;font-size:.85rem;line-height:1.45}
+.pc li{padding-left:1.1rem;position:relative;margin-bottom:.2rem;color:var(--text-secondary)}
+.pc li::before{position:absolute;left:0;font-weight:700}
+.pc li.p::before{content:"+";color:var(--success)}
+.pc li.c::before{content:"−";color:var(--error)}
+.rec{display:inline-block;font-size:.7rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:var(--selected-bg);color:var(--accent);vertical-align:middle;margin-left:.35rem}
+.shared{margin-top:1.25rem;font-size:.85rem;color:var(--text-secondary);max-width:60rem}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+<symbol id="i-bm" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+<symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-batt" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><path d="M22 11v2"/><path d="M6 11v2"/><path d="M10 11v2"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-logo" viewBox="0 0 120 120"><rect x="6" y="6" width="108" height="108" rx="26" fill="#131a17" stroke="none"/><circle cx="54" cy="44" r="19" fill="#1f5c47" stroke="none"/><circle cx="54" cy="77" r="21" fill="#1f5c47" stroke="none"/><rect x="32" y="27" width="16" height="66" rx="5" fill="#153f2f" stroke="none"/><circle cx="48" cy="60" r="6" fill="#dc9a35" stroke="none"/></symbol>
+</defs></svg>
+
+<h2>Sidebar: how loud should the collar and Smart-ID be?</h2>
+<p class="subtitle">Real size — the 256 px rail on a 720 px-tall laptop screen. Same demo moment in all three: Reksas's collar is live, Smart-ID is verified (demo). Click one to pick it; the pulsing dots are the real animation.</p>
+
+<div class="cards pb-cards">
+
+  <!-- ============ A ============ -->
+  <div class="card" data-choice="a-live-cards" onclick="toggleSelect(this)">
+    <div class="pb screen">
+      <aside class="rail">
+        <div class="top tight">
+          <div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div>
+          <span class="bell"><svg class="i"><use href="#i-bell"/></svg><i class="bd"></i></span>
+        </div>
+
+        <a class="gc lc">
+          <div class="mm">
+            <svg class="base" viewBox="0 0 222 56" preserveAspectRatio="xMidYMid slice">
+              <rect width="222" height="56" fill="#eceee8"/>
+              <path d="M-5 19 C30 13 70 22 110 16 S190 6 230 12 L230 60 L-5 60Z" fill="#d7e7d0"/>
+              <path d="M-5 7 C40 0 80 12 125 5 S200 -4 230 2" fill="none" stroke="#c4d8e1" stroke-width="11"/>
+              <path d="M-5 16 C40 9 80 21 125 14 S200 5 230 10" fill="none" stroke="#dcdcd4" stroke-width="5"/>
+              <path d="M-5 16 C40 9 80 21 125 14 S200 5 230 10" fill="none" stroke="#fff" stroke-width="3.2"/>
+              <path d="M192 60 L206 13" stroke="#dcdcd4" stroke-width="4.6"/><path d="M192 60 L206 13" stroke="#fff" stroke-width="3"/>
+              <g fill="#c7ddbf"><circle cx="24" cy="28" r="3.2"/><circle cx="36" cy="33" r="2.6"/><circle cx="84" cy="29" r="3"/><circle cx="96" cy="50" r="3.4"/><circle cx="128" cy="44" r="2.8"/><circle cx="170" cy="22" r="3.2"/><circle cx="178" cy="46" r="2.6"/><circle cx="60" cy="54" r="3"/></g>
+              <g fill="none" stroke="#b7c9ae" stroke-width="1" stroke-dasharray="2 2"><path d="M0 50 C40 44 70 52 110 40 S170 30 222 36"/><path d="M62 60 C72 45 90 34 97 20"/><path d="M132 60 C138 48 150 40 160 22"/></g>
+            </svg>
+            <svg class="rt" viewBox="0 0 222 56"><path d="M10 46 C30 40 40 50 62 42 S96 22 118 27 S140 34 150 24" fill="none" stroke="#3f6472" stroke-opacity=".28" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 46 C30 40 40 50 62 42 S96 22 118 27 S140 34 150 24" fill="none" stroke="#1f5c47" stroke-opacity=".9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="pos" style="left:150px;top:24px"></span>
+            <span class="livepill"><span class="ld" style="width:6px;height:6px"></span>LIVE</span>
+          </div>
+          <div class="lcb">
+            <div class="lct">Reksas <span class="k">· GPS collar</span><svg class="i"><use href="#i-chev"/></svg></div>
+            <div class="lcs">Vingis Park · 1 min ago · <svg class="i"><use href="#i-batt"/></svg>82%</div>
+          </div>
+        </a>
+
+        <a class="gc idc">
+          <span class="idi"><svg class="i"><use href="#i-shield"/></svg></span>
+          <div><b>Smart-ID</b><small><svg class="i"><use href="#i-check"/></svg>Identity verified</small></div>
+          <span class="demo">DEMO</span>
+        </a>
+
+        <nav class="nav">
+          <a class="nv on"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a>
+          <a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a>
+          <a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a>
+          <a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a>
+          <a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a>
+          <a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a>
+          <a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+        </nav>
+        <div class="grow"></div>
+        <div class="lang"><span class="on">EN</span><span>LT</span></div>
+        <div class="foot">
+          <div class="me"><span class="av">L</span><div><b>Lukas</b><small>Vilnius</small></div><svg class="i out"><use href="#i-out"/></svg></div>
+          <p class="note">PetBnB · a student project · <u>Legal</u></p>
+        </div>
+      </aside>
+      <div class="pg">
+        <p class="pl">Saturday, 26 September</p>
+        <p class="ph disp">Good evening, Lukas</p>
+        <div class="gc pcard"><p class="pl">Next up</p><div class="prow"><span class="av a2">RK</span><div><b>Rūta K. · dog walking</b><small>Tue 29 Sep · 18:00–19:00</small></div></div></div>
+        <div class="gc pcard" style="height:150px"><p class="pl">Messages</p></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Live cards <span class="rec">Recommended</span></h3>
+      <p>A live mini-map heads the rail — the amber dot moves on every page while you talk. Smart-ID sits right under it as a status card.</p>
+      <ul class="pc">
+        <li class="p">The collar proves itself on every screen, not only on its own page</li>
+        <li class="p">"Live" is shown, not claimed — reads as a real product</li>
+        <li class="c">Uses the spare height: fits 720 px with ~8 px left</li>
+        <li class="c">Collar outranks Smart-ID</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ B ============ -->
+  <div class="card" data-choice="b-twin-tiles" onclick="toggleSelect(this)">
+    <div class="pb screen">
+      <aside class="rail">
+        <div class="top">
+          <div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div>
+          <span class="bell"><svg class="i"><use href="#i-bell"/></svg><i class="bd"></i></span>
+        </div>
+
+        <div class="twins">
+          <a class="gc tile col">
+            <svg class="rings" viewBox="0 0 84 84"><g fill="none" stroke="#3f6472" stroke-opacity=".16"><circle cx="42" cy="42" r="14"/><circle cx="42" cy="42" r="26"/><circle cx="42" cy="42" r="38"/></g></svg>
+            <span class="ti"><svg class="i"><use href="#i-radar"/></svg></span>
+            <span class="corner ld"></span>
+            <b>Collar</b>
+            <small>Live · 1 min</small>
+          </a>
+          <a class="gc tile sid">
+            <span class="ti"><svg class="i"><use href="#i-shield"/></svg></span>
+            <span class="corner demo">DEMO</span>
+            <b>Smart-ID</b>
+            <small><svg class="i"><use href="#i-check"/></svg>Verified</small>
+          </a>
+        </div>
+
+        <nav class="nav">
+          <a class="nv on"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a>
+          <a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a>
+          <a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a>
+          <a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a>
+          <a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a>
+          <a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a>
+          <a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+        </nav>
+        <div class="grow"></div>
+        <div class="lang"><span class="on">EN</span><span>LT</span></div>
+        <div class="foot">
+          <div class="me"><span class="av">L</span><div><b>Lukas</b><small>Vilnius</small></div><svg class="i out"><use href="#i-out"/></svg></div>
+          <p class="note">PetBnB · a student project · <u>Legal</u></p>
+        </div>
+      </aside>
+      <div class="pg">
+        <p class="pl">Saturday, 26 September</p>
+        <p class="ph disp">Good evening, Lukas</p>
+        <div class="gc pcard"><p class="pl">Next up</p><div class="prow"><span class="av a2">RK</span><div><b>Rūta K. · dog walking</b><small>Tue 29 Sep · 18:00–19:00</small></div></div></div>
+        <div class="gc pcard" style="height:150px"><p class="pl">Messages</p></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Twin tiles</h3>
+      <p>Two equal tiles above the menu, like app shortcuts, each with its own status.</p>
+      <ul class="pc">
+        <li class="p">Equal weight — both features read as the headline</li>
+        <li class="p">Compact: ~70 px to spare at 720 px</li>
+        <li class="c">No map: "live" is a dot and a label, not a moving position</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ C ============ -->
+  <div class="card" data-choice="c-featured-group" onclick="toggleSelect(this)">
+    <div class="pb screen">
+      <aside class="rail">
+        <div class="top">
+          <div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div>
+          <span class="bell"><svg class="i"><use href="#i-bell"/></svg><i class="bd"></i></span>
+        </div>
+
+        <p class="gl">Featured</p>
+        <a class="gc ft">
+          <span class="fi s"><svg class="i"><use href="#i-radar"/></svg></span>
+          <div><b>GPS collar</b><small><span class="ld"></span>Live · Vingis Park</small></div>
+          <svg class="i chev"><use href="#i-chev"/></svg>
+        </a>
+        <a class="gc ft">
+          <span class="fi p"><svg class="i"><use href="#i-shield"/></svg></span>
+          <div><b>Smart-ID</b><small>Verified · demo</small></div>
+          <svg class="i chev"><use href="#i-chev"/></svg>
+        </a>
+        <p class="gl m2">Menu</p>
+
+        <nav class="nav">
+          <a class="nv on"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a>
+          <a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a>
+          <a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a>
+          <a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a>
+          <a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a>
+          <a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a>
+          <a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+        </nav>
+        <div class="grow"></div>
+        <div class="lang"><span class="on">EN</span><span>LT</span></div>
+        <div class="foot">
+          <div class="me"><span class="av">L</span><div><b>Lukas</b><small>Vilnius</small></div><svg class="i out"><use href="#i-out"/></svg></div>
+          <p class="note">PetBnB · a student project · <u>Legal</u></p>
+        </div>
+      </aside>
+      <div class="pg">
+        <p class="pl">Saturday, 26 September</p>
+        <p class="ph disp">Good evening, Lukas</p>
+        <div class="gc pcard"><p class="pl">Next up</p><div class="prow"><span class="av a2">RK</span><div><b>Rūta K. · dog walking</b><small>Tue 29 Sep · 18:00–19:00</small></div></div></div>
+        <div class="gc pcard" style="height:150px"><p class="pl">Messages</p></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Featured group</h3>
+      <p>A labelled group at the top of the menu: two taller rows with a status line each.</p>
+      <ul class="pc">
+        <li class="p">Most native — looks like it always belonged in the menu</li>
+        <li class="p">Room for a third showcase item later</li>
+        <li class="c">Quietest: easy to read past on a projector</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<p class="shared"><b>Same in all three:</b> the "Find a sitter" button goes (Browse is already in the menu) and Legal moves into the footer line. By its classes today's rail is already ≈660 px tall, so nothing new fits on a 720 px screen without that trade.</p>
+
+</body>
+</html>

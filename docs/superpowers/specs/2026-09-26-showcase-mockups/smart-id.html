@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PetBnB showcase mockup: Smart-ID page</title>
+<style>
+:root{--bg-primary:#f5f5f7;--bg-secondary:#fff;--bg-tertiary:#e5e5e7;--border:#d1d1d6;--text-primary:#1d1d1f;--text-secondary:#6e6e73;--accent:#0071e3;--success:#34c759;--error:#ff3b30;--selected-bg:#e8f4fd;--selected-border:#0071e3}
+body{margin:0;padding:2rem;font-family:system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5}
+h2{font-size:1.5rem;margin:0 0 .5rem}h3{font-size:1.1rem;margin:0 0 .25rem}
+.subtitle{color:var(--text-secondary);margin:0 0 1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-body{padding:1rem}.card-body p{color:var(--text-secondary);font-size:.85rem}
+.mockup-note{font-size:.85rem;color:var(--text-secondary);margin:0 0 1.25rem;padding:.6rem .8rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-secondary)}
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="mockup-note"><b>Approved mockup, 2026-09-26.</b> Approved as shown. Design spec: <code>../2026-09-26-showcase-collar-smartid-design.md</code>. The map is drawn for the mockup; the app uses OpenStreetMap tiles.</p>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- petbnb tokens, scoped ---------- */
+.pb{--brand:#1f5c47;--brand-strong:#153f2f;--brand-soft:#dfe9e2;--brand-softer:#eef3ef;--ink:#131a17;--ink-soft:#56635c;--amber:#dc9a35;--amber-soft:#faf1de;--amber-strong:#8a5c1f;--slate:#3f6472;--slate-soft:#e4eaec;--danger:#b8443a;--danger-soft:#f6e5e2;--surface-2:#e9ede8;
+  --shadow-sm:0 1px 2px rgb(19 26 23/.06),0 1px 1px rgb(19 26 23/.04);--shadow-md:0 6px 16px rgb(19 26 23/.10),0 2px 6px rgb(19 26 23/.06);--shadow-lg:0 16px 40px rgb(19 26 23/.14),0 6px 14px rgb(19 26 23/.08);
+  font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.45;text-align:left}
+.pb *{box-sizing:border-box;margin:0}
+.pb a{color:inherit;text-decoration:none}
+.pb .disp{font-family:"Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.02em}
+.pb .muted{color:var(--ink-soft)}
+.aur{background:radial-gradient(55% 60% at 85% 8%,rgb(31 92 71/.16),transparent 72%),radial-gradient(45% 55% at 6% 48%,rgb(220 154 53/.22),transparent 72%),radial-gradient(50% 55% at 22% 100%,rgb(63 100 114/.16),transparent 72%),#f4f6f4}
+.pb .i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.pb .pl{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.pb .gc{background:rgb(255 255 255/.6);border:1px solid rgb(255 255 255/.7);box-shadow:inset 0 1px 0 rgb(255 255 255/.55),var(--shadow-sm);border-radius:16px}
+@keyframes pbpulse{0%{transform:scale(.7);opacity:.5}75%,100%{transform:scale(2.4);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.pb .ld{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0}
+.pb .ld::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--amber);animation:pbpulse 2.2s ease-out infinite}
+.pb .demo{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--amber-strong);background:var(--amber-soft);border-radius:6px;padding:2px 6px;line-height:14px;white-space:nowrap}
+.pb .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;font-size:14px;font-weight:600;background:var(--brand);color:#fff;white-space:nowrap}
+.pb .btn .i{width:16px;height:16px}
+.pb .btn.light{background:rgb(255 255 255/.85);color:var(--ink);border:1px solid rgb(19 26 23/.1)}
+.pb .btn.full{width:100%}
+.pb .spin{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid var(--brand-soft);border-top-color:var(--brand);animation:spin .9s linear infinite;flex-shrink:0}
+
+/* ---------- rail (sidebar A) ---------- */
+.pb .rail{position:absolute;inset:0 auto 0 0;width:256px;padding:16px;display:flex;flex-direction:column;background:rgb(244 246 244/.72);border-right:1px solid rgb(19 26 23/.08);z-index:2}
+.pb .top{display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 8px;margin-bottom:16px}
+.pb .logo{display:flex;align-items:center;gap:8px}
+.pb .wm{font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.pb .bell{position:relative;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;color:var(--ink-soft)}
+.pb .nav{display:flex;flex-direction:column;gap:2px}
+.pb .nv{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:12px;font-size:14px;font-weight:500;color:var(--ink-soft)}
+.pb .nb{margin-left:auto;background:var(--brand);color:#fff;font-size:11px;font-weight:600;border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center}
+.pb .grow{flex:1}
+.pb .lang{align-self:flex-start;margin:8px 4px 0;display:inline-flex;gap:4px;padding:2px;border:1px solid rgb(19 26 23/.1);background:#fff;border-radius:999px;font-size:12px;font-weight:500}
+.pb .lang span{min-width:44px;height:44px;padding:0 12px;display:grid;place-items:center;border-radius:999px;color:var(--ink-soft)}
+.pb .lang .on{background:var(--brand);color:#fff}
+.pb .foot{border-top:1px solid rgb(19 26 23/.08);padding-top:16px;margin-top:16px}
+.pb .me{display:flex;align-items:center;gap:12px;padding:0 4px}
+.pb .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-strong);font-size:12px;font-weight:600;flex-shrink:0}
+.pb .me b{display:block;font-size:14px;font-weight:500;line-height:20px}
+.pb .me small{display:block;font-size:12px;color:var(--ink-soft);line-height:16px}
+.pb .me .out{margin-left:auto;color:var(--ink-soft);width:16px;height:16px}
+.pb .note{font-size:11px;color:rgb(86 99 92/.65);padding:0 4px;margin-top:8px;line-height:16px}
+.pb .lc{display:block;overflow:hidden}
+.pb .mm{position:relative;height:56px;overflow:hidden;border-bottom:1px solid rgb(19 26 23/.06)}
+.pb .mm svg{position:absolute;inset:0;width:100%;height:100%}
+.pb .mm .lpill{position:absolute;left:8px;top:8px;display:inline-flex;align-items:center;gap:5px;background:rgb(255 255 255/.92);border-radius:999px;padding:1px 8px 1px 7px;font-size:9.5px;font-weight:700;letter-spacing:.08em;line-height:16px}
+.pb .lcb{padding:8px 12px 9px}
+.pb .lct{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;line-height:19px}
+.pb .lct .k{font-weight:500;color:var(--ink-soft)}
+.pb .lcs{font-size:11.5px;color:var(--ink-soft);line-height:16px;margin-top:1px}
+.pb .idc{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:8px 0 14px}
+.pb .idc.cur{box-shadow:0 0 0 2px var(--brand),inset 0 1px 0 rgb(255 255 255/.55),var(--shadow-sm)}
+.pb .idi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(150deg,#2a7a5e,#153f2f);color:#fff;flex-shrink:0}
+.pb .idi .i{width:17px;height:17px}
+.pb .idc b{display:block;font-size:13.5px;font-weight:600;line-height:18px}
+.pb .idc small{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--brand);font-weight:500;line-height:16px}
+.pb .idc small .i{width:12px;height:12px;stroke-width:2.5}
+.pb .idc.todo small{color:var(--amber-strong)}
+.pb .idc .demo{margin-left:auto}
+.pb .idc .chev{margin-left:auto;width:15px;height:15px;color:rgb(86 99 92/.7)}
+
+/* ---------- frames ---------- */
+.frow{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin:6px 0 10px}
+.dk{position:relative;width:1280px;height:800px;overflow:hidden;border-radius:16px;zoom:.72;box-shadow:0 12px 36px rgb(0 0 0/.22)}
+.phone{width:414px;height:868px;padding:12px;border-radius:60px;background:#0f1412;box-shadow:0 12px 36px rgb(0 0 0/.28),inset 0 0 0 2px #2c3531;flex-shrink:0}
+.scr{position:relative;width:390px;height:844px;border-radius:48px;overflow:hidden}
+.island{position:absolute;top:11px;left:50%;width:122px;height:35px;margin-left:-61px;border-radius:20px;background:#000;z-index:40}
+.sbar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:8px 30px 0 36px;font-size:15px;font-weight:600;position:relative;z-index:5}
+.sbar svg{height:12px}
+.sbar.w{color:#fff}
+.cap{font-size:.8rem;color:var(--text-secondary);margin-top:8px;text-align:center}
+
+/* ---------- desktop Smart-ID page ---------- */
+.pb .dmain{position:absolute;left:256px;top:0;right:0;bottom:0;padding:26px 36px}
+.pb .ttl{display:flex;align-items:center;gap:12px;margin-top:2px}
+.pb .ttl h1{font-size:32px;font-weight:600;line-height:1.15}
+.pb .sub{font-size:14px;color:var(--ink-soft);margin-top:4px;max-width:560px}
+.pb .cols{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:40px;margin-top:22px;align-items:start}
+.pb .form{padding:24px 24px 20px}
+.pb .fl{font-size:13px;font-weight:600;margin-bottom:6px}
+.pb .selx{height:48px;border-radius:12px;border:1px solid rgb(19 26 23/.12);background:#fff;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:15px;margin-bottom:16px}
+.pb .selx .flag{width:22px;height:15px;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1px rgb(19 26 23/.1)}
+.pb .selx .flag i{flex:1}
+.pb .selx .i{margin-left:auto;width:16px;height:16px;color:var(--ink-soft);transform:rotate(90deg)}
+.pb .pin{height:52px;border-radius:12px;border:1.5px solid var(--brand);box-shadow:0 0 0 4px rgb(31 92 71/.12);background:#fff;display:flex;align-items:center;padding:0 14px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:19px;font-weight:500;letter-spacing:.08em}
+.pb .pin .car{width:2px;height:24px;background:var(--brand);margin-left:2px;animation:blink 1s step-end infinite}
+.pb .pin.bad{border-color:var(--danger);box-shadow:0 0 0 4px rgb(184 68 58/.12)}
+.pb .hint{font-size:12px;color:var(--ink-soft);margin:6px 0 16px}
+.pb .tests{margin-top:16px;padding-top:14px;border-top:1px dashed rgb(19 26 23/.14)}
+.pb .tests .th{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.pb .tests .th span.muted{font-size:12px}
+.pb .chips{display:flex;flex-wrap:wrap;gap:6px}
+.pb .chip{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;border-radius:999px;border:1px solid rgb(19 26 23/.1);background:rgb(255 255 255/.8);font-size:12.5px;font-weight:500;white-space:nowrap}
+.pb .chip code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink-soft)}
+.pb .chip.sel{border-color:var(--brand);background:var(--brand-softer);color:var(--brand-strong)}
+.pb .chip .dot{width:7px;height:7px;border-radius:50%}
+.pb .fine{font-size:11.5px;color:var(--ink-soft);margin-top:14px;line-height:1.45}
+.pb .pcap{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--ink-soft);margin-top:10px;text-align:center}
+
+/* ---------- the simulated Smart-ID app ---------- */
+.sid{background:#fff;color:#10222b;font-family:Inter,system-ui,sans-serif}
+.sid-h{display:flex;align-items:center;gap:10px;padding:6px 24px 0;height:58px}
+.sid-ic{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,#1a86a8,#0b4a60);display:grid;place-items:center;color:#fff;flex-shrink:0}
+.sid-ic svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sid-h b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.sid-c{padding:14px 28px 0;text-align:center}
+.sid-rq{font-size:14px;color:#5a6b73}
+.sid-rp{font-size:23px;font-weight:700;margin-top:2px}
+.sid-dt{margin:14px auto 0;padding:11px 14px;border-radius:14px;background:#f1f5f7;font-size:14.5px;color:#2b3d45}
+.sid-vcl{margin-top:24px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5a6b73}
+.sid-vc{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:58px;font-weight:700;letter-spacing:.1em;line-height:1.15}
+.sid-pl{margin-top:18px;font-size:15.5px;font-weight:600}
+.sid-dots{display:flex;justify-content:center;gap:18px;margin-top:12px}
+.sid-dots i{width:15px;height:15px;border-radius:50%;border:2px solid #0b4a60}
+.sid-dots i.f{background:#0b4a60}
+.sid-kp{position:absolute;left:0;right:0;bottom:34px;display:grid;grid-template-columns:repeat(3,1fr);row-gap:12px;padding:0 44px}
+.sid-kp span{width:70px;height:70px;border-radius:50%;background:#eef2f4;display:grid;place-items:center;font-size:27px;font-weight:500;justify-self:center}
+.sid-kp span.t{background:none;font-size:16px;font-weight:600;color:#0b4a60}
+.sid-kp span.e{background:none}
+.sid-res{position:absolute;left:0;right:0;top:190px;text-align:center;padding:0 34px}
+.sid-rc{width:104px;height:104px;border-radius:50%;margin:0 auto;display:grid;place-items:center}
+.sid-rc svg{width:52px;height:52px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sid-rc.ok{background:#e1f3ea;color:#177a50}
+.sid-rc.no{background:#f8e5e3;color:#b8443a}
+.sid-rc.warn{background:#fcf0da;color:#8a5c1f}
+.sid-res h6{font-size:27px;font-weight:700;margin-top:20px;letter-spacing:-.01em}
+.sid-res p{font-size:15.5px;color:#5a6b73;margin-top:8px;line-height:1.45}
+.sid-btn{position:absolute;left:28px;right:28px;bottom:46px;height:56px;border-radius:16px;background:#0b4a60;color:#fff;display:grid;place-items:center;font-size:16.5px;font-weight:600}
+.lock{color:#fff;background:radial-gradient(80% 45% at 25% 18%,rgb(96 170 200/.55),transparent 70%),radial-gradient(70% 55% at 85% 95%,rgb(220 154 53/.4),transparent 70%),linear-gradient(170deg,#1d3642,#0b161b)}
+.lk-t{text-align:center;font-size:86px;font-weight:600;letter-spacing:-.02em;line-height:1;margin-top:36px}
+.lk-d{text-align:center;font-size:18px;font-weight:500;opacity:.85;margin-top:8px}
+.notif{margin:36px 12px 0;padding:13px 14px;border-radius:24px;background:rgb(255 255 255/.24);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;gap:11px;align-items:flex-start}
+.notif .sid-ic{width:38px;height:38px}
+.notif .nt{display:flex;justify-content:space-between;font-size:13.5px;opacity:.9}
+.notif .nm{font-size:15.5px;font-weight:600;margin-top:1px}
+.notif .ns{font-size:14px;opacity:.85;margin-top:1px}
+.notif.pulse{animation:npulse 2.4s ease-in-out infinite}
+@keyframes npulse{0%,100%{transform:translateY(0)}6%{transform:translateY(-4px)}12%{transform:translateY(0)}}
+.lk-hint{position:absolute;left:0;right:0;bottom:30px;text-align:center;font-size:14px;opacity:.7}
+
+/* ---------- step cards: site panel + phone ---------- */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:18px;margin:8px 0 6px}
+.fc{background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.fch{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:.85rem;border-bottom:1px solid var(--border)}
+.fch .n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;flex-shrink:0}
+.fch .n.e{background:#d9822b}
+.fch b{font-weight:600}
+.fch .tg{margin-left:auto;font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:999px;white-space:nowrap;background:#faf1de;color:#8a5c1f}
+.fch .tg.ok{background:#dfe9e2;color:#153f2f}
+.fcb{display:flex;gap:18px;align-items:center;justify-content:center;padding:18px}
+.fcn{font-size:.78rem;color:var(--text-secondary);padding:9px 12px 11px;border-top:1px solid var(--border);line-height:1.45}
+.z48{zoom:.48}.z62{zoom:.62}.z66{zoom:.66}
+.pb.site{width:320px;flex:none;border-radius:16px;padding:14px}
+.pb .sp{padding:18px}
+.pb .sp h4{font-family:"Bricolage Grotesque",Inter,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.pb .sp .t{font-size:13px;color:var(--ink-soft);margin-top:5px;line-height:1.45}
+.pb .vc2{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:50px;font-weight:700;letter-spacing:.1em;line-height:1.1;text-align:center;margin-top:4px}
+.pb .vcl2{text-align:center;margin-top:12px}
+.pb .cd{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;color:var(--ink-soft);margin:12px 0 14px}
+.pb .cd svg{width:18px;height:18px}
+.pb .wt{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;color:var(--brand);margin:12px 0 14px}
+.pb .ok-h{display:flex;align-items:center;gap:10px}
+.pb .ok-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.pb .ok-ic .i{width:22px;height:22px;stroke-width:2.4}
+.pb .ok-ic.w{background:var(--amber-soft);color:var(--amber-strong)}
+.pb .ok-ic.e{background:var(--danger-soft);color:var(--danger)}
+.pb dl.kv{margin-top:12px;font-size:12.5px}
+.pb dl.kv div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgb(19 26 23/.07)}
+.pb dl.kv dt{color:var(--ink-soft)}
+.pb dl.kv dd{font-weight:600;text-align:right}
+.pb dl.kv dd.g{color:var(--brand-strong)}
+.pb .saved{display:flex;align-items:center;gap:8px;margin-top:12px;border-radius:12px;padding:9px 11px;background:var(--brand-soft);color:var(--brand-strong);font-size:12.5px;font-weight:500}
+.pb .saved .i{width:15px;height:15px}
+.pb .prof{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border-radius:14px;background:#fff;border:1px solid rgb(19 26 23/.07)}
+.pb .prof .av{width:44px;height:44px;font-size:16px}
+.pb .prof b{display:block;font-size:15px}
+.pb .vbadge{display:inline-flex;align-items:center;gap:5px;margin-top:3px;height:24px;padding:0 9px;border-radius:999px;background:var(--brand-soft);color:var(--brand-strong);font-size:11.5px;font-weight:600}
+.pb .vbadge .i{width:13px;height:13px;stroke-width:2.4}
+.pb .msg{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:9px 11px;font-size:12.5px;line-height:1.4;margin-top:8px}
+.pb .msg .i{width:16px;height:16px;margin-top:1px}
+.pb .msg.err{background:var(--danger-soft);color:#8e2f27}
+
+/* ---------- phone page ---------- */
+.pb .mtop{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgb(244 246 244/.72);border-bottom:1px solid rgb(19 26 23/.08);position:relative;z-index:5}
+.pb .mtop .wm{font-size:17px}
+.pb .mtr{display:flex;align-items:center;gap:6px}
+.pb .mtr .lang{margin:0}
+.pb .mico{width:36px;height:36px;display:grid;place-items:center;color:var(--ink-soft)}
+.pb .mc{padding:18px 16px}
+
+/* ---------- page text ---------- */
+.sec{margin-top:2.2rem}
+.sec h3{font-size:1.15rem}
+.lead{color:var(--text-secondary);font-size:.9rem;margin:.2rem 0 .6rem;max-width:62rem}
+.needs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:.6rem}
+.need{background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:.84rem;color:var(--text-secondary);line-height:1.45}
+.need b{display:block;color:var(--text-primary);font-size:.9rem;margin-bottom:3px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+<symbol id="i-bm" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+<symbol id="i-cloudoff" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></symbol>
+<symbol id="i-finger" viewBox="0 0 24 24"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/></symbol>
+<symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+<symbol id="i-logo" viewBox="0 0 120 120"><rect x="6" y="6" width="108" height="108" rx="26" fill="#131a17" stroke="none"/><circle cx="54" cy="44" r="19" fill="#1f5c47" stroke="none"/><circle cx="54" cy="77" r="21" fill="#1f5c47" stroke="none"/><rect x="32" y="27" width="16" height="66" rx="5" fill="#153f2f" stroke="none"/><circle cx="48" cy="60" r="6" fill="#dc9a35" stroke="none"/></symbol>
+<symbol id="map-mini" viewBox="0 0 222 56"><rect width="222" height="56" fill="#d6e8cd"/><path d="M0 8 C60 2 140 12 222 0" fill="none" stroke="#bcd6e0" stroke-width="14"/><path d="M-4 40 C30 34 60 48 100 28 S150 20 222 30" fill="none" stroke="#3f6472" stroke-opacity=".25" stroke-width="8" stroke-linecap="round"/><path d="M-4 40 C30 34 60 48 100 28 S150 20 222 30" fill="none" stroke="#1f5c47" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="28" r="8.5" fill="#fff"/><circle cx="100" cy="28" r="6.5" fill="#dc9a35"/></symbol>
+<symbol id="sbar-dark" viewBox="0 0 70 12"><g fill="#131a17"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/><path d="M31 11.5 l-2.4-2.6a3.4 3.4 0 0 1 4.8 0z M26 6.6a7 7 0 0 1 10 0 l-1.4 1.4a5 5 0 0 0-7.2 0z M23.6 4.2a10.4 10.4 0 0 1 14.8 0 l-1.4 1.4a8.4 8.4 0 0 0-12 0z"/><rect x="44" y="1" width="22" height="11" rx="3" fill="none" stroke="#131a17" stroke-width="1.2"/><rect x="46" y="3" width="15" height="7" rx="1.5"/><rect x="67" y="4.5" width="2" height="4" rx="1"/></g></symbol>
+<symbol id="sbar-light" viewBox="0 0 70 12"><g fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="6" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/><path d="M31 11.5 l-2.4-2.6a3.4 3.4 0 0 1 4.8 0z M26 6.6a7 7 0 0 1 10 0 l-1.4 1.4a5 5 0 0 0-7.2 0z M23.6 4.2a10.4 10.4 0 0 1 14.8 0 l-1.4 1.4a8.4 8.4 0 0 0-12 0z"/><rect x="44" y="1" width="22" height="11" rx="3" fill="none" stroke="#fff" stroke-width="1.2"/><rect x="46" y="3" width="15" height="7" rx="1.5"/><rect x="67" y="4.5" width="2" height="4" rx="1"/></g></symbol>
+</defs></svg>
+
+<h2>Smart-ID: a real-looking form, and the phone playing along</h2>
+<p class="subtitle">Same rule as the collar: no technical explainer. The simulated phone shows the process. The form asks what a real Smart-ID login asks for; SK's demo test people are one tap away, and a small DEMO marker stays honest about the environment.</p>
+
+<!-- =================== 1. THE PAGE =================== -->
+<h3>1 · The Smart-ID page, before you start</h3>
+<p class="lead">Country + personal code, like a bank or e-government login. Tapping a test person fills the code. On the right, "their phone": the screen the person would see, simulated in step with SK's real answers. The sidebar card says "Not verified" until it's done.</p>
+<div class="frow">
+  <div style="width:922px;flex:none">
+  <div class="pb dk aur">
+    <aside class="rail">
+      <div class="top"><div class="logo"><svg width="30" height="30"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><span class="bell"><svg class="i"><use href="#i-bell"/></svg></span></div>
+      <a class="gc lc"><div class="mm"><svg viewBox="0 0 222 56" preserveAspectRatio="none"><use href="#map-mini"/></svg><span class="lpill"><span class="ld" style="width:6px;height:6px"></span>LIVE</span></div><div class="lcb"><div class="lct">Reksas <span class="k">· GPS collar</span></div><div class="lcs">Vingis Park · 3 s ago · 4.2 km/h</div></div></a>
+      <a class="gc idc todo cur"><span class="idi"><svg class="i"><use href="#i-shield"/></svg></span><div><b>Smart-ID</b><small>Not verified yet · 1 min</small></div><svg class="i chev"><use href="#i-chev"/></svg></a>
+      <nav class="nav"><a class="nv"><svg class="i"><use href="#i-dash"/></svg>Dashboard</a><a class="nv"><svg class="i"><use href="#i-search"/></svg>Browse</a><a class="nv"><svg class="i"><use href="#i-heart"/></svg>My pets</a><a class="nv"><svg class="i"><use href="#i-cal"/></svg>Bookings</a><a class="nv"><svg class="i"><use href="#i-msg"/></svg>Messages<span class="nb">2</span></a><a class="nv"><svg class="i"><use href="#i-bm"/></svg>Saved</a><a class="nv"><svg class="i"><use href="#i-user"/></svg>Profile</a></nav>
+      <div class="grow"></div>
+      <div class="lang"><span class="on">EN</span><span>LT</span></div>
+      <div class="foot"><div class="me"><span class="av">L</span><div><b>Lukas</b><small>Vilnius</small></div><svg class="i out"><use href="#i-out"/></svg></div><p class="note">PetBnB · a student project · Legal</p></div>
+    </aside>
+    <main class="dmain">
+      <p class="pl">Identity</p>
+      <div class="ttl"><h1 class="disp">Confirm who you are</h1><span class="demo" style="font-size:10.5px;padding:3px 8px">DEMO · SK TEST ENVIRONMENT</span></div>
+      <p class="sub">Owners see a Smart-ID badge on your profile, so they know who they're leaving their pet with. It takes about a minute.</p>
+      <div class="cols">
+        <div class="gc form">
+          <p class="fl">Country</p>
+          <div class="selx"><span class="flag"><i style="background:#fdb913"></i><i style="background:#006a44"></i><i style="background:#c1272d"></i></span>Lithuania<svg class="i"><use href="#i-chev"/></svg></div>
+          <p class="fl">Personal code</p>
+          <div class="pin">40404040009<span class="car"></span></div>
+          <p class="hint">11 digits, as on your ID card.</p>
+          <a class="btn full" style="height:50px;font-size:15px"><svg class="i"><use href="#i-finger"/></svg>Continue with Smart-ID</a>
+          <div class="tests">
+            <div class="th"><span class="demo">SK DEMO</span><span class="muted">Test people · tap one to fill the code</span></div>
+            <div class="chips">
+              <span class="chip sel"><span class="dot" style="background:#1f5c47"></span>Confirms <code>40404040009</code></span>
+              <span class="chip"><span class="dot" style="background:#b8443a"></span>Refuses <code>30403039917</code></span>
+              <span class="chip"><span class="dot" style="background:#b8443a"></span>Refuses at PIN <code>30403039928</code></span>
+              <span class="chip"><span class="dot" style="background:#dc9a35"></span>Picks the wrong code <code>30403039972</code></span>
+              <span class="chip"><span class="dot" style="background:#8a948f"></span>Never answers <code>30403039983</code></span>
+            </div>
+          </div>
+          <p class="fine">SK's demo only knows these test people, so no real person is checked here. Only "verified" is saved to your profile; no name or personal code.</p>
+        </div>
+        <div>
+          <div class="phone z66"><div class="scr lock">
+            <div class="island"></div>
+            <div class="sbar w"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-light"/></svg></div>
+            <div class="lk-t">14:05</div>
+            <div class="lk-d">Saturday, 26 September</div>
+            <div class="lk-hint">Nothing yet: waiting for PetBnB</div>
+          </div></div>
+          <p class="pcap"><svg class="i" style="width:14px;height:14px"><use href="#i-finger"/></svg>Their phone · simulated</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <p class="cap">Desktop, 1280 × 800, shown at 72 %</p>
+  </div>
+</div>
+
+<!-- =================== 2. THE PROCESS =================== -->
+<div class="sec">
+<h3>2 · The process, site and phone in step</h3>
+<p class="lead">What you click through at the defence with the "Confirms" test person. The phone changes when SK's session changes: the code appears the moment the session starts, and the result screen matches SK's real answer.</p>
+<div class="fgrid">
+
+  <div class="fc"><div class="fch"><span class="n">1</span><b>The code appears</b><span class="tg ok">REAL · SK SESSION STARTED</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <p class="pl" style="text-align:center">Your verification code</p>
+        <p class="vc2">4127</p>
+        <p class="t" style="text-align:center">Check that your phone shows the same code. If it does, enter PIN1 there.</p>
+        <div class="cd"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="#dfe9e2" stroke-width="2.4"/><circle cx="10" cy="10" r="8" fill="none" stroke="#1f5c47" stroke-width="2.4" stroke-dasharray="50.3" stroke-dashoffset="6" transform="rotate(-90 10 10)" stroke-linecap="round"/></svg>1:52 left</div>
+        <a class="btn light full">Cancel</a>
+      </div></div>
+      <div class="phone z48"><div class="scr lock">
+        <div class="island"></div>
+        <div class="sbar w"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-light"/></svg></div>
+        <div class="lk-t">14:05</div><div class="lk-d">Saturday, 26 September</div>
+        <div class="notif pulse"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><div style="flex:1"><div class="nt"><b>Smart-ID</b><span>now</span></div><div class="nm">Prisijungimas prie PetBnB (demo)</div><div class="ns">Tap to confirm with PIN1</div></div></div>
+      </div></div>
+    </div>
+    <p class="fcn">The code is derived from the site's own random challenge; the same 4 digits show in the app.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n">2</span><b>PIN1 on the phone</b><span class="tg">SIMULATED PHONE</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <p class="pl" style="text-align:center">Your verification code</p>
+        <p class="vc2">4127</p>
+        <div class="wt"><span class="spin"></span>Waiting for you on your phone…</div>
+        <a class="btn light full">Cancel</a>
+      </div></div>
+      <div class="phone z48"><div class="scr sid">
+        <div class="island"></div>
+        <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+        <div class="sid-h"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><b>Smart-ID</b></div>
+        <div class="sid-c">
+          <p class="sid-rq">Log-in request from</p>
+          <p class="sid-rp">PetBnB (demo)</p>
+          <div class="sid-dt">Prisijungimas prie PetBnB (demo)</div>
+          <p class="sid-vcl">Verification code</p>
+          <p class="sid-vc">4127</p>
+          <p class="sid-pl">Enter PIN1</p>
+          <div class="sid-dots"><i class="f"></i><i class="f"></i><i class="f"></i><i></i></div>
+        </div>
+        <div class="sid-kp"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span class="e"></span><span>0</span><span class="t">OK</span></div>
+      </div></div>
+    </div>
+    <p class="fcn">SK's test person answers on its own, so the phone is played for the audience: code check, then PIN1.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n">3</span><b>Confirmed</b><span class="tg ok">REAL · SIGNATURE CHECKED</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <div class="ok-h"><span class="ok-ic"><svg class="i"><use href="#i-check"/></svg></span><h4>You're verified</h4></div>
+        <dl class="kv">
+          <div><dt>Name</dt><dd>OK TEST</dd></div>
+          <div><dt>Country</dt><dd>Lithuania</dd></div>
+          <div><dt>Personal code</dt><dd>404••••••••</dd></div>
+          <div><dt>Certificate</dt><dd>Qualified · SK ID Solutions (test)</dd></div>
+          <div><dt>SK's signature</dt><dd class="g">Valid</dd></div>
+        </dl>
+        <div class="saved"><span class="spin" style="border-color:rgb(21 63 47/.25);border-top-color:#153f2f;width:14px;height:14px"></span>Saving your badge…</div>
+      </div></div>
+      <div class="phone z48"><div class="scr sid">
+        <div class="island"></div>
+        <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+        <div class="sid-h"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><b>Smart-ID</b></div>
+        <div class="sid-res"><div class="sid-rc ok"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></div><h6>Confirmed</h6><p>You're logged in to PetBnB (demo). You can go back to the site.</p></div>
+        <div class="sid-btn">Done</div>
+      </div></div>
+    </div>
+    <p class="fcn">Name and certificate come from SK's real answer for the test person. Only the first 3 digits of the code are shown.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n">4</span><b>Badge on your profile</b><span class="tg ok">WORKS TODAY</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <div class="saved" style="margin-top:0"><svg class="i"><use href="#i-check"/></svg>The badge was added to your profile.</div>
+        <p class="pl" style="margin-top:14px">Your profile, as owners see it</p>
+        <div class="prof"><span class="av" style="background:var(--amber-soft);color:var(--amber-strong)">L</span><div><b>Lukas</b><span class="vbadge"><svg class="i"><use href="#i-shield"/></svg>Verified with Smart-ID</span> <span class="demo">DEMO</span></div></div>
+        <p class="pl" style="margin-top:14px">Your sidebar</p>
+        <a class="gc idc" style="margin:8px 0 0;background:#fff"><span class="idi"><svg class="i"><use href="#i-shield"/></svg></span><div><b>Smart-ID</b><small><svg class="i"><use href="#i-check"/></svg>Identity verified</small></div><span class="demo">DEMO</span></a>
+      </div></div>
+      <div class="phone z48"><div class="scr lock">
+        <div class="island"></div>
+        <div class="sbar w"><span>14:06</span><svg viewBox="0 0 70 12"><use href="#sbar-light"/></svg></div>
+        <div class="lk-t">14:06</div><div class="lk-d">Saturday, 26 September</div>
+        <div class="lk-hint">Done: back to PetBnB</div>
+      </div></div>
+    </div>
+    <p class="fcn">The database re-checks the session with SK before it saves the badge (that part exists).</p></div>
+
+</div>
+</div>
+
+<!-- =================== 3. WHEN IT GOES WRONG =================== -->
+<div class="sec">
+<h3>3 · When it goes wrong: each test person shows one failure</h3>
+<p class="lead">Tap a different test person and the phone plays the matching ending. The site always says what happened and offers "Try again".</p>
+<div class="fgrid">
+
+  <div class="fc"><div class="fch"><span class="n e">a</span><b>Refused in the app</b><span class="tg ok">REAL · USER_REFUSED</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <div class="ok-h"><span class="ok-ic e"><svg class="i"><use href="#i-ban"/></svg></span><h4>You cancelled it</h4></div>
+        <p class="t">The request was cancelled in the Smart-ID app. Nothing was saved.</p>
+        <a class="btn full" style="margin-top:14px">Try again</a>
+      </div></div>
+      <div class="phone z48"><div class="scr sid">
+        <div class="island"></div>
+        <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+        <div class="sid-h"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><b>Smart-ID</b></div>
+        <div class="sid-res"><div class="sid-rc no"><svg viewBox="0 0 24 24"><use href="#i-x"/></svg></div><h6>Request cancelled</h6><p>You said no to PetBnB (demo).</p></div>
+        <div class="sid-btn">Close</div>
+      </div></div>
+    </div>
+    <p class="fcn">Test people "Refuses" and "Refuses at PIN".</p></div>
+
+  <div class="fc"><div class="fch"><span class="n e">b</span><b>Wrong code picked</b><span class="tg ok">REAL · WRONG_VC</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <div class="ok-h"><span class="ok-ic w"><svg class="i"><use href="#i-alert"/></svg></span><h4>Wrong code picked</h4></div>
+        <p class="t">A different code was chosen on the phone, so Smart-ID stopped the request. This is how it protects people from fake sites.</p>
+        <a class="btn full" style="margin-top:14px">Try again</a>
+      </div></div>
+      <div class="phone z48"><div class="scr sid">
+        <div class="island"></div>
+        <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+        <div class="sid-h"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><b>Smart-ID</b></div>
+        <div class="sid-res"><div class="sid-rc warn"><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg></div><h6>Wrong code</h6><p>The code you picked didn't match the site's. The request was stopped for your safety.</p></div>
+        <div class="sid-btn">Close</div>
+      </div></div>
+    </div>
+    <p class="fcn">Test person "Picks the wrong code". Good one to show the committee: it's the anti-phishing check.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n e">c</span><b>No answer in time</b><span class="tg ok">REAL · TIMEOUT</span></div>
+    <div class="fcb">
+      <div class="pb site aur"><div class="gc sp">
+        <div class="ok-h"><span class="ok-ic w"><svg class="i"><use href="#i-clock"/></svg></span><h4>Out of time</h4></div>
+        <p class="t">The phone didn't answer within 90 seconds, so the request expired.</p>
+        <a class="btn full" style="margin-top:14px">Try again</a>
+      </div></div>
+      <div class="phone z48"><div class="scr lock">
+        <div class="island"></div>
+        <div class="sbar w"><span>14:07</span><svg viewBox="0 0 70 12"><use href="#sbar-light"/></svg></div>
+        <div class="lk-t">14:07</div><div class="lk-d">Saturday, 26 September</div>
+        <div class="notif" style="opacity:.55"><span class="sid-ic"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span><div style="flex:1"><div class="nt"><b>Smart-ID</b><span>2 min ago</span></div><div class="nm">Request expired</div><div class="ns">Prisijungimas prie PetBnB (demo)</div></div></div>
+      </div></div>
+    </div>
+    <p class="fcn">Test person "Never answers". The notification goes stale on the lock screen.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n e">d</span><b>A real personal code typed</b><span class="tg">NEW · FORM CHECK</span></div>
+    <div class="fcb">
+      <div class="pb site aur" style="width:420px"><div class="gc sp">
+        <p class="fl" style="font-size:12.5px">Personal code</p>
+        <div class="pin bad" style="height:46px;font-size:17px">38901011234</div>
+        <div class="msg err"><svg class="i"><use href="#i-alert"/></svg><span>SK's demo only knows its test people, so a real personal code can't be checked here. Tap one of the test people below.</span></div>
+        <div class="chips" style="margin-top:10px"><span class="chip"><span class="dot" style="background:#1f5c47"></span>Confirms <code>40404040009</code></span><span class="chip"><span class="dot" style="background:#b8443a"></span>Refuses <code>30403039917</code></span></div>
+      </div></div>
+    </div>
+    <p class="fcn">Caught before anything is sent to SK. Matters because the form now looks real enough that someone will try their own code.</p></div>
+
+  <div class="fc"><div class="fch"><span class="n e">e</span><b>SK's demo service down</b><span class="tg ok">WORKS TODAY</span></div>
+    <div class="fcb">
+      <div class="pb site aur" style="width:420px"><div class="gc sp">
+        <div class="ok-h"><span class="ok-ic w"><svg class="i"><use href="#i-cloudoff"/></svg></span><h4>Smart-ID didn't answer</h4></div>
+        <p class="t">SK's demo service is slow or down right now. Your details weren't sent anywhere else. Try again in a minute.</p>
+        <a class="btn full" style="margin-top:14px">Try again</a>
+      </div></div>
+    </div>
+    <p class="fcn">SK's free demo has no uptime promise; worth a dry run on the morning of the defence.</p></div>
+
+</div>
+</div>
+
+<!-- =================== 4. PHONE =================== -->
+<div class="sec">
+<h3>4 · On a phone</h3>
+<p class="lead">On a phone the simulated phone is hidden, because the person is already holding theirs. The form, the code and the results stay the same.</p>
+<div class="frow">
+  <div style="width:257px;flex:none">
+  <div class="phone z62"><div class="scr pb aur">
+    <div class="island"></div>
+    <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+    <div class="mtop"><div class="logo"><svg width="28" height="28"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><div class="mtr"><div class="lang"><span class="on">EN</span><span>LT</span></div><span class="mico"><svg class="i"><use href="#i-bell"/></svg></span><span class="mico"><svg class="i"><use href="#i-menu"/></svg></span></div></div>
+    <div class="mc">
+      <p class="pl">Identity</p>
+      <h1 class="disp" style="font-size:28px;font-weight:600;line-height:1.15;margin-top:2px">Confirm who you are</h1>
+      <span class="demo" style="display:inline-block;margin-top:8px">DEMO · SK TEST ENVIRONMENT</span>
+      <div class="gc form" style="margin-top:14px;padding:18px">
+        <p class="fl">Country</p>
+        <div class="selx"><span class="flag"><i style="background:#fdb913"></i><i style="background:#006a44"></i><i style="background:#c1272d"></i></span>Lithuania<svg class="i"><use href="#i-chev"/></svg></div>
+        <p class="fl">Personal code</p>
+        <div class="pin">40404040009<span class="car"></span></div>
+        <p class="hint">11 digits, as on your ID card.</p>
+        <a class="btn full" style="height:52px;font-size:15px"><svg class="i"><use href="#i-finger"/></svg>Continue with Smart-ID</a>
+        <div class="tests"><div class="th"><span class="demo">SK DEMO</span><span class="muted">Test people</span></div>
+          <div class="chips"><span class="chip sel"><span class="dot" style="background:#1f5c47"></span>Confirms</span><span class="chip"><span class="dot" style="background:#b8443a"></span>Refuses</span><span class="chip"><span class="dot" style="background:#dc9a35"></span>Wrong code</span><span class="chip"><span class="dot" style="background:#8a948f"></span>Never answers</span></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <p class="cap">The form (62 %)</p>
+  </div>
+
+  <div style="width:257px;flex:none">
+  <div class="phone z62"><div class="scr pb aur">
+    <div class="island"></div>
+    <div class="sbar"><span>14:05</span><svg viewBox="0 0 70 12"><use href="#sbar-dark"/></svg></div>
+    <div class="mtop"><div class="logo"><svg width="28" height="28"><use href="#i-logo"/></svg><span class="wm">PetBnB</span></div><div class="mtr"><div class="lang"><span class="on">EN</span><span>LT</span></div><span class="mico"><svg class="i"><use href="#i-bell"/></svg></span><span class="mico"><svg class="i"><use href="#i-menu"/></svg></span></div></div>
+    <div class="mc">
+      <p class="pl">Identity</p>
+      <h1 class="disp" style="font-size:28px;font-weight:600;line-height:1.15;margin-top:2px">Confirm who you are</h1>
+      <div class="gc sp" style="margin-top:18px;padding:26px 18px">
+        <p class="pl" style="text-align:center">Your verification code</p>
+        <p class="vc2" style="font-size:60px">4127</p>
+        <p class="t" style="text-align:center;font-size:14px;color:var(--ink-soft);margin-top:6px">Open Smart-ID and check it shows the same code, then enter PIN1.</p>
+        <div class="wt" style="margin:18px 0"><span class="spin"></span>Waiting for Smart-ID…</div>
+        <a class="btn light full" style="height:50px">Cancel</a>
+      </div>
+    </div>
+  </div></div>
+  <p class="cap">The code, waiting (62 %)</p>
+  </div>
+</div>
+</div>
+
+<!-- =================== 5. NEEDS =================== -->
+<div class="sec">
+<h3>What this needs that doesn't exist yet</h3>
+<div class="needs">
+  <div class="need"><b>The form</b>Country + personal code replaces the "pick a test identity" list; the test people become tap-to-fill chips. The API already only accepts SK's test codes.</div>
+  <div class="need"><b>The simulated phone</b>New component: lock screen → notification → code + PIN1 → the ending that matches SK's answer. Plays in step with the real session (started / running / complete).</div>
+  <div class="need"><b>Its own page in the sidebar</b>Today the only way in is a card on Profile → Sitter tab. Sidebar A links straight here, and shows "Not verified" / "Identity verified".</div>
+  <div class="need"><b>"How it works" box: gone</b>The 3-step technical explainer on today's page is dropped, like the collar diagram. The DEMO marker and one line of small print stay.</div>
+</div>
+</div>
+
+</body>
+</html>
