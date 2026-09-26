@@ -127,6 +127,11 @@ describe("translation completeness", () => {
     "appPages.petCard.weightUnit",
     // The badge's "DEMO" tag: an uppercase label kept identical so it reads the same on screenshots.
     "common.verification.demoTag",
+    // The same "DEMO" marker on the sidebar cards and on a demo collar's state pill (showcase, 2026-09-26).
+    "appShell.spotlight.demo",
+    "appPages.collar.states.demo_idle",
+    // "Smart-ID" is SK ID Solutions' product name in every language.
+    "appShell.spotlight.smartIdTitle",
   ];
 
   it("has no untranslated Lithuanian string outside the documented allow-list", () => {
