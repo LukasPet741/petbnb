@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Save, User, Briefcase, Radar, LogOut, Fingerprint, ChevronRight } from "lucide-react";
+import { Save, User, Briefcase, LogOut, Fingerprint, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +12,6 @@ import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import ImageUpload from "@/components/ImageUpload";
 import PageHeader from "@/components/PageHeader";
-import CollarsPanel from "@/components/CollarsPanel";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { cn, normaliseCity } from "@/lib/utils";
@@ -38,7 +37,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const { profile, refresh } = useProfile();
   const router = useRouter();
-  const [tab, setTab] = useState<"personal" | "sitter" | "collars">("personal");
+  const [tab, setTab] = useState<"personal" | "sitter">("personal");
   const [isSitter, setIsSitter] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", city: "", about_me: "", experience_years: "", services: { walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean> });
   const [priceDrafts, setPriceDrafts] = useState<PriceDrafts>(() => draftsFromPrices({}));
@@ -186,7 +185,7 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-6">
-        {[{ value: "personal" as const, label: t("appPages.profile.tabPersonalInfo"), icon: User }, { value: "sitter" as const, label: t("appPages.profile.tabSitterSettings"), icon: Briefcase }, { value: "collars" as const, label: t("appPages.profile.tabMyCollars"), icon: Radar }].map(({ value, label, icon: Icon }) => (
+        {[{ value: "personal" as const, label: t("appPages.profile.tabPersonalInfo"), icon: User }, { value: "sitter" as const, label: t("appPages.profile.tabSitterSettings"), icon: Briefcase }].map(({ value, label, icon: Icon }) => (
           <button key={value} onClick={() => setTab(value)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
             {tab === value && (
@@ -376,12 +375,6 @@ export default function ProfilePage() {
           )}
         </AnimatePresence>
       </form>
-
-      {tab === "collars" && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-          <CollarsPanel />
-        </motion.div>
-      )}
     </div>
   );
 }

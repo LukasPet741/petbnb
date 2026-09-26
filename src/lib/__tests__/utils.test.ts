@@ -277,8 +277,8 @@ describe("timeAgo", () => {
   });
 
   it("uses the collar key namespace when given that prefix", () => {
-    const { out } = at("2026-09-01T12:30:00Z", "2026-09-01T12:00:00Z", "appPages.collars");
-    expect(out).toBe('appPages.collars.minutesAgo:{"minutes":30}');
+    const { out } = at("2026-09-01T12:30:00Z", "2026-09-01T12:00:00Z", "appPages.collar.ago");
+    expect(out).toBe('appPages.collar.ago.minutesAgo:{"minutes":30}');
   });
 
   it("produces a leading-dot key when the prefix is empty", () => {
@@ -290,7 +290,7 @@ describe("timeAgo", () => {
   // every comparison against NaN is false, so control falls all the way through
   // to the days branch and the user is shown a literal "NaNd ago" (EN) or
   // "prieš NaN d." (LT). Reachable from NotificationBell, the messages list and
-  // CollarsPanel, all of which pass a raw database column.
+  // the collar page, all of which pass a raw database column.
   // Correct behaviour: guard with Number.isNaN and return the justNow key, or
   // return an empty string. Note getActivityBucket in SitterCard/SitterMini
   // DOES have exactly this guard - the two helpers disagree.

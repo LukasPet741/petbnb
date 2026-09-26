@@ -280,7 +280,7 @@ describe("dynamic key templates resolve in both languages", () => {
     ]);
   });
 
-  it.each(["common.timeAgo", "appPages.collars"])(
+  it.each(["common.timeAgo", "appPages.collar.ago"])(
     "resolves the full timeAgo key set under the %s prefix",
     (prefix) => {
       // timeAgo() takes keyPrefix as a parameter; these are its only two callers.

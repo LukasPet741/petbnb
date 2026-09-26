@@ -26,7 +26,7 @@ export function formatCurrency(amount: number, locale: keyof typeof INTL_LOCALES
 /**
  * Relative timestamp. Lifted out of CollarsPanel, where it was one of three
  * near-identical private copies. `keyPrefix` lets each surface keep its own
- * translation keys: pass "appPages.collars" for the collar panel, or rely on
+ * translation keys: pass "appPages.collar.ago" for the collar page, or rely on
  * the shared "common.timeAgo" defaults.
  */
 export function timeAgo(

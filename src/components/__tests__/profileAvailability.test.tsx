@@ -44,7 +44,6 @@ vi.mock("@/lib/supabase", () => ({
         : { update: h.profileUpdate },
   },
 }));
-vi.mock("@/components/CollarsPanel", () => ({ default: () => null }));
 vi.mock("@/components/ImageUpload", () => ({ default: () => null }));
 
 const day = (iso: string) => screen.getByRole("button", { name: new RegExp(`^${iso} `) });
