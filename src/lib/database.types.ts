@@ -80,6 +80,13 @@ export type Database = {
             foreignKeyName: "bookings_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -94,6 +101,13 @@ export type Database = {
             foreignKeyName: "bookings_sitter_id_fkey"
             columns: ["sitter_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -101,27 +115,52 @@ export type Database = {
       }
       collar_devices: {
         Row: {
+          claimed_at: string | null
           created_at: string
           device_secret_hash: string
+          gps_locked: boolean | null
+          gps_satellites: number | null
           id: string
+          is_demo: boolean
           label: string | null
-          owner_id: string
+          last_seen_at: string | null
+          owner_id: string | null
+          pair_code: string | null
         }
         Insert: {
+          claimed_at?: string | null
           created_at?: string
           device_secret_hash: string
+          gps_locked?: boolean | null
+          gps_satellites?: number | null
           id?: string
+          is_demo?: boolean
           label?: string | null
-          owner_id: string
+          last_seen_at?: string | null
+          owner_id?: string | null
+          pair_code?: string | null
         }
         Update: {
+          claimed_at?: string | null
           created_at?: string
           device_secret_hash?: string
+          gps_locked?: boolean | null
+          gps_satellites?: number | null
           id?: string
+          is_demo?: boolean
           label?: string | null
-          owner_id?: string
+          last_seen_at?: string | null
+          owner_id?: string | null
+          pair_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "collar_devices_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "collar_devices_owner_id_fkey"
             columns: ["owner_id"]
@@ -140,6 +179,7 @@ export type Database = {
           lat: number
           lng: number
           recorded_at: string
+          source: string
           speed_kmh: number | null
         }
         Insert: {
@@ -150,6 +190,7 @@ export type Database = {
           lat: number
           lng: number
           recorded_at?: string
+          source?: string
           speed_kmh?: number | null
         }
         Update: {
@@ -160,6 +201,7 @@ export type Database = {
           lat?: number
           lng?: number
           recorded_at?: string
+          source?: string
           speed_kmh?: number | null
         }
         Relationships: [
@@ -171,6 +213,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      collar_recordings: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          points: Json
+          recorded_on: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          name: string
+          points: Json
+          recorded_on: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          name?: string
+          points?: Json
+          recorded_on?: string
+        }
+        Relationships: []
       }
       favorites: {
         Row: {
@@ -189,6 +255,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "favorites_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "favorites_sitter_id_fkey"
             columns: ["sitter_id"]
@@ -244,6 +317,13 @@ export type Database = {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -288,6 +368,13 @@ export type Database = {
             foreignKeyName: "notifications_actor_id_fkey"
             columns: ["actor_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -296,6 +383,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
             referencedColumns: ["id"]
           },
           {
@@ -345,6 +439,13 @@ export type Database = {
           weight_kg?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pets_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pets_owner_id_fkey"
             columns: ["owner_id"]
@@ -474,6 +575,13 @@ export type Database = {
             foreignKeyName: "reviews_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -482,6 +590,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
             referencedColumns: ["id"]
           },
           {
@@ -510,6 +625,13 @@ export type Database = {
           sitter_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sitter_days_off_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sitter_days_off_sitter_id_fkey"
             columns: ["sitter_id"]
@@ -549,6 +671,13 @@ export type Database = {
             foreignKeyName: "smart_id_demo_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "smart_id_demo_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -556,6 +685,75 @@ export type Database = {
       }
     }
     Views: {
+      my_profile: {
+        Row: {
+          about_me: string | null
+          avatar_url: string | null
+          city: string | null
+          created_at: string | null
+          experience_years: number | null
+          full_name: string | null
+          id: string | null
+          is_sitter: boolean | null
+          is_verified: boolean | null
+          last_active_at: string | null
+          locale: string | null
+          phone: string | null
+          prices: Json | null
+          rate_per_hour: number | null
+          services: Json | null
+          smart_id_session_id: string | null
+          updated_at: string | null
+          verification_method: string | null
+          verified_at: string | null
+          verified_full_name: string | null
+        }
+        Insert: {
+          about_me?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          id?: string | null
+          is_sitter?: boolean | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
+          locale?: string | null
+          phone?: string | null
+          prices?: Json | null
+          rate_per_hour?: number | null
+          services?: Json | null
+          smart_id_session_id?: string | null
+          updated_at?: string | null
+          verification_method?: string | null
+          verified_at?: string | null
+          verified_full_name?: string | null
+        }
+        Update: {
+          about_me?: string | null
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          full_name?: string | null
+          id?: string | null
+          is_sitter?: boolean | null
+          is_verified?: boolean | null
+          last_active_at?: string | null
+          locale?: string | null
+          phone?: string | null
+          prices?: Json | null
+          rate_per_hour?: number | null
+          services?: Json | null
+          smart_id_session_id?: string | null
+          updated_at?: string | null
+          verification_method?: string | null
+          verified_at?: string | null
+          verified_full_name?: string | null
+        }
+        Relationships: []
+      }
       owner_ratings: {
         Row: {
           average_rating: number | null
@@ -566,6 +764,13 @@ export type Database = {
           review_count: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_subject_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reviews_subject_id_fkey"
             columns: ["owner_id"]
@@ -589,6 +794,13 @@ export type Database = {
             foreignKeyName: "reviews_subject_id_fkey"
             columns: ["sitter_id"]
             isOneToOne: false
+            referencedRelation: "my_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_subject_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -600,6 +812,14 @@ export type Database = {
         Args: { p_days: number; p_prices: Json; p_service: string }
         Returns: number
       }
+      claim_collar: {
+        Args: { p_code: string; p_label?: string }
+        Returns: {
+          device_id: string
+          result: string
+        }[]
+      }
+      clean_pair_code: { Args: { p_code: string }; Returns: string }
       create_booking_request: {
         Args: {
           p_address?: string
@@ -614,6 +834,7 @@ export type Database = {
         }
         Returns: string
       }
+      create_demo_collar: { Args: never; Returns: string }
       finish_smart_id_demo_verification: {
         Args: { p_session_id: string }
         Returns: string
@@ -625,6 +846,16 @@ export type Database = {
       register_collar_device: {
         Args: { p_label?: string; p_secret: string }
         Returns: string
+      }
+      replay_collar_point: {
+        Args: { p_device_id: string; p_index: number }
+        Returns: {
+          idx: number
+          lat: number
+          lng: number
+          speed_kmh: number
+          total: number
+        }[]
       }
       request_smart_id_demo_verification: {
         Args: { p_session_id: string }
@@ -651,6 +882,7 @@ export type Database = {
         Returns: string[]
       }
       stay_days: { Args: { p_end: string; p_start: string }; Returns: number }
+      unpair_collar: { Args: { p_device_id: string }; Returns: undefined }
       valid_prices: { Args: { p_prices: Json }; Returns: boolean }
       verify_collar_device: {
         Args: { p_device_id: string; p_secret: string }
@@ -667,3 +899,126 @@ export type Database = {
     }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
