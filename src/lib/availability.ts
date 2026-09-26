@@ -98,3 +98,17 @@ export function monthGrid(year: number, month0: number): (string | null)[] {
 export function problemFromHint(hint: string | undefined | null): AvailabilityProblem | null {
   return hint === "sitter_unavailable" || hint === "already_booked" ? hint : null;
 }
+
+/**
+ * The message for a clash refused on accept, for whoever pressed accept. The clash is always the
+ * sitter's: they can free their days, while an owner agreeing to a counter-offer can only pick
+ * other dates (review I4, 2026-09-26). `sitterKeys` is the page's own namespace for the sitter.
+ */
+export function acceptClashKey(
+  problem: AvailabilityProblem,
+  viewer: "owner" | "sitter",
+  sitterKeys: "appPages.bookings" | "messages.offer",
+): string {
+  const namespace = viewer === "sitter" ? sitterKeys : "appPages.bookingsNew";
+  return `${namespace}.${problem === "sitter_unavailable" ? "sitterUnavailable" : "alreadyBooked"}`;
+}

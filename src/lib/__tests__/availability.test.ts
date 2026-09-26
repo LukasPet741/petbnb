@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  acceptClashKey,
   vilniusDay,
   addDays,
   daysInStay,
@@ -139,5 +140,18 @@ describe("problemFromHint", () => {
     expect(problemFromHint("price_changed")).toBeNull();
     expect(problemFromHint(undefined)).toBeNull();
     expect(problemFromHint(null)).toBeNull();
+  });
+});
+
+describe("acceptClashKey", () => {
+  // Review I4 (2026-09-26): the owner agreeing to a counter-offer was shown the sitter's copy.
+  it("tells the sitter to free their own days", () => {
+    expect(acceptClashKey("sitter_unavailable", "sitter", "appPages.bookings")).toBe("appPages.bookings.sitterUnavailable");
+    expect(acceptClashKey("already_booked", "sitter", "messages.offer")).toBe("messages.offer.alreadyBooked");
+  });
+
+  it("tells the owner the sitter isn't free, whichever page they accepted on", () => {
+    expect(acceptClashKey("sitter_unavailable", "owner", "appPages.bookings")).toBe("appPages.bookingsNew.sitterUnavailable");
+    expect(acceptClashKey("already_booked", "owner", "messages.offer")).toBe("appPages.bookingsNew.alreadyBooked");
   });
 });

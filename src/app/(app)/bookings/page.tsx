@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
-import { problemFromHint } from "@/lib/availability";
+import { acceptClashKey, problemFromHint } from "@/lib/availability";
 import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { type BookingStatus } from "@/lib/types";
@@ -128,13 +128,12 @@ export default function BookingsPage() {
   };
 
   // Accepting sends the amount the viewer saw; the database refuses it if the table has moved on.
-  const handleAccept = async (id: string, amount: number) => {
+  const handleAccept = async (id: string, amount: number, viewer: "owner" | "sitter") => {
     const { error } = await supabase.from("bookings").update({ status: "signed", agreed_price: amount }).eq("id", id);
     if (error) {
       const problem = problemFromHint(error.hint);
       setToastMessage(t(
-        problem === "sitter_unavailable" ? "appPages.bookings.sitterUnavailable"
-          : problem === "already_booked" ? "appPages.bookings.alreadyBooked"
+        problem ? acceptClashKey(problem, viewer, "appPages.bookings")
           : error.hint === "price_changed" ? "appPages.bookings.priceChanged"
           : "appPages.bookings.actionFailed",
       ));
@@ -164,7 +163,7 @@ export default function BookingsPage() {
           displayProfile={displayProfile}
           displayLabel={displayLabel}
           onCancel={() => handleCancel(booking.id)}
-          onAccept={() => { if (price.acceptAmount !== null) void handleAccept(booking.id, price.acceptAmount); }}
+          onAccept={() => { if (price.acceptAmount !== null) void handleAccept(booking.id, price.acceptAmount, isSitterView ? "sitter" : "owner"); }}
           priceLine={price.priceLine}
           canAccept={price.canAccept}
           acceptLabel={price.acceptLabel}

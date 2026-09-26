@@ -15,6 +15,7 @@ const h = vi.hoisted(() => ({
   bookingResult: { data: null as unknown, error: null as unknown },
   messagesResult: { data: [] as unknown[], error: null as unknown },
   insertResult: { data: null as unknown, error: null as unknown },
+  updateResult: { error: null as unknown },
   insertGate: null as Promise<void> | null,
   markThreadRead: vi.fn(),
   calls: [] as Array<{ op: string; args: unknown[] }>,
@@ -48,6 +49,12 @@ vi.mock("@/lib/supabase", () => {
     const chain = {
       select: () => chain,
       eq: () => chain,
+      update: (values: unknown) => ({
+        eq: async () => {
+          record("bookings.update", values);
+          return h.updateResult;
+        },
+      }),
       maybeSingle: async () => {
         record("bookings.maybeSingle");
         return h.bookingResult;
@@ -176,6 +183,7 @@ beforeEach(() => {
   h.bookingResult = { data: bookingRow(), error: null };
   h.messagesResult = { data: [], error: null };
   h.insertResult = { data: null, error: null };
+  h.updateResult = { error: null };
   h.insertGate = null;
   h.markThreadRead = vi.fn();
   h.calls = [];
@@ -606,5 +614,27 @@ describe("price and offers (2026-09-15)", () => {
     await mount([messageRow({ kind: "offer", amount: 115, body: null, sender_id: SITTER, created_at: "2026-09-01T10:05:00Z" })]);
     expect(screen.queryByRole("button", { name: /Accept/ })).not.toBeInTheDocument();
     expect(screen.getByText("Your offer")).toBeInTheDocument();
+  });
+
+  // Review I4 (2026-09-26): an owner agreeing to a sitter's counter-offer was told to free days in
+  // their own profile when the database refused the clash on the sitter's side.
+  it.each([
+    ["sitter_unavailable", "This sitter is away on some of these days. Pick other dates."],
+    ["already_booked", "This sitter was booked for these dates in the meantime. Pick other dates."],
+  ])("tells the owner the sitter isn't free when accepting is refused with %s", async (hint, message) => {
+    h.bookingResult = { data: bookingRow({ status: "pending", service: "boarding", start_at: future, asking_price: 125, agreed_price: null }), error: null };
+    h.updateResult = { error: { message: "refused", hint } };
+    await mount([messageRow({ kind: "offer", amount: 115, body: null, sender_id: SITTER, sender: party(SITTER, "Jonas Sitter"), created_at: "2026-09-01T10:05:00Z" })]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Accept €115" })[0]);
+    expect(await screen.findByText(message)).toBeInTheDocument();
+  });
+
+  it("still tells the sitter to free their own days when accepting clashes", async () => {
+    h.user = { id: SITTER };
+    h.bookingResult = { data: bookingRow({ status: "pending", service: "boarding", start_at: future, asking_price: 125, agreed_price: null }), error: null };
+    h.updateResult = { error: { message: "refused", hint: "sitter_unavailable" } };
+    await mount([messageRow({ kind: "offer", amount: 110, body: null, sender_id: OWNER, created_at: "2026-09-01T10:05:00Z" })]);
+    fireEvent.click(screen.getAllByRole("button", { name: /110/ })[0]);
+    expect(await screen.findByText("You've marked some of these days as away. Free them in your profile to accept.")).toBeInTheDocument();
   });
 });
