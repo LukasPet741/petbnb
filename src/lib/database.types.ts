@@ -843,10 +843,6 @@ export type Database = {
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number }
       mark_thread_read: { Args: { p_booking_id: string }; Returns: number }
       price_amount_ok: { Args: { p_value: Json }; Returns: boolean }
-      register_collar_device: {
-        Args: { p_label?: string; p_secret: string }
-        Returns: string
-      }
       replay_collar_point: {
         Args: { p_device_id: string; p_index: number }
         Returns: {
