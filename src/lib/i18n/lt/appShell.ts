@@ -31,7 +31,7 @@ const appShell = {
     lineDemoIdle: "Įrašytas pasivaikščiojimas · paleiskite",
     smartIdTitle: "Smart-ID",
     smartIdVerified: "Tapatybė patvirtinta",
-    smartIdTodo: "Dar nepatvirtinta · 1 min.",
+    smartIdTodo: "Nepatvirtinta · 1 min.",
     collarButton: "Atidaryti antkaklio puslapį",
   },
   tipWidget: {

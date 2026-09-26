@@ -91,7 +91,7 @@ export default function SmartIdForm({ starting, onStart }: { starting: boolean; 
 
       <div className="mt-5 border-t border-dashed border-ink/15 pt-4">
         <div className="mb-2.5 flex items-center gap-2">
-          <span className="rounded-md bg-amber-soft px-1.5 py-0.5 text-[9.5px] font-bold tracking-[0.08em] text-amber-strong">SK DEMO</span>
+          <span className="flex-shrink-0 whitespace-nowrap rounded-md bg-amber-soft px-1.5 py-0.5 text-[9.5px] font-bold tracking-[0.08em] text-amber-strong">SK DEMO</span>
           <span className="text-xs text-ink-soft">{t("appPages.smartIdDemo.testPeople")}</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
