@@ -294,21 +294,8 @@ describe("refresh", () => {
     expect(result.current.loading).toBe(false);
   });
 
-  // BUG: refresh() destructures only `data` too, so a failed refetch wipes a
-  // perfectly good profile to null. The user sees a fully populated profile
-  // page blank itself out after, say, saving an edit over a flaky connection.
-  it("wipes a loaded profile to null when the refetch errors (current buggy behaviour)", async () => {
-    const { result } = await renderLoaded(makeProfile({ full_name: "Jonas Petraitis" }));
-    expect(result.current.profile).not.toBeNull();
-
-    h.maybeSingle.mockResolvedValue({ data: null, error: { message: "network down" } });
-    await act(async () => {
-      await result.current.refresh();
-    });
-
-    expect(result.current.profile).toBeNull();
-    expect(result.current.isComplete).toBe(false);
-  });
+  // Fixed 2026-09-26 (review I3): a failed refetch used to wipe a good profile to null.
+  // Pinned in the "refresh" describe at the end of this file.
 });
 
 describe("isComplete truth table", () => {
@@ -411,5 +398,24 @@ describe("notifyProfileChanged", () => {
     });
     await waitFor(() => expect(first.result.current.profile?.is_verified).toBe(true));
     expect(second.result.current.profile?.is_verified).toBe(true);
+  });
+});
+
+describe("refresh", () => {
+  it("keeps the profile when a refresh fails, so the layout does not bounce to /profile", async () => {
+    // Review I3 (2026-09-26): a dropped request at the badge's success moment set the profile to
+    // null, isComplete went false, and the app layout sent the presenter to "complete your profile".
+    h.auth.user = userA;
+    h.auth.loading = false;
+    h.maybeSingle.mockResolvedValue({ data: makeProfile(), error: null });
+    const { result } = renderHook(() => useProfile());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    h.maybeSingle.mockResolvedValue({ data: null, error: { message: "Failed to fetch" } });
+    await act(async () => {
+      await result.current.refresh();
+    });
+    expect(result.current.profile?.full_name).toBe("Jonas Petraitis");
+    expect(result.current.isComplete).toBe(true);
   });
 });

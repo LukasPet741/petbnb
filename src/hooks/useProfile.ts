@@ -45,7 +45,10 @@ export function useProfile() {
 
   const refresh = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase.from("my_profile").select("*").maybeSingle();
+    const { data, error } = await supabase.from("my_profile").select("*").maybeSingle();
+    // A failed read keeps what we had: a null profile reads as incomplete, and the app layout
+    // then bounces to /profile (review I3, 2026-09-26).
+    if (error) return;
     setProfile(data);
   }, [user]);
 
