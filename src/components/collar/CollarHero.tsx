@@ -98,7 +98,8 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
               {[0, 1, 2, 3].map((i) => (
                 <span key={i} className={cn("h-1.5 w-5 rounded-full", i < sats ? "bg-brand" : "bg-surface-2")} />
               ))}
-              <span className="ml-1.5 text-[11.5px] text-ink-soft">{t("appPages.collar.searching.count", { count: sats })}</span>
+              <span className="ml-1.5 text-[11.5px] text-ink-soft">{/* 4+ in view without a fix: the signal is short, not the count (review M4). */}
+                {t(sats >= 4 ? "appPages.collar.searching.countWeak" : "appPages.collar.searching.count", { count: sats })}</span>
             </div>
             <p className="mt-2 text-[12.5px] leading-relaxed text-ink-soft">{t("appPages.collar.searching.text")}</p>
             <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />

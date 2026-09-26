@@ -115,6 +115,13 @@ describe("PairingWizard — connecting", () => {
     expect(screen.getByText("appPages.collar.wizard.connect.satellitesCount")).toBeTruthy();
   });
 
+  it("says the signal is too weak when it sees four or more satellites without a fix", async () => {
+    h.live = live({ selected: paired({ last_seen_at: ago(10_000), gps_satellites: 9 }), state: "searching" });
+    render(<PairingWizard onClose={() => {}} />);
+    await toChecklist();
+    expect(screen.getByText("appPages.collar.wizard.connect.satellitesWeak")).toBeTruthy();
+  });
+
   it("warns after 90 s without a check-in, and can keep waiting", async () => {
     h.live = live({ selected: paired({ claimed_at: ago(91_000) }) });
     render(<PairingWizard onClose={() => {}} />);

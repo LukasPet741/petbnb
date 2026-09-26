@@ -78,7 +78,7 @@ export default function ConnectChecklist({ onDone, onPlay }: { onDone: () => voi
         <Item
           status={live ? "done" : online ? "active" : "wait"}
           title={t("appPages.collar.wizard.connect.satellites")}
-          detail={online && !live ? t("appPages.collar.wizard.connect.satellitesCount", { count: sats }) : undefined}
+          detail={online && !live ? t(sats >= 4 ? "appPages.collar.wizard.connect.satellitesWeak" : "appPages.collar.wizard.connect.satellitesCount", { count: sats }) : undefined}
         >
           {online && !live && (
             <div className="mt-1.5 flex gap-1" aria-hidden="true">

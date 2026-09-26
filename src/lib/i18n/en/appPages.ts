@@ -401,6 +401,7 @@ const appPages = {
     searching: {
       title: "Online · looking for satellites",
       count: "{count} of 4 needed",
+      countWeak: "{count} in view · signal too weak for a fix yet",
       text: "The collar is connected, but it can't see the sky. Put it by a window, or play a walk it recorded outside.",
     },
     waiting: {
@@ -458,6 +459,7 @@ const appPages = {
         onlineDone: "checked in over WiFi · {time}",
         satellites: "Finding satellites",
         satellitesCount: "{count} in view, needs 4 for a position",
+        satellitesWeak: "{count} in view, but the signal is still too weak for a position",
         first: "First position on the map",
         done: "Found it. Opening the map…",
         indoors: "Indoors the GPS may never lock.",

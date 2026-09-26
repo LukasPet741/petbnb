@@ -84,6 +84,13 @@ describe("CollarHero", () => {
     expect(onPlay).toHaveBeenCalled();
   });
 
+  it("says the signal is too weak, not '7 of 4 needed', when enough satellites are in view", () => {
+    // Review M4 (2026-09-26): indoors a NEO-6M often lists 5–12 satellites in view without a lock.
+    hero("searching", { latest: null, device: { ...device, gps_satellites: 7 } });
+    expect(screen.getByText("appPages.collar.searching.countWeak")).toBeTruthy();
+    expect(screen.queryByText("appPages.collar.searching.count")).toBeNull();
+  });
+
   it("draws no marker while searching, even when a last position is known", () => {
     // The approved mockup: "looking for satellites" has no dot; one would claim a position (review I2).
     hero("searching");

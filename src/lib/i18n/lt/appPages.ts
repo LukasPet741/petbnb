@@ -400,6 +400,7 @@ const appPages = {
     searching: {
       title: "Prisijungęs · ieško palydovų",
       count: "{count} iš 4 reikalingų",
+      countWeak: "Matoma {count} · signalas dar per silpnas vietai nustatyti",
       text: "Antkaklis prisijungęs, bet nemato dangaus. Padėkite jį prie lango arba paleiskite lauke įrašytą pasivaikščiojimą.",
     },
     waiting: {
@@ -457,6 +458,7 @@ const appPages = {
         onlineDone: "prisijungė per WiFi · {time}",
         satellites: "Ieškoma palydovų",
         satellitesCount: "Matoma {count}, vietai nustatyti reikia 4",
+        satellitesWeak: "Matoma {count}, bet signalas dar per silpnas vietai nustatyti",
         first: "Pirmoji vieta žemėlapyje",
         done: "Radome. Atidaromas žemėlapis…",
         indoors: "Patalpoje GPS gali taip ir nenustatyti vietos.",
