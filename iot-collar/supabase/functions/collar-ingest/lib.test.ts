@@ -2,26 +2,19 @@ import { describe, it, expect } from "vitest";
 import {
   validateIngestPayload,
   REQUIRED_FIELDS_ERROR,
+  INVALID_FIELDS_ERROR,
+  MAX_FUTURE_MS,
+  MAX_AGE_MS,
   type IngestPayload,
 } from "./lib.ts";
 
 /**
- * These tests pin the CURRENT validation of the collar ingest endpoint, gaps
- * and all. Several of them assert behaviour that is wrong; each is labelled
- * BUG with the correct behaviour, so the hardening pass has failing
- * expectations to flip rather than starting from nothing.
- *
- * Context that raises the stakes: this endpoint writes to collar_locations
- * using the service role. Anything that gets past validation is stored as
- * fact, and the owner's Profile page draws it on a map as their pet's
- * location history.
- *
- * Not covered here, because they are not in this function: the endpoint
- * returns insertError.message verbatim to the caller, leaking Postgres schema
- * details to anyone holding a device secret; and there is no rate limiting,
- * no replay protection and no idempotency key, so a captured payload can be
- * replayed indefinitely to flood the table.
+ * Validation for the collar ingest endpoint (v6, 2026-09-26). v5 pinned its gaps as BUG tests;
+ * v6 closes them, so those tests now assert rejection. Anything that passes here is written with
+ * the service role and drawn on the owner's map as their pet's position.
  */
+
+const NOW = Date.parse("2026-09-26T12:00:00Z");
 
 const valid = (over: Partial<IngestPayload> = {}): IngestPayload => ({
   device_id: "collar-1",
@@ -31,64 +24,100 @@ const valid = (over: Partial<IngestPayload> = {}): IngestPayload => ({
   ...over,
 });
 
-describe("accepted payloads", () => {
-  it("accepts a well-formed fix", () => {
-    const result = validateIngestPayload(valid());
+const checkin = (over: Partial<IngestPayload> = {}): IngestPayload => ({
+  device_id: "collar-1",
+  device_secret: "s3cret",
+  type: "checkin",
+  satellites_in_view: 3,
+  gps_locked: false,
+  ...over,
+});
+
+const check = (body: IngestPayload) => validateIngestPayload(body, NOW);
+
+describe("accepted positions", () => {
+  it("accepts a well-formed fix and marks it as a fix", () => {
+    const result = check(valid());
     expect(result.ok).toBe(true);
-    if (result.ok) {
+    if (result.ok && result.value.kind === "fix") {
       expect(result.value.lat).toBe(54.6872);
       expect(result.value.lng).toBe(25.2797);
       expect(result.value.device_id).toBe("collar-1");
+    } else {
+      throw new Error("expected a fix");
     }
   });
 
-  it("defaults speed and battery to null when the keys are absent", () => {
-    const result = validateIngestPayload(valid());
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.speed_kmh).toBeNull();
-      expect(result.value.battery_pct).toBeNull();
-    }
+  it("treats an explicit type of fix like no type at all", () => {
+    const result = check(valid({ type: "fix" }));
+    expect(result.ok && result.value.kind).toBe("fix");
   });
 
-  it("preserves a supplied speed and battery", () => {
-    const result = validateIngestPayload(valid({ speed_kmh: 4.2, battery_pct: 87 }));
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.speed_kmh).toBe(4.2);
-      expect(result.value.battery_pct).toBe(87);
-    }
+  it("defaults speed, battery and satellites to null when the keys are absent", () => {
+    const result = check(valid());
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.speed_kmh).toBeNull();
+    expect(result.value.battery_pct).toBeNull();
+    expect(result.value.satellites).toBeNull();
+  });
+
+  it("preserves a supplied speed, battery and satellite count", () => {
+    const result = check(valid({ speed_kmh: 4.2, battery_pct: 87, satellites: 7 }));
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.speed_kmh).toBe(4.2);
+    expect(result.value.battery_pct).toBe(87);
+    expect(result.value.satellites).toBe(7);
   });
 
   it("preserves a zero speed rather than coercing it to null", () => {
     // A stationary pet is real data; a truthiness check here would erase it.
-    const result = validateIngestPayload(valid({ speed_kmh: 0, battery_pct: 0 }));
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.value.speed_kmh).toBe(0);
-      expect(result.value.battery_pct).toBe(0);
-    }
+    const result = check(valid({ speed_kmh: 0, battery_pct: 0 }));
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.speed_kmh).toBe(0);
+    expect(result.value.battery_pct).toBe(0);
   });
 
   it("leaves recorded_at undefined so the caller can stamp the server time", () => {
-    const result = validateIngestPayload(valid());
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.value.recorded_at).toBeUndefined();
+    const result = check(valid());
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.recorded_at).toBeUndefined();
   });
 
-  it("applies the null defaults only for undefined, not for an explicit null", () => {
-    // A destructuring default fires on undefined only. Both paths happen to
-    // end at null here, but the distinction matters if a default ever changes.
-    const explicit = validateIngestPayload(valid({ speed_kmh: null }));
-    expect(explicit.ok).toBe(true);
-    if (explicit.ok) expect(explicit.value.speed_kmh).toBeNull();
+  it("keeps an explicit null speed as null", () => {
+    const result = check(valid({ speed_kmh: null }));
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.speed_kmh).toBeNull();
+  });
+
+  it("accepts a fix from yesterday, as a flushed offline queue sends", () => {
+    const yesterday = new Date(NOW - 24 * 60 * 60_000).toISOString();
+    const result = check(valid({ recorded_at: yesterday }));
+    if (!result.ok || result.value.kind !== "fix") throw new Error("expected a fix");
+    expect(result.value.recorded_at).toBe(yesterday);
+  });
+});
+
+describe("accepted check-ins", () => {
+  it("accepts a check-in without a position", () => {
+    const result = check(checkin());
+    expect(result).toEqual({
+      ok: true,
+      value: { kind: "checkin", device_id: "collar-1", device_secret: "s3cret", satellites_in_view: 3, gps_locked: false },
+    });
+  });
+
+  it("defaults a missing satellite count to null and a missing lock flag to false", () => {
+    const result = check({ device_id: "collar-1", device_secret: "s3cret", type: "checkin" });
+    expect(result).toEqual({
+      ok: true,
+      value: { kind: "checkin", device_id: "collar-1", device_secret: "s3cret", satellites_in_view: null, gps_locked: false },
+    });
   });
 });
 
 describe("rejected payloads", () => {
   it("rejects an empty object", () => {
-    const result = validateIngestPayload({});
-    expect(result).toEqual({ ok: false, error: REQUIRED_FIELDS_ERROR });
+    expect(check({})).toEqual({ ok: false, error: REQUIRED_FIELDS_ERROR });
   });
 
   it.each([
@@ -97,14 +126,14 @@ describe("rejected payloads", () => {
     ["lat", { lat: undefined }],
     ["lng", { lng: undefined }],
   ])("rejects a payload missing %s", (_label, over) => {
-    expect(validateIngestPayload(valid(over)).ok).toBe(false);
+    expect(check(valid(over)).ok).toBe(false);
   });
 
   it.each([
     ["device_id", { device_id: "" }],
     ["device_secret", { device_secret: "" }],
-  ])("rejects an empty-string %s, because the guard is a truthiness check", (_label, over) => {
-    expect(validateIngestPayload(valid(over)).ok).toBe(false);
+  ])("rejects an empty-string %s", (_label, over) => {
+    expect(check(valid(over)).ok).toBe(false);
   });
 
   it.each([
@@ -113,78 +142,52 @@ describe("rejected payloads", () => {
     ["a boolean", true],
     ["an object", {}],
   ])("rejects a latitude given as %s", (_label, lat) => {
-    expect(validateIngestPayload(valid({ lat: lat as number })).ok).toBe(false);
+    expect(check(valid({ lat: lat as number })).ok).toBe(false);
   });
 
-  it("reports a single combined message rather than naming the offending field", () => {
-    // Deliberate: the client is a headless device, not a form.
-    const result = validateIngestPayload({});
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toBe(REQUIRED_FIELDS_ERROR);
+  it("rejects an unknown payload type", () => {
+    expect(check(valid({ type: "reboot" }))).toEqual({ ok: false, error: INVALID_FIELDS_ERROR });
   });
 });
 
-describe("validation gaps (pinned bugs)", () => {
-  // BUG: typeof NaN === "number", so a computed NaN from a device with a bad
-  // GPS read is accepted and stored. Correct guard: Number.isFinite(lat).
+describe("impossible data is refused (v5's pinned bugs, fixed)", () => {
   it.each([
-    ["latitude", { lat: NaN }],
-    ["longitude", { lng: NaN }],
-  ])("accepts a NaN %s (should be rejected)", (_label, over) => {
-    expect(validateIngestPayload(valid(over)).ok).toBe(true);
-  });
-
-  // BUG: same root cause as NaN.
-  it.each([
-    ["positive Infinity", Infinity],
-    ["negative Infinity", -Infinity],
-  ])("accepts a latitude of %s (should be rejected)", (_label, lat) => {
-    expect(validateIngestPayload(valid({ lat })).ok).toBe(true);
-  });
-
-  // BUG: there is no range check at all. Correct behaviour: latitude within
-  // [-90, 90] and longitude within [-180, 180]. As written, a device can
-  // report a position that does not exist on Earth and the map will plot it.
-  it.each([
-    ["latitude", { lat: 91 }],
-    ["latitude", { lat: 1000 }],
-    ["latitude", { lat: -91 }],
-    ["longitude", { lng: 181 }],
-    ["longitude", { lng: -5000 }],
-  ])("accepts an out-of-range %s (should be rejected)", (_label, over) => {
-    expect(validateIngestPayload(valid(over)).ok).toBe(true);
-  });
-
-  // BUG: the two layers disagree. The device-side gps_reader.py explicitly
-  // discards a fix whose latitude or longitude is 0, treating it as an empty
-  // NMEA field, but the server happily accepts null island. Any other client
-  // can therefore post (0, 0) and have it drawn on the owner's map.
-  it("accepts null island at zero latitude and longitude (device side rejects it)", () => {
-    expect(validateIngestPayload(valid({ lat: 0, lng: 0 })).ok).toBe(true);
-  });
-
-  // BUG: speed_kmh and battery_pct are passed straight to the insert with no
-  // type or range check. A non-numeric speed reaches Postgres and surfaces as
-  // a 500 whose body leaks the database error message.
-  it.each([
+    ["a NaN latitude", { lat: NaN }],
+    ["a NaN longitude", { lng: NaN }],
+    ["an infinite latitude", { lat: Infinity }],
+    ["a negative infinite latitude", { lat: -Infinity }],
+    ["latitude 91", { lat: 91 }],
+    ["latitude -91", { lat: -91 }],
+    ["longitude 181", { lng: 181 }],
+    ["longitude -5000", { lng: -5000 }],
+    ["null island", { lat: 0, lng: 0 }],
     ["a non-numeric speed", { speed_kmh: "fast" as unknown as number }],
+    ["a negative speed", { speed_kmh: -1 }],
+    ["a speed over 200 km/h", { speed_kmh: 250 }],
     ["a battery above 100", { battery_pct: 9999 }],
     ["a negative battery", { battery_pct: -5 }],
-  ])("accepts %s (should be validated)", (_label, over) => {
-    expect(validateIngestPayload(valid(over)).ok).toBe(true);
+    ["a fractional battery", { battery_pct: 50.5 }],
+    ["65 satellites", { satellites: 65 }],
+    ["a fractional satellite count", { satellites: 3.5 }],
+  ])("rejects %s", (_label, over) => {
+    expect(check(valid(over))).toEqual({ ok: false, error: INVALID_FIELDS_ERROR });
   });
 
-  // BUG: recorded_at is unvalidated and used verbatim. An authenticated device
-  // can backdate or post-date fixes at will, forging location history - which
-  // matters because this history is the product's headline feature. A garbage
-  // string reaches Postgres and produces a 500 with a leaked error.
   it.each([
-    ["a backdated timestamp", "1999-01-01T00:00:00Z"],
+    ["an unparseable timestamp", "not-a-timestamp"],
+    ["a timestamp from 1999", "1999-01-01T00:00:00Z"],
     ["a far-future timestamp", "2099-01-01T00:00:00Z"],
-    ["an unparseable string", "not-a-timestamp"],
-  ])("accepts %s unchecked (should be range-validated)", (_label, recorded_at) => {
-    const result = validateIngestPayload(valid({ recorded_at }));
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.value.recorded_at).toBe(recorded_at);
+    ["a timestamp just past the future limit", new Date(NOW + MAX_FUTURE_MS + 1000).toISOString()],
+    ["a timestamp just past the age limit", new Date(NOW - MAX_AGE_MS - 1000).toISOString()],
+  ])("rejects %s", (_label, recorded_at) => {
+    expect(check(valid({ recorded_at }))).toEqual({ ok: false, error: INVALID_FIELDS_ERROR });
+  });
+
+  it.each([
+    ["65 satellites in view", { satellites_in_view: 65 }],
+    ["a negative satellite count", { satellites_in_view: -1 }],
+    ["a lock flag that is not a boolean", { gps_locked: "yes" as unknown as boolean }],
+  ])("rejects a check-in with %s", (_label, over) => {
+    expect(check(checkin(over))).toEqual({ ok: false, error: INVALID_FIELDS_ERROR });
   });
 });
