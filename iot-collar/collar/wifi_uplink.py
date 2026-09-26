@@ -4,11 +4,16 @@ Fixes that fail to send (no WiFi, backend unreachable) are appended to a local J
 retried on the next tick, so a walk out of WiFi range arrives late instead of never. The queue
 holds only the position fields: the device secret is added when a request is sent, so the file
 on disk never contains it. Check-ins are not queued; a stale "I was online" is worth nothing.
+
+Only failures that can succeed later are retried: no network, a 5xx, 408 or 429. Any other 4xx
+(a refused position, an unknown device) is logged and dropped: retrying it every tick used to
+grow the queue forever and burn Edge Function calls (review I1, 2026-09-26).
 """
 from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
@@ -18,6 +23,10 @@ import requests
 from .gps_reader import Fix, GPSStatus
 
 logger = logging.getLogger(__name__)
+
+MAX_QUEUED_FIXES = 2880  # 12 hours at one fix per 15 s; the oldest are dropped first
+
+_SENT, _RETRY, _REFUSED = "sent", "retry", "refused"
 
 
 class WiFiUplink:
@@ -43,33 +52,33 @@ class WiFiUplink:
         self._queue_path.parent.mkdir(parents=True, exist_ok=True)
 
     def send(self, fix: Fix) -> None:
-        """Sends one fix, queueing it locally on any failure."""
-        self._flush_queue()
+        """Sends one fix after any queued ones; queues it if it can succeed later."""
         body = self._fix_body(fix)
-        if self._post(body):
+        if not self._flush_queue():
+            self._enqueue(body)  # still offline: don't wait for another timeout
             return
-        self._enqueue(body)
+        if self._post(body) == _RETRY:
+            self._enqueue(body)
 
     def checkin(self, status: GPSStatus) -> bool:
         """Tells the backend the collar is online without a fix. Not queued on failure."""
         return self._post(
             {"type": "checkin", "satellites_in_view": status.satellites_in_view, "gps_locked": status.locked}
-        )
+        ) == _SENT
 
-    def _flush_queue(self) -> None:
-        if not self._queue_path.exists() or self._queue_path.stat().st_size == 0:
-            return
-        remaining = []
-        for line in self._queue_path.read_text().splitlines():
-            if not line.strip():
-                continue
-            if not self._post(json.loads(line)):
-                remaining.append(line)
-        self._queue_path.write_text("\n".join(remaining) + ("\n" if remaining else ""))
-        if remaining:
-            logger.info("%d queued fix(es) still pending", len(remaining))
+    def _flush_queue(self) -> bool:
+        """Sends queued fixes, oldest first. False if it stopped on a failure worth retrying."""
+        lines = self._queued_lines()
+        for index, line in enumerate(lines):
+            if self._post(json.loads(line)) == _RETRY:
+                self._write_queue(lines[index:])
+                logger.info("%d queued fix(es) still pending", len(lines) - index)
+                return False
+        if lines:
+            self._write_queue([])
+        return True
 
-    def _post(self, body: dict) -> bool:
+    def _post(self, body: dict) -> str:
         payload = {"device_id": self._device_id, "device_secret": self._device_secret, **body}
         try:
             response = self._post_impl(
@@ -83,16 +92,33 @@ class WiFiUplink:
                 timeout=self._timeout,
             )
             if response.ok:
-                return True
-            logger.warning("Ingest rejected message: %s %s", response.status_code, response.text)
-            return False
+                return _SENT
+            if response.status_code in (408, 429) or response.status_code >= 500:
+                logger.warning("Ingest failed, will retry: %s %s", response.status_code, response.text)
+                return _RETRY
+            logger.error("Ingest refused message, dropping it: %s %s", response.status_code, response.text)
+            return _REFUSED
         except requests.RequestException as exc:
             logger.info("Ingest unreachable: %s", exc)
-            return False
+            return _RETRY
+
+    def _queued_lines(self) -> list[str]:
+        if not self._queue_path.exists():
+            return []
+        return [line for line in self._queue_path.read_text().splitlines() if line.strip()]
 
     def _enqueue(self, body: dict) -> None:
-        with self._queue_path.open("a") as f:
-            f.write(json.dumps(body) + "\n")
+        lines = self._queued_lines() + [json.dumps(body)]
+        if len(lines) > MAX_QUEUED_FIXES:
+            logger.warning("Offline queue full: dropping the %d oldest fix(es)", len(lines) - MAX_QUEUED_FIXES)
+            lines = lines[-MAX_QUEUED_FIXES:]
+        self._write_queue(lines)
+
+    def _write_queue(self, lines: list[str]) -> None:
+        # Written aside, then swapped in: pulling the power mid-write leaves the old file whole.
+        temp = self._queue_path.with_suffix(".tmp")
+        temp.write_text("".join(line + "\n" for line in lines))
+        os.replace(temp, self._queue_path)
 
     def _fix_body(self, fix: Fix) -> dict:
         battery_pct: Optional[int] = self._battery_pct_provider() if self._battery_pct_provider else None

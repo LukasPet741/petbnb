@@ -1,8 +1,12 @@
 import json
+from dataclasses import replace
 from pathlib import Path
+
+import requests
 
 from collar.gps_reader import Fix, GPSStatus
 from collar.loop import tick
+from collar import wifi_uplink
 from collar.wifi_uplink import WiFiUplink
 
 
@@ -14,7 +18,7 @@ class FakeResponse:
 
 
 class FakePost:
-    """Records every POST; answers with the queued status codes (default 201)."""
+    """Records every POST; answers with the queued status codes (default 201). None: no network."""
 
     def __init__(self, *codes: int):
         self.codes = list(codes)
@@ -22,7 +26,10 @@ class FakePost:
 
     def __call__(self, url, json=None, headers=None, timeout=None):
         self.calls.append(json)
-        return FakeResponse(self.codes.pop(0) if self.codes else 201)
+        code = self.codes.pop(0) if self.codes else 201
+        if code is None:
+            raise requests.ConnectionError("no route to host")
+        return FakeResponse(code)
 
 
 FIX = Fix(lat=54.6833, lng=25.2333, speed_kmh=4.2, satellites=7, fix_time=1_790_400_000.0)
@@ -121,3 +128,50 @@ def test_tick_without_fix_sends_a_checkin():
     up = FakeUplink()
     tick(FakeGPS(None, GPSStatus(False, 2)), up, None)
     assert up.sent == [] and up.checkins == [GPSStatus(False, 2)]
+
+
+def queued(tmp_path: Path) -> list[dict]:
+    path = tmp_path / "queue.jsonl"
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()] if path.exists() else []
+
+
+def test_a_fix_the_server_refuses_is_dropped_not_queued(tmp_path):
+    # A 4xx never succeeds on a retry; re-sending it every tick only burns Edge Function calls
+    # (review I1, 2026-09-26: a wrong secret or a deleted collar grew the queue forever).
+    for code in (400, 401):
+        post = FakePost(code)
+        uplink(tmp_path, post).send(FIX)
+        assert queued(tmp_path) == []
+
+
+def test_queued_fixes_the_server_refuses_are_dropped(tmp_path):
+    post = FakePost(503, 401, 201)
+    up = uplink(tmp_path, post)
+    up.send(FIX)  # 503: queued
+    up.send(FIX)  # the queued one is refused (401) and dropped; the new one is sent
+    assert queued(tmp_path) == [] and len(post.calls) == 3
+
+
+def test_server_errors_and_rate_limits_are_retried(tmp_path):
+    for code in (500, 503, 429):
+        (tmp_path / "queue.jsonl").unlink(missing_ok=True)
+        uplink(tmp_path, FakePost(code)).send(FIX)
+        assert len(queued(tmp_path)) == 1
+
+
+def test_a_network_error_stops_the_flush_and_keeps_the_queue_in_order(tmp_path):
+    # Offline, every queued fix would otherwise wait for its own timeout on every tick.
+    lines = [json.dumps({"lat": 50 + i, "lng": 25.0}) for i in range(5)]
+    (tmp_path / "queue.jsonl").write_text("".join(line + chr(10) for line in lines))
+    post = FakePost(None, None)
+    uplink(tmp_path, post).send(FIX)
+    assert len(post.calls) == 1
+    assert [q["lat"] for q in queued(tmp_path)] == [50, 51, 52, 53, 54, 54.6833]
+
+
+def test_the_queue_keeps_only_the_newest_fixes(tmp_path, monkeypatch):
+    monkeypatch.setattr(wifi_uplink, "MAX_QUEUED_FIXES", 3)
+    up = uplink(tmp_path, FakePost(*([None] * 10)))
+    for i in range(5):
+        up.send(replace(FIX, lat=50.0 + i))
+    assert [q["lat"] for q in queued(tmp_path)] == [52.0, 53.0, 54.0]
