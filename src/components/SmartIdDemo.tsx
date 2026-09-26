@@ -1,16 +1,21 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BadgeCheck, Ban, Clock, Fingerprint, KeyRound, ShieldAlert, TriangleAlert } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
-import { TEST_IDENTITIES, type DemoOutcome } from "@/lib/smart-id-demo-identities";
-import { saveDemoVerification, type SaveResult } from "@/lib/smart-id-demo-save";
+import { BadgeCheck, Ban, Clock, ShieldAlert, TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
+import type { DemoOutcome } from "@/lib/smart-id-demo-identities";
+import { saveDemoVerification, type SaveResult } from "@/lib/smart-id-demo-save";
+import { phoneScreen } from "@/lib/smart-id-phone";
+import { formatClock } from "@/lib/collar/stats";
 import { cn } from "@/lib/utils";
+import SmartIdForm from "@/components/SmartIdForm";
+import SimulatedPhone from "@/components/SimulatedPhone";
 
 /**
- * The Smart-ID demo flow (option B, 2026-09-15): pick one of SK's test identities, show the
- * verification code, poll /api/smart-id-demo until SK answers, show the outcome. Nothing is
- * stored; the server checks SK's signature and reads the identity from the certificate.
+ * The Smart-ID demo flow (redesigned 2026-09-26): a real-looking form (country + personal code,
+ * SK's test people one tap away), the verification code while SK's session runs, then the outcome
+ * — with a simulated phone beside it playing what the person would see. The server checks SK's
+ * signature and reads the identity from the certificate; a verified result saves a DEMO badge.
  */
 
 interface Verification {
@@ -66,17 +71,25 @@ export default function SmartIdDemo({
   codeDelayMs?: number;
   /** Saves a successful demo on the signed-in profile; injectable for tests. */
   saveVerification?: (sessionId: string) => Promise<SaveResult>;
-  /** Called once the badge is saved, so the page can refresh the profile. */
+  /** Called once the badge is saved, so the app can refresh the profile everywhere. */
   onVerified?: () => void;
 }) {
-  const { t } = useLanguage();
-  const [identity, setIdentity] = useState(TEST_IDENTITIES[0].id);
+  const { t, locale } = useLanguage();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
+  const [codeAt, setCodeAt] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  const run = async () => {
+  // The phone animates and the countdown runs while SK's session is open; otherwise the phone's
+  // clock only needs to move once in a while.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), phase.name === "waiting" ? 200 : 30_000);
+    return () => clearInterval(timer);
+  }, [phase.name]);
+
+  const run = async (identity: string) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -89,6 +102,9 @@ export default function SmartIdDemo({
       finish({ name: "done", outcome: "error" });
       return;
     }
+    if (signal.aborted) return;
+    setCodeAt(Date.now());
+    setNow(Date.now());
     finish({ name: "waiting", code: String(started.verificationCode) });
 
     // SK advises showing the code before the phone asks for the PIN, so it can be compared.
@@ -97,6 +113,7 @@ export default function SmartIdDemo({
     const deadline = Date.now() + CLIENT_TIMEOUT_MS;
     while (!signal.aborted && Date.now() < deadline) {
       const polled = await callApi({ action: "poll", sessionId: started.sessionId, rpChallenge: started.rpChallenge }, signal);
+      if (signal.aborted) return;
       if (!polled) { finish({ name: "done", outcome: "error" }); return; }
       if (polled.state === "complete") {
         const outcome = polled.outcome as DemoOutcome;
@@ -115,66 +132,39 @@ export default function SmartIdDemo({
 
   const reset = () => { abortRef.current?.abort(); setPhase({ name: "idle" }); };
 
+  const secondsLeft = Math.max(0, Math.ceil((codeAt + CLIENT_TIMEOUT_MS - now) / 1000));
+  const phoneDate = new Intl.DateTimeFormat(locale === "lt" ? "lt-LT" : "en-GB", { weekday: "long", day: "numeric", month: "long" }).format(new Date(now));
+  const panel = "glass-panel border rounded-[var(--radius-card)] p-6 sm:p-7";
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] items-start">
-      <section className="glass-panel border rounded-[var(--radius-card)] p-6 sm:p-7">
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <section>
         {phase.name === "idle" || phase.name === "starting" ? (
-          <>
-            <h2 className="flex items-center gap-2 text-sm font-medium text-ink mb-3">
-              <KeyRound className="w-4 h-4 text-brand" aria-hidden="true" />
-              {t("appPages.smartIdDemo.chooseLabel")}
-            </h2>
-            <div role="radiogroup" className="grid gap-2">
-              {TEST_IDENTITIES.map((item) => (
-                <label
-                  key={item.id}
-                  className={cn(
-                    "flex items-center gap-3 p-3.5 rounded-[var(--radius-input)] border cursor-pointer text-sm transition-all",
-                    identity === item.id ? "border-brand bg-brand-soft text-brand-strong" : "border-black/10 bg-surface/70 text-ink hover:border-black/20",
-                  )}
-                >
-                  <input type="radio" name="smart-id-identity" checked={identity === item.id} onChange={() => setIdentity(item.id)} className="accent-[var(--color-brand)]" />
-                  <span className="flex-1 font-medium">{t(`appPages.smartIdDemo.identities.${item.key}`)}</span>
-                  <span className="font-mono text-xs text-ink-soft">{item.id}</span>
-                </label>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => void run()}
-              disabled={phase.name === "starting"}
-              className="mt-5 inline-flex items-center justify-center gap-2 h-11 px-6 rounded-[var(--radius-input)] bg-brand text-white text-sm font-semibold hover:bg-brand-strong transition-colors disabled:opacity-60"
-            >
-              {phase.name === "starting" ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-                  {t("appPages.smartIdDemo.starting")}
-                </>
-              ) : (
-                <>
-                  <Fingerprint className="w-4 h-4" aria-hidden="true" />
-                  {t("appPages.smartIdDemo.start")}
-                </>
-              )}
-            </button>
-          </>
+          <SmartIdForm starting={phase.name === "starting"} onStart={(identity) => void run(identity)} />
         ) : phase.name === "waiting" ? (
-          <div className="text-center py-4" aria-live="polite">
+          <div className={cn(panel, "text-center")} aria-live="polite">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.smartIdDemo.codeLabel")}</p>
-            <p className="mt-2 font-display text-6xl font-semibold tracking-[0.12em] text-ink tabular-nums">{phase.code}</p>
-            <p className="mt-3 text-sm text-ink-soft max-w-sm mx-auto">{t("appPages.smartIdDemo.codeHint")}</p>
+            <p className="mt-2 font-display text-6xl font-semibold tabular-nums tracking-[0.12em] text-ink">{phase.code}</p>
+            <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{t("appPages.smartIdDemo.codeHint")}</p>
             <p className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-brand">
-              <span className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent" aria-hidden="true" />
               {t("appPages.smartIdDemo.waiting")}
             </p>
+            <p className="mt-2 text-xs text-ink-soft">
+              {t("appPages.smartIdDemo.timeLeft", { time: `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}` })}
+            </p>
+            <button type="button" onClick={reset}
+              className="mt-5 h-11 w-full rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-6 text-sm font-semibold text-ink transition-colors hover:bg-surface sm:w-auto">
+              {t("appPages.smartIdDemo.cancel")}
+            </button>
           </div>
         ) : phase.outcome === "ok" && phase.verification?.identity ? (
-          <div aria-live="polite">
+          <div className={panel} aria-live="polite">
             <div className="flex items-center gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-soft text-brand">
-                <BadgeCheck className="w-6 h-6" aria-hidden="true" />
+                <BadgeCheck className="h-6 w-6" aria-hidden="true" />
               </span>
-              <h2 className="font-display text-2xl font-semibold text-ink tracking-tight">{t("appPages.smartIdDemo.okTitle")}</h2>
+              <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">{t("appPages.smartIdDemo.okTitle")}</h2>
             </div>
             <dl className="mt-5 divide-y divide-black/5 text-sm">
               {[
@@ -185,25 +175,23 @@ export default function SmartIdDemo({
               ].map(([key, value]) => (
                 <div key={key} className="flex justify-between gap-4 py-2.5">
                   <dt className="text-ink-soft">{t(`appPages.smartIdDemo.${key}`)}</dt>
-                  <dd className="text-ink font-medium text-right">{value}</dd>
+                  <dd className="text-right font-medium text-ink">{value}</dd>
                 </div>
               ))}
               <div className="flex justify-between gap-4 py-2.5">
                 <dt className="text-ink-soft">{t("appPages.smartIdDemo.signature")}</dt>
-                <dd className="text-brand-strong font-medium text-right">{t("appPages.smartIdDemo.signatureValid")}</dd>
+                <dd className="text-right font-medium text-brand-strong">{t("appPages.smartIdDemo.signatureValid")}</dd>
               </div>
             </dl>
             {phase.save && (
-              <p
-                role="status"
+              <p role="status"
                 className={cn(
                   "mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-3.5 py-2.5 text-sm",
                   phase.save === "verified" ? "bg-brand-soft text-brand-strong" : phase.save === "saving" ? "bg-surface-2 text-ink-soft" : "bg-amber-soft text-amber-strong",
-                )}
-              >
+                )}>
                 {phase.save === "saving" ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
                     {t("appPages.smartIdDemo.savingBadge")}
                   </>
                 ) : (
@@ -216,7 +204,8 @@ export default function SmartIdDemo({
                 )}
               </p>
             )}
-            <button type="button" onClick={reset} className="mt-5 h-11 px-5 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 text-sm font-semibold text-ink hover:bg-surface transition-colors">
+            <button type="button" onClick={reset}
+              className="mt-5 h-11 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
               {t("appPages.smartIdDemo.again")}
             </button>
           </div>
@@ -225,15 +214,16 @@ export default function SmartIdDemo({
             const keys = OUTCOME_KEYS[phase.outcome === "ok" ? "error" : phase.outcome] ?? OUTCOME_KEYS.error;
             const Icon = keys.icon;
             return (
-              <div aria-live="polite">
+              <div className={panel} aria-live="polite">
                 <div className="flex items-center gap-3">
                   <span className="grid h-11 w-11 place-items-center rounded-full bg-amber-soft text-amber-strong">
-                    <Icon className="w-6 h-6" aria-hidden="true" />
+                    <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <h2 className="font-display text-2xl font-semibold text-ink tracking-tight">{t(`appPages.smartIdDemo.${keys.title}`)}</h2>
+                  <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">{t(`appPages.smartIdDemo.${keys.title}`)}</h2>
                 </div>
                 <p className="mt-3 text-sm text-ink-soft">{t(`appPages.smartIdDemo.${keys.text}`)}</p>
-                <button type="button" onClick={reset} className="mt-5 h-11 px-5 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 text-sm font-semibold text-ink hover:bg-surface transition-colors">
+                <button type="button" onClick={reset}
+                  className="mt-5 h-11 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
                   {t("appPages.smartIdDemo.again")}
                 </button>
               </div>
@@ -242,15 +232,13 @@ export default function SmartIdDemo({
         )}
       </section>
 
-      <aside className="glass-card border rounded-[var(--radius-card)] p-5 text-sm">
-        <h2 className="font-display text-base font-semibold text-ink tracking-tight">{t("appPages.smartIdDemo.howTitle")}</h2>
-        <ol className="mt-3 space-y-2.5 list-decimal pl-4 text-ink-soft">
-          <li>{t("appPages.smartIdDemo.howStep1")}</li>
-          <li>{t("appPages.smartIdDemo.howStep2")}</li>
-          <li>{t("appPages.smartIdDemo.howStep3")}</li>
-        </ol>
-        <p className="mt-4 pt-4 border-t border-black/5 text-xs text-ink-soft">{t("appPages.smartIdDemo.demoNote")}</p>
-      </aside>
+      <div className="hidden lg:block">
+        <SimulatedPhone
+          screen={phoneScreen(phase, now - codeAt)}
+          clock={formatClock(new Date(now).toISOString(), locale)}
+          date={phoneDate}
+        />
+      </div>
     </div>
   );
 }

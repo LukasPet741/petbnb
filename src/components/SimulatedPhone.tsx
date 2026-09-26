@@ -44,7 +44,7 @@ export default function SimulatedPhone({ screen, clock, date }: { screen: PhoneS
               <p className="mt-6 text-center text-[64px] font-semibold leading-none tracking-tight">{clock}</p>
               <p className="mt-2 text-center text-[15px] font-medium opacity-85">{date}</p>
               {(screen.kind === "notification" || screen.kind === "ending") && (
-                <div className={cn("mx-2.5 mt-7 flex gap-2.5 rounded-[20px] bg-white/25 px-3 py-2.5 backdrop-blur-xl", screen.kind === "ending" && "opacity-55")}>
+                <div className={cn("mx-2.5 mt-7 flex gap-2.5 rounded-[20px] bg-white/25 px-3 py-2.5", screen.kind === "ending" && "opacity-55")}>
                   <AppIcon size={34} />
                   <div className="min-w-0 flex-1">
                     <div className="flex justify-between text-[12px] opacity-90">

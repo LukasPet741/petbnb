@@ -1,9 +1,20 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import type { Database } from "@/lib/supabase";
 
 type Profile = Database["public"]["Views"]["my_profile"]["Row"];
+
+const listeners = new Set<() => void>();
+
+/**
+ * Every mounted useProfile() reads the profile again. Each component holds its own copy, so
+ * without this the sidebar's Smart-ID card stayed "not verified" until a reload after the badge
+ * was saved on the Smart-ID page.
+ */
+export function notifyProfileChanged(): void {
+  for (const listener of listeners) listener();
+}
 
 /**
  * Own profile, read through the `my_profile` view rather than the profiles table.
@@ -32,11 +43,19 @@ export function useProfile() {
       });
   }, [user, authLoading]);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase.from("my_profile").select("*").maybeSingle();
     setProfile(data);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    const listener = () => void refresh();
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, [refresh]);
 
   const isComplete = !!(profile?.full_name && profile?.phone && profile?.city);
 

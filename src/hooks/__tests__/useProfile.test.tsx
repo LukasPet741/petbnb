@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile, notifyProfileChanged } from "@/hooks/useProfile";
 
 type ProfileRow = Database["public"]["Views"]["my_profile"]["Row"];
 type SingleResult = { data: ProfileRow | null; error: unknown };
@@ -392,5 +392,24 @@ describe("loading composition", () => {
 
     expect(result.current.loading).toBe(true);
     expect(result.current.profile).not.toBeNull();
+  });
+});
+
+describe("notifyProfileChanged", () => {
+  it("makes every mounted useProfile read the profile again (the sidebar after a badge is saved)", async () => {
+    h.auth.user = userA;
+    h.auth.loading = false;
+    h.maybeSingle.mockResolvedValue({ data: makeProfile(), error: null });
+    const first = renderHook(() => useProfile());
+    const second = renderHook(() => useProfile());
+    await waitFor(() => expect(first.result.current.loading).toBe(false));
+    await waitFor(() => expect(second.result.current.loading).toBe(false));
+
+    h.maybeSingle.mockResolvedValue({ data: makeProfile({ is_verified: true }), error: null });
+    await act(async () => {
+      notifyProfileChanged();
+    });
+    await waitFor(() => expect(first.result.current.profile?.is_verified).toBe(true));
+    expect(second.result.current.profile?.is_verified).toBe(true);
   });
 });
