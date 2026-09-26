@@ -30,10 +30,10 @@ export const DEMO = {
 } as const;
 
 export { TEST_IDENTITIES, type DemoOutcome } from "@/lib/smart-id-demo-identities";
-import type { DemoOutcome } from "@/lib/smart-id-demo-identities";
+import { SMART_ID_DISPLAY_TEXT, type DemoOutcome } from "@/lib/smart-id-demo-identities";
 
-/** What the Smart-ID app shows while asking for the PIN. SK allows at most 60 characters. */
-const DISPLAY_TEXT = "Prisijungimas prie PetBnB (demo)";
+/** What the Smart-ID app shows while asking for the PIN (see SMART_ID_DISPLAY_TEXT). */
+const DISPLAY_TEXT = SMART_ID_DISPLAY_TEXT;
 
 export function newRpChallenge(): string {
   return crypto.randomBytes(32).toString("base64");
