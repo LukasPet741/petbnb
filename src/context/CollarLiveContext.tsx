@@ -94,6 +94,9 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
   const [replay, setReplay] = useState<ReplayProgress | null>(null);
   const [replayError, setReplayError] = useState<ReplayError | null>(null);
   const runRef = useRef<ReplayRun | null>(null);
+  // A double-click on Play must not create two demo collars: the second hits the one-per-owner
+  // index and "the recorded walk stopped" showed while it played (review M1, 2026-09-26).
+  const startingRef = useRef(false);
 
   const refresh = useCallback(async () => {
     if (!userId) {
@@ -200,21 +203,27 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
   }, [replayingId, tickReplay]);
 
   const startReplay = useCallback(async () => {
-    setReplayError(null);
-    let deviceId = selectedId;
-    if (!deviceId) {
-      try {
-        deviceId = await createDemoCollar();
-      } catch {
-        setReplayError("stopped");
-        return;
+    if (startingRef.current) return;
+    startingRef.current = true;
+    try {
+      setReplayError(null);
+      let deviceId = selectedId;
+      if (!deviceId) {
+        try {
+          deviceId = await createDemoCollar();
+        } catch {
+          setReplayError("stopped");
+          return;
+        }
+        await refresh();
+        setSelectedId(deviceId);
       }
-      await refresh();
-      setSelectedId(deviceId);
+      runRef.current = { deviceId, idx: 0, failures: 0, busy: false };
+      setReplay({ deviceId, idx: 0, total: 0 });
+      await tickReplay();
+    } finally {
+      startingRef.current = false;
     }
-    runRef.current = { deviceId, idx: 0, failures: 0, busy: false };
-    setReplay({ deviceId, idx: 0, total: 0 });
-    await tickReplay();
   }, [selectedId, refresh, tickReplay]);
 
   const pair = useCallback(

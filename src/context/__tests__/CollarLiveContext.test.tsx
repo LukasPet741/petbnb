@@ -165,6 +165,22 @@ describe("CollarLiveProvider", () => {
     expect(text("selected")).toBe("demo-1");
   });
 
+  it("creates one demo collar on a double-click, and shows no error while the walk plays", async () => {
+    // Review M1 (2026-09-26): the second call hit the one-demo-per-owner index and "The recorded
+    // walk stopped." appeared while the walk played.
+    h.loadCollars.mockResolvedValueOnce([]).mockResolvedValue([collar({ id: "demo-1", is_demo: true })]);
+    h.demo.mockResolvedValueOnce("demo-1").mockRejectedValue(new Error("duplicate key value violates unique constraint"));
+    h.replay.mockResolvedValue({ lat: 54.68, lng: 25.23, speed_kmh: 4, idx: 0, total: 5 });
+    render(<CollarLiveProvider><Probe /></CollarLiveProvider>);
+    await flush();
+    fireEvent.click(screen.getByText("play"));
+    fireEvent.click(screen.getByText("play"));
+    await flush();
+    expect(h.demo).toHaveBeenCalledTimes(1);
+    expect(text("replayError")).toBe("none");
+    expect(text("selected")).toBe("demo-1");
+  });
+
   it("selects the collar it just paired", async () => {
     h.claim.mockResolvedValue({ deviceId: "c2", result: "paired" });
     h.loadCollars.mockResolvedValueOnce([collar()]).mockResolvedValue([collar(), collar({ id: "c2" })]);
