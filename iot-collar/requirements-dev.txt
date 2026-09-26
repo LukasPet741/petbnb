@@ -1,0 +1,6 @@
+pyserial==3.5
+pynmea2==1.19.0
+requests==2.32.3
+python-dotenv==1.0.1
+bcrypt==4.2.0
+pytest==8.3.3

@@ -19,3 +19,6 @@ supabase/.temp/
 # where each value comes from, and it holds no values itself. It has to be un-ignored
 # explicitly because `.env*` above matches it.
 !.env.example
+iot-collar/.venv/
+iot-collar/.pytest_cache/
+iot-collar/queue.jsonl
