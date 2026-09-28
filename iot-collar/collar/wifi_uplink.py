@@ -7,7 +7,9 @@ on disk never contains it. Check-ins are not queued; a stale "I was online" is w
 
 Only failures that can succeed later are retried: no network, a 5xx, 408 or 429. Any other 4xx
 (a refused position, an unknown device) is logged and dropped: retrying it every tick used to
-grow the queue forever and burn Edge Function calls (review I1, 2026-09-26).
+grow the queue forever and burn Edge Function calls (review I1, 2026-09-26). A queued line that
+is not a JSON object (power cut mid-write) is dropped, and the credentials always come from this
+collar's .env, never from a queued line (review M7).
 """
 from __future__ import annotations
 
@@ -70,7 +72,11 @@ class WiFiUplink:
         """Sends queued fixes, oldest first. False if it stopped on a failure worth retrying."""
         lines = self._queued_lines()
         for index, line in enumerate(lines):
-            if self._post(json.loads(line)) == _RETRY:
+            body = _parse(line)
+            if body is None:
+                logger.warning("Dropping a corrupt queued fix: %r", line[:80])
+                continue
+            if self._post(body) == _RETRY:
                 self._write_queue(lines[index:])
                 logger.info("%d queued fix(es) still pending", len(lines) - index)
                 return False
@@ -79,7 +85,7 @@ class WiFiUplink:
         return True
 
     def _post(self, body: dict) -> str:
-        payload = {"device_id": self._device_id, "device_secret": self._device_secret, **body}
+        payload = {**body, "device_id": self._device_id, "device_secret": self._device_secret}
         try:
             response = self._post_impl(
                 self._ingest_url,
@@ -130,3 +136,11 @@ class WiFiUplink:
             "satellites": fix.satellites,
             "recorded_at": datetime.fromtimestamp(fix.fix_time, tz=timezone.utc).isoformat(),
         }
+
+
+def _parse(line: str) -> Optional[dict]:
+    try:
+        body = json.loads(line)
+    except ValueError:
+        return None
+    return body if isinstance(body, dict) else None

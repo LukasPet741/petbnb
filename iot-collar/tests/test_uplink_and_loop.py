@@ -169,6 +169,24 @@ def test_a_network_error_stops_the_flush_and_keeps_the_queue_in_order(tmp_path):
     assert [q["lat"] for q in queued(tmp_path)] == [50, 51, 52, 53, 54, 54.6833]
 
 
+def test_a_corrupt_queue_line_is_dropped_not_fatal(tmp_path):
+    # Review M7: one half-written line raised on every tick, so the collar never sent again.
+    (tmp_path / "queue.jsonl").write_text('{"lat": 50.0, "lng": 25.0' + chr(10) + json.dumps({"lat": 51.0, "lng": 25.0}) + chr(10))
+    post = FakePost()
+    uplink(tmp_path, post).send(FIX)
+    assert [c["lat"] for c in post.calls] == [51.0, 54.6833]
+    assert queued(tmp_path) == []
+
+
+def test_an_old_queue_line_cannot_send_old_credentials(tmp_path):
+    # Review M7: v5 queued the whole payload, credentials included, and the body overrode them.
+    old = {"lat": 51.0, "lng": 25.0, "device_id": "old-dev", "device_secret": "old-secret"}
+    (tmp_path / "queue.jsonl").write_text(json.dumps(old) + chr(10))
+    post = FakePost()
+    uplink(tmp_path, post).send(FIX)
+    assert all(c["device_id"] == "dev-1" and c["device_secret"] == "s3cret" for c in post.calls)
+
+
 def test_the_queue_keeps_only_the_newest_fixes(tmp_path, monkeypatch):
     monkeypatch.setattr(wifi_uplink, "MAX_QUEUED_FIXES", 3)
     up = uplink(tmp_path, FakePost(*([None] * 10)))

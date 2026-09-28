@@ -102,8 +102,8 @@ the wiring or the `dtoverlay`/raspi-config steps above; `Ctrl+C` to stop.
 
 ## Setup on the Pi
 
-The project isn't pushed to GitHub yet, so copy the `iot-collar/` folder over
-from your laptop instead of cloning (run this from your laptop, not the Pi):
+Copy the `iot-collar/` folder over from your laptop (run this from your laptop, not the Pi;
+cloning the whole website repo onto the Pi is not needed):
 ```bash
 scp -r iot-collar <your-username>@petbnb-collar.local:~/petbnb-collar
 ```
@@ -160,9 +160,12 @@ prints an `insert` for the Supabase SQL editor, and prints the sticker text
 copy the `.env` to the Pi:
 
 ```bash
-scp .env <your-username>@petbnb-collar.local:~/petbnb-collar/.env
-ssh <your-username>@petbnb-collar.local 'sudo systemctl restart petbnb-collar'
+scp -r collar .env <your-username>@petbnb-collar.local:~/petbnb-collar/
+ssh <your-username>@petbnb-collar.local 'rm -f ~/petbnb-collar/queue.jsonl && sudo systemctl restart petbnb-collar'
 ```
+
+Copying `collar/` too brings the Pi's code up to date; deleting `queue.jsonl` stops fixes queued
+by an older version (or under an earlier pairing) from being uploaded to the new one.
 
 The plain secret lives only in that `.env`; Supabase keeps a bcrypt hash. Removing the collar in
 the app unpairs it (its history is deleted) and the sticker code works again.
@@ -210,7 +213,7 @@ locks, or `No GPS fix: 3 satellite(s) in view` before that (each one is sent as 
 `BLE peripheral advertising as GATT service …`. To confirm BLE is actually visible, scan for it from
 a phone with a generic BLE scanner app (e.g. **nRF Connect** on Android/iOS)
 — you should see a device named "PetBnB Collar" advertising. To confirm the
-WiFi leg, check **Profile → My collars** on the site after a fix logs — the
+WiFi leg, open **Collar** (`/collar`) on petbnb.lt after a fix logs — the
 marker should update within `FIX_INTERVAL_SECONDS`.
 
 Once that all looks right, `Ctrl+C` it and install it as a systemd service
