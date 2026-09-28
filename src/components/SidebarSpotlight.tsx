@@ -11,6 +11,8 @@ import { formatClock } from "@/lib/collar/stats";
 import MiniMap from "@/components/collar/MiniMap";
 import LiveDot from "@/components/collar/LiveDot";
 import { collarName } from "@/components/collar/names";
+import { showsBadge } from "@/components/VerifiedSeal";
+import type { VerificationMethod } from "@/lib/types";
 
 /**
  * Sidebar option A (Lukas, 2026-09-26): the collar and Smart-ID at the top of the menu on every
@@ -24,7 +26,10 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
   // The replay's point only while it plays; otherwise the collar's own last fix (review I2).
   const latest = shownPosition(state, selected, live.latest, live.latestReal);
   const { profile } = useProfile();
-  const verified = !!profile?.is_verified;
+  // The seal's own rule: the 25 catalogue sitters are is_verified by seed, not by Smart-ID (review M5).
+  const verified = showsBadge(profile?.verification_method as VerificationMethod | null | undefined);
+  // Every full page load starts with no collars; "Pair a collar" flashed until they arrived (review M8).
+  const loadingCollars = live.loading && !selected;
   const onCollar = pathname === "/collar";
   const onSmartId = pathname.startsWith("/smart-id-demo");
 
@@ -48,7 +53,7 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
       case "demo_idle":
         return t("appShell.spotlight.lineDemoIdle");
       default:
-        return t("appShell.spotlight.pairText");
+        return loadingCollars ? t("appPages.collar.loading") : t("appShell.spotlight.pairText");
     }
   })();
 
@@ -88,7 +93,7 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
                   <span className="font-medium text-ink-soft"> · {t("appShell.spotlight.collarTitle")}</span>
                 </>
               ) : (
-                t("appShell.spotlight.pairTitle")
+                t(loadingCollars ? "appShell.spotlight.collarTitle" : "appShell.spotlight.pairTitle")
               )}
             </div>
             <div className="truncate text-[11.5px] text-ink-soft">{line}</div>

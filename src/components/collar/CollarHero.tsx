@@ -46,6 +46,13 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
   const today = state === "live" ? routeStats(trail) : null;
   const minutesSilent = device.last_seen_at ? Math.max(1, Math.floor((now - Date.parse(device.last_seen_at)) / 60_000)) : 0;
   const sats = device.gps_satellites ?? 0;
+  // No recording: the state card keeps saying what the collar is doing and says so where Play
+  // was — it used to replace the card until a reload (review M14). A walk that stopped still
+  // takes the card over, with Try again; live has no card of its own, so it gets one.
+  const noRecording = replayError === "no_recording";
+  const play = noRecording
+    ? <p className="mt-3 text-[12.5px] font-medium text-ink">{t("appPages.collar.replay.noRecording")}</p>
+    : <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />;
 
   return (
     <>
@@ -84,8 +91,8 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
 
         {state === "replaying" && <ReplayBanner replay={replay} onStop={onStop} />}
 
-        {replayError ? (
-          <StateCard title={t(replayError === "no_recording" ? "appPages.collar.replay.noRecording" : "appPages.collar.replay.stopped")}>
+        {replayError === "stopped" || (noRecording && state === "live") ? (
+          <StateCard title={t(noRecording ? "appPages.collar.replay.noRecording" : "appPages.collar.replay.stopped")}>
             {replayError === "stopped" && (
               <button type="button" onClick={onPlay} className="mt-3 inline-flex h-10 items-center rounded-xl border border-ink/10 bg-surface px-4 text-[13px] font-semibold text-ink">
                 {t("appPages.collar.replay.tryAgain")}
@@ -102,12 +109,12 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
                 {t(sats >= 4 ? "appPages.collar.searching.countWeak" : "appPages.collar.searching.count", { count: sats })}</span>
             </div>
             <p className="mt-2 text-[12.5px] leading-relaxed text-ink-soft">{t("appPages.collar.searching.text")}</p>
-            <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />
+            {play}
           </StateCard>
         ) : state === "waiting" ? (
           <StateCard icon={<Clock className="h-4 w-4 text-ink-soft" aria-hidden="true" />} title={t("appPages.collar.waiting.title")}>
             <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">{t("appPages.collar.waiting.text")}</p>
-            <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />
+            {play}
           </StateCard>
         ) : state === "offline" ? (
           <StateCard icon={<WifiOff className="h-4 w-4 text-ink-soft" aria-hidden="true" />} title={t("appPages.collar.offline.title", { minutes: minutesSilent })}>
@@ -115,12 +122,12 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
               {t("appPages.collar.offline.lastSeen", { time: device.last_seen_at ? formatClock(device.last_seen_at, locale) : "–" })}
             </p>
             <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">{t("appPages.collar.offline.text")}</p>
-            <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />
+            {play}
           </StateCard>
         ) : state === "demo_idle" ? (
           <StateCard title={t("appPages.collar.demoIdle.title")}>
             <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">{t("appPages.collar.demoIdle.text")}</p>
-            <PlayButton onPlay={onPlay} label={t("appPages.collar.play")} />
+            {play}
           </StateCard>
         ) : null}
       </div>

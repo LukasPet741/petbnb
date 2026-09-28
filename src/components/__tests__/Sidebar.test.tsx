@@ -13,6 +13,7 @@ const h = vi.hoisted(() => ({
   pathname: "/dashboard",
   unreadCount: 0,
   verified: false,
+  method: "none",
   collar: null as unknown as CollarLiveValue,
 }));
 
@@ -21,7 +22,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 vi.mock("@/hooks/useProfile", () => ({
-  useProfile: () => ({ profile: { full_name: "Rūta", avatar_url: null, is_verified: h.verified }, loading: false, isComplete: true, refresh: vi.fn() }),
+  useProfile: () => ({ profile: { full_name: "Rūta", avatar_url: null, is_verified: h.verified, verification_method: h.method }, loading: false, isComplete: true, refresh: vi.fn() }),
 }));
 vi.mock("@/context/NotificationsContext", () => ({
   useNotifications: () => ({ unreadCount: h.unreadCount, notifications: [], loading: false, markRead: vi.fn(), markAllRead: vi.fn(), markThreadRead: vi.fn() }),
@@ -51,6 +52,7 @@ beforeEach(() => {
   h.pathname = "/dashboard";
   h.unreadCount = 0;
   h.verified = false;
+  h.method = "none";
   h.collar = EMPTY_COLLAR_LIVE;
 });
 
@@ -136,10 +138,29 @@ describe("the collar and Smart-ID cards", () => {
 
   it("says the identity is verified, with the DEMO marker, once it is", () => {
     h.verified = true;
+    h.method = "smart_id_demo";
     render(<Sidebar />);
     const card = first(/appShell\.spotlight\.smartIdTitle/);
     expect(within(card).getByText("appShell.spotlight.smartIdVerified")).toBeTruthy();
     expect(within(card).getByText("appShell.spotlight.demo")).toBeTruthy();
+  });
+
+  it("does not call a seed sitter's identity Smart-ID verified (review M5)", () => {
+    // The 25 catalogue sitters are is_verified by seed, not by Smart-ID; no seal shows for them.
+    h.verified = true;
+    h.method = "seed";
+    render(<Sidebar />);
+    const card = first(/appShell\.spotlight\.smartIdTitle/);
+    expect(within(card).getByText("appShell.spotlight.smartIdTodo")).toBeTruthy();
+    expect(within(card).queryByText("appShell.spotlight.demo")).toBeNull();
+  });
+
+  it("does not offer to pair a collar while the collars are still loading (review M8)", () => {
+    h.collar = { ...EMPTY_COLLAR_LIVE, loading: true };
+    render(<Sidebar />);
+    expect(screen.queryByText("appShell.spotlight.pairTitle")).toBeNull();
+    const card = first(/appShell\.spotlight\.collarTitle/);
+    expect(card.getAttribute("href")).toBe("/collar");
   });
 
   it("ellipsizes the Smart-ID line rather than clipping it on a narrow rail", () => {

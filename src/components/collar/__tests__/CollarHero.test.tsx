@@ -108,4 +108,17 @@ describe("CollarHero", () => {
     hero("searching", { replayError: "no_recording" });
     expect(screen.getByText("appPages.collar.replay.noRecording")).toBeTruthy();
   });
+
+  it("keeps saying what the collar is doing when there is no recording, minus the Play button (review M14)", () => {
+    // It replaced the searching/offline card until a reload.
+    hero("searching", { replayError: "no_recording" });
+    expect(screen.getByText("appPages.collar.searching.title")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /appPages\.collar\.play/ })).toBeNull();
+  });
+
+  it("keeps the offline card when there is no recording", () => {
+    hero("offline", { replayError: "no_recording" });
+    expect(screen.getByText("appPages.collar.offline.title")).toBeTruthy();
+    expect(screen.getByText("appPages.collar.replay.noRecording")).toBeTruthy();
+  });
 });
