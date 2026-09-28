@@ -11,8 +11,8 @@ vi.mock("@/context/CollarLiveContext", async (importOriginal) => {
   return { ...actual, useCollarLive: () => h.live };
 });
 vi.mock("@/components/collar/CollarHero", () => ({
-  default: (p: { state: string; latest: { source: string } | null }) => (
-    <div data-testid="hero" data-latest={p.latest ? p.latest.source : "none"}>{p.state}</div>
+  default: (p: { state: string; latest: { source: string } | null; trail: unknown[] }) => (
+    <div data-testid="hero" data-latest={p.latest ? p.latest.source : "none"} data-trail={p.trail.length}>{p.state}</div>
   ),
 }));
 vi.mock("@/components/collar/WeekCard", () => ({ default: () => <div data-testid="week" /> }));
@@ -92,6 +92,16 @@ describe("CollarPage", () => {
     h.live = live({ state: "replaying", latest: point, latestReal: null, replay: { deviceId: "c1", idx: 3, total: 64 } });
     render(<CollarPage />);
     expect(screen.getByTestId("hero").dataset.latest).toBe("replay");
+  });
+
+  it("draws the whole walk so far when the page opens mid-replay (review M10)", () => {
+    const at = (lat: number) => ({ device_id: "c1", lat, lng: 25.23, speed_kmh: 4, recorded_at: "2026-09-26T11:59:58Z", source: "replay" as const });
+    h.live = live({
+      state: "replaying", latest: at(54.683), latestReal: null,
+      replay: { deviceId: "c1", idx: 3, total: 64 }, replayTrail: [at(54.681), at(54.682), at(54.683)],
+    });
+    render(<CollarPage />);
+    expect(screen.getByTestId("hero").dataset.trail).toBe("3");
   });
 
   it("names a demo collar in the page language and hides the week", () => {

@@ -39,6 +39,8 @@ export interface CollarLiveValue {
   now: number;
   realtime: boolean;
   replay: ReplayProgress | null;
+  /** This tab's walk so far, so a page opened mid-walk draws the whole route (review M10). */
+  replayTrail: CollarPosition[];
   replayError: ReplayError | null;
   startReplay: () => Promise<void>;
   stopReplay: () => void;
@@ -59,6 +61,7 @@ export const EMPTY_COLLAR_LIVE: CollarLiveValue = {
   now: 0,
   realtime: false,
   replay: null,
+  replayTrail: [],
   replayError: null,
   startReplay: async () => {},
   stopReplay: () => {},
@@ -92,6 +95,11 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
   const [now, setNow] = useState(() => Date.now());
   const [realtime, setRealtime] = useState(false);
   const [replay, setReplay] = useState<ReplayProgress | null>(null);
+  const [replayTrail, setReplayTrail] = useState<CollarPosition[]>([]);
+  // The collar whose walk this tab last stopped: its last replayed points (and their Realtime
+  // echoes) are under 10 s old, and the rule read them as a replay from elsewhere — the banner
+  // and a dead Stop button stayed up for ~10 s (found 2026-09-28). Cleared by the next Play.
+  const [stoppedId, setStoppedId] = useState<string | null>(null);
   const [replayError, setReplayError] = useState<ReplayError | null>(null);
   const runRef = useRef<ReplayRun | null>(null);
   // A double-click on Play must not create two demo collars: the second hits the one-per-owner
@@ -150,8 +158,10 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const stopReplay = useCallback(() => {
+    const run = runRef.current;
     runRef.current = null;
     setReplay(null);
+    if (run) setStoppedId(run.deviceId);
   }, []);
 
   const tickReplay = useCallback(async () => {
@@ -171,6 +181,7 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
         source: "replay",
       };
       setLatestById((prev) => mergePosition(prev, position));
+      setReplayTrail((prev) => [...prev, position]);
       setNow(Date.now());
       run.idx = point.idx + 1;
       if (run.idx >= point.total) {
@@ -219,6 +230,8 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
         setSelectedId(deviceId);
       }
       runRef.current = { deviceId, idx: 0, failures: 0, busy: false };
+      setStoppedId(null);
+      setReplayTrail([]);
       setReplay({ deviceId, idx: 0, total: 0 });
       await tickReplay();
     } finally {
@@ -254,9 +267,10 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
 
   const selected = collars.find((c) => c.id === selectedId) ?? null;
   const pairOfSelected = (selectedId && latestById[selectedId]) || EMPTY_PAIR;
+  const stoppedHere = stoppedId !== null && stoppedId === selectedId && pairOfSelected.latest?.source === "replay";
   const state = collarState({
     device: selected,
-    latest: pairOfSelected.latest,
+    latest: stoppedHere ? pairOfSelected.latestReal : pairOfSelected.latest,
     latestReal: pairOfSelected.latestReal,
     replayingHere: replay !== null && replay.deviceId === selectedId,
     now,
@@ -274,6 +288,7 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
       now,
       realtime,
       replay,
+      replayTrail,
       replayError,
       startReplay,
       stopReplay,
@@ -282,7 +297,7 @@ export function CollarLiveProvider({ children }: { children: React.ReactNode }) 
       rename,
       remove,
     }),
-    [loading, collars, selected, pairOfSelected, state, now, realtime, replay, replayError, startReplay, stopReplay, refresh, pair, rename, remove],
+    [loading, collars, selected, pairOfSelected, state, now, realtime, replay, replayTrail, replayError, startReplay, stopReplay, refresh, pair, rename, remove],
   );
 
   return <CollarLiveContext.Provider value={value}>{children}</CollarLiveContext.Provider>;

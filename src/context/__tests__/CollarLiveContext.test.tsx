@@ -116,6 +116,72 @@ describe("CollarLiveProvider", () => {
     expect(h.replay.mock.calls.map((c) => c[1])).toEqual([0, 1, 2]);
   });
 
+  it("leaves the replay the moment Stop is pressed", async () => {
+    // Found 2026-09-28: the last replayed point is under 10 s old, so the rule still said
+    // "replaying" — the banner and a dead Stop button stayed up for ~10 s on the projector.
+    h.replay.mockImplementation(async (_id: string, idx: number) => ({ lat: 54.68, lng: 25.23, speed_kmh: 4, idx, total: 10 }));
+    render(<CollarLiveProvider><Probe /></CollarLiveProvider>);
+    await flush();
+    fireEvent.click(screen.getByText("play"));
+    await flush();
+    expect(text("state")).toBe("replaying");
+    fireEvent.click(screen.getByText("stop"));
+    expect(text("state")).toBe("waiting");
+  });
+
+  it("leaves the replay when the walk ends", async () => {
+    h.replay.mockImplementation(async (_id: string, idx: number) => ({ lat: 54.68, lng: 25.23, speed_kmh: 4, idx, total: 2 }));
+    render(<CollarLiveProvider><Probe /></CollarLiveProvider>);
+    await flush();
+    fireEvent.click(screen.getByText("play"));
+    await flush();
+    await wait(REPLAY_TICK_MS);
+    expect(text("replay")).toBe("off");
+    expect(text("state")).toBe("waiting");
+  });
+
+  it("does not come back to the replay when a stopped walk's last point echoes over Realtime", async () => {
+    h.replay.mockImplementation(async (_id: string, idx: number) => ({ lat: 54.68, lng: 25.23, speed_kmh: 4, idx, total: 10 }));
+    render(<CollarLiveProvider><Probe /></CollarLiveProvider>);
+    await flush();
+    fireEvent.click(screen.getByText("play"));
+    await flush();
+    fireEvent.click(screen.getByText("stop"));
+    act(() => {
+      h.handlers!.onPosition({ device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: new Date().toISOString(), source: "replay" });
+    });
+    expect(text("state")).toBe("waiting");
+  });
+
+  it("shows a walk that another tab is replaying", async () => {
+    render(<CollarLiveProvider><Probe /></CollarLiveProvider>);
+    await flush();
+    act(() => {
+      h.handlers!.onPosition({ device_id: "c1", lat: 54.68, lng: 25.23, speed_kmh: 4, recorded_at: new Date().toISOString(), source: "replay" });
+    });
+    expect(text("state")).toBe("replaying");
+  });
+
+  it("keeps the walk's points so far, so a page opened mid-walk draws the whole route", async () => {
+    // Review M10: coming back to /collar mid-replay restarted the route at the current point.
+    h.replay.mockImplementation(async (_id: string, idx: number) => ({ lat: 54.68 + idx / 1000, lng: 25.23, speed_kmh: 4, idx, total: 10 }));
+    function TrailProbe() {
+      const live = useCollarLive();
+      return (
+        <div>
+          <p data-testid="trail">{live.replayTrail.map((p) => p.lat.toFixed(3)).join(" ")}</p>
+          <button onClick={() => void live.startReplay()}>play</button>
+        </div>
+      );
+    }
+    render(<CollarLiveProvider><TrailProbe /></CollarLiveProvider>);
+    await flush();
+    fireEvent.click(screen.getByText("play"));
+    await flush();
+    await wait(REPLAY_TICK_MS * 2);
+    expect(text("trail")).toBe("54.680 54.681 54.682");
+  });
+
   it("keeps replaying with no page mounted, since the loop lives in the provider", async () => {
     h.replay.mockImplementation(async (_id: string, idx: number) => ({ lat: 54.68, lng: 25.23, speed_kmh: 4, idx, total: 10 }));
     function Starter() {

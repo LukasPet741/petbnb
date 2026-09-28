@@ -24,7 +24,12 @@ export default function CollarPage() {
   const selectedId = live.selected?.id ?? null;
   // The replay's point only while it plays; otherwise the collar's own last fix (review I2).
   const shown = shownPosition(live.state, live.selected, live.latest, live.latestReal);
-  const trail = useCollarTrail(selectedId, shown, day, live.state === "replaying");
+  const pageTrail = useCollarTrail(selectedId, shown, day, live.state === "replaying");
+  // This tab's walk: the provider kept every point, so opening the page mid-walk draws it all
+  // (review M10). The hook's own replay trail is for a walk played in another tab.
+  const trail = live.replay && live.replay.deviceId === selectedId && !day && live.replayTrail.length > 0
+    ? live.replayTrail
+    : pageTrail;
 
   useEffect(() => {
     setDay(null);
