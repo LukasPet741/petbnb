@@ -66,7 +66,7 @@ def write_env(env_path: Path, example_path: Path, device_id: str, secret: str) -
     for key, value in wanted.items():
         if key not in seen:
             out.append(f"{key}={value}")
-    env_path.write_text("\n".join(out) + "\n")
+    env_path.write_text("\n".join(out) + "\n", newline="\n")  # the Pi is Linux, even when run on Windows
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -11,6 +11,24 @@ def reader(*lines: bytes) -> GPSReader:
     return GPSReader(source=FakeSource(list(lines)))
 
 
+class CountingSource(FakeSource):
+    def __init__(self, lines: list[bytes]):
+        super().__init__(lines)
+        self.reads = 0
+
+    def readline(self) -> bytes:
+        self.reads += 1
+        return super().readline()
+
+
+def test_a_silent_gps_gives_up_at_the_first_timeout():
+    # On the real Pi (2026-09-28) a silent module made every read wait out its 2 s timeout, 50 times:
+    # each tick took 100 s, so check-ins came 100 s apart and the site showed the collar offline.
+    source = CountingSource([])
+    assert GPSReader(source=source).read_fix() is None
+    assert source.reads == 1
+
+
 def test_returns_a_fix_from_gga_with_its_satellite_count():
     gps = reader(GSV_SEVEN, GGA_FIX)
     fix = gps.read_fix(max_attempts=5)

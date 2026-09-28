@@ -70,12 +70,16 @@ class GPSReader:
         return GPSStatus(locked=self._locked, satellites_in_view=self._satellites_in_view)
 
     def read_fix(self, max_attempts: int = 50) -> Optional[Fix]:
-        """Drops the serial backlog, then reads up to max_attempts lines; returns the first fix, or None."""
+        """Drops the serial backlog, then reads up to max_attempts lines; returns the first fix, or None.
+
+        A read that times out ends the attempt: a working module talks ~7 lines a second, so a silent
+        one will not answer this tick, and waiting out every timeout made a tick last 100 s.
+        """
         self._drop_backlog()
         for _ in range(max_attempts):
             line = self._read_line()
             if line is None:
-                continue
+                return None
             fix = self._parse_line(line)
             if fix is not None:
                 return fix

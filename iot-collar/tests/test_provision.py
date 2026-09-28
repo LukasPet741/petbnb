@@ -55,3 +55,10 @@ def test_write_env_starts_from_the_example_when_there_is_no_env(tmp_path):
     env = tmp_path / ".env"
     write_env(env, example, "new-id", "new-secret")
     assert env.read_text() == "DEVICE_ID=new-id\nDEVICE_SECRET=new-secret\nFIX_INTERVAL_SECONDS=15\n"
+
+
+def test_write_env_uses_unix_line_endings_for_the_pi(tmp_path):
+    # Written on Windows it had CRLF, and the Pi is Linux (seen 2026-09-28).
+    env = tmp_path / ".env"
+    write_env(env, tmp_path / "missing.example", "new-id", "new-secret")
+    assert b"\r" not in env.read_bytes()
