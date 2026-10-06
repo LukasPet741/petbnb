@@ -110,7 +110,7 @@ export default function ResetPasswordClient() {
             <input id="reset-password" type={showPass ? "text" : "password"} value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={t("auth.reset.passwordPlaceholder")}
               required minLength={8} autoComplete="new-password" autoFocus className={`${inputClass} pr-11`} />
-            <button type="button" onClick={() => setShowPass(!showPass)} aria-pressed={showPass}
+            <button type="button" onClick={() => setShowPass(!showPass)} aria-pressed={showPass} aria-label={t(showPass ? "auth.hidePassword" : "auth.showPassword")}
               className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-ink-soft/60 hover:text-ink active:text-ink">
               {showPass ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
             </button>

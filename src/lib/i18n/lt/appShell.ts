@@ -14,6 +14,8 @@ const appShell = {
       legal: "Taisyklės",
     },
     signOut: "Atsijungti",
+    openMenu: "Atidaryti meniu",
+    closeMenu: "Uždaryti meniu",
     youFallback: "Jūs",
     footerNote: "PetBnB · studentų projektas",
   },

@@ -95,7 +95,7 @@ export default function ReviewForm({
         rows={3}
         placeholder={t("sitters.reviews.form.bodyPlaceholder")}
         aria-label={t("sitters.reviews.form.bodyLabel")}
-        className="mt-2 w-full rounded-input border border-ink/10 bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-y"
+        className="mt-2 w-full rounded-[var(--radius-input)] border border-ink/10 bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-y"
       />
 
       <button
@@ -151,7 +151,7 @@ export default function ReviewForm({
           type="button"
           onClick={handleSubmit}
           disabled={!canPost}
-          className="px-4 py-1.5 rounded-input bg-brand text-white text-sm font-medium hover:bg-brand-strong disabled:opacity-40 disabled:hover:bg-brand"
+          className="px-4 py-1.5 rounded-[var(--radius-input)] bg-brand text-white text-sm font-medium hover:bg-brand-strong disabled:opacity-40 disabled:hover:bg-brand"
         >
           {t("sitters.reviews.form.post")}
         </button>

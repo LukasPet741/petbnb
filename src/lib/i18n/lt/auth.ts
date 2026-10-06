@@ -8,6 +8,8 @@ const auth = {
     samePassword: "Naujas slaptažodis turi skirtis nuo senojo.",
     linkExpired: "Ši atkūrimo nuoroda nebegalioja. Paprašykite naujos.",
   },
+  showPassword: "Rodyti slaptažodį",
+  hidePassword: "Slėpti slaptažodį",
   login: {
     imageAlt: "Prižiūrimas šuo",
     heroTitle: "Jūsų augintinis patikimose rankose.",

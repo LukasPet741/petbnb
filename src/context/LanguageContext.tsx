@@ -59,7 +59,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const userId = userIdRef.current;
     if (!userId) return;
     try {
-      await supabase.from("profiles").update({ locale: next }).eq("id", userId);
+      // .neq skips the write when the row already holds this locale (the column is NOT NULL),
+      // so a signed-in page load no longer writes to the profile every time.
+      await supabase.from("profiles").update({ locale: next }).eq("id", userId).neq("locale", next);
     } catch {
       // Offline, or the session went away mid-write. The UI locale is already applied,
       // so a failed mirror must never surface — email just falls back to the stored value.

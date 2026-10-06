@@ -7,6 +7,7 @@ import {
   LanguageProvider,
   useLanguage,
 } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
@@ -387,5 +388,22 @@ describe("useLanguage outside a provider", () => {
       await user.click(screen.getByRole("button", { name: "to-lt" }));
     });
     expect(screen.getByTestId("locale")).toHaveTextContent("en");
+  });
+});
+
+describe("LanguageProvider profile mirror", () => {
+  it("mirrors the locale on sign-in only where the stored row differs, so a page load does not write", async () => {
+    window.localStorage.clear();
+    const neq = vi.fn(async () => ({ error: null }));
+    const eq = vi.fn(() => ({ neq }));
+    const update = vi.fn(() => ({ eq }));
+    vi.mocked(supabase.from).mockImplementationOnce((() => ({ update })) as never);
+    vi.mocked(supabase.auth.getSession).mockResolvedValueOnce({ data: { session: { user: { id: "u1" } } } } as never);
+
+    render(<LanguageProvider><span /></LanguageProvider>);
+
+    await vi.waitFor(() => expect(neq).toHaveBeenCalledWith("locale", "en"));
+    expect(update).toHaveBeenCalledWith({ locale: "en" });
+    expect(eq).toHaveBeenCalledWith("id", "u1");
   });
 });

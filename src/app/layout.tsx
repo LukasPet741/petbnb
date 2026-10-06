@@ -7,8 +7,10 @@ import Atmosphere from "@/components/Atmosphere";
 import en from "@/lib/i18n/en";
 import { SITE_ORIGIN } from "@/lib/site";
 
+// latin-ext carries the Lithuanian letters (ą č ę ė į š ų ū ž); with "latin" alone they
+// arrive from a later, non-preloaded file and swap in after first paint.
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-inter",
   display: "swap",
 });
@@ -18,7 +20,7 @@ const inter = Inter({
 // letterforms (single-story "a", warm curve terminals) that read as crafted
 // rather than corporate-cold, while staying a bold sans for headlines.
 const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-bricolage",
   display: "swap",
 });
@@ -26,7 +28,7 @@ const bricolage = Bricolage_Grotesque({
 // Script accent: ONE controlled micro-use only, the sitter's signed name
 // in the hero quote. Not a general display font.
 const caveat = Caveat({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["500", "600"],
   variable: "--font-caveat",
   display: "swap",

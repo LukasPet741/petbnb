@@ -8,6 +8,8 @@ const auth = {
     samePassword: "Your new password must be different from your old one.",
     linkExpired: "This reset link has expired. Request a new one.",
   },
+  showPassword: "Show password",
+  hidePassword: "Hide password",
   login: {
     imageAlt: "A dog being cared for",
     heroTitle: "Your pet is in good hands.",

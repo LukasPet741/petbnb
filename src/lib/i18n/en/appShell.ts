@@ -14,6 +14,8 @@ const appShell = {
       legal: "Terms",
     },
     signOut: "Sign out",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
     youFallback: "You",
     footerNote: "PetBnB · a student project",
   },
