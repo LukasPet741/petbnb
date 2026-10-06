@@ -14,10 +14,12 @@ import type { Pet } from "@/lib/types";
 import { PHOTO_BUCKET, storagePathFromPublicUrl } from "@/lib/upload";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { pluralForm } from "@/lib/i18n/plural";
 
 export default function PetsPage() {
   const { t, locale } = useLanguage();
+  usePageTitle(t("appPages.pets.title"));
   const { user } = useAuth();
   const router = useRouter();
   const [pets, setPets] = useState<Pet[]>([]);

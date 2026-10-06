@@ -17,6 +17,7 @@ import RightRail from "@/components/RightRail";
 import SuccessToast from "@/components/SuccessToast";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { pluralForm } from "@/lib/i18n/plural";
 import { bookingPriceView } from "@/lib/booking-price-view";
 import type { OfferLike } from "@/lib/pricing";
@@ -34,6 +35,7 @@ const TAB_VALUES: ("all" | BookingStatus)[] = ["all", "pending", "signed", "comp
 
 export default function BookingsPage() {
   const { t, locale } = useLanguage();
+  usePageTitle(t("appPages.bookings.title"));
   const TABS: { label: string; value: "all" | BookingStatus }[] = TAB_VALUES.map((value) => ({
     value,
     label: value === "all" ? t("appPages.bookings.tabAll") : t(`common.bookingStatus.${value}`),

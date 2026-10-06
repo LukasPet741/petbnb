@@ -12,6 +12,7 @@ import EmptyState from "@/components/EmptyState";
 import { stagger, fadeUp } from "@/lib/motion";
 import { formatCurrency, timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import type { Booking, Message, Thread } from "@/lib/types";
 
 // The two profile embeds name their columns because neither role holds a
@@ -30,6 +31,7 @@ function lastMessageTime(thread: Thread) {
 
 export default function MessagesPage() {
   const { t, locale } = useLanguage();
+  usePageTitle(t("messages.title"));
   const { user } = useAuth();
   const { profile } = useProfile();
   const [threads, setThreads] = useState<Thread[]>([]);

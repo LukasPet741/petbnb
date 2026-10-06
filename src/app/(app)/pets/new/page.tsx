@@ -6,9 +6,11 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import PetForm, { type PetFormValues } from "@/components/PetForm";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function NewPetPage() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.petsNew.title"));
   const router = useRouter();
   const { user } = useAuth();
 

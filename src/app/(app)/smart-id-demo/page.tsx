@@ -1,6 +1,7 @@
 "use client";
 import SmartIdDemo from "@/components/SmartIdDemo";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { notifyProfileChanged } from "@/hooks/useProfile";
 
 /**
@@ -10,6 +11,7 @@ import { notifyProfileChanged } from "@/hooks/useProfile";
  */
 export default function SmartIdDemoPage() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.smartIdDemo.title"));
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
       <p className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.smartIdDemo.pageLabel")}</p>

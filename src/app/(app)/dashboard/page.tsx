@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useNotifications } from "@/context/NotificationsContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import DashboardView from "@/components/dashboard/DashboardView";
 import { pickHero, waitingList, type DashBooking } from "@/lib/dashboard";
 import { onboardingSteps } from "@/lib/sitter-onboarding";
@@ -25,6 +26,7 @@ export default function DashboardPage() {
   const { count: savedCount } = useFavorites();
   const { notifications, loading: notificationsLoading, unreadCount, markAllRead, markRead } = useNotifications();
   const { t } = useLanguage();
+  usePageTitle(t("appShell.sidebar.nav.dashboard"));
   const [pets, setPets] = useState<Pet[]>([]);
   const [owner, setOwner] = useState<DashBooking[]>([]);
   const [sitter, setSitter] = useState<DashBooking[]>([]);

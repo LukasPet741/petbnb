@@ -14,6 +14,7 @@ import RatingSummary from "@/components/RatingSummary";
 import ReviewList from "@/components/ReviewList";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import PriceTag, { ServicePrice } from "@/components/PriceTag";
 import VerifiedSeal, { VerificationRow } from "@/components/VerifiedSeal";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
@@ -42,6 +43,7 @@ export default function SitterProfilePage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [sitter, setSitter] = useState<Profile | null>(null);
+  usePageTitle(sitter?.full_name ?? t("appPages.browse.title"));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

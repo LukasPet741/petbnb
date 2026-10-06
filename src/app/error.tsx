@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import StatusPage, { statusPrimaryClass, statusSecondaryClass } from "@/components/StatusPage";
 
 /**
@@ -17,6 +18,7 @@ export default function ErrorPage({
   unstable_retry: () => void;
 }) {
   const { t } = useLanguage();
+  usePageTitle(t("common.error.title"));
 
   useEffect(() => {
     console.error(error);

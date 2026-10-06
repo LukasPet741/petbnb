@@ -13,10 +13,12 @@ import { type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
 
 export default function SavedPage() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.saved.title"));
   const { user } = useAuth();
   const { favorites } = useFavorites();
   const [sitters, setSitters] = useState<Profile[]>([]);

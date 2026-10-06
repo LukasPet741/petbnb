@@ -31,6 +31,7 @@ import BookingSummary from "@/components/BookingSummary";
 import RequestPrice, { requestPriceValid, type PriceChoice } from "@/components/RequestPrice";
 import { askingPrice, stayDays } from "@/lib/pricing";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Pet { id: string; name: string; }
 
@@ -97,6 +98,7 @@ function FieldLabel({
 
 function NewBookingForm() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.bookingsNew.title"));
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();

@@ -14,6 +14,7 @@ import ImageUpload from "@/components/ImageUpload";
 import PageHeader from "@/components/PageHeader";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { cn, normaliseCity } from "@/lib/utils";
 import { nextFromSearch } from "@/lib/next-path";
 import VerifiedSeal from "@/components/VerifiedSeal";
@@ -33,6 +34,7 @@ const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surfac
 
 export default function ProfilePage() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.profile.title"));
   const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const { user } = useAuth();
   const { profile, refresh } = useProfile();

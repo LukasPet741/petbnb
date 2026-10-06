@@ -9,9 +9,11 @@ import PetForm, { type PetFormValues } from "@/components/PetForm";
 import { storagePathFromPublicUrl, PHOTO_BUCKET } from "@/lib/upload";
 import type { Pet } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function EditPetPage() {
   const { t } = useLanguage();
+  usePageTitle(t("appPages.petsEdit.title"));
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();

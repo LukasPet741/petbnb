@@ -10,6 +10,7 @@ import { type ServiceType, type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/ty
 import { stagger, fadeUp } from "@/lib/motion";
 import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { pluralForm } from "@/lib/i18n/plural";
 import { PRICE_CAPS, SORT_KEYS, countByService, filtersFromSearch, sameCity, sortSitters, type SortKey } from "@/lib/browse-filters";
 import { comparablePrice } from "@/lib/pricing";
@@ -63,6 +64,7 @@ function ChipSelect({ label, value, onChange, children }: { label: string; value
  */
 export default function BrowsePage() {
   const { t, locale } = useLanguage();
+  usePageTitle(t("appPages.browse.title"));
   const [sitters, setSitters] = useState<Profile[]>([]);
   // One query for the whole page rather than one per card. Keyed on the loaded
   // set, not the filtered one, so changing a filter never re-queries.
