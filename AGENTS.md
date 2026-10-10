@@ -13,3 +13,8 @@ on a fresh machine go wrong.
 
 `NEXT_SESSION.md` is kept for history and is out of date; do not plan from it.
 
+# Agents work in the open
+
+Before changing petbnb, read `tools/monitor/DRIVE.md`: it says what to work on (the board on the
+monitor), what needs Lukas's approval, and how to report each step with `node tools/monitor/agent.mjs`.
+Lukas watches it live on the monitor (`npm run monitor`).

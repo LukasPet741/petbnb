@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "monitor": "node tools/monitor/server.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

@@ -37,6 +37,15 @@ export default defineConfig({
           restoreMocks: true,
         },
       },
+      {
+        test: {
+          name: "tools",
+          environment: "node",
+          // Local dev tools (the monitor) — plain Node ESM, no DOM.
+          include: ["tools/**/*.test.mjs"],
+          restoreMocks: true,
+        },
+      },
     ],
   },
 });

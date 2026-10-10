@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>petbnb monitor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%235fe0a8'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #060a08;
+    --ink: #e6eee9;
+    --soft: #93a59b;
+    --faint: #5d6d65;
+    --glass: rgba(255, 255, 255, 0.035);
+    --glass-hi: rgba(255, 255, 255, 0.07);
+    --line: rgba(255, 255, 255, 0.08);
+    --mint: #5fe0a8;
+    --ok: #4fe0a0;
+    --slow: #ffc24b;
+    --fail: #ff5f6d;
+    --idle: #56665e;
+    --file: #7cc8ff;
+    --check: #c9a7ff;
+    --sans: ui-sans-serif, system-ui, "Segoe UI Variable", "Segoe UI", sans-serif;
+    --mono: "Cascadia Code", "Cascadia Mono", ui-monospace, Consolas, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    color: var(--ink);
+    font: 13px/1.45 var(--sans);
+    overflow: hidden;
+    background:
+      radial-gradient(1100px 760px at 50% 42%, #0f241a 0%, transparent 62%),
+      radial-gradient(700px 520px at 88% 6%, rgba(124, 200, 255, 0.07), transparent 60%),
+      radial-gradient(600px 500px at 6% 96%, rgba(95, 224, 168, 0.06), transparent 60%),
+      var(--bg);
+  }
+  code, pre, .mono { font-family: var(--mono); }
+  a { color: var(--mint); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .muted { color: var(--soft); }
+  .faint { color: var(--faint); }
+
+  /* header */
+  .top {
+    height: 56px; display: flex; align-items: center; gap: 18px; padding: 0 18px;
+    border-bottom: 1px solid var(--line); background: rgba(6, 10, 8, 0.55); backdrop-filter: blur(12px);
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-size: 15px; letter-spacing: 0.01em; }
+  .brand .orb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #c9ffe6, var(--mint) 45%, #1f5c47 100%);
+    box-shadow: 0 0 18px rgba(95, 224, 168, 0.55);
+  }
+  .branch-pill { font-family: var(--mono); font-size: 12px; color: var(--soft); }
+  .branch-pill b { color: var(--ink); font-weight: 600; }
+  .pills { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--line); font-size: 12px; white-space: nowrap;
+  }
+  .ram { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--soft); }
+  .ram .bar { width: 70px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+  .ram .bar div { height: 100%; background: var(--ok); transition: width 0.6s, background 0.6s; }
+
+  /* layout */
+  .grid {
+    height: calc(100vh - 56px); display: grid; gap: 12px; padding: 12px;
+    grid-template-columns: 330px minmax(0, 1fr) 330px;
+    grid-template-rows: minmax(0, 1fr) 200px;
+    grid-template-areas: "agents stage features" "agents feed feed";
+  }
+  .agents { grid-area: agents; } .stage { grid-area: stage; } .features { grid-area: features; }
+  .feed { grid-area: feed; display: flex; flex-direction: column; }
+  .col { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: auto; scrollbar-width: thin; }
+  .card {
+    background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 11px 13px;
+    backdrop-filter: blur(14px); min-height: 0;
+  }
+  .col > .card { flex: none; }
+  h2 {
+    margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--soft); display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  h2 .muted { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .h2-state, .h2-link {
+    display: inline-flex; align-items: center; gap: 7px; text-transform: none; letter-spacing: 0;
+    font-weight: 500; font-size: 12px; color: var(--ink);
+  }
+  .h2-link { color: var(--mint); margin-left: 8px; }
+
+  button {
+    font: inherit; font-size: 12px; color: var(--ink); background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  button:hover:not(:disabled) { background: rgba(95, 224, 168, 0.15); border-color: rgba(95, 224, 168, 0.4); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: rgba(95, 224, 168, 0.16); border-color: rgba(95, 224, 168, 0.45); }
+  :focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+  .led {
+    --c: var(--idle);
+    display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--c); box-shadow: 0 0 8px var(--c);
+  }
+  .s-ok, .s-pass, .s-running-dev { --c: var(--ok); }
+  .s-slow, .s-queued, .s-starting, .s-stopping { --c: var(--slow); }
+  .s-fail { --c: var(--fail); }
+  .s-idle, .s-never, .s-down, .s-unavailable { --c: var(--idle); }
+  .s-external { --c: var(--file); }
+  .s-running { --c: var(--check); }
+  .s-running .led, .s-starting .led, .s-queued .led { animation: blink 0.9s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: 0.25; } }
+  .st { font-family: var(--mono); font-size: 11.5px; }
+  .st-ok { color: var(--ok); } .st-slow { color: var(--slow); } .st-fail { color: var(--fail); } .st-idle { color: var(--faint); }
+
+  /* checks */
+  .check { padding: 6px 0; border-top: 1px solid var(--line); cursor: pointer; }
+  .check:first-of-type { border-top: 0; padding-top: 0; }
+  .check-head { display: flex; align-items: center; gap: 8px; }
+  .check-head b { font-family: var(--mono); font-weight: 600; }
+  .check-head .muted { font-size: 11.5px; }
+  .check-head button { margin-left: auto; }
+  .check-sum { margin: 3px 0 0 16px; }
+  .fails { margin: 5px 0 0 16px; padding: 0; list-style: none; font-size: 11.5px; color: var(--soft); }
+  .fails li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fails code { color: var(--fail); }
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin-bottom: 10px; }
+  .kv dt { color: var(--soft); } .kv dd { margin: 0; text-align: right; font-family: var(--mono); font-size: 12px; }
+
+  /* stage */
+  .stage { position: relative; min-height: 0; border-radius: 20px; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+  canvas:active { cursor: grabbing; }
+  .legend {
+    position: absolute; left: 14px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px;
+    font-size: 11.5px; color: var(--soft); pointer-events: none;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .ring { width: 10px; height: 10px; border-radius: 50%; border: 1.6px solid var(--soft); }
+  .hint { position: absolute; right: 14px; bottom: 12px; font-size: 11.5px; color: var(--faint); pointer-events: none; }
+  .tally { position: absolute; left: 16px; top: 12px; font-size: 12px; color: var(--soft); pointer-events: none; }
+  .tally b { font-size: 26px; font-weight: 600; color: var(--ink); display: block; line-height: 1.1; }
+  .tip {
+    position: absolute; pointer-events: none; min-width: 170px; max-width: 280px; padding: 8px 10px;
+    border-radius: 10px; background: rgba(10, 18, 14, 0.92); border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); font-size: 12px;
+  }
+  .tip b { font-size: 13px; }
+  .ticker {
+    position: absolute; left: 14px; bottom: 38px; margin: 0; padding: 0; list-style: none; pointer-events: none;
+    display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 4px; max-width: min(62%, 520px);
+  }
+  .ticker li {
+    max-width: 100%; padding: 3px 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; background: rgba(8, 16, 12, 0.74); border: 1px solid var(--line);
+    animation: tick 7s ease forwards;
+  }
+  .ticker i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+  @keyframes tick {
+    0% { opacity: 0; transform: translateY(6px); }
+    6% { opacity: 1; transform: none; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* features */
+  .feat-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .feat {
+    display: inline-flex; align-items: center; gap: 7px; padding: 4px 9px 4px 7px; border-radius: 999px;
+  }
+  .feat .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .badge {
+    font-family: var(--mono); font-size: 10.5px; color: var(--file); background: rgba(124, 200, 255, 0.12);
+    border-radius: 6px; padding: 0 5px;
+  }
+  .fhead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .fhead .dot { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+  .fhead b { font-size: 16px; }
+  .fhead button { margin-left: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; font-weight: 500; color: var(--faint); font-size: 11px; padding: 2px 0; }
+  td { padding: 3px 0; border-top: 1px solid var(--line); vertical-align: top; }
+  td:first-child { font-family: var(--mono); }
+  .sub { margin: 12px 0 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); }
+  .plain { margin: 0; padding: 0; list-style: none; font-size: 12px; }
+  .plain li { padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* activity */
+  #activity { margin: 0; padding: 0; list-style: none; overflow: auto; flex: 1; min-height: 0; scrollbar-width: thin; }
+  #activity:empty::before { content: "nothing yet — save a file or run a check"; color: var(--faint); font-size: 12px; }
+  #activity li {
+    display: grid; grid-template-columns: 58px 10px 1fr; gap: 8px; align-items: baseline; padding: 4px 2px;
+    border-top: 1px solid var(--line); font-size: 12px; cursor: default;
+  }
+  #activity li[data-feat]:not([data-feat=""]) { cursor: pointer; }
+  #activity li:hover { background: rgba(255, 255, 255, 0.025); }
+  #activity time { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  #activity i { width: 7px; height: 7px; border-radius: 50%; align-self: center; }
+  #activity span { overflow-wrap: anywhere; }
+  #activity li.fresh { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: rgba(95, 224, 168, 0.14); } to { background: transparent; } }
+
+  /* agents */
+  .role {
+    display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px;
+    text-transform: none; letter-spacing: 0; font-weight: 600; color: #0b130f; background: var(--c, var(--soft));
+  }
+  .role-evaluator { --c: #ffd27a; } .role-conductor { --c: #ff9de2; } .role-lukas { --c: #ffffff; } .role-agent { --c: var(--soft); }
+  .role.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #0b130f; animation: blink 0.9s infinite; }
+  .task { font-size: 14px; font-weight: 500; margin: 2px 0 4px; }
+  .steps { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; }
+  .steps li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; padding: 3px 0; border-top: 1px solid var(--line); }
+  .steps li:last-child { color: var(--ink); } .steps li:not(:last-child) { color: var(--soft); }
+  .steps time { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .idle-note { margin: 0; color: var(--soft); font-size: 12.5px; }
+  .idle-note code { color: var(--ink); }
+  .col > .board { flex: 1 1 auto; overflow: auto; scrollbar-width: thin; }
+  .item { border-top: 1px solid var(--line); padding: 7px 0; }
+  .item summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; }
+  .item summary::-webkit-details-marker { display: none; }
+  .item .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip { font-family: var(--mono); font-size: 10.5px; color: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; }
+  .item .body { margin: 6px 0 0 16px; font-size: 12px; color: var(--soft); display: grid; gap: 4px; }
+  .item .needs { color: var(--slow); }
+  .item .try { color: var(--ink); }
+  .item .row { margin-top: 4px; }
+  .s-proposed { --c: #cfe0d6; } .s-approved { --c: var(--mint); } .s-building { --c: #c9a7ff; }
+  .s-review { --c: var(--slow); } .s-shipped { --c: var(--ok); } .s-parked { --c: var(--idle); }
+  .s-building .led { animation: blink 0.9s ease-in-out infinite; }
+  .ghost-led { width: 9px; height: 9px; border-radius: 50%; border: 1.5px dashed #cfe0d6; display: inline-block; }
+
+  /* settings drawer */
+  .gear { margin-left: 4px; }
+  .pill { cursor: pointer; font: inherit; font-size: 12px; color: var(--ink); }
+  .scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 19; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); z-index: 20; overflow: auto;
+    padding: 14px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin;
+    background: rgba(8, 14, 11, 0.94); backdrop-filter: blur(18px); border-left: 1px solid var(--line);
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.45); animation: slide-in 0.22s ease;
+  }
+  .drawer > .card { flex: none; }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; font-size: 15px; }
+  @keyframes slide-in { from { transform: translateX(40px); opacity: 0; } }
+
+  /* logs */
+  .logs { display: flex; flex-direction: column; padding-bottom: 8px; height: 280px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+  .tabs button { position: relative; font-family: var(--mono); background: transparent; }
+  .tabs button[aria-selected="true"] { background: rgba(95, 224, 168, 0.14); border-color: rgba(95, 224, 168, 0.4); }
+  .tabs button.unread::after {
+    content: ""; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--mint);
+  }
+  #log {
+    flex: 1; min-height: 0; margin: 0; overflow: auto; font-size: 11.5px; line-height: 1.5; color: #c3d1c9;
+    white-space: pre-wrap; word-break: break-all; scrollbar-width: thin;
+  }
+  #log .err { color: var(--fail); } #log .warn { color: var(--slow); } #log .good { color: var(--ok); }
+  #log:empty::before { content: "nothing yet"; color: var(--faint); }
+
+  /* repo */
+  .drawer > .repo { max-height: 420px; overflow: auto; scrollbar-width: thin; }
+  .files li { display: grid; grid-template-columns: 26px 1fr auto; gap: 6px; }
+  .xy { font-family: var(--mono); font-size: 11px; }
+  .xy-mod { color: var(--slow); } .xy-new { color: var(--file); } .xy-del { color: var(--fail); } .xy-ren { color: var(--check); }
+  .path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 11.5px; }
+  .tag { font-size: 10.5px; color: var(--faint); }
+  .commits li { display: grid; grid-template-columns: 60px 1fr auto; gap: 8px; }
+  .commits code { color: var(--check); font-size: 11.5px; }
+
+  .offline {
+    position: fixed; left: 50%; top: 66px; transform: translateX(-50%); padding: 6px 14px; border-radius: 999px;
+    background: rgba(255, 95, 109, 0.16); border: 1px solid rgba(255, 95, 109, 0.5); color: #ffd0d4; font-size: 12px; z-index: 5;
+  }
+
+  @media (max-width: 1100px) {
+    body { overflow: auto; }
+    .top { height: auto; flex-wrap: wrap; padding: 10px 16px; gap: 8px 14px; }
+    .pills { margin-left: 0; flex-wrap: wrap; }
+    .grid {
+      height: auto; padding: 12px 16px; grid-template-columns: minmax(0, 1fr); grid-template-rows: none;
+      grid-template-areas: "stage" "agents" "features" "feed";
+    }
+    .stage { height: 64vh; }
+    .feed { height: 320px; }
+    .col { overflow: visible; }
+    .col > .board { max-height: 520px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="orb" aria-hidden="true"></span><b>petbnb</b><span class="muted">monitor</span></div>
+  <div class="branch-pill" id="branch">…</div>
+  <div class="pills">
+    <button class="pill" id="pill-tests" data-settings><i class="led"></i>tests</button>
+    <button class="pill" id="pill-dev" data-settings><i class="led"></i>dev</button>
+    <button class="pill" id="pill-prod" data-settings><i class="led"></i>prod</button>
+    <button class="pill" id="pill-supa" data-settings><i class="led"></i>supabase</button>
+    <span class="ram" id="ram" title="Memory in use on this machine">RAM <b>–</b><span class="bar"><div style="width:0"></div></span></span>
+    <button class="gear" id="gear" data-settings aria-controls="drawer" aria-expanded="false">⚙ Settings</button>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="col agents" aria-label="Agents">
+    <div class="card" id="now"></div>
+    <div class="card board" id="board"></div>
+  </section>
+
+  <section class="stage" aria-label="Feature sphere">
+    <canvas id="globe" role="img" aria-label="Rotating sphere of petbnb features; the Features panel lists the same data"></canvas>
+    <div class="tally" id="tally"></div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="led s-ok"></i>ok</span>
+      <span><i class="led s-slow"></i>slow</span>
+      <span><i class="led s-fail"></i>failing</span>
+      <span><i class="led s-idle"></i>unknown</span>
+      <span><i class="ring"></i>outer ring = prod</span>
+      <span><i class="ghost-led"></i>proposed</span>
+    </div>
+    <div class="hint" id="hint">drag to spin · click a dot · space pauses</div>
+    <ol class="ticker" id="ticker" aria-hidden="true"></ol>
+    <div class="tip" id="tip" hidden></div>
+  </section>
+
+  <section class="col features" aria-label="Features">
+    <div class="card" id="feature"></div>
+  </section>
+
+  <section class="card feed" aria-label="Activity">
+    <h2>Activity <span class="muted">saves, checks, agents — newest first</span></h2>
+    <ol id="activity"></ol>
+  </section>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Settings" hidden>
+  <div class="drawer-head"><b>Settings</b><button data-close>Close</button></div>
+  <div class="card">
+    <h2>Checks <button data-act="check/all" title="tsc, vitest and pytest, one after another">Run all</button></h2>
+    <div id="checks"></div>
+  </div>
+  <div class="card" id="dev"></div>
+  <div class="card" id="prod"></div>
+  <div class="card logs" aria-label="Logs">
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <pre id="log"></pre>
+  </div>
+  <section class="card repo" aria-label="Repository">
+    <h2>Repository</h2>
+    <div id="repo"></div>
+  </section>
+</aside>
+<div class="offline" id="offline" hidden>monitor offline — reconnecting…</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const ESC_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ESC_MAP[c]);
+const TAU = Math.PI * 2;
+const COLORS = { ok: "#4fe0a0", slow: "#ffc24b", fail: "#ff5f6d", idle: "#56665e" };
+const KIND = { file: "#7cc8ff", check: "#c9a7ff", dev: "#5fe0a8", prod: "#9fb4ff", state: "#e6eee9" };
+const ROLE = { evaluator: "#ffd27a", conductor: "#ff9de2", lukas: "#ffffff", agent: "#93a59b" };
+const GHOST = { proposed: "#cfe0d6", approved: "#5fe0a8", building: "#c9a7ff", review: "#ffc24b" };
+const kindColor = (a) => (a.kind === "agent" ? ROLE[a.role] ?? ROLE.agent : KIND[a.kind] ?? "#fff");
+const CHECK_INFO = { vitest: "unit + component", tsc: "typecheck", pytest: "collar Pi", build: "next build · slow" };
+const LOG_TABS = ["dev", "vitest", "tsc", "pytest", "build"];
+const SANS = getComputedStyle(document.documentElement).getPropertyValue("--sans");
+const MONO = getComputedStyle(document.documentElement).getPropertyValue("--mono");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+
+let S = null;
+let activity = [];
+let selected = null;
+let logTab = "dev";
+const openItems = new Set();
+const logs = {};
+const unread = new Set();
+const dots = new Map();
+
+// ── helpers ────────────────────────────────────────────────────────────────
+function ago(t) {
+  if (!t) return "never";
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return s + " s ago";
+  const m = Math.round(s / 60);
+  if (m < 60) return m + " min ago";
+  const h = Math.round(m / 60);
+  return h < 48 ? h + " h ago" : Math.round(h / 24) + " d ago";
+}
+const dur = (ms) => (ms == null ? "" : ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + " s");
+const clock = (t) => new Date(t).toLocaleTimeString([], { hour12: false });
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${Math.max(0, Math.min(1, a))})`;
+}
+const label = (id) => S?.features.find((f) => f.id === id)?.label ?? id;
+// A feature's overall colour: the worse of local and prod; unknown only when both are.
+const health = (f) => (f.local === "idle" && f.prod === "idle" ? "idle" : worst([f.local, f.prod].filter((s) => s !== "idle")));
+const worst = (xs) => xs.reduce((a, b) => ({ idle: 0, ok: 1, slow: 2, fail: 3 }[b] > { idle: 0, ok: 1, slow: 2, fail: 3 }[a] ? b : a), "idle");
+const post = (act) => fetch("/api/" + act, { method: "POST", headers: { "x-monitor": "1" } });
+const routeCell = (r) => {
+  if (!r) return '<span class="faint">—</span>';
+  const code = r.error ?? r.status;
+  const extra = r.compileMs && r.compileMs > (r.ms ?? 0) * 2 ? ` <span class="faint">(compile ${dur(r.compileMs)})</span>` : "";
+  return `<span class="st st-${r.state}" title="${esc(r.location ? "→ " + r.location : "")}">${esc(code)}</span> <span class="muted">${dur(r.ms)}</span>${extra}`;
+};
+
+// ── live data ──────────────────────────────────────────────────────────────
+function connect() {
+  const es = new EventSource("/events");
+  es.addEventListener("hello", (e) => {
+    const d = JSON.parse(e.data);
+    for (const k of LOG_TABS) logs[k] = d.logs[k] ?? [];
+    activity = d.activity ?? [];
+    setState(d.snapshot);
+    renderTabs();
+    renderLog();
+    renderActivity();
+  });
+  es.addEventListener("state", (e) => setState(JSON.parse(e.data)));
+  es.addEventListener("log", (e) => {
+    const d = JSON.parse(e.data);
+    const buf = (logs[d.name] ??= []);
+    buf.push(...d.lines);
+    if (buf.length > 500) buf.splice(0, buf.length - 500);
+    if (d.name === logTab) appendLog(d.lines);
+    else if (!unread.has(d.name)) { unread.add(d.name); renderTabs(); }
+  });
+  es.addEventListener("log-reset", (e) => {
+    const d = JSON.parse(e.data);
+    logs[d.name] = [];
+    if (d.name !== "dev") logTab = d.name;
+    renderTabs();
+    renderLog();
+  });
+  es.addEventListener("activity", (e) => {
+    const a = JSON.parse(e.data);
+    activity.unshift(a);
+    activity.length = Math.min(activity.length, 80);
+    renderActivity(true);
+    tick(a);
+    a.features.forEach((id, i) => pop(id, a, i));
+  });
+  es.onopen = () => ($("#offline").hidden = true);
+  es.onerror = () => ($("#offline").hidden = false);
+}
+
+function setState(snap) {
+  S = snap;
+  syncDots();
+  renderHeader();
+  renderAgents();
+  renderChecks();
+  renderDev();
+  renderProd();
+  renderFeature();
+  renderRepo();
+  renderTally();
+}
+
+// Board items that will add a new dot: shown as ghosts on the sphere until shipped.
+const ghostItems = () =>
+  (S?.agents.board ?? []).filter(
+    (i) => i.feature && ["proposed", "approved", "building", "review"].includes(i.status) && !S.features.some((f) => f.id === i.feature.id),
+  );
+const itemOf = (id) => S?.agents.board.find((i) => "item:" + i.id === id || i.id === id);
+
+// ── panels ─────────────────────────────────────────────────────────────────
+function renderHeader() {
+  const r = S.repo;
+  $("#branch").innerHTML = r.error
+    ? `<span class="st-fail">${esc(r.error)}</span>`
+    : `<b>${esc(r.branch)}</b> ${r.base ? `<span class="faint">vs ${esc(r.base)}</span> ↑${r.ahead ?? "?"} ↓${r.behind ?? "?"}` : ""} · ${r.files.length} changed`;
+  const devMode = S.dev.mode === "running" ? "running-dev" : S.dev.mode;
+  $("#pill-dev").className = `pill s-${devMode}`;
+  $("#pill-dev").innerHTML = `<i class="led"></i>dev ${S.dev.mode === "down" ? "off" : ":" + S.dev.port}`;
+  const prodStates = Object.values(S.features).flatMap((f) => f.routes.map((x) => x.prod?.state).filter(Boolean));
+  const prodState = prodStates.length ? worst(prodStates) : "idle";
+  $("#pill-prod").className = `pill s-${prodState}`;
+  $("#pill-prod").innerHTML = `<i class="led"></i>prod ${S.prod.sweeping ? "…" : prodState}`;
+  const checks = Object.values(S.checks);
+  const testState = checks.some((c) => c.running) ? "running" : checks.some((c) => c.status === "fail") ? "fail" : checks.some((c) => c.status === "pass") ? "ok" : "idle";
+  $("#pill-tests").className = `pill s-${testState}`;
+  $("#pill-tests").innerHTML = `<i class="led"></i>tests ${testState === "ok" ? "pass" : testState === "idle" ? "not run" : testState === "running" ? S.running + "…" : "fail"}`;
+  const sb = S.supabase?.state ?? "idle";
+  $("#pill-supa").className = `pill s-${sb}`;
+  $("#pill-supa").innerHTML = `<i class="led"></i>supabase ${sb === "ok" ? dur(S.supabase.ms) : sb}`;
+  const ram = S.system.ramPct ?? 0;
+  $("#ram b").textContent = ram + "%";
+  $("#ram").title = `${S.system.freeGb ?? "?"} GB free of ${S.system.totalGb ?? "?"} GB`;
+  const bar = $("#ram .bar div");
+  bar.style.width = ram + "%";
+  bar.style.background = ram > 88 ? "var(--fail)" : ram > 78 ? "var(--slow)" : "var(--ok)";
+}
+
+function renderChecks() {
+  $("#checks").innerHTML = ["vitest", "tsc", "pytest", "build"]
+    .map((name) => {
+      const c = S.checks[name];
+      const queued = S.queue.includes(name);
+      const badge = c.running ? "running" : queued ? "queued" : c.status;
+      const fails = c.status === "fail" && c.details?.length
+        ? `<ul class="fails">${c.details.slice(0, 4).map((d) => `<li title="${esc((d.file ?? "") + " " + d.text)}">${d.file ? `<code>${esc(d.file.split("/").pop())}</code> ` : ""}${esc(d.text)}</li>`).join("")}${c.details.length > 4 ? `<li class="faint">+${c.details.length - 4} more — see the ${name} log</li>` : ""}</ul>`
+        : "";
+      return `<div class="check s-${badge}" data-log="${name}">
+        <div class="check-head"><i class="led"></i><b>${name}</b><span class="muted">${CHECK_INFO[name]}</span>
+          <button data-act="check/${name}" ${c.running || queued ? "disabled" : ""}>${c.running ? "running…" : queued ? "queued" : "Run"}</button></div>
+        <div class="check-sum">${esc(c.summary)} <span class="faint">· ${c.at ? `${dur(c.ms)} · ${ago(c.at)}` : "—"}</span></div>${fails}
+      </div>`;
+    })
+    .join("");
+}
+
+function renderDev() {
+  const d = S.dev;
+  const live = d.mode === "running" || d.mode === "external";
+  const swept = S.features.flatMap((f) => f.routes.map((r) => r.dev?.state).filter(Boolean));
+  const count = (s) => swept.filter((x) => x === s).length;
+  const words = { running: "running", external: "running · external", starting: "starting…", stopping: "stopping…", down: "off" };
+  $("#dev").innerHTML = `
+    <h2><span>Dev server${live ? `<a class="h2-link" href="http://localhost:${d.port}" target="_blank" rel="noopener">:${d.port} ↗</a>` : ""}</span>
+      <span class="h2-state s-${d.mode === "running" ? "running-dev" : d.mode}" title="${d.mode === "external" ? "Started outside the monitor" : ""}"><i class="led"></i>${words[d.mode] ?? d.mode}</span></h2>
+    <dl class="kv">
+      <dt>ping /</dt><dd>${d.last && !d.last.error ? `${d.last.status} · ${dur(d.last.ms)}` : "—"}</dd>
+      <dt>routes ok / slow / fail</dt><dd>${swept.length ? `<span class="st-ok">${count("ok")}</span> / <span class="st-slow">${count("slow")}</span> / <span class="st-fail">${count("fail")}</span>` : "—"}</dd>
+    </dl>
+    <div class="row">
+      <button class="primary" data-act="dev/start" ${d.mode === "down" ? "" : "disabled"}>Start</button>
+      <button data-act="dev/stop" ${d.child && d.mode !== "stopping" ? "" : "disabled"} title="${d.mode === "external" ? "Started outside the monitor — stop it there" : ""}">Stop</button>
+      <button data-act="dev/sweep" ${live && !d.sweeping ? "" : "disabled"} title="Hit every route twice: compile, then time it">${d.sweeping ? "Sweeping…" : "Sweep routes"}</button>
+    </div>`;
+}
+
+function renderProd() {
+  const states = S.features.flatMap((f) => f.routes.map((r) => r.prod?.state).filter(Boolean));
+  const count = (s) => states.filter((x) => x === s).length;
+  const sb = S.supabase;
+  $("#prod").innerHTML = `
+    <h2><span>Production<a class="h2-link" href="${esc(S.prodUrl)}" target="_blank" rel="noopener">${esc(S.prodUrl.replace("https://", ""))} ↗</a></span>
+      <button data-act="prod/sweep" ${S.prod.sweeping ? "disabled" : ""} title="Also runs every 5 min while this page is open">${S.prod.sweeping ? "Checking…" : "Ping now"}</button></h2>
+    <dl class="kv" style="margin-bottom:0">
+      <dt>routes ok / slow / fail</dt><dd>${states.length ? `<span class="st-ok">${count("ok")}</span> / <span class="st-slow">${count("slow")}</span> / <span class="st-fail">${count("fail")}</span>` : "—"}</dd>
+      <dt>supabase</dt><dd>${sb ? `<span class="st st-${sb.state}">${esc(sb.error ?? sb.status)}</span> ${dur(sb.ms)}` : "—"}</dd>
+      <dt>checked</dt><dd>${S.prod.sweeping ? "checking…" : ago(S.prod.at)}</dd>
+    </dl>`;
+}
+
+// ── the agent space ────────────────────────────────────────────────────────
+const BOARD_GROUPS = [
+  ["review", "Ready for you to try"],
+  ["proposed", "Proposed — your call"],
+  ["building", "Being built"],
+  ["approved", "Approved — next up"],
+  ["shipped", "Shipped"],
+];
+const ITEM_BUTTONS = {
+  proposed: [["approve", "Approve", true], ["park", "Park"]],
+  approved: [["park", "Park"]],
+  review: [["ship", "Mark shipped", true], ["reopen", "Send back"], ["park", "Park"]],
+  parked: [["approve", "Approve"]],
+};
+
+function itemBody(i) {
+  const buttons = (ITEM_BUTTONS[i.status] ?? [])
+    .map(([act, text, primary]) => `<button ${primary ? 'class="primary"' : ""} data-act="board/${esc(i.id)}/${act}">${text}</button>`)
+    .join("");
+  return `<div class="body">
+      <div>${esc(i.why)}</div>
+      ${i.needs ? `<div class="needs">Needs you: ${esc(i.needs)}</div>` : ""}
+      ${i.branch ? `<div class="mono">${esc(i.branch)}</div>` : ""}
+      ${i.howToTry ? `<div class="try">Try it: ${esc(i.howToTry)}</div>` : ""}
+      ${i.feature ? `<div class="faint">dot: ${esc(i.feature.label)}</div>` : ""}
+      <div class="faint">${esc(i.by ?? "agent")} · ${ago(i.updatedAt)}</div>
+      ${buttons ? `<div class="row">${buttons}</div>` : ""}
+    </div>`;
+}
+
+function renderAgents() {
+  const { now, last, board } = S.agents;
+  $("#now").innerHTML = now
+    ? `<h2>Agent at work <span class="role role-${esc(now.role)} live">${esc(now.role)}</span></h2>
+       <div class="task">${esc(now.task)}</div>
+       <div class="faint">${now.stalled ? '<span class="st-slow">no update for 2 h — stalled?</span>' : "working"} · started ${ago(now.startedAt)}${now.item ? ` · ${esc(now.item)}` : ""}</div>
+       ${now.steps.length ? `<ol class="steps">${now.steps.map((s) => `<li><time>${clock(s.at)}</time><span>${esc(s.text)}</span></li>`).join("")}</ol>` : ""}`
+    : `<h2>Agents <span class="muted">idle</span></h2>
+       <p class="idle-note">No agent at work. Open a Claude session in petbnb — the drive (<code>tools/monitor/DRIVE.md</code>) tells it what to do, and it reports here.</p>
+       ${last ? `<div class="faint" style="margin-top:6px">Last: <span class="role role-${esc(last.role)}">${esc(last.role)}</span> ${esc(last.text)} · ${ago(last.at)}</div>` : ""}`;
+
+  const count = (st) => board.filter((i) => i.status === st).length;
+  const groups = BOARD_GROUPS.map(([st, title]) => {
+    let list = board.filter((i) => i.status === st).sort((a, b) => b.updatedAt - a.updatedAt);
+    if (st === "shipped") list = list.slice(0, 4);
+    if (!list.length) return "";
+    return `<div class="sub">${title} (${count(st)})</div>${list
+      .map(
+        (i) => `<details class="item s-${i.status}" data-item="${esc(i.id)}" ${openItems.has(i.id) ? "open" : ""}>
+          <summary><i class="led"></i><span class="title" title="${esc(i.title)}">${esc(i.title)}</span><span class="chip">${esc(i.effort)}</span></summary>
+          ${itemBody(i)}</details>`,
+      )
+      .join("")}`;
+  }).join("");
+  const parked = count("parked");
+  $("#board").innerHTML = `<h2>Board <span class="muted">agents propose · you approve</span></h2>
+    ${groups || '<p class="idle-note">Empty. An evaluator run fills it with proposals.</p>'}
+    ${parked ? `<div class="faint" style="margin-top:8px">${parked} parked</div>` : ""}`;
+}
+
+function renderFeature() {
+  const el = $("#feature");
+  const item = selected?.startsWith("item:") && itemOf(selected);
+  if (item) {
+    el.innerHTML = `<div class="fhead"><span class="ghost-led" style="width:14px;height:14px;border-color:${GHOST[item.status] ?? "#cfe0d6"}"></span>
+        <b>${esc(item.feature?.label ?? item.title)}</b><button data-back>All features</button></div>
+      <div class="row" style="gap:10px;margin-bottom:6px"><span class="st" style="color:${GHOST[item.status] ?? "inherit"}">${esc(item.status)}</span><span class="chip">${esc(item.effort)}</span><span class="faint">${esc(item.title)}</span></div>
+      ${itemBody(item)}`;
+    return;
+  }
+  const f = selected && S.features.find((x) => x.id === selected);
+  if (!f) {
+    const ghosts = ghostItems();
+    const onTheWay = ghosts.length
+      ? `<div class="sub">On the way (${ghosts.length})</div><div class="feat-list">${ghosts.map((g) => `<button class="feat" data-feat="item:${esc(g.id)}"><span class="ghost-led" style="border-color:${GHOST[g.status]}"></span>${esc(g.feature.label)}</button>`).join("")}</div>`
+      : "";
+    const n = (s) => S.features.filter((x) => health(x) === s).length;
+    el.innerHTML = `<h2>Features <span class="muted">${n("ok")} ok · ${n("slow")} slow · ${n("fail")} failing · ${n("idle")} unknown</span></h2>
+      <div class="feat-list">${S.features.map((x) => `<button class="feat" data-feat="${x.id}"><span class="dot" style="background:${COLORS[x.local]};box-shadow:0 0 0 2px #0b130f,0 0 0 3.5px ${COLORS[x.prod]}"></span>${esc(x.label)}${x.dirty.length ? `<span class="badge">${x.dirty.length}</span>` : ""}</button>`).join("")}</div>${onTheWay}`;
+    return;
+  }
+  const fails = Object.keys(f.checkFails).flatMap((name) =>
+    (S.checks[name].details ?? []).filter((d) => d.features?.includes(f.id)).slice(0, 6).map((d) => ({ name, ...d })),
+  );
+  el.innerHTML = `
+    <div class="fhead"><span class="dot" style="background:${COLORS[f.local]};box-shadow:0 0 14px ${COLORS[f.local]},0 0 0 2px #0b130f,0 0 0 4px ${COLORS[f.prod]}"></span>
+      <b>${esc(f.label)}</b><button data-back>All features</button></div>
+    <div class="row" style="gap:14px;margin-bottom:8px"><span>local <span class="st st-${f.local}">${f.local}</span></span><span>prod <span class="st st-${f.prod}">${f.prod}</span></span>
+      ${f.lastPop ? `<span class="faint" title="${esc(f.lastPop.text)}">popped ${ago(f.lastPop.at)}</span>` : ""}</div>
+    ${f.routes.length ? `<table><tr><th>route</th><th>dev</th><th>prod</th></tr>${f.routes.map((r) => `<tr><td>${esc(r.path)}</td><td>${routeCell(r.dev)}</td><td>${routeCell(r.prod)}</td></tr>`).join("")}</table>` : `<div class="faint">No routes of its own — it's judged by the checks${f.id === "backend" ? " and Supabase health" : ""}.</div>`}
+    ${fails.length ? `<div class="sub">Failing</div><ul class="plain">${fails.map((d) => `<li title="${esc(d.file + " " + d.text)}"><span class="st-fail">${d.name}</span> <code>${esc(d.file.split("/").pop())}</code> ${esc(d.text)}</li>`).join("")}</ul>` : ""}
+    ${f.dirty.length ? `<div class="sub">Uncommitted (${f.dirty.length})</div><ul class="plain">${f.dirty.slice(0, 8).map((p) => `<li class="mono" title="${esc(p)}">${esc(p)}</li>`).join("")}</ul>` : ""}`;
+}
+
+function renderRepo() {
+  const r = S.repo;
+  const cls = (xy) => (xy === "??" ? "new" : xy.includes("D") ? "del" : xy.includes("R") ? "ren" : "mod");
+  $("#repo").innerHTML = `
+    <div class="sub" style="margin-top:0">Changes (${r.files.length})</div>
+    <ul class="plain files">${r.files.map((f) => `<li title="${esc(f.path + (f.from ? " ← " + f.from : ""))}"><span class="xy xy-${cls(f.xy)}">${esc(f.xy)}</span><span class="path">${esc(f.path)}</span><span class="tag">${f.features.map(label).map(esc).join(", ")}</span></li>`).join("") || '<li class="faint">clean</li>'}</ul>
+    <div class="sub">Recent commits</div>
+    <ul class="plain commits">${r.commits.map((c) => `<li title="${esc(c.subject)}"><code>${esc(c.hash)}</code><span class="path" style="font-family:var(--sans)">${esc(c.subject)}</span><span class="faint">${esc(c.when)}</span></li>`).join("")}</ul>`;
+}
+
+function renderTally() {
+  const n = S.features.length;
+  const by = (st) => S.features.filter((f) => health(f) === st).length;
+  const bits = [
+    by("fail") && `<span class="st-fail">${by("fail")} failing</span>`,
+    by("slow") && `<span class="st-slow">${by("slow")} slow</span>`,
+    by("idle") && `${by("idle")} unknown`,
+  ].filter(Boolean);
+  const coming = ghostItems().length;
+  if (coming) bits.push(`<span style="color:${GHOST.approved}">+${coming} on the way</span>`);
+  $("#tally").innerHTML = `<b>${by("ok")}<span class="faint" style="font-size:15px">/${n}</span></b>features green${bits.length ? " · " + bits.join(" · ") : ""}`;
+}
+
+const activityText = (a) => (a.kind === "file" ? "✎ " + a.text : a.kind === "agent" ? `${a.role}: ${a.text}` : a.text);
+
+// The newest events float over the sphere for a few seconds.
+function tick(a) {
+  const list = $("#ticker");
+  const li = document.createElement("li");
+  li.innerHTML = `<i style="background:${kindColor(a)}"></i>${esc(activityText(a))}`;
+  list.insertBefore(li, list.firstChild);
+  while (list.children.length > 4) list.lastChild.remove();
+  setTimeout(() => li.remove(), 7000);
+}
+
+function renderActivity(fresh) {
+  $("#activity").innerHTML = activity
+    .map(
+      (a, i) =>
+        `<li data-feat="${esc(a.features[0] ?? "")}" class="${fresh && i === 0 ? "fresh" : ""}"><time>${clock(a.at)}</time><i style="background:${kindColor(a)}"></i><span>${esc(activityText(a))}</span></li>`,
+    )
+    .join("");
+}
+
+// ── logs ───────────────────────────────────────────────────────────────────
+function renderTabs() {
+  $("#tabs").innerHTML = LOG_TABS.map(
+    (t) => `<button role="tab" data-tab="${t}" aria-selected="${t === logTab}" class="${unread.has(t) ? "unread" : ""}">${t}</button>`,
+  ).join("");
+}
+function lineClass(l) {
+  if (/error|failed|✗|×|\bFAIL\b|ERR!|⨯/i.test(l)) return "err";
+  if (/warn|⚠/i.test(l)) return "warn";
+  if (/✓|ready|passed|compiled|success/i.test(l)) return "good";
+  return "";
+}
+function appendLog(lines) {
+  const pre = $("#log");
+  const stick = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 40;
+  const frag = document.createDocumentFragment();
+  for (const l of lines) {
+    const span = document.createElement("span");
+    const c = lineClass(l);
+    if (c) span.className = c;
+    span.textContent = l + "\n";
+    frag.appendChild(span);
+  }
+  pre.appendChild(frag);
+  while (pre.childNodes.length > 600) pre.removeChild(pre.firstChild);
+  if (stick) pre.scrollTop = pre.scrollHeight;
+}
+function renderLog() {
+  unread.delete(logTab);
+  $("#log").textContent = "";
+  appendLog(logs[logTab] ?? []);
+  $("#log").scrollTop = $("#log").scrollHeight;
+}
+
+// ── the sphere ─────────────────────────────────────────────────────────────
+const cv = $("#globe");
+const ctx = cv.getContext("2d");
+const G = { yaw: 0.5, pitch: -0.3, vyaw: 0, vpitch: 0, paused: false, drag: null, hover: null, focus: null, w: 0, h: 0, cx: 0, cy: 0, R: 100 };
+const CAM = 4;
+
+function fib(n) {
+  const pts = [];
+  const ga = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < n; i++) {
+    const y = 1 - ((i + 0.5) / n) * 2;
+    const r = Math.sqrt(1 - y * y);
+    pts.push({ x: Math.cos(i * ga) * r, y, z: Math.sin(i * ga) * r });
+  }
+  return pts;
+}
+const LATTICE = fib(760);
+
+// A stable spot for a ghost dot, from its id, so it doesn't jump between updates.
+function hashPoint(id) {
+  let h1 = 2166136261, h2 = 5381;
+  for (const ch of id) {
+    h1 = Math.imul(h1 ^ ch.charCodeAt(0), 16777619);
+    h2 = Math.imul(h2, 33) ^ ch.charCodeAt(0);
+  }
+  const y = 1 - 2 * ((h1 >>> 0) / 4294967296);
+  const t = TAU * ((h2 >>> 0) / 4294967296);
+  const r = Math.sqrt(1 - y * y);
+  return { x: Math.cos(t) * r, y, z: Math.sin(t) * r };
+}
+
+// Real features sit on an even spiral; when one is added the others glide to
+// their new places (and the newcomer pops). Ghosts get hashed spots.
+let firstSync = true;
+function syncDots() {
+  const real = S.features.map((f) => f.id);
+  const pts = fib(real.length);
+  real.forEach((id, i) => {
+    const d = dots.get(id);
+    if (d) d.target = pts[i];
+    else {
+      dots.set(id, { p: { ...pts[i] }, target: pts[i], pops: [], sx: 0, sy: 0, r: 0, z: -1 });
+      if (!firstSync) pop(id, { kind: "agent", text: "new: " + label(id) }, 0);
+    }
+  });
+  const ghostIds = ghostItems().map((g) => "item:" + g.id);
+  for (const id of ghostIds) {
+    if (dots.has(id)) continue;
+    // Of a few hashed candidates, take the one farthest from every other dot so labels don't collide.
+    const others = [...dots.values()].map((d) => d.target ?? d.p);
+    let best = hashPoint(id), bestGap = -1;
+    for (let k = 0; k < 16; k++) {
+      const c = hashPoint(id + "#" + k);
+      const gap = Math.min(...others.map((o) => Math.hypot(c.x - o.x, c.y - o.y, c.z - o.z)), 9);
+      if (gap > bestGap) { best = c; bestGap = gap; }
+    }
+    dots.set(id, { p: best, target: null, pops: [], sx: 0, sy: 0, r: 0, z: -1 });
+  }
+  for (const id of [...dots.keys()]) if (!real.includes(id) && !ghostIds.includes(id)) dots.delete(id);
+  firstSync = false;
+}
+
+function rot(p) {
+  const cy = Math.cos(G.yaw), sy = Math.sin(G.yaw), cp = Math.cos(G.pitch), sp = Math.sin(G.pitch);
+  const x1 = p.x * cy + p.z * sy;
+  const z1 = -p.x * sy + p.z * cy;
+  return { x: x1, y: p.y * cp - z1 * sp, z: p.y * sp + z1 * cp };
+}
+function proj(q) {
+  const k = CAM / (CAM - q.z);
+  return { x: G.cx + q.x * G.R * k, y: G.cy - q.y * G.R * k, k };
+}
+
+function pop(id, a, i) {
+  const d = dots.get(id);
+  if (!d) return;
+  let text = a.text;
+  if (a.kind === "file") text = "✎ " + a.text.split("/").pop();
+  else if (a.kind === "state") text = a.text.split(/[:,] /).find((s) => s.includes(label(id))) ?? a.text;
+  else if (a.kind === "check") text = a.text.split(":")[0];
+  if (text.length > 42) text = text.slice(0, 41) + "…";
+  d.pops.push({ at: performance.now() + i * 70, color: a.kind === "file" ? KIND.file : null, text: i < 6 ? text : "" });
+  if (d.pops.length > 4) d.pops.shift();
+}
+
+function focusOn(id) {
+  const d = dots.get(id);
+  if (!d) return;
+  const { x, y, z } = d.p;
+  const tyaw = Math.atan2(-x, z);
+  const tpitch = Math.atan2(y, Math.hypot(x, z));
+  const wrap = (a) => a - TAU * Math.round(a / TAU);
+  G.focus = { yaw: G.yaw + wrap(tyaw - G.yaw), pitch: tpitch };
+  G.vyaw = G.vpitch = 0;
+}
+
+function select(id) {
+  selected = id || null;
+  if (selected) focusOn(selected);
+  else G.focus = null;
+  renderFeature();
+}
+
+function resize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (w === G.w && h === G.h && cv.width === Math.round(w * dpr)) return;
+  G.w = w; G.h = h;
+  cv.width = Math.round(w * dpr);
+  cv.height = Math.round(h * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  G.cx = w / 2;
+  G.cy = h / 2;
+  G.R = Math.min(w * 0.36, h * 0.39);
+}
+
+function drawDot(f, d, q, s, now) {
+  const depth = (q.z + 1) / 2;
+  const front = q.z >= 0;
+  const alpha = front ? 1 : 0.22 + 0.5 * (1 + q.z);
+  const lit = f.id === G.hover || f.id === selected;
+  let scale = lit ? 1.3 : 1;
+  d.pops = d.pops.filter((p) => now - p.at < 2600);
+  for (const p of d.pops) {
+    const e = (now - p.at) / 900;
+    if (e >= 0 && e < 1 && !reduced.matches) scale = Math.max(scale, 1 + 1.1 * Math.exp(-5.5 * e) * Math.cos(9 * e));
+  }
+  const r = (4 + 4.5 * depth) * Math.max(0.6, scale);
+  const col = COLORS[f.local];
+  const ring = COLORS[f.prod];
+
+  ctx.globalAlpha = alpha;
+  if (f.local === "fail" && !reduced.matches) {
+    const b = (Math.sin(now / 320) + 1) / 2;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r + 7 + b * 7, 0, TAU);
+    ctx.strokeStyle = hexA(COLORS.fail, 0.45 * (1 - b));
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.shadowColor = col;
+  ctx.shadowBlur = f.local === "idle" ? 4 : 10 + 14 * depth;
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, r, 0, TAU);
+  ctx.fillStyle = col;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.beginPath();
+  ctx.arc(s.x - r * 0.3, s.y - r * 0.32, r * 0.38, 0, TAU);
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, r + 3.5, 0, TAU);
+  ctx.lineWidth = 1.6;
+  ctx.strokeStyle = f.prod === "idle" ? "rgba(150,170,160,0.45)" : ring;
+  if (f.prod === "idle") ctx.setLineDash([2, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  for (const p of d.pops) {
+    const e = (now - p.at) / 1150;
+    if (e < 0 || e >= 1) continue;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r + 4 + e * 44, 0, TAU);
+    ctx.strokeStyle = hexA(p.color ?? col, (1 - e) * 0.95);
+    ctx.lineWidth = 2.4 * (1 - e) + 0.4;
+    ctx.stroke();
+  }
+
+  // Labels only on the side facing you (fading in), so back labels don't tangle with front ones.
+  if (q.z > 0.08 || lit) {
+    ctx.globalAlpha = lit ? 1 : Math.min(1, (q.z - 0.08) * 3);
+    ctx.font = `${lit ? 600 : 500} ${lit ? 13 : 12}px ${SANS}`;
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = lit ? "#ffffff" : "#cfe0d6";
+    ctx.fillText(f.label, s.x + r + 8, s.y);
+    if (f.dirty.length) {
+      const w = ctx.measureText(f.label).width;
+      ctx.font = `500 10.5px ${MONO}`;
+      ctx.fillStyle = KIND.file;
+      ctx.fillText("±" + f.dirty.length, s.x + r + 13 + w, s.y);
+    }
+  }
+  const cap = d.pops.at(-1);
+  if (cap?.text) {
+    const e = (now - cap.at) / 2600;
+    if (e >= 0 && e < 1) {
+      ctx.globalAlpha = (1 - e * e) * (front ? 1 : 0.45);
+      ctx.font = `500 11px ${MONO}`;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = cap.color ?? col;
+      ctx.fillText(cap.text, s.x + r + 8, s.y - 17 - e * 20);
+    }
+  }
+  ctx.globalAlpha = 1;
+  d.sx = s.x; d.sy = s.y; d.r = r; d.z = q.z;
+}
+
+function draw(now) {
+  const { w, h, cx, cy, R } = G;
+  ctx.clearRect(0, 0, w, h);
+
+  let g = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.75);
+  g.addColorStop(0, "rgba(95,224,168,0.11)");
+  g.addColorStop(1, "rgba(95,224,168,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+
+  g = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.42, R * 0.05, cx, cy, R * 1.04);
+  g.addColorStop(0, "rgba(46,110,84,0.5)");
+  g.addColorStop(0.65, "rgba(13,34,26,0.55)");
+  g.addColorStop(1, "rgba(8,20,15,0.25)");
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 1.03, 0, TAU);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(95,224,168,0.16)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  for (const p of LATTICE) {
+    const q = rot(p);
+    const s = proj(q);
+    const a = q.z > 0 ? 0.08 + 0.4 * q.z : 0.06 * (1 + q.z);
+    const r = 0.7 + 0.8 * Math.max(0, q.z);
+    ctx.fillStyle = `rgba(170,235,205,${a})`;
+    ctx.fillRect(s.x - r / 2, s.y - r / 2, r, r);
+  }
+
+  if (!S) return;
+  const items = [
+    ...S.features.map((f) => ({ f, d: dots.get(f.id) })),
+    ...ghostItems().map((g) => ({ g, d: dots.get("item:" + g.id) })),
+  ]
+    .filter((it) => it.d)
+    .map((it) => {
+      const q = rot(it.d.p);
+      return { ...it, q, s: proj(q) };
+    });
+  items.sort((a, b) => a.q.z - b.q.z);
+  for (const it of items) {
+    if (it.f) drawDot(it.f, it.d, it.q, it.s, now);
+    else drawGhost(it.g, it.d, it.q, it.s, now);
+  }
+}
+
+// A proposed capability: an outline that fills in as it moves along the board.
+function drawGhost(g, d, q, s, now) {
+  const id = "item:" + g.id;
+  const depth = (q.z + 1) / 2;
+  const front = q.z >= 0;
+  const lit = id === G.hover || id === selected;
+  const col = GHOST[g.status];
+  let scale = lit ? 1.3 : 1;
+  d.pops = d.pops.filter((p) => now - p.at < 2600);
+  for (const p of d.pops) {
+    const e = (now - p.at) / 900;
+    if (e >= 0 && e < 1 && !reduced.matches) scale = Math.max(scale, 1 + 1.1 * Math.exp(-5.5 * e) * Math.cos(9 * e));
+  }
+  const r = (4 + 4 * depth) * Math.max(0.6, scale);
+  ctx.globalAlpha = front ? 0.95 : 0.18 + 0.4 * (1 + q.z);
+  if (g.status === "building" && !reduced.matches) {
+    const b = (Math.sin(now / 260) + 1) / 2;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r + 4 + b * 7, 0, TAU);
+    ctx.strokeStyle = hexA(col, 0.55 * (1 - b));
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, r, 0, TAU);
+  ctx.fillStyle = hexA(col, g.status === "proposed" ? 0.07 : 0.24);
+  ctx.fill();
+  ctx.setLineDash(g.status === "proposed" ? [2.5, 3] : []);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  for (const p of d.pops) {
+    const e = (now - p.at) / 1150;
+    if (e < 0 || e >= 1) continue;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r + 4 + e * 44, 0, TAU);
+    ctx.strokeStyle = hexA(col, (1 - e) * 0.95);
+    ctx.lineWidth = 2.4 * (1 - e) + 0.4;
+    ctx.stroke();
+  }
+  if (q.z > 0.08 || lit) {
+    ctx.globalAlpha = lit ? 1 : Math.min(1, (q.z - 0.08) * 3);
+    ctx.font = `italic ${lit ? 600 : 500} ${lit ? 13 : 12}px ${SANS}`;
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = col;
+    ctx.fillText("+ " + g.feature.label, s.x + r + 8, s.y);
+  }
+  ctx.globalAlpha = 1;
+  d.sx = s.x; d.sy = s.y; d.r = r; d.z = q.z;
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  resize();
+  if (!G.paused && !G.drag && !G.hover && !G.focus && !reduced.matches) G.yaw += 0.17 * dt;
+  if (!G.drag) {
+    G.yaw += G.vyaw;
+    G.pitch += G.vpitch;
+    G.vyaw *= 0.93;
+    G.vpitch *= 0.93;
+  }
+  if (G.focus) {
+    const k = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
+    G.yaw += (G.focus.yaw - G.yaw) * k;
+    G.pitch += (G.focus.pitch - G.pitch) * k;
+  }
+  G.pitch = Math.max(-1.35, Math.min(1.35, G.pitch));
+  // Glide dots toward new spots after the feature set changed.
+  const k = reduced.matches ? 1 : 1 - Math.exp(-dt * 3);
+  for (const d of dots.values()) {
+    if (!d.target) continue;
+    const x = d.p.x + (d.target.x - d.p.x) * k, y = d.p.y + (d.target.y - d.p.y) * k, z = d.p.z + (d.target.z - d.p.z) * k;
+    const n = Math.hypot(x, y, z) || 1;
+    d.p = { x: x / n, y: y / n, z: z / n };
+  }
+  draw(now);
+  requestAnimationFrame(frame);
+}
+
+function hit(mx, my) {
+  let best = null, bd = Infinity;
+  for (const [id, d] of dots) {
+    if (d.z < -0.1) continue;
+    const dist = Math.hypot(mx - d.sx, my - d.sy);
+    if (dist < d.r + 10 && dist < bd) { bd = dist; best = id; }
+  }
+  return best;
+}
+function local(e) {
+  const r = cv.getBoundingClientRect();
+  return [e.clientX - r.left, e.clientY - r.top];
+}
+function showTip(id, mx, my) {
+  const el = $("#tip");
+  const item = id?.startsWith("item:") && itemOf(id);
+  if (item) {
+    el.innerHTML = `<b>+ ${esc(item.feature.label)}</b>
+      <div style="margin-top:3px"><span class="st" style="color:${GHOST[item.status]}">${esc(item.status)}</span> · ${esc(item.effort)} · ${esc(item.title)}</div>
+      <div class="muted">${esc(item.why.slice(0, 110))}</div>
+      ${item.needs ? `<div style="color:var(--slow)">needs you: ${esc(item.needs.slice(0, 90))}</div>` : ""}`;
+    el.hidden = false;
+    el.style.left = Math.min(mx + 16, G.w - el.offsetWidth - 8) + "px";
+    el.style.top = Math.min(my + 14, G.h - el.offsetHeight - 8) + "px";
+    return;
+  }
+  const f = id && S?.features.find((x) => x.id === id);
+  if (!f) { el.hidden = true; return; }
+  el.innerHTML = `<b>${esc(f.label)}</b>
+    <div style="margin-top:3px">local <span class="st st-${f.local}">${f.local}</span> · prod <span class="st st-${f.prod}">${f.prod}</span></div>
+    ${f.dirty.length ? `<div class="muted">${f.dirty.length} uncommitted file${f.dirty.length > 1 ? "s" : ""}</div>` : ""}
+    ${f.lastPop ? `<div class="faint">${esc(f.lastPop.text.slice(0, 70))} · ${ago(f.lastPop.at)}</div>` : ""}`;
+  el.hidden = false;
+  el.style.left = Math.min(mx + 16, G.w - el.offsetWidth - 8) + "px";
+  el.style.top = Math.min(my + 14, G.h - el.offsetHeight - 8) + "px";
+}
+
+cv.addEventListener("pointerdown", (e) => {
+  cv.setPointerCapture(e.pointerId);
+  G.drag = { x: e.clientX, y: e.clientY, moved: 0 };
+});
+cv.addEventListener("pointermove", (e) => {
+  const [mx, my] = local(e);
+  if (G.drag) {
+    const dx = e.clientX - G.drag.x, dy = e.clientY - G.drag.y;
+    G.drag.x = e.clientX;
+    G.drag.y = e.clientY;
+    G.drag.moved += Math.abs(dx) + Math.abs(dy);
+    if (G.drag.moved > 4) {
+      G.focus = null;
+      G.vyaw = dx * 0.006;
+      G.vpitch = dy * 0.006;
+      G.yaw += G.vyaw;
+      G.pitch += G.vpitch;
+      showTip(null);
+    }
+    return;
+  }
+  G.hover = hit(mx, my);
+  cv.style.cursor = G.hover ? "pointer" : "";
+  showTip(G.hover, mx, my);
+});
+cv.addEventListener("pointerup", (e) => {
+  const d = G.drag;
+  G.drag = null;
+  if (d && d.moved <= 4) {
+    const [mx, my] = local(e);
+    select(hit(mx, my));
+  }
+});
+cv.addEventListener("pointerleave", () => {
+  G.hover = null;
+  showTip(null);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (!$("#drawer").hidden) settings(false);
+    else select(null);
+    return;
+  }
+  if (e.target.closest("button, a, input, textarea, summary")) return;
+  if (e.code === "Space") {
+    e.preventDefault();
+    G.paused = !G.paused;
+    $("#hint").textContent = G.paused ? "paused · space resumes" : "drag to spin · click a dot · space pauses";
+  }
+});
+
+// Settings drawer: checks, dev server, prod, logs and the repo live here, out of the way.
+function settings(open) {
+  $("#drawer").hidden = !open;
+  $("#scrim").hidden = !open;
+  $("#gear").setAttribute("aria-expanded", String(open));
+  if (open) {
+    renderLog();
+    $("#drawer [data-close]").focus();
+  } else $("#gear").focus();
+}
+
+// Keep board cards open across live re-renders.
+document.addEventListener(
+  "toggle",
+  (e) => {
+    const id = e.target.dataset?.item;
+    if (!id) return;
+    if (e.target.open) openItems.add(id);
+    else openItems.delete(id);
+  },
+  true,
+);
+
+document.addEventListener("click", (e) => {
+  const act = e.target.closest("[data-act]");
+  if (act) { post(act.dataset.act); return; }
+  if (e.target.closest("[data-settings]")) { settings(true); return; }
+  if (e.target.closest("[data-close]") || e.target.id === "scrim") { settings(false); return; }
+  if (e.target.closest("[data-back]")) { select(null); return; }
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { logTab = tab.dataset.tab; renderTabs(); renderLog(); return; }
+  const feat = e.target.closest("[data-feat]");
+  if (feat?.dataset.feat) { select(feat.dataset.feat); return; }
+  const check = e.target.closest("[data-log]");
+  if (check) { logTab = check.dataset.log; renderTabs(); renderLog(); }
+});
+
+setInterval(() => {
+  if (!S) return;
+  renderChecks();
+  renderProd();
+}, 15000);
+
+connect();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
