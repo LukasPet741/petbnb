@@ -183,3 +183,25 @@ describe("the collar and Smart-ID cards", () => {
     expect(screen.getByRole("link", { name: "appShell.spotlight.collarButton" }).getAttribute("href")).toBe("/collar");
   });
 });
+
+describe("the account at the bottom of the sidebar", () => {
+  /** The row with the name; the desktop rail and the phone drawer share markup, the rail comes first. */
+  const nameRow = () => screen.getAllByText("Rūta")[0].parentElement!;
+
+  it("puts the Smart-ID seal next to your name once you are verified", () => {
+    h.verified = true;
+    h.method = "smart_id_demo";
+    render(<Sidebar />);
+    expect(within(nameRow()).getByRole("img", { name: "common.verification.sealDemo" })).toBeTruthy();
+  });
+
+  it("shows no seal before a Smart-ID check, nor for a seed sitter (review M5)", () => {
+    for (const [verified, method] of [[false, "none"], [true, "seed"]] as const) {
+      h.verified = verified;
+      h.method = method;
+      const { unmount } = render(<Sidebar />);
+      expect(within(nameRow()).queryByRole("img")).toBeNull();
+      unmount();
+    }
+  });
+});

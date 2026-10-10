@@ -5,12 +5,14 @@ import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import type { VerificationMethod } from "@/lib/types";
 import { useProfile } from "@/hooks/useProfile";
 import { signOut } from "@/lib/auth";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotifications } from "@/context/NotificationsContext";
 import { useCollarLive } from "@/context/CollarLiveContext";
 import Avatar from "./Avatar";
+import VerifiedSeal from "./VerifiedSeal";
 import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "@/components/NotificationBell";
@@ -110,7 +112,11 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 px-1">
             <Avatar name={profile.full_name ?? t("appShell.sidebar.youFallback")} url={profile.avatar_url} size="sm" />
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-ink truncate">{profile.full_name ?? t("appShell.sidebar.youFallback")}</div>
+              {/* The same seal as on sitter cards, and the same rule: only a Smart-ID someone went through. */}
+              <div className="flex min-w-0 items-center gap-1">
+                <span className="text-sm font-medium text-ink truncate">{profile.full_name ?? t("appShell.sidebar.youFallback")}</span>
+                <VerifiedSeal method={profile.verification_method as VerificationMethod | null | undefined} size="sm" />
+              </div>
               <div className="text-xs text-ink-soft truncate">{profile.city ?? ""}</div>
             </div>
             <button onClick={handleSignOut} title={t("appShell.sidebar.signOut")} className="p-2 rounded-lg text-ink-soft hover:text-ink hover:bg-brand-softer transition-colors"><LogOut className="w-4 h-4" /></button>
