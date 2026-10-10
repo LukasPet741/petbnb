@@ -39,7 +39,13 @@ vi.mock("@/lib/supabase", () => ({
         eq: () =>
           table === "profiles"
             ? { maybeSingle: () => Promise.resolve({ data: h.sitter, error: null }) }
-            : Promise.resolve({ data: [{ id: "p1", name: "Rex" }], error: null }),
+            : {
+                // Archived pets never reach the request form.
+                is: (col: string, value: unknown) =>
+                  Promise.resolve(col === "archived_at" && value === null
+                    ? { data: [{ id: "p1", name: "Rex" }], error: null }
+                    : { data: [], error: null }),
+              },
       }),
     }),
   },

@@ -70,14 +70,14 @@ export default function EditPetPage() {
     router.push("/pets");
   };
 
-  // The same removal as /pets (usePetRemoval): a pet with bookings is kept and the page
-  // says why; any other pet goes after a Confirm, row first, photo second.
+  // The same removal as /pets (usePetRemoval): a pet with bookings is archived, any other
+  // pet deleted, each after a Confirm.
   const handleDelete = async () => {
     if (!initial) return;
     setDeleting(true);
     setDeleteError("");
     const result = await removePet({ id, name: initial.name, photo_url: initial.photo_url });
-    if (result === "removed") { router.push("/pets"); return; }
+    if (result === "removed" || result === "archived") { router.push("/pets"); return; }
     setDeleting(false);
     if (result === "has-bookings") setDeleteError(t("appPages.pets.removeHasBookings"));
     else if (result === "failed") setDeleteError(t("appPages.pets.removeFailed"));

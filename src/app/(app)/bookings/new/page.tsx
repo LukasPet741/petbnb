@@ -141,7 +141,7 @@ function NewBookingForm() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("pets").select("id,name").eq("owner_id", user.id).then(({ data }) => {
+    supabase.from("pets").select("id,name").eq("owner_id", user.id).is("archived_at", null).then(({ data }) => {
       setPets(data ?? []);
       if (data?.[0]) setForm((f) => (f.pet_id ? f : { ...f, pet_id: data[0].id }));
     });

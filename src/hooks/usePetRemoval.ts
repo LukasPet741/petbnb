@@ -5,17 +5,17 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useConfirm } from "@/components/ui/Confirm";
 import { useToast } from "@/components/ui/Toast";
 
-export type PetRemoval = "removed" | "kept" | "has-bookings" | "failed";
+export type PetRemoval = "removed" | "archived" | "kept" | "has-bookings" | "failed";
 
 /**
  * Removing a pet, the one way both /pets and the edit page do it (plan §2.4).
  *
- * The database CASCADES a pet's deletion into every booking it was on
- * (bookings_pet_id_fkey ON DELETE CASCADE, read from prod on 2026-10-10), and each booking
- * takes its messages, notifications and reviews along — the sitter's history as much as
- * the owner's. Until pets can be archived (a migration waiting for Lukas's yes), a pet
- * with any booking is kept, without asking. Any other pet goes after a Confirm, the row
- * first and the photo second, so a refused delete never costs the photo.
+ * A pet on a booking is part of the sitter's history too (the booking, its messages, its
+ * reviews), so it is ARCHIVED after a Confirm: `archived_at` takes it off the owner's lists
+ * and the request form, and the bookings keep its name and photo. The database refuses to
+ * delete it anyway (bookings_pet_id_fkey ON DELETE RESTRICT, 20261010120000). Any other
+ * pet is deleted after a Confirm, the row first and the photo second, so a refused delete
+ * never costs the photo; a booking made in between comes back as "has-bookings".
  */
 export function usePetRemoval() {
   const { t } = useLanguage();
@@ -29,7 +29,18 @@ export function usePetRemoval() {
         .select("id", { count: "exact", head: true })
         .eq("pet_id", pet.id);
       if (countError) return "failed";
-      if ((count ?? 0) > 0) return "has-bookings";
+      if ((count ?? 0) > 0) {
+        const archive = await confirm({
+          title: t("appPages.pets.archiveConfirm", { name: pet.name }),
+          body: t("appPages.pets.archiveConfirmBody", { name: pet.name }),
+          confirmLabel: t("appPages.pets.archiveButton"),
+        });
+        if (!archive) return "kept";
+        const { error } = await supabase.from("pets").update({ archived_at: new Date().toISOString() }).eq("id", pet.id);
+        if (error) return "failed";
+        toast({ message: t("appPages.pets.archived") });
+        return "archived";
+      }
 
       const ok = await confirm({
         title: t("appPages.pets.removeConfirm"),

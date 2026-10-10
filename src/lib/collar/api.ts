@@ -81,7 +81,7 @@ export async function loadPositions(
 }
 
 export async function loadPetNames(ownerId: string): Promise<string[]> {
-  const { data, error } = await supabase.from("pets").select("name").eq("owner_id", ownerId).order("created_at");
+  const { data, error } = await supabase.from("pets").select("name").eq("owner_id", ownerId).is("archived_at", null).order("created_at");
   fail(error);
   return ((data ?? []) as { name: string }[]).map((p) => p.name).filter(Boolean);
 }

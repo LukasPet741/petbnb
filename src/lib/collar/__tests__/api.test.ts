@@ -18,7 +18,7 @@ const h = vi.hoisted(() => ({
 vi.mock("@/lib/supabase", () => {
   const builder = () => {
     const chain: Record<string, unknown> = {};
-    for (const op of ["select", "eq", "gte", "lte", "order", "limit", "update"]) {
+    for (const op of ["select", "eq", "is", "gte", "lte", "order", "limit", "update"]) {
       chain[op] = (...args: unknown[]) => {
         h.calls.push([op, ...args]);
         return chain;
@@ -102,6 +102,7 @@ describe("collars", () => {
     h.rows = [{ name: "Reksas" }, { name: "Mica" }];
     expect(await loadPetNames("u1")).toEqual(["Reksas", "Mica"]);
     expect(h.calls).toContainEqual(["eq", "owner_id", "u1"]);
+    expect(h.calls).toContainEqual(["is", "archived_at", null]);
   });
 });
 

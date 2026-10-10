@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("pets").select("id,name,type,photo_url").eq("owner_id", user.id).order("created_at")
+    supabase.from("pets").select("id,name,type,photo_url").eq("owner_id", user.id).is("archived_at", null).order("created_at")
       .then(({ data }) => setPets((data as Pet[]) ?? []));
     supabase.from("bookings").select(`${BOOKING_FIELDS}, counterpart:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url)`).eq("owner_id", user.id)
       .then(({ data }) => setOwner((data as unknown as DashBooking[]) ?? []));

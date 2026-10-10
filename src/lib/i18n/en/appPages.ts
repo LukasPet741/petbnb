@@ -176,7 +176,11 @@ const appPages = {
     removeButton: "Remove",
     removed: "Pet removed.",
     removeFailed: "That pet could not be removed. Please try again.",
-    removeHasBookings: "This pet is on a booking, so it cannot be removed — removing it would delete that booking, its messages and its reviews.",
+    removeHasBookings: "This pet was just booked, so it was kept. Remove it again to archive it instead.",
+    archiveConfirm: "Archive {name}?",
+    archiveConfirmBody: "{name} has bookings, so it leaves your pets but stays on those bookings for you and the sitter. You cannot book with it again.",
+    archiveButton: "Archive",
+    archived: "Pet archived.",
   },
   petsNew: {
     backToMyPets: "Back to my pets",

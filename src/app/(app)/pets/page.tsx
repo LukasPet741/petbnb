@@ -30,7 +30,7 @@ export default function PetsPage() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase.from("pets").select("*").eq("owner_id", user.id).order("created_at");
+    const { data } = await supabase.from("pets").select("*").eq("owner_id", user.id).is("archived_at", null).order("created_at");
     setPets((data ?? []) as Pet[]);
     setLoading(false);
   };
@@ -40,7 +40,7 @@ export default function PetsPage() {
   const handleDelete = async (pet: Pet) => {
     setError("");
     const result = await removePet(pet);
-    if (result === "removed") setPets((prev) => prev.filter((p) => p.id !== pet.id));
+    if (result === "removed" || result === "archived") setPets((prev) => prev.filter((p) => p.id !== pet.id));
     else if (result === "has-bookings") setError(t("appPages.pets.removeHasBookings"));
     else if (result === "failed") setError(t("appPages.pets.removeFailed"));
   };

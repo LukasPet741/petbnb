@@ -42,6 +42,8 @@ export interface Pet {
   bio: string | null;
   photo_url: string | null;
   created_at: string;
+  /** Set when removed while on bookings: off the owner's lists, kept on the bookings. */
+  archived_at?: string | null;
 }
 
 export interface Booking {

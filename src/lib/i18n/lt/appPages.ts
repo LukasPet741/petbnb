@@ -175,7 +175,11 @@ const appPages = {
     removeButton: "Pašalinti",
     removed: "Augintinis pašalintas.",
     removeFailed: "Augintinio pašalinti nepavyko. Bandykite dar kartą.",
-    removeHasBookings: "Šis augintinis yra užsakyme, todėl jo pašalinti negalima — kartu būtų ištrintas užsakymas, jo žinutės ir atsiliepimai.",
+    removeHasBookings: "Šis augintinis ką tik buvo užsakytas, todėl liko. Pašalinkite dar kartą – jis bus suarchyvuotas.",
+    archiveConfirm: "Archyvuoti augintinį {name}?",
+    archiveConfirmBody: "{name} turi užsakymų, todėl dings iš jūsų augintinių sąrašo, bet liks tuose užsakymuose jums ir globėjui. Naujų užsakymų su juo daryti nebegalėsite.",
+    archiveButton: "Archyvuoti",
+    archived: "Augintinis suarchyvuotas.",
   },
   petsNew: {
     backToMyPets: "Grįžti į mano augintinius",

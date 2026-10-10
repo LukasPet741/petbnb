@@ -403,6 +403,7 @@ export type Database = {
       }
       pets: {
         Row: {
+          archived_at: string | null
           bio: string | null
           created_at: string | null
           id: string
@@ -415,6 +416,7 @@ export type Database = {
           weight_kg: number | null
         }
         Insert: {
+          archived_at?: string | null
           bio?: string | null
           created_at?: string | null
           id?: string
@@ -427,6 +429,7 @@ export type Database = {
           weight_kg?: number | null
         }
         Update: {
+          archived_at?: string | null
           bio?: string | null
           created_at?: string | null
           id?: string
