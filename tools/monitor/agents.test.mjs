@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BOARD_TARGET, addProposal, deriveNow, findDuplicate, nextStep, parseArgs, slugify, transition } from "./agents.mjs";
+import { BOARD_TARGET, addProposal, deriveNow, findDuplicate, mainFromGitFile, nextStep, parseArgs, slugify, transition } from "./agents.mjs";
 
 const empty = () => ({ items: [] });
 const withItem = (status) => ({
@@ -152,5 +152,16 @@ describe("findDuplicate — crossed-off work stays crossed off", () => {
     expect(findDuplicate(items, "Google login")).toBeNull();
     expect(findDuplicate(items, "Calendar: Google Calendar link")).toBeNull();
     expect(findDuplicate(items, "Legal: marketplace duties, visible in the app")).toBeNull();
+  });
+});
+
+describe("mainFromGitFile — a worktree reports to the monitor of the main checkout", () => {
+  it("follows a worktree back to its main checkout", () => {
+    expect(mainFromGitFile("gitdir: C:/Users/lkspe/petbnb/.git/worktrees/petbnb-brand\n")).toBe("C:/Users/lkspe/petbnb");
+  });
+
+  it("leaves anything that is not a worktree alone", () => {
+    expect(mainFromGitFile("gitdir: /repo/.git/modules/sub\n")).toBeNull();
+    expect(mainFromGitFile("")).toBeNull();
   });
 });

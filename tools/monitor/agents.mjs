@@ -10,8 +10,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+/**
+ * The main checkout a worktree belongs to, from the worktree's `.git` file
+ * ("gitdir: <main>/.git/worktrees/<name>"), or null for anything else.
+ */
+export function mainFromGitFile(content) {
+  return /^gitdir:\s*(.+?)[\\/]\.git[\\/]worktrees[\\/][^\\/\r\n]+\s*$/m.exec(content)?.[1] ?? null;
+}
+
+// Agents build in worktrees, each with its own copy of tools/monitor, but the monitor
+// reads the main checkout's .data: a report from a worktree has to land there.
+function checkoutRoot() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+  try {
+    return mainFromGitFile(fs.readFileSync(path.join(root, ".git"), "utf8")) ?? root;
+  } catch {
+    return root; // .git is a directory: this is the main checkout
+  }
+}
+
 // MONITOR_DATA points a throwaway monitor (tests, trials) at its own board.
-export const DATA_DIR = process.env.MONITOR_DATA ?? path.join(path.dirname(fileURLToPath(import.meta.url)), ".data");
+export const DATA_DIR = process.env.MONITOR_DATA ?? path.join(checkoutRoot(), "tools", "monitor", ".data");
 export const BOARD_FILE = path.join(DATA_DIR, "board.json");
 export const FEED_FILE = path.join(DATA_DIR, "feed.jsonl");
 export const RUN_FILE = path.join(DATA_DIR, "run.json");
