@@ -13,6 +13,7 @@ import { fadeUp, stagger } from "@/lib/motion";
 import { pluralForm } from "@/lib/i18n/plural";
 import { dayLabel, type DashBooking, type Hero, type Role } from "@/lib/dashboard";
 import type { AppNotification } from "@/lib/types";
+import { buttonClasses } from "@/components/ui/Button";
 
 export interface DashboardViewProps {
   firstName: string;
@@ -61,7 +62,7 @@ export default function DashboardView(props: DashboardViewProps) {
         </div>
         <Link
           href="/browse"
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-[var(--radius-input)] bg-brand text-white text-sm font-semibold hover:bg-brand-strong transition-colors"
+          className={buttonClasses()}
         >
           {t("appShell.findASitter")}
           <ArrowRight className="w-4 h-4" aria-hidden="true" />

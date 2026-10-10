@@ -8,6 +8,7 @@ import { pluralForm } from "@/lib/i18n/plural";
 import { formatTime } from "@/lib/utils";
 import { dayLabel, type Hero } from "@/lib/dashboard";
 import type { ServiceType } from "@/lib/types";
+import { buttonClasses } from "@/components/ui/Button";
 
 type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -23,10 +24,9 @@ function whenLabel(iso: string, now: number, t: Translate, locale: "en" | "lt"):
   return `${dayLabel(iso, locale)}, ${time}`;
 }
 
-const primary =
-  "inline-flex items-center gap-2 h-11 px-5 rounded-[var(--radius-input)] bg-brand text-white text-sm font-semibold hover:bg-brand-strong transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
-const secondary =
-  "inline-flex items-center gap-2 h-11 px-5 rounded-[var(--radius-input)] border border-ink/10 bg-white/70 text-ink text-sm font-semibold hover:bg-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+// The shared button looks (components/ui/Button), on links.
+const primary = buttonClasses();
+const secondary = buttonClasses({ variant: "secondary" });
 
 /**
  * The dashboard's lead card: the one thing that needs the visitor next (see pickHero).

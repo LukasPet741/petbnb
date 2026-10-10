@@ -20,6 +20,7 @@ import VerifiedSeal, { VerificationRow } from "@/components/VerifiedSeal";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import { addDays, vilniusDay } from "@/lib/availability";
+import { buttonClasses } from "@/components/ui/Button";
 
 /** How far ahead the calendar reads: the two months it shows, from today. */
 const CALENDAR_DAYS = 70;
@@ -153,7 +154,7 @@ export default function SitterProfilePage() {
               <div className="text-xs text-ink-soft mt-1.5">{t("appPages.browse.priceNote")}</div>
             </div>
             <div className="pt-4 space-y-3">
-              <Link href={`/bookings/new?sitter=${sitter.id}`} className="flex items-center justify-center gap-2 w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors">
+              <Link href={`/bookings/new?sitter=${sitter.id}`} className={buttonClasses({ block: true })}>
                 <Calendar className="w-4 h-4" />{t("appPages.browse.bookCta", { name: firstName })}
               </Link>
               <p className="text-xs text-ink-soft/80 text-center">{t("appPages.browse.paymentNote")}</p>

@@ -32,6 +32,9 @@ import RequestPrice, { requestPriceValid, type PriceChoice } from "@/components/
 import { askingPrice, stayDays } from "@/lib/pricing";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import MoonLoader from "@/components/ui/MoonLoader";
 
 interface Pet { id: string; name: string; }
 
@@ -502,7 +505,7 @@ function NewBookingForm() {
           <div className="max-w-5xl mx-auto flex gap-3 sm:justify-end">
             <Link
               href="/bookings"
-              className="flex-1 sm:flex-none sm:px-8 h-11 flex items-center justify-center rounded-[var(--radius-input)] border border-black/10 bg-surface/70 text-ink text-sm font-medium hover:bg-surface transition-colors"
+              className={cn(buttonClasses({ variant: "secondary" }), "flex-1 sm:flex-none sm:px-8")}
             >
               {t("appPages.bookingsNew.cancelButton")}
             </Link>
@@ -510,10 +513,11 @@ function NewBookingForm() {
               type="submit"
               form="booking-form"
               disabled={!canSubmit}
-              className="flex-1 sm:flex-none sm:px-10 h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-[var(--radius-input)] text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-busy={loading || undefined}
+              className={cn(buttonClasses(), "flex-1 sm:flex-none sm:px-10")}
             >
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <MoonLoader bare size={18} />
               ) : (
                 <><CalendarDays className="w-4 h-4" />{t("appPages.bookingsNew.sendRequestButton")}</>
               )}

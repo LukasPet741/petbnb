@@ -2,12 +2,13 @@
 import Link from "next/link";
 import { CalendarPlus, MapPin, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { STATUS_CONFIG, type BookingStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { bookingIcs, downloadIcs, icsFilename } from "@/lib/booking-ics";
 import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "@/components/Avatar";
 import BookingTimeline from "@/components/BookingTimeline";
+import Button, { buttonClasses } from "@/components/ui/Button";
+import StatusPill from "@/components/ui/StatusPill";
 
 interface BookingCardBooking {
   id: string;
@@ -66,7 +67,6 @@ export function getRelativeLabel(startAt: string, t: (key: string, vars?: Record
 
 export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted, reviewSlot, priceLine, canAccept = isSitterView, acceptLabel, waitingLabel }: BookingCardProps) {
   const { t, locale } = useLanguage();
-  const status = STATUS_CONFIG[booking.status as BookingStatus];
   const photo = booking.pet?.photo_url || displayProfile?.avatar_url || null;
   const isPending = booking.status === "pending";
   const relative = getRelativeLabel(booking.start_at, t);
@@ -104,11 +104,9 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
         </div>
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status?.color ?? ""}`}>
-              {t(`common.bookingStatus.${booking.status}`)}
-            </span>
+            <StatusPill status={booking.status} />
             {relative && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-soft text-brand-strong">
+              <span className="inline-flex items-center h-7 px-2.5 rounded-full text-xs font-semibold bg-brand-soft text-brand-strong">
                 {relative}
               </span>
             )}
@@ -129,26 +127,22 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
           )}
           <div className="flex flex-wrap gap-2.5 mt-4">
             {canAccept && (
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onAccept}
-                className="px-5 py-2 bg-brand text-white rounded-full text-xs font-semibold hover:bg-brand-strong transition-colors">
+              <Button onClick={onAccept}>
                 {acceptLabel ?? t("appPages.bookings.acceptButton")}
-              </motion.button>
+              </Button>
             )}
             {!isSitterView && (
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onCancel}
-                className="px-4 py-2 bg-danger-soft text-danger rounded-full text-xs font-semibold hover:brightness-95 transition-all">
+              <Button variant="danger-soft" onClick={onCancel}>
                 {t("appPages.bookings.cancelRequestButton")}
-              </motion.button>
+              </Button>
             )}
             {isSitterView && (
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onDecline}
-                className="px-5 py-2 bg-transparent border border-black/10 text-ink-soft rounded-full text-xs font-semibold hover:bg-surface-2 transition-colors">
+              <Button variant="secondary" onClick={onDecline}>
                 {t("appPages.bookings.declineButton")}
-              </motion.button>
+              </Button>
             )}
-            <Link href={threadHref}
-              className="px-4 py-2 rounded-full text-xs font-semibold text-ink-soft inline-flex items-center gap-1.5 hover:bg-surface-2 hover:text-ink transition-colors">
-              <MessageCircle className="w-3.5 h-3.5" />{messageLabel}
+            <Link href={threadHref} className={buttonClasses({ variant: "ghost" })}>
+              <MessageCircle className="w-4 h-4" aria-hidden="true" />{messageLabel}
             </Link>
           </div>
           {!canAccept && waitingLabel && <p className="mt-3 text-xs font-medium text-amber-strong">{waitingLabel}</p>}
@@ -190,20 +184,16 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       {/* enforce_booking_rules lets an owner cancel a signed booking; hiding the button left
           them with no way out of the app once the sitter had accepted. */}
       {!isSitterView && booking.status === "signed" && (
-        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onCancel}
-          className="px-3 py-1.5 bg-danger-soft text-danger rounded-full text-xs font-semibold hover:brightness-95 transition-all flex-shrink-0">
+        <Button size="sm" variant="danger-soft" onClick={onCancel} className="flex-shrink-0">
           {t("appPages.bookings.cancelBookingButton")}
-        </motion.button>
+        </Button>
       )}
       {isSitterView && booking.status === "signed" && (
-        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onMarkCompleted}
-          className="px-3 py-1.5 bg-brand-soft text-brand-strong rounded-full text-xs font-semibold hover:brightness-95 transition-all flex-shrink-0">
+        <Button size="sm" onClick={onMarkCompleted} className="flex-shrink-0">
           {t("appPages.bookings.markCompletedButton")}
-        </motion.button>
+        </Button>
       )}
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${status?.color ?? ""}`}>
-        {t(`common.bookingStatus.${booking.status}`)}
-      </span>
+      <StatusPill status={booking.status} />
       </div>
       </div>
       {/* Hides itself on cancelled and declined cards. */}
