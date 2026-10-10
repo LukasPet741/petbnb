@@ -60,7 +60,8 @@ beforeEach(() => {
   h.replace.mockReset();
   h.push.mockReset();
   h.signIn.mockReset().mockResolvedValue(undefined);
-  h.signUp.mockReset().mockResolvedValue(undefined);
+  // Signed in at once (no email confirmation): the path that goes on to /profile.
+  h.signUp.mockReset().mockResolvedValue({ user: { id: "u1" }, session: { access_token: "t" } });
 });
 
 afterEach(() => visit("/"));

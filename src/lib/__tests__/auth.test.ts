@@ -150,17 +150,22 @@ describe("signUp", () => {
   it("forwards credentials to Supabase verbatim", async () => {
     signUpMock.mockResolvedValue({ data: {}, error: null });
     await signUp("a@b.com", "pw");
-    expect(signUpMock).toHaveBeenCalledWith({ email: "a@b.com", password: "pw" });
+    // The confirmation link comes back to /login on this site.
+    expect(signUpMock).toHaveBeenCalledWith({
+      email: "a@b.com",
+      password: "pw",
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
   });
 
   it("passes whitespace-padded input through untrimmed", async () => {
     // There is no client-side normalisation anywhere in this module.
     signUpMock.mockResolvedValue({ data: {}, error: null });
     await signUp("  a@b.com  ", " pw ");
-    expect(signUpMock).toHaveBeenCalledWith({
+    expect(signUpMock).toHaveBeenCalledWith(expect.objectContaining({
       email: "  a@b.com  ",
       password: " pw ",
-    });
+    }));
   });
 
   it("rethrows the original error object, not a copy", async () => {

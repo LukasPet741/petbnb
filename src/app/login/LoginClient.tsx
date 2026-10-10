@@ -10,6 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useRedirectIfSignedIn } from "@/hooks/useRedirectIfSignedIn";
 import { useNextPath } from "@/hooks/useNextPath";
 import SocialLogin from "@/components/SocialLogin";
+import ResendConfirmation from "@/components/ResendConfirmation";
 import { nextFromSearch, withNext } from "@/lib/next-path";
 import AuthShell, { FormError, PasswordToggle, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
@@ -21,18 +22,21 @@ export default function LoginClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setErrorKey(null);
     setLoading(true);
     try {
       await signIn(email, password);
       router.push(nextFromSearch(window.location.search) ?? "/dashboard");
     } catch (err: unknown) {
       const key = err instanceof Error ? matchAuthErrorKey(err.message) : null;
+      setErrorKey(key);
       setError(key ? t(key) : t("auth.login.errorFallback"));
     } finally {
       setLoading(false);
@@ -45,6 +49,10 @@ export default function LoginClient() {
       <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.login.subtitle")}</motion.p>
 
       {error && <FormError message={error} />}
+      {/* Signed up but never opened the link: the way out is the email, so offer it again. */}
+      {errorKey === "auth.knownErrors.emailNotConfirmed" && (
+        <div className="-mt-2 mb-4"><ResendConfirmation email={email} /></div>
+      )}
 
       <motion.div variants={fadeUp}>
         <SocialLogin next={next} />

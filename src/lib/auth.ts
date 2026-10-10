@@ -19,10 +19,30 @@ export function matchAuthErrorKey(message: string): string | null {
   return match ? `auth.knownErrors.${match[1]}` : null;
 }
 
+/**
+ * Creates the account. When the project asks for a confirmed email, Supabase answers with a user
+ * but no session: the caller says "check your email" rather than going on to a signed-in page.
+ * The confirmation link comes back to /login (when Auth's redirect list allows it; otherwise
+ * Supabase falls back to the Site URL).
+ */
 export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: `${window.location.origin}/login` },
+  });
   if (error) throw error;
   return data;
+}
+
+/** Sends the sign-up confirmation email again. */
+export async function resendSignupEmail(email: string) {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${window.location.origin}/login` },
+  });
+  if (error) throw error;
 }
 
 export async function signIn(email: string, password: string) {

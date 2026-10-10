@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, MailCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -11,6 +11,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useRedirectIfSignedIn } from "@/hooks/useRedirectIfSignedIn";
 import { useNextPath } from "@/hooks/useNextPath";
 import SocialLogin from "@/components/SocialLogin";
+import ResendConfirmation from "@/components/ResendConfirmation";
 import { nextFromSearch, withNext } from "@/lib/next-path";
 import AuthShell, { FormError, PasswordToggle, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
@@ -24,6 +25,8 @@ export default function SignupClient() {
   const [form, setForm] = useState({ email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // The address a confirmation link went to, once the account exists but is not signed in yet.
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +34,11 @@ export default function SignupClient() {
     if (form.password !== form.confirm) { setError(t("auth.signup.passwordMismatch")); return; }
     setError(""); setLoading(true);
     try {
-      await signUp(form.email, form.password);
+      const { session } = await signUp(form.email, form.password);
+      if (!session) {
+        setSentTo(form.email);
+        return;
+      }
       // A new account must finish its profile before the app lets it anywhere; ?next= rides
       // along so /profile can continue to the page the visitor came for.
       router.push(withNext("/profile", nextFromSearch(window.location.search)));
@@ -65,6 +72,29 @@ export default function SignupClient() {
     { key: "password", type: showPass ? "text" : "password", autoComplete: "new-password" },
     { key: "confirm", type: "password", autoComplete: "new-password" },
   ] as const;
+
+  if (sentTo) {
+    return (
+      <AuthShell image={AUTH.signup} imageAlt={t("auth.signup.imageAlt")} hero={hero}>
+        <motion.div variants={fadeUp} className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-strong">
+          <MailCheck className="h-6 w-6" aria-hidden="true" />
+        </motion.div>
+        <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-3 tracking-tight">{t("auth.signup.checkEmail.title")}</motion.h1>
+        <motion.div variants={fadeUp} className="space-y-3 text-ink-soft">
+          <p>{t("auth.signup.checkEmail.sentTo")}</p>
+          <p className="font-semibold text-ink break-all">{sentTo}</p>
+          <p>{t("auth.signup.checkEmail.openIt")}</p>
+          <p className="text-sm">{t("auth.signup.checkEmail.spamHint")}</p>
+        </motion.div>
+        <motion.div variants={fadeUp} className="mt-5">
+          <ResendConfirmation email={sentTo} />
+        </motion.div>
+        <motion.p variants={fadeUp} className="mt-8 text-sm">
+          <Link href={withNext("/login", next)} className="text-brand font-medium hover:underline">{t("auth.signup.checkEmail.backToSignIn")}</Link>
+        </motion.p>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell image={AUTH.signup} imageAlt={t("auth.signup.imageAlt")} hero={hero}>
