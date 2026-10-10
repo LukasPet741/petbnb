@@ -21,6 +21,9 @@
   --amber-soft: #faf1de;
   --amber-strong: #8a5c1f; /* on-soft text, meets contrast where raw --amber can't */
 
+  /* The moon in the mark (brand look A, Calm, 2026-10-10) */
+  --linen: #f6f3ec;
+
   /* Secondary cool accent — links, secondary CTAs, collar/map "instrument" system */
   --slate: #3f6472;
   --slate-soft: #e4eaec;

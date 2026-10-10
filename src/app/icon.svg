@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- The PetBnB mark (look A, Calm, 2026-10-10): a crescent moon keeps watch over a paw.
+       The one source of the mark. favicon.ico and apple-icon.png are made from this file
+       (scripts/brand-icons.mjs), the share card reads it, and LogoMark draws the same
+       shapes with CSS variables; src/components/__tests__/Logo.test.tsx keeps them equal. -->
+  <defs>
+    <mask id="moon">
+      <rect width="120" height="120" fill="#fff"/>
+      <circle cx="74" cy="46" r="29" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="#1f5c47"/>
+  <circle cx="56" cy="60" r="36" fill="#f6f3ec" mask="url(#moon)"/>
+  <ellipse cx="79" cy="57" rx="8.5" ry="7.5" fill="#dc9a35"/>
+  <circle cx="68" cy="47" r="3.8" fill="#dc9a35"/>
+  <circle cx="75" cy="40.5" r="3.8" fill="#dc9a35"/>
+  <circle cx="84" cy="40.5" r="3.8" fill="#dc9a35"/>
+  <circle cx="91" cy="47" r="3.8" fill="#dc9a35"/>
+</svg>

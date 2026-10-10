@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import en from "@/lib/i18n/en";
 
@@ -15,13 +17,17 @@ export const contentType = "image/png";
  * No custom font is passed: the display face is a next/font/google asset with no .ttf
  * on disk to read, and the alternative is a build-time download. The layout carries
  * the identity instead of the typeface.
+ *
+ * The mark is read from src/app/icon.svg, the one file it is drawn in (brand look A).
  */
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
   const canvas = "#f4f6f4";
   const brand = "#1f5c47";
   const ink = "#131a17";
   const inkSoft = "#56635c";
   const amber = "#dc9a35";
+  const mark = await readFile(join(process.cwd(), "src/app/icon.svg"));
+  const markSrc = `data:image/svg+xml;base64,${mark.toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -67,16 +73,8 @@ export default function OpengraphImage() {
         />
 
         <div style={{ display: "flex", alignItems: "center", marginBottom: 34 }}>
-          <div
-            style={{
-              width: 18,
-              height: 18,
-              borderRadius: 18,
-              background: amber,
-              marginRight: 16,
-              display: "flex",
-            }}
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- Satori draws <img>, not next/image */}
+          <img src={markSrc} width={64} height={64} alt="" style={{ marginRight: 20 }} />
           <div
             style={{
               fontSize: 28,

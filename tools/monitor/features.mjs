@@ -86,6 +86,12 @@ export const FEATURES = [
     match: [/legal/],
   },
   {
+    id: "brand-identity",
+    label: "Brand identity",
+    routes: ["/brand", "/icon.svg", "/apple-icon.png", "/favicon.ico"],
+    match: [/logo|\/brand|brand-icons|\/icon\.svg|apple-icon|favicon|opengraph/],
+  },
+  {
     id: "seo",
     label: "SEO & share",
     routes: ["/robots.txt", "/sitemap.xml"],

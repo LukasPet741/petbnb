@@ -6,6 +6,7 @@ import appPages from "./en/appPages";
 import tips from "./en/tips";
 import messages from "./en/messages";
 import legal from "./en/legal";
+import brand from "./en/brand";
 
 const en = {
   common: {
@@ -118,6 +119,7 @@ const en = {
   tips,
   messages,
   legal,
+  brand,
 };
 
 export default en;

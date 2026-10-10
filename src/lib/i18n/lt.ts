@@ -6,6 +6,7 @@ import appPages from "./lt/appPages";
 import tips from "./lt/tips";
 import messages from "./lt/messages";
 import legal from "./lt/legal";
+import brand from "./lt/brand";
 
 const lt = {
   common: {
@@ -119,6 +120,7 @@ const lt = {
   tips,
   messages,
   legal,
+  brand,
 };
 
 export default lt;

@@ -292,13 +292,13 @@ describe("Logo", () => {
   it("renders the mark alone by default, with no wordmark text", () => {
     const { container } = render(<Logo />);
     expect(container.textContent).toBe("");
-    expect(screen.queryByText("PetBnB")).not.toBeInTheDocument();
+    expect(screen.queryByText("petbnb")).not.toBeInTheDocument();
   });
 
-  it("renders the PetBnB wordmark when asked", () => {
+  it("renders the petbnb wordmark, in lower case, when asked", () => {
     render(<Logo showWordmark />);
-    const wordmark = screen.getByText("PetBnB");
-    expect(wordmark).toHaveClass("font-display", "font-semibold", "tracking-tight", "text-ink");
+    const wordmark = screen.getByText("petbnb");
+    expect(wordmark).toHaveClass("font-display", "font-bold", "text-ink");
   });
 
   it.each([
@@ -312,7 +312,7 @@ describe("Logo", () => {
     // 32*0.56 = 17.92 -> 18; 28*0.56 = 15.68 -> 16; 40*0.56 = 22.4 -> 22;
     // 33*0.56 = 18.48 -> 18; 0 -> 0, i.e. an invisible wordmark next to an
     // invisible mark rather than a fallback size.
-    expect(screen.getByText("PetBnB").style.fontSize).toBe(fontSize);
+    expect(screen.getByText("petbnb").style.fontSize).toBe(fontSize);
   });
 
   it("sizes the svg to the requested pixel size", () => {
@@ -324,7 +324,7 @@ describe("Logo", () => {
 
   it("lets wordmarkClassName replace the default ink colour", () => {
     render(<Logo showWordmark wordmarkClassName="text-white" />);
-    const wordmark = screen.getByText("PetBnB");
+    const wordmark = screen.getByText("petbnb");
     // Plain template interpolation, not twMerge: the default is replaced
     // outright rather than merged, so text-ink is gone entirely.
     expect(wordmark).toHaveClass("text-white");
@@ -341,10 +341,12 @@ describe("Logo", () => {
     render(<LogoMark />);
     const svg = screen.getByRole("img", { name: "PetBnB" });
     expect(svg).toHaveAttribute("width", "32");
-    // The mark is built from primitives whose colours come from CSS tokens.
-    expect(svg.querySelectorAll("circle")).toHaveLength(3);
-    expect(svg.querySelectorAll("rect")).toHaveLength(2);
-    expect(svg.innerHTML).toContain("var(--brand)");
+    // The mark is built from primitives whose colours come from CSS tokens: a tile, a
+    // moon cut by a masked circle, and a paw (pad + four toes). Logo.test.tsx checks the
+    // shapes against src/app/icon.svg.
+    expect(svg.querySelectorAll("circle")).toHaveLength(6);
+    expect(svg.querySelectorAll("ellipse")).toHaveLength(1);
+    for (const token of ["--brand", "--linen", "--amber"]) expect(svg.innerHTML).toContain(`var(${token})`);
   });
 });
 
