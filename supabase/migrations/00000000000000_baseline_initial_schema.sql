@@ -6,8 +6,10 @@
 -- the live catalog (pg_constraint, pg_indexes, pg_policies, pg_get_triggerdef)
 -- so "supabase db reset" can rebuild the database from zero.
 --
--- Written to be idempotent, so running it against the existing production
--- database is a no-op rather than an error.
+-- NEVER RUN IT AGAINST PRODUCTION. It is idempotent (no errors), but NOT a no-op there:
+-- it recreates handle_new_user without SECURITY DEFINER and re-creates the old policies.
+-- It was replayed on prod after 2026-08-30 and broke every signup until
+-- 20261010134608 restored the function. It is for "supabase db reset" only.
 --
 -- Deliberately reflects the PRE-migration state: the four sitter-verification
 -- columns (20260621105214) and "locale" (20260830085940) are added by their own
