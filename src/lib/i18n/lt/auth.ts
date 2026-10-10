@@ -82,6 +82,12 @@ const auth = {
     expiredBody: "Kiekviena atkūrimo nuoroda veikia vieną kartą ir tik ribotą laiką. Paprašykite naujos ir atidarykite naujausią laišką.",
     requestNew: "Siųsti naują nuorodą",
   },
+  // „Tęsti su Google / Facebook“ (components/SocialLogin.tsx).
+  social: {
+    continueWith: "Tęsti su {provider}",
+    or: "arba",
+    failed: "Nepavyko susisiekti su {provider}. Bandykite dar kartą arba prisijunkite el. paštu.",
+  },
 };
 
 export default auth;

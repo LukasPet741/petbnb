@@ -9,6 +9,7 @@ import { fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRedirectIfSignedIn } from "@/hooks/useRedirectIfSignedIn";
 import { useNextPath } from "@/hooks/useNextPath";
+import SocialLogin from "@/components/SocialLogin";
 import { nextFromSearch, withNext } from "@/lib/next-path";
 import AuthShell, { FormError, PasswordToggle, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
@@ -44,6 +45,10 @@ export default function LoginClient() {
       <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.login.subtitle")}</motion.p>
 
       {error && <FormError message={error} />}
+
+      <motion.div variants={fadeUp}>
+        <SocialLogin next={next} />
+      </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <motion.div variants={fadeUp}>

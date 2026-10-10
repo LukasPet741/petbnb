@@ -82,6 +82,12 @@ const auth = {
     expiredBody: "Each reset link works once and only for a limited time. Request a new one and open the newest email.",
     requestNew: "Send a new link",
   },
+  // "Continue with Google / Facebook" (components/SocialLogin.tsx).
+  social: {
+    continueWith: "Continue with {provider}",
+    or: "or",
+    failed: "We could not reach {provider}. Try again, or use your email.",
+  },
 };
 
 export default auth;
