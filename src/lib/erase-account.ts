@@ -5,7 +5,7 @@ export type EraseOutcome = "erased" | "open-bookings" | "name-mismatch" | "faile
 
 /**
  * "Delete my account" (plan §2.4, GDPR art. 17). The database empties the account in one
- * transaction (erase_my_account, 20261010130000): it refuses while a booking is open and
+ * transaction (erase_my_account, 20261010124623): it refuses while a booking is open and
  * keeps the other party's bookings, messages and reviews under an empty profile. Then the
  * person's photos go (Storage refuses deletes made in SQL) and this device forgets the
  * session; the server's sessions are already gone, so only the local sign-out can succeed.

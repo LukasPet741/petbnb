@@ -13,7 +13,7 @@ export type PetRemoval = "removed" | "archived" | "kept" | "has-bookings" | "fai
  * A pet on a booking is part of the sitter's history too (the booking, its messages, its
  * reviews), so it is ARCHIVED after a Confirm: `archived_at` takes it off the owner's lists
  * and the request form, and the bookings keep its name and photo. The database refuses to
- * delete it anyway (bookings_pet_id_fkey ON DELETE RESTRICT, 20261010120000). Any other
+ * delete it anyway (bookings_pet_id_fkey ON DELETE NO ACTION, 20261010124551). Any other
  * pet is deleted after a Confirm, the row first and the photo second, so a refused delete
  * never costs the photo; a booking made in between comes back as "has-bookings".
  */

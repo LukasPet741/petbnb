@@ -1,6 +1,6 @@
 -- Pets with history are archived, never deleted (unification plan §2.4; security scan
--- 2026-09-20 §9). NOT APPLIED until Lukas says yes; the app on this branch reads
--- pets.archived_at, so this runs on prod BEFORE the branch merges.
+-- 2026-09-20 §9). Applied with Lukas's yes on 2026-10-10, before the branch that reads
+-- pets.archived_at merged.
 --
 -- bookings.pet_id was ON DELETE CASCADE, and messages, notifications and reviews cascade
 -- from bookings: deleting a pet erased the sitter's history with it (and let anyone who

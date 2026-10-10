@@ -1,5 +1,5 @@
 -- "Delete my account" (unification plan §2.4; GDPR art. 17 right to erasure).
--- NOT APPLIED until Lukas says yes; run after 20261010120000 (it uses pets.archived_at).
+-- Applied with Lukas's yes on 2026-10-10, after 20261010124551 (it uses pets.archived_at).
 --
 -- Deleting the auth user would cascade through profiles into every booking, and with them
 -- the other party's messages and reviews. So the account is emptied instead of deleted:
