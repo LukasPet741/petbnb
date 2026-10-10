@@ -9,8 +9,7 @@ import { cn } from "@/lib/utils";
 /**
  * Toasts (plan §2.3–2.4): a few words on what just happened, on the brand's pine — never
  * black, never an amber pill. An action (Undo, Retry) is an underlined text button and
- * keeps the toast up for 5 s with a draining line. Swipe it sideways to dismiss. On a
- * phone it sits above the tab bar (--pb-bottom-nav, set by the app layout).
+ * keeps the toast up for 5 s with a draining line. Swipe it sideways to dismiss.
  */
 
 export interface ToastOptions {
@@ -39,7 +38,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         aria-live="polite"
         className="fixed inset-x-0 z-[80] flex flex-col items-center gap-2 px-4 pointer-events-none sm:inset-x-auto sm:right-6 sm:items-end"
-        style={{ bottom: "calc(var(--pb-bottom-nav, 0px) + max(1rem, env(safe-area-inset-bottom)))" }}
+        style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
         <AnimatePresence initial={false}>
           {items.map((item) => (

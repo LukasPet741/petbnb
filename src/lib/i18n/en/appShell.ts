@@ -16,9 +16,6 @@ const appShell = {
     signOut: "Sign out",
     openMenu: "Open menu",
     closeMenu: "Close menu",
-    // The phone's bottom tab bar (BottomNav).
-    more: "More",
-    tabs: "Sections",
     youFallback: "You",
     footerNote: "PetBnB · a student project",
   },

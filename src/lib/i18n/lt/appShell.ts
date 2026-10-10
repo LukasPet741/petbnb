@@ -16,9 +16,6 @@ const appShell = {
     signOut: "Atsijungti",
     openMenu: "Atidaryti meniu",
     closeMenu: "Uždaryti meniu",
-    // Telefono apatinė juosta (BottomNav).
-    more: "Daugiau",
-    tabs: "Skiltys",
     youFallback: "Jūs",
     footerNote: "PetBnB · studentų projektas",
   },

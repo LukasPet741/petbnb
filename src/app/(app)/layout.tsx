@@ -46,8 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Sidebar />
 
             <div className="lg:pl-64 relative z-10">
-              {/* Room at the bottom on phones for the tab bar (BottomNav) and the home indicator. */}
-              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh] pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
+              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
             </div>
           </div>
         </CollarLiveProvider>

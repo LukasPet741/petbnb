@@ -16,7 +16,6 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "@/components/NotificationBell";
 import SidebarSpotlight from "@/components/SidebarSpotlight";
 import LiveDot from "@/components/collar/LiveDot";
-import BottomNav from "@/components/BottomNav";
 
 // Legal moved into the footer line (2026-09-26): the collar and Smart-ID cards took its height,
 // and it is reference material, not somewhere anyone came here to go.
@@ -169,9 +168,6 @@ export default function Sidebar() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Last on purpose: the desktop rail's nav stays the page's first navigation landmark. */}
-      <BottomNav pathname={pathname} unread={unreadCount} onMore={() => setOpen(true)} />
     </>
   );
 }

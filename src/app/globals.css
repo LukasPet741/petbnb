@@ -370,13 +370,6 @@ body {
   transform: scale(0.97);
 }
 
-/* The phone tab bar (components/BottomNav) lifts toasts above itself. */
-@media (max-width: 1023px) {
-  body:has([data-bottom-nav]) {
-    --pb-bottom-nav: calc(4rem + env(safe-area-inset-bottom));
-  }
-}
-
 /* Content never depends on an animation: anything that reveals on scroll is fully shown
    when printed (plan §2.2). */
 @media print {
