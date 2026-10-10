@@ -32,6 +32,12 @@ export const FEATURES = [
     match: [/booking|offer|pric|availability/],
   },
   {
+    id: "calendar-export",
+    label: "Calendar export",
+    routes: ["/bookings"],
+    match: [/booking-ics/],
+  },
+  {
     id: "messages",
     label: "Messages",
     routes: ["/messages"],

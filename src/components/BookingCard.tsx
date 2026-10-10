@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import { MapPin, MessageCircle } from "lucide-react";
+import { CalendarPlus, MapPin, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { STATUS_CONFIG, type BookingStatus } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { bookingIcs, downloadIcs, icsFilename } from "@/lib/booking-ics";
 import { useLanguage } from "@/context/LanguageContext";
 import Avatar from "@/components/Avatar";
 import BookingTimeline from "@/components/BookingTimeline";
@@ -71,6 +72,17 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
   const relative = getRelativeLabel(booking.start_at, t);
   const threadHref = `/messages/${booking.id}`;
   const messageLabel = t("appShell.sidebar.nav.messages");
+  const calendarLabel = t("appPages.bookings.addToCalendar");
+
+  // Worded for whoever is looking: the owner's file names the sitter, the sitter's the owner.
+  const addToCalendar = () => {
+    const ics = bookingIcs(booking, {
+      serviceLabel: t(`common.services.${booking.service}`),
+      counterpart: displayProfile?.full_name ? `${displayLabel}: ${displayProfile.full_name}` : null,
+      origin: window.location.origin,
+    }, new Date());
+    downloadIcs(icsFilename(booking.start_at), ics);
+  };
 
   // Pending: the decision that still needs making. Big, elevated, photo-led, exactly the buttons that apply.
   if (isPending) {
@@ -168,6 +180,13 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
         <MessageCircle className="w-4 h-4" />
         <span className="hidden sm:inline">{messageLabel}</span>
       </Link>
+      {booking.status === "signed" && (
+        <button type="button" onClick={addToCalendar} aria-label={calendarLabel} title={calendarLabel}
+          className="text-xs font-semibold text-brand hover:text-brand-strong transition-colors inline-flex items-center justify-center gap-1 flex-shrink-0 min-w-11 min-h-11 -my-2 active:text-brand-strong sm:min-w-0 sm:min-h-0 sm:my-0">
+          <CalendarPlus className="w-4 h-4" />
+          <span className="hidden sm:inline">{calendarLabel}</span>
+        </button>
+      )}
       {/* enforce_booking_rules lets an owner cancel a signed booking; hiding the button left
           them with no way out of the app once the sitter had accepted. */}
       {!isSitterView && booking.status === "signed" && (

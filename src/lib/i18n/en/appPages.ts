@@ -80,6 +80,7 @@ const appPages = {
     acceptButton: "Accept",
     declineButton: "Decline",
     markCompletedButton: "Mark completed",
+    addToCalendar: "Add to calendar",
     relativeToday: "Today",
     relativeTomorrow: "Tomorrow",
     relativeInDays: "in {days} days",

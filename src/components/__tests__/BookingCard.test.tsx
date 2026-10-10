@@ -2,6 +2,13 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import BookingCard, { getRelativeLabel } from "@/components/BookingCard";
+import { downloadIcs } from "@/lib/booking-ics";
+
+// Only the browser download is faked; the .ics text is built for real.
+vi.mock("@/lib/booking-ics", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/booking-ics")>()),
+  downloadIcs: vi.fn(),
+}));
 
 // BookingCard touches no Supabase and no router - only useLanguage, framer-motion,
 // next/link and Avatar. Rendered without a LanguageProvider, the default context's
@@ -48,6 +55,7 @@ const K = {
   decline: "appPages.bookings.declineButton",
   markCompleted: "appPages.bookings.markCompletedButton",
   message: "appShell.sidebar.nav.messages",
+  calendar: "appPages.bookings.addToCalendar",
 } as const;
 
 /** The action buttons present, by their translation key. */
@@ -81,14 +89,14 @@ describe("state x viewer-role matrix", () => {
 
   it("offers a sitter Mark completed on a signed booking", () => {
     renderCard({ isSitterView: true, booking: booking({ status: "signed" }) });
-    expect(buttonKeys()).toEqual([K.markCompleted]);
+    expect(buttonKeys()).toEqual([K.calendar, K.markCompleted]);
   });
 
   it("lets an owner cancel a signed booking, which the database allows but the card used to hide", () => {
     // enforce_booking_rules permits owner signed→cancelled. Without a button, plans that
     // changed after the sitter accepted had no way out of the app at all.
     renderCard({ isSitterView: false, booking: booking({ status: "signed" }) });
-    expect(buttonKeys()).toEqual([K.cancelBooking]);
+    expect(buttonKeys()).toEqual([K.calendar, K.cancelBooking]);
     expect(screen.queryByText(K.markCompleted)).not.toBeInTheDocument();
   });
 
@@ -150,6 +158,34 @@ describe("state x viewer-role matrix", () => {
       expect(buttonKeys()).not.toContain(K.cancel);
       view.unmount();
     }
+  });
+
+  it.each(["pending", "completed", "declined", "cancelled"])(
+    "offers no calendar file for a %s booking, only for an agreed one",
+    (status) => {
+      renderCard({ booking: booking({ status }) });
+      expect(buttonKeys()).not.toContain(K.calendar);
+    },
+  );
+
+  it("downloads the agreed stay as a calendar file, worded for whoever is looking", async () => {
+    vi.useFakeTimers({ now: new Date("2026-09-01T10:00:00Z"), toFake: ["Date"] });
+    const user = userEvent.setup();
+    renderCard({
+      isSitterView: true,
+      displayLabel: "Owner",
+      booking: booking({ status: "signed", address: "Gedimino pr. 1", notes: "Two walks" }),
+    });
+    await user.click(screen.getByRole("button", { name: K.calendar }));
+    expect(downloadIcs).toHaveBeenCalledTimes(1);
+    const [filename, ics] = vi.mocked(downloadIcs).mock.calls[0];
+    expect(filename).toBe("petbnb-2026-09-10.ics");
+    const body = ics.replace(/\r\n /g, "");
+    expect(body).toContain("DTSTART:20260910T090000Z");
+    expect(body).toContain("DTEND:20260912T170000Z");
+    expect(body).toContain("SUMMARY:common.services.walking · Rex · petbnb");
+    expect(body).toContain("LOCATION:Gedimino pr. 1");
+    expect(body).toContain(`DESCRIPTION:Owner: Jonas Petraitis\\nTwo walks\\n${window.location.origin}/messages/b-1`);
   });
 
   it("always offers a message link, even on a cancelled booking", () => {
