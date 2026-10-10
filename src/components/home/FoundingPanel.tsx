@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { revealOnScroll } from "@/lib/motion";
 import { SECTION } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
@@ -23,10 +24,7 @@ export default function FoundingPanel() {
     <section className="py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          {...revealOnScroll(0, reduceMotion)}
           className="grid overflow-hidden rounded-[var(--radius-card)] bg-ink lg:grid-cols-2"
         >
           <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-14">

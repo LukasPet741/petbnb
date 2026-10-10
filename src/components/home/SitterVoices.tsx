@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight, MapPin, Search, AlertCircle } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { revealOnScroll } from "@/lib/motion";
 import Avatar from "@/components/Avatar";
 import EmptyState from "@/components/EmptyState";
 import { excerpt, pickVoices } from "@/lib/home";
@@ -71,10 +72,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
               return (
                 <motion.figure
                   key={sitter.id}
-                  initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.5, delay: reduceMotion ? 0 : (i % 3) * 0.07 }}
+                  {...revealOnScroll(i % 3, reduceMotion, 0.07)}
                   className="mb-5 break-inside-avoid"
                 >
                   <Link

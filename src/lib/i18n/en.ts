@@ -99,6 +99,15 @@ const en = {
       cancelled: "cancelled",
       completed: "completed",
     },
+    // Shared by the building blocks in components/ui (plan §2.3).
+    ui: {
+      keep: "Keep",
+      close: "Close",
+      undo: "Undo",
+      loading: "Loading…",
+      dismiss: "Dismiss",
+      optional: "optional",
+    },
     timeAgo: {
       justNow: "just now",
       minutesAgo: "{minutes}m ago",

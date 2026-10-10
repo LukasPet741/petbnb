@@ -1,6 +1,7 @@
 "use client";
 import { ShieldCheck } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { revealOnScroll } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 
 const STEPS = ["find", "request", "confirm"] as const;
@@ -37,10 +38,7 @@ export default function HowItWorks() {
           {STEPS.map((key, i) => (
             <motion.li
               key={key}
-              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.5, delay: reduceMotion ? 0 : i * 0.1 }}
+              {...revealOnScroll(i, reduceMotion, 0.1)}
               className="relative pl-8 md:pl-0 md:pt-8"
             >
               <span

@@ -122,13 +122,14 @@ describe("image constants", () => {
 });
 
 describe("motion variants", () => {
+  // Calm (docs/design/unification-plan.md §2.2): arrive rises 8 px on --ease-calm.
   it("starts fadeUp fully transparent and offset downward", () => {
-    expect(fadeUp.hidden).toMatchObject({ opacity: 0, y: 20 });
+    expect(fadeUp.hidden).toMatchObject({ opacity: 0, y: 8 });
   });
 
   it("uses a four-member finite cubic-bezier, which framer rejects if malformed", () => {
     const show = fadeUp.show as unknown as { transition: { ease: number[] } };
-    expect(show.transition.ease).toEqual([0.25, 0.46, 0.45, 0.94]);
+    expect(show.transition.ease).toEqual([0.22, 1, 0.36, 1]);
     expect(show.transition.ease.every(Number.isFinite)).toBe(true);
   });
 
@@ -143,11 +144,11 @@ describe("motion variants", () => {
     expect(fadeIn.hidden).toEqual({ opacity: 0 });
   });
 
-  it("defaults stagger to 80ms between children", () => {
+  it("defaults stagger to Calm's 60ms between children", () => {
     const v = stagger() as unknown as {
       show: { transition: { staggerChildren: number } };
     };
-    expect(v.show.transition.staggerChildren).toBe(0.08);
+    expect(v.show.transition.staggerChildren).toBe(0.06);
   });
 
   it.each([

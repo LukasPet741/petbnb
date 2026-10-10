@@ -4,6 +4,9 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import Atmosphere from "@/components/Atmosphere";
+import MotionRoot from "@/components/MotionRoot";
+import { ToastProvider } from "@/components/ui/Toast";
+import { ConfirmProvider } from "@/components/ui/Confirm";
 import en from "@/lib/i18n/en";
 import { SITE_ORIGIN } from "@/lib/site";
 
@@ -82,9 +85,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${bricolage.variable} ${caveat.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
         <Atmosphere />
-        <LanguageProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </LanguageProvider>
+        <MotionRoot>
+          <LanguageProvider>
+            <ToastProvider>
+              <ConfirmProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </ConfirmProvider>
+            </ToastProvider>
+          </LanguageProvider>
+        </MotionRoot>
       </body>
     </html>
   );

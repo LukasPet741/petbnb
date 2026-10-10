@@ -100,6 +100,15 @@ const lt = {
       cancelled: "atšauktų",
       completed: "įvykdytų",
     },
+    // Bendri components/ui elementų tekstai (plano §2.3).
+    ui: {
+      keep: "Palikti",
+      close: "Uždaryti",
+      undo: "Grąžinti",
+      loading: "Kraunama…",
+      dismiss: "Paslėpti",
+      optional: "neprivaloma",
+    },
     timeAgo: {
       justNow: "ką tik",
       minutesAgo: "prieš {minutes} min.",

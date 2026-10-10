@@ -38,8 +38,21 @@
   --shadow-md: 0 6px 16px rgb(19 26 23 / 0.10), 0 2px 6px rgb(19 26 23 / 0.06);
   --shadow-lg: 0 16px 40px rgb(19 26 23 / 0.14), 0 6px 14px rgb(19 26 23 / 0.08);
 
-  --radius-card: 16px;
-  --radius-input: 12px;
+  /* Shape — four values (docs/design/unification-plan.md §2.1): control, card, hero, and
+     the pill (rounded-full) for buttons, chips and badges. --radius-input is the old name
+     of --radius-control and stays as an alias for the code that still uses it. */
+  --radius-control: 12px;
+  --radius-input: var(--radius-control);
+  --radius-card: 20px;
+  --radius-hero: 28px;
+
+  /* Motion — "Calm" (plan §2.2). src/lib/motion.ts mirrors these for framer-motion. */
+  --dur-press: 120ms;
+  --dur-quick: 200ms;
+  --dur-calm: 320ms;
+  --dur-slow: 500ms;
+  --ease-calm: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.4, 0, 1, 1);
 
   /* Glass — four materials, one recipe each. See the @utility rules below.
      Saturation is the load-bearing part: on a light, low-contrast ground like
@@ -90,6 +103,7 @@
   --color-brand-softer: var(--brand-softer);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-linen: var(--linen);
 
   --color-slate: var(--slate);
   --color-slate-soft: var(--slate-soft);
@@ -323,6 +337,47 @@ body {
   border: 3px solid var(--canvas);
 }
 ::-webkit-scrollbar-thumb:hover { background: rgb(19 26 23 / 0.32); }
+
+/* Motion "Calm" keyframes, used by components/ui (plan §2.2). */
+
+/* watch: the mark's moon breathes — the one loader. */
+@keyframes pb-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Skeletons: a slow sheen across the shape of what is coming. */
+@keyframes pb-shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+.pb-skeleton {
+  background-color: var(--surface-2);
+  background-image: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.55) 50%, transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: pb-shimmer 1.6s var(--ease-calm) infinite;
+}
+
+/* Press feedback for every button and chip: CSS, so it works before hydration and costs
+   no JavaScript. Pointer-agnostic: a tap on a phone gets it too. */
+.pb-press {
+  transition: transform var(--dur-press) var(--ease-calm), background-color var(--dur-quick) var(--ease-calm),
+    color var(--dur-quick) var(--ease-calm), box-shadow var(--dur-quick) var(--ease-calm), opacity var(--dur-quick);
+}
+.pb-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Content never depends on an animation: anything that reveals on scroll is fully shown
+   when printed (plan §2.2). */
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight, MapPin, AlertCircle } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { revealOnScroll } from "@/lib/motion";
 import Avatar from "@/components/Avatar";
 import EmptyState from "@/components/EmptyState";
 import { SECTION } from "@/lib/images";
@@ -81,10 +82,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
               return (
                 <motion.div
                   key={city.key}
-                  initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.5, delay: reduceMotion ? 0 : i * 0.06 }}
+                  {...revealOnScroll(i, reduceMotion)}
                   className={CELLS[i]}
                 >
                   <Link
