@@ -79,6 +79,7 @@ const appPages = {
     acceptButton: "Priimti",
     declineButton: "Atmesti",
     markCompletedButton: "Pažymėti kaip įvykdytą",
+    addToCalendar: "Į kalendorių",
     acceptForButton: "Priimti už {price}",
     agreeForButton: "Sutikti už {price}",
     waitingForOwner: "Laukiama šeimininko atsakymo",
