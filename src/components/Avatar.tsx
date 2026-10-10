@@ -14,13 +14,14 @@ const SIZES = {
   xl: "w-20 h-20 text-2xl",
 };
 
+// Six tints from the brand palette (plan §2.1), each text colour ≥ 4.5:1 on its ground.
 const COLORS = [
   "bg-brand-soft text-brand-strong",
-  "bg-amber-100 text-amber-700",
-  "bg-sky-100 text-sky-700",
-  "bg-rose-100 text-rose-700",
-  "bg-violet-100 text-violet-700",
-  "bg-teal-100 text-teal-700",
+  "bg-amber-soft text-amber-strong",
+  "bg-slate-soft text-slate",
+  "bg-linen text-brand-strong",
+  "bg-brand-softer text-brand",
+  "bg-surface-2 text-ink",
 ];
 
 function getColor(name: string) {

@@ -1,6 +1,8 @@
 # PetBnB unification plan
 
-_2026-10-10 · status: proposed, waiting for Lukas · visual companion: the "PetBnB unified design" canvas_
+_2026-10-10 · status: phases 0, 1 and 3 built on `agent/unify`, with the UI half of phase 2 (Undo, Confirm,
+safe pet removal) and the first screens of phase 4 (browse, booking card, dashboard, request); the ✱ migrations
+wait for Lukas · visual companion: the "PetBnB unified design" canvas_
 
 **Goal:** one PetBnB on every screen. The brand (look A, "Calm": a crescent moon keeping watch
 over a paw, *Your pet, in good hands*) decides how things look, how they move, and how data is
@@ -80,8 +82,9 @@ Body face: Figtree (look A) once the switch item lands; Inter until then.
 **Radius, four values:** `--radius-control` 12 px (inputs) · `--radius-card` 20 px (cards, dialogs)
 · `--radius-hero` 28 px (hero and brand panels) · pill (`rounded-full`: buttons, chips, badges, avatars).
 **Elevation, three levels:** flat (hairline border) · raised (`--shadow-sm`, cards) · floating
-(`--shadow-lg`, dialogs, sheets, toasts). **Glass** is for chrome only: header, sidebar, and
-anything laid over a photo. Cards are surface + hairline + raised.
+(`--shadow-lg`, dialogs, sheets, toasts). Cards use the existing `glass-card` material: it is the
+documented default card and its contrast is tested (glass-system.test.ts). What goes is the ad-hoc
+`bg-white/NN` surfaces beside it; dialogs, sheets, toasts and inputs stay opaque `--surface`.
 **Widths, three:** `narrow` 720 px (forms, legal, brand) · `app` 1120 px (default) · `wide` 1280 px (browse, landing).
 
 ### 2.2 Motion: "Calm"
@@ -111,7 +114,7 @@ the animation**: `reveal` starts at opacity ≥ 0.4, a safety timer shows anythi
 |---|---|---|
 | `Button` | primary · secondary · ghost · danger; sm 36 / md 44 / lg 52; `loading` (moon spinner inside, label stays) | 30 primary strings, every `motion.button` |
 | `IconButton` | same, square, `aria-label` required | heart, bell, close, message icons |
-| `Card` | flat · raised · interactive (`lift`) | `glass-card`, `bg-surface`, `bg-white/*` on content |
+| `Card` | raised (`glass-card`) · flat · interactive (`lift`) | `bg-white/*` and `bg-surface` used as cards |
 | `Field` | wraps `Input`, `Textarea`, `Select`, `DateInput` with label, hint, error, counter | 30 inputs with 3 signatures; native `mm/dd/yyyy` |
 | `Chip` | filter (toggle, brand when selected) · info | browse filters, service chips |
 | `StatusPill` | one per booking status, from `STATUS_CONFIG` | ad-hoc pills |
@@ -143,7 +146,7 @@ for 2 s in brand-soft → a success toast says what happened in a few words.
 | Data | Created from | Changed | Erased |
 |---|---|---|---|
 | Account | sign-up | profile page | **Confirm** with typed name → anonymise profile, keep bookings for the other party ✱ (GDPR right to erasure; export too) |
-| Pet | Pets → Add pet, or inside a booking request | edit page | no bookings → **Undo**; has bookings → **Archive** (`archived_at`) ✱, and the cascade from `bookings.pet_id` becomes `restrict` ✱ |
+| Pet | Pets → Add pet, or inside a booking request | edit page | no bookings → **Confirm** (the photo cannot come back); has bookings → kept, the page says why (built), then **Archive** (`archived_at`) ✱ with the cascade from `bookings.pet_id` turned into `restrict` ✱ |
 | Booking | sitter profile → request (Sheet) | offers in chat; dates only before accepted | never deleted: cancel / decline are status changes behind **Confirm** |
 | Offer | the chat | a counter-offer replaces it | withdrawn by a newer one; history stays visible |
 | Message | the chat | not editable | not erasable (it is the other person's record too) |

@@ -12,13 +12,14 @@ function tile(container: HTMLElement): HTMLElement {
   return el;
 }
 
+// Six tints of the brand palette (plan §2.1), no stock Tailwind hues.
 const BG_CLASSES = [
   "bg-brand-soft",
-  "bg-amber-100",
-  "bg-sky-100",
-  "bg-rose-100",
-  "bg-violet-100",
-  "bg-teal-100",
+  "bg-amber-soft",
+  "bg-slate-soft",
+  "bg-linen",
+  "bg-brand-softer",
+  "bg-surface-2",
 ];
 
 const backgroundOf = (el: HTMLElement) =>
@@ -114,11 +115,11 @@ describe("background colour", () => {
   it.each([
     // charCodeAt(0) % 6 selects the palette entry.
     ["bg-brand-soft", "B"], // 66 % 6 = 0
-    ["bg-amber-100", "C"], // 67 % 6 = 1
-    ["bg-sky-100", "D"], // 68 % 6 = 2
-    ["bg-rose-100", "E"], // 69 % 6 = 3
-    ["bg-violet-100", "F"], // 70 % 6 = 4
-    ["bg-teal-100", "A"], // 65 % 6 = 5
+    ["bg-amber-soft", "C"], // 67 % 6 = 1
+    ["bg-slate-soft", "D"], // 68 % 6 = 2
+    ["bg-linen", "E"], // 69 % 6 = 3
+    ["bg-brand-softer", "F"], // 70 % 6 = 4
+    ["bg-surface-2", "A"], // 65 % 6 = 5
   ])("uses %s for a name starting with %s", (expected, name) => {
     const { container } = render(<Avatar name={name} />);
     expect(tile(container)).toHaveClass(expected);
