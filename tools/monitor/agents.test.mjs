@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addProposal, deriveNow, parseArgs, slugify, transition } from "./agents.mjs";
+import { BOARD_TARGET, addProposal, deriveNow, findDuplicate, nextStep, parseArgs, slugify, transition } from "./agents.mjs";
 
 const empty = () => ({ items: [] });
 const withItem = (status) => ({
@@ -20,9 +20,19 @@ describe("addProposal", () => {
     expect(board.items).toHaveLength(1);
   });
 
-  it("keeps ids unique", () => {
+  it("keeps ids unique when Lukas's agent re-proposes on purpose", () => {
     const first = addProposal(empty(), { title: "Facebook login", why: "a" }).board;
-    expect(addProposal(first, { title: "Facebook login", why: "b" }).item.id).toBe("facebook-login-2");
+    expect(addProposal(first, { title: "Facebook login", why: "b", force: true }).item.id).toBe("facebook-login-2");
+  });
+
+  it("refuses what is done, open or parked, naming it", () => {
+    const board = { items: [
+      { id: "a", title: "Add a booked stay to your calendar", status: "shipped" },
+      { id: "b", title: "Google login", status: "approved" },
+    ] };
+    expect(() => addProposal(board, { title: "Calendar: add a booked stay", why: "x" })).toThrow(/done, crossed off.*booked stay/);
+    expect(() => addProposal(board, { title: "Reach: add Google login", why: "x" })).toThrow(/approved.*Google login/);
+    expect(addProposal(board, { title: "Reach: Facebook login", why: "x" }).item.id).toBe("reach-facebook-login");
   });
 
   it("insists on a title, a reason and a known effort", () => {
@@ -98,5 +108,49 @@ describe("parseArgs", () => {
       _: ["propose", "Facebook login"],
       flags: { why: "reach", effort: "S", dry: true },
     });
+  });
+});
+
+describe("nextStep", () => {
+  const item = (id, status) => ({ id, title: id, status });
+
+  it("builds what Lukas approved before anything else", () => {
+    const step = nextStep([item("a", "proposed"), item("b", "approved")]);
+    expect(step).toMatchObject({ role: "conductor", item: "b" });
+  });
+
+  it("refills a thin board, counting only proposals", () => {
+    const step = nextStep([item("a", "proposed"), item("b", "review"), item("c", "building"), item("d", "shipped")]);
+    expect(step).toMatchObject({ role: "evaluator", refill: true });
+    expect(step.text).toContain(`1 of ${BOARD_TARGET}`);
+  });
+
+  it("stops proposing once the board is full", () => {
+    const full = Array.from({ length: BOARD_TARGET }, (_, n) => item(`p${n}`, "proposed"));
+    expect(nextStep(full)).toMatchObject({ role: "evaluator", refill: false });
+  });
+
+  it("starts an empty board", () => {
+    expect(nextStep([])).toMatchObject({ role: "evaluator", refill: true });
+  });
+});
+
+describe("findDuplicate — crossed-off work stays crossed off", () => {
+  const items = [
+    { id: "cal", title: "Add a booked stay to your calendar", status: "shipped" },
+    { id: "fb", title: "Facebook login", status: "building" },
+    { id: "name", title: "Legal: clear the name before anything carries it", status: "proposed" },
+  ];
+
+  it("matches on the meaningful words, ignoring the lane and filler", () => {
+    expect(findDuplicate(items, "Feature: booked stay in the calendar")?.id).toBe("cal");
+    expect(findDuplicate(items, "Add Facebook login")?.id).toBe("fb");
+    expect(findDuplicate(items, "Brand: clear the name")?.id).toBe("name");
+  });
+
+  it("lets a neighbour through", () => {
+    expect(findDuplicate(items, "Google login")).toBeNull();
+    expect(findDuplicate(items, "Calendar: Google Calendar link")).toBeNull();
+    expect(findDuplicate(items, "Legal: marketplace duties, visible in the app")).toBeNull();
   });
 });

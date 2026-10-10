@@ -20,12 +20,14 @@ import {
   parseGitStatus,
   parsePytest,
   parseTsc,
+  parseWorktrees,
   pathsInText,
   probeUrl,
   run,
   summarizeVitest,
   worst,
 } from "./probes.mjs";
+import { sessionView } from "./live.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -223,6 +225,7 @@ function snapshot() {
       board: agents.board.items,
       now: deriveNow(agents.feed),
       last: [...agents.feed].reverse().find((e) => e.type === "done" || e.type === "fail") ?? null,
+      sessions: sessionView(agents.sessions),
     },
   };
 }
@@ -233,6 +236,30 @@ function git(args) {
     execFile("git", ["--no-optional-locks", ...args], { cwd: ROOT, windowsHide: true, maxBuffer: 8e6 }, (err, out, errOut) =>
       resolve({ ok: !err, out: String(out), err: String(errOut || err?.message || "") }),
     ),
+  );
+}
+
+// Agents build in worktrees next to petbnb (DRIVE.md). Without these, their commits and
+// unsaved work were invisible here until they posted a step.
+async function scanWorktrees(currentBranch) {
+  const wt = await git(["worktree", "list", "--porcelain"]);
+  if (!wt.ok) return [];
+  const others = parseWorktrees(wt.out).filter((w) => path.resolve(w.path) !== path.resolve(ROOT));
+  return Promise.all(
+    others.map(async (w) => {
+      const [last, ahead, dirty] = await Promise.all([
+        git(["-C", w.path, "log", "-1", "--pretty=format:%h%x09%cr%x09%s"]),
+        w.branch && currentBranch ? git(["rev-list", "--count", `${currentBranch}..${w.branch}`]) : null,
+        git(["-C", w.path, "status", "--porcelain"]),
+      ]);
+      return {
+        name: path.basename(w.path),
+        branch: w.branch,
+        ahead: ahead?.ok ? Number(ahead.out.trim()) : null,
+        dirty: dirty.ok ? dirty.out.split(/\r?\n/).filter(Boolean).length : null,
+        last: last.ok ? (parseGitLog(last.out)[0] ?? null) : null,
+      };
+    }),
   );
 }
 
@@ -263,6 +290,7 @@ async function refreshRepo() {
       behind,
       files: s.files.map((f) => ({ ...f, features: featuresForPath(f.path) })),
       commits: log.ok ? parseGitLog(log.out) : [],
+      worktrees: await scanWorktrees(s.branch),
       error: null,
     };
     if (JSON.stringify(next) !== JSON.stringify(state.repo)) {
@@ -589,7 +617,30 @@ for (const dir of ["src", "iot-collar", "supabase", "tools"]) {
 
 // ── agents: the board + feed that agent.mjs writes, shown live ──────────────
 const FEATURE_IDS = new Set(FEATURES.map((f) => f.id));
-const agents = { board: { items: [] }, feed: [], seen: new Set() };
+const agents = { board: { items: [] }, feed: [], sessions: [], seen: new Set() };
+
+// One file per Claude session, written by hook.mjs on every event. A day-old one is litter.
+function readSessions() {
+  const list = [];
+  let names = [];
+  try {
+    names = fs.readdirSync(DATA_DIR);
+  } catch {
+    /* no data yet */
+  }
+  for (const f of names) {
+    if (!/^session-[\w-]+\.json$/.test(f)) continue;
+    const file = path.join(DATA_DIR, f);
+    try {
+      const s = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (Date.now() - s.at > 24 * 3600e3) fs.rmSync(file, { force: true });
+      else list.push(s);
+    } catch {
+      /* half-written; the next event rewrites it */
+    }
+  }
+  return list;
+}
 
 // Which dots an agent's update pops: its --feature, else its board item's dot.
 function popsFor(e) {
@@ -602,6 +653,7 @@ function popsFor(e) {
 function reloadAgents(announce = true) {
   agents.board = loadBoard();
   agents.feed = readFeed();
+  agents.sessions = readSessions();
   for (const e of agents.feed) {
     if (agents.seen.has(e.id)) continue;
     agents.seen.add(e.id);
@@ -618,7 +670,7 @@ fs.watch(DATA_DIR, () => {
   agentsSoon = setTimeout(() => reloadAgents(), 120);
 });
 
-const VERBS = { approve: "approved", park: "parked", ship: "marked shipped", reopen: "sent back" };
+const VERBS = { approve: "approved", park: "parked", ship: "crossed off ✓", reopen: "sent back" };
 function boardAction(id, action) {
   try {
     const board = transition(loadBoard(), id, action, "lukas");
@@ -723,6 +775,10 @@ setInterval(() => {
   refreshSystem();
 }, 5000);
 setInterval(maybeSweepProd, 30_000);
+// A session that went silent turns "quiet" and then drops off without writing anything.
+setInterval(() => {
+  if (agents.sessions.length) scheduleState();
+}, 30_000);
 setInterval(() => {
   for (const c of clients) c.write(": ping\n\n");
 }, 20_000);

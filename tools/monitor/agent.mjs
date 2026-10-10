@@ -8,6 +8,7 @@ import {
   addProposal,
   appendFeed,
   loadBoard,
+  nextStep,
   parseArgs,
   readRun,
   saveBoard,
@@ -24,6 +25,8 @@ const USAGE = `petbnb agent → monitor
   node tools/monitor/agent.mjs done "<result>"          (or: fail "<why>")
   node tools/monitor/agent.mjs propose "<title>" --why "<value for the demo>" [--effort S|M|L]
                                        [--needs "<what only Lukas can do>"] [--feature "<dot label or id>"]
+                                       (refused when it repeats a board item or a crossed-off one;
+                                        --force only with a genuinely new reason)
   node tools/monitor/agent.mjs build <item-id> --branch agent/<item-id>
   node tools/monitor/agent.mjs review <item-id> "<how Lukas tries it>"
   node tools/monitor/agent.mjs drop <item-id> "<why it goes back to the queue>"
@@ -55,16 +58,22 @@ function move(id, action, extra, text) {
 
 function printBoard() {
   const items = loadBoard().items;
-  if (!items.length) return console.log("The board is empty — run as evaluator and propose something.");
-  for (const status of ["review", "building", "approved", "proposed", "parked", "shipped"]) {
+  for (const status of ["review", "building", "approved", "proposed", "parked"]) {
     const list = items.filter((i) => i.status === status);
     if (!list.length) continue;
-    console.log(`\n${status.toUpperCase()} (${list.length})`);
+    console.log(`\n${status.toUpperCase()} (${list.length})${status === "building" ? " — claimed: another agent is on it" : ""}`);
     for (const i of list) {
       console.log(`  ${i.id}  [${i.effort}]  ${i.title}${i.branch ? `  (${i.branch})` : ""}`);
       console.log(`      why: ${i.why}${i.needs ? `\n      needs Lukas: ${i.needs}` : ""}`);
     }
   }
+  // Crossed off: one line each, so every agent sees what exists without reading it all.
+  const done = items.filter((i) => i.status === "shipped").sort((a, b) => b.updatedAt - a.updatedAt);
+  if (done.length) {
+    console.log(`\nDONE (${done.length}) — crossed off: never rebuild or propose these again`);
+    for (const i of done) console.log(`  ✓ ~~${i.title}~~`);
+  }
+  console.log(`\nNEXT → ${nextStep(items).text}`);
 }
 
 try {
@@ -108,6 +117,7 @@ try {
         effort: flags.effort,
         feature: featureRef(flags.feature),
         by: role,
+        force: flags.force === true,
       });
       saveBoard(board);
       appendFeed({ type: "propose", role, run: run?.run, item: item.id, text: `proposed “${item.title}” [${item.effort}]` });
@@ -127,6 +137,7 @@ try {
       const id = need(pos[0], "an item id");
       const item = move(id, "review", { howToTry: need(pos[1], "how Lukas tries it") }, "ready for Lukas to try");
       say(`“${item.title}” is in review — Lukas decides on the monitor`);
+      console.log("→ loop back before `done`: propose 1–3 follow-ups this build opens up (DRIVE.md, Manager)");
       break;
     }
 

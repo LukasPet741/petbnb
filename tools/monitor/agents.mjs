@@ -19,6 +19,20 @@ export const RUN_FILE = path.join(DATA_DIR, "run.json");
 export const OPEN_STATUSES = ["proposed", "approved", "building", "review"];
 const STALLED_MS = 2 * 3600e3;
 
+/** Proposals the board keeps in stock for Lukas to choose from (see DRIVE.md, "Manager"). */
+export const BOARD_TARGET = 5;
+
+/** What the next session does: build what Lukas approved, else keep the board stocked. */
+export function nextStep(items) {
+  const approved = items.find((i) => i.status === "approved");
+  if (approved) return { role: "conductor", item: approved.id, text: `conductor — build “${approved.title}” (${approved.id})` };
+  const proposed = items.filter((i) => i.status === "proposed").length;
+  if (proposed < BOARD_TARGET) {
+    return { role: "evaluator", refill: true, text: `evaluator — the board holds ${proposed} of ${BOARD_TARGET} proposals: refill it, next lane in turn` };
+  }
+  return { role: "evaluator", refill: false, text: `evaluator — the board is full: sharpen a proposal or wait for Lukas` };
+}
+
 const ACTIONS = {
   approve: { from: ["proposed", "parked"], to: "approved", who: "lukas" },
   park: { from: ["proposed", "approved", "review"], to: "parked", who: "lukas" },
@@ -36,13 +50,49 @@ export const slugify = (s) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 48);
 
-/** Adds a proposal; returns the new board and the item. Throws on bad input. */
+// Filler that says nothing about what an item is, so two titles are compared on substance.
+const FILLER = new Set(["add", "the", "and", "for", "with", "your", "you", "its", "into", "from", "that", "this", "before", "after", "new", "let", "make"]);
+
+/** A title's meaningful words: no lane prefix ("Legal: …"), no filler, plural s dropped. */
+function words(title) {
+  const body = String(title).replace(/^\s*[a-z &]{2,20}:\s*/i, "");
+  return new Set(
+    body
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 3 && !FILLER.has(w))
+      .map((w) => (w.length > 4 && w.endsWith("s") ? w.slice(0, -1) : w)),
+  );
+}
+
+/**
+ * The board item a new title repeats, or null. Shipped items count too: they are crossed off,
+ * and crossed-off work is not proposed again. A match shares most of the shorter title's words,
+ * and at least two of them, so "Google login" is not "Facebook login".
+ */
+export function findDuplicate(items, title) {
+  const mine = words(title);
+  for (const item of items) {
+    const theirs = words(item.title);
+    const shared = [...mine].filter((w) => theirs.has(w)).length;
+    const same = shared === mine.size && shared === theirs.size;
+    if (shared && (same || shared >= 2) && shared / Math.min(mine.size, theirs.size) >= 0.75) return item;
+  }
+  return null;
+}
+
+/** Adds a proposal; returns the new board and the item. Throws on bad input or a repeat. */
 export function addProposal(board, input, now = Date.now()) {
   const title = String(input.title ?? "").trim();
   if (!title) throw new Error("a proposal needs a title");
   if (!input.why || input.why === true) throw new Error('say why it matters: --why "…"');
   const effort = String(input.effort ?? "M").toUpperCase();
   if (!["S", "M", "L"].includes(effort)) throw new Error("effort must be S, M or L");
+  const dup = input.force ? null : findDuplicate(board.items, title);
+  if (dup) {
+    const where = dup.status === "shipped" ? "already done, crossed off" : `already on the board, ${dup.status}`;
+    throw new Error(`${where}: “${dup.title}” (${dup.id}). Propose something else, or pass --force with a new reason`);
+  }
   const base = slugify(title) || "item";
   let id = base;
   for (let n = 2; board.items.some((i) => i.id === id); n++) id = `${base}-${n}`;

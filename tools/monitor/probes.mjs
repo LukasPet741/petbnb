@@ -64,6 +64,19 @@ export function parseGitLog(out) {
     });
 }
 
+/** `git worktree list --porcelain` → path, HEAD and branch (null when detached) per worktree. */
+export function parseWorktrees(out) {
+  const list = [];
+  let cur = null;
+  for (const line of out.split(/\r?\n/)) {
+    if (line.startsWith("worktree ")) list.push((cur = { path: line.slice(9), head: null, branch: null }));
+    else if (!cur) continue;
+    else if (line.startsWith("HEAD ")) cur.head = line.slice(5);
+    else if (line.startsWith("branch ")) cur.branch = line.slice(7).replace(/^refs\/heads\//, "");
+  }
+  return list;
+}
+
 /** `tsc --noEmit --pretty false` output → error count and the errors. */
 export function parseTsc(out) {
   const items = [];

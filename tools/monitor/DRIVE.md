@@ -15,10 +15,38 @@ and half-done: the site is a prototype for a thesis defence (2027-01-26/27).
 
 1. Read the project notes in memory, as always.
 2. `node tools/monitor/agent.mjs board`: see what is proposed, approved, in review.
+   Its last line, `NEXT →`, says which role comes next.
 3. Pick your role:
    - an **approved** item is waiting → **conductor**
-   - nothing approved → **evaluator**
+   - nothing approved → **evaluator**: refill the board while it holds fewer than
+     5 proposals; when it is full, sharpen one or wait for Lukas
    - Lukas asked for something specific → do that, and still report it here.
+
+## Manager — keep the loop fed
+
+More features are always welcome, so the board never runs dry:
+
+- **Loop back after every build.** After `review` and before `done`, the conductor
+  proposes 1–3 follow-ups the build opens up (the calendar file → a Google
+  Calendar link, a reminder; a login → the next provider). Same `propose` rules.
+- **Rotate lanes.** Each evaluator pass takes the next lane after the last
+  proposal's, so the board never holds one kind of thing only:
+  1. **Feature**: a new capability or a sharper existing one.
+  2. **Reach**: a connection outside the site (calendars, maps, sharing, social login).
+  3. **Trust & legal**: what makes the marketplace lawful and believable
+     (consumer law, DSA, GDPR, reviews, identity, terms).
+  4. **Brand & identity**: name, logo, voice, the differentiators made visible
+     (price bargaining, Smart-ID, the GPS collar).
+  Start the title with the lane (`Legal: …`, `Brand: …`) so Lukas sees the mix.
+- **Crossed off means done.** When Lukas ships an item, it is struck through on the
+  monitor and listed under `DONE` in `board`. Never rebuild it or propose it again:
+  `propose` refuses a title that repeats a done, open or parked item. Build on it
+  instead (the follow-up the loop asks for). `--force` is only for a new reason.
+- **One agent per item.** `build` claims an approved item (it moves to BUILDING),
+  so a second agent sees it taken and picks the next one `NEXT →` names.
+- **Legal and brand items are advice, not legal counsel.** Cite the rule or the
+  source in `--why`, and put anything that costs money or needs a signature
+  (filings, registrations, contracts) in `--needs`.
 
 ## Evaluator — look, judge, propose
 
@@ -49,7 +77,10 @@ node tools/monitor/agent.mjs done "<summary>"
 
 - Only items Lukas approved on the monitor. The board refuses anything else.
 - Work on the item's branch in a separate git worktree, never in Lukas's own
-  checkout (it often holds his uncommitted work).
+  checkout (it often holds his uncommitted work). Put it next to petbnb and name it
+  `petbnb-<something>` (`git worktree add ../petbnb-<id> -b agent/<id>`): the
+  monitor lists it, and the session hook (`hook.mjs`) shows your edits and commands
+  live, so Lukas sees the work between your steps.
 - Write the tests first. Before `review`: `npx tsc --noEmit` and `npx vitest run`
   are green, and you have said so in a `step`.
 - A shipped capability becomes a real dot: add it to `tools/monitor/features.mjs`

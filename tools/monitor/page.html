@@ -233,6 +233,15 @@
   .s-proposed { --c: #cfe0d6; } .s-approved { --c: var(--mint); } .s-building { --c: #c9a7ff; }
   .s-review { --c: var(--slow); } .s-shipped { --c: var(--ok); } .s-parked { --c: var(--idle); }
   .s-building .led { animation: blink 0.9s ease-in-out infinite; }
+  /* Crossed off: done, so no agent builds or proposes it again. */
+  .s-shipped .title { text-decoration: line-through; text-decoration-color: var(--ok); color: var(--soft); }
+  .s-shipped .title::before { content: "✓ "; color: var(--ok); text-decoration: none; display: inline-block; margin-right: 2px; }
+  .role-claude { --c: #9fd4ff; }
+  .sessions li { display: grid; grid-template-columns: 10px auto 1fr auto; gap: 6px; align-items: center; font-size: 12px; padding: 2px 0; }
+  .sessions .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+  .sessions .ss-working { --c: var(--ok); animation: blink 1.4s ease-in-out infinite; }
+  .sessions .ss-quiet { --c: var(--slow); } .sessions .ss-idle { --c: var(--faint); }
+  .sessions .doing { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
   .ghost-led { width: 9px; height: 9px; border-radius: 50%; border: 1.5px dashed #cfe0d6; display: inline-block; }
 
   /* settings drawer */
@@ -588,6 +597,16 @@ function itemBody(i) {
     </div>`;
 }
 
+// Every Claude session in petbnb, from its own hook (hook.mjs): where it is, what it does right now.
+function sessionsHtml(sessions) {
+  if (!sessions.length) return "";
+  const word = { working: "working", quiet: "quiet", idle: "waiting" };
+  return `<div class="sub">Claude sessions (${sessions.length})</div>
+    <ul class="plain sessions">${sessions
+      .map((s) => `<li title="${esc(`${s.id} · ${word[s.state] ?? s.state} · since ${clock(s.since)}`)}"><i class="dot ss-${esc(s.state)}"></i><b>${esc(s.where ?? "?")}</b><span class="doing">${esc(s.doing)}</span><span class="faint">${ago(s.at)}</span></li>`)
+      .join("")}</ul>`;
+}
+
 function renderAgents() {
   const { now, last, board } = S.agents;
   $("#now").innerHTML = now
@@ -598,6 +617,8 @@ function renderAgents() {
     : `<h2>Agents <span class="muted">idle</span></h2>
        <p class="idle-note">No agent at work. Open a Claude session in petbnb — the drive (<code>tools/monitor/DRIVE.md</code>) tells it what to do, and it reports here.</p>
        ${last ? `<div class="faint" style="margin-top:6px">Last: <span class="role role-${esc(last.role)}">${esc(last.role)}</span> ${esc(last.text)} · ${ago(last.at)}</div>` : ""}`;
+
+  $("#now").insertAdjacentHTML("beforeend", sessionsHtml(S.agents.sessions ?? []));
 
   const count = (st) => board.filter((i) => i.status === st).length;
   const groups = BOARD_GROUPS.map(([st, title]) => {
@@ -658,6 +679,8 @@ function renderRepo() {
   $("#repo").innerHTML = `
     <div class="sub" style="margin-top:0">Changes (${r.files.length})</div>
     <ul class="plain files">${r.files.map((f) => `<li title="${esc(f.path + (f.from ? " ← " + f.from : ""))}"><span class="xy xy-${cls(f.xy)}">${esc(f.xy)}</span><span class="path">${esc(f.path)}</span><span class="tag">${f.features.map(label).map(esc).join(", ")}</span></li>`).join("") || '<li class="faint">clean</li>'}</ul>
+    ${(r.worktrees ?? []).length ? `<div class="sub">Agent worktrees (${r.worktrees.length})</div>
+    <ul class="plain files">${r.worktrees.map((w) => `<li title="${esc(`${w.name}${w.last ? ` · ${w.last.hash} ${w.last.subject}` : ""}`)}"><span class="xy xy-new">${w.ahead == null ? "·" : "+" + w.ahead}</span><span class="path">${esc(w.branch ?? "detached")}</span><span class="tag">${w.dirty ? `${w.dirty} unsaved · ` : ""}${esc(w.last?.when ?? "")}</span></li>`).join("")}</ul>` : ""}
     <div class="sub">Recent commits</div>
     <ul class="plain commits">${r.commits.map((c) => `<li title="${esc(c.subject)}"><code>${esc(c.hash)}</code><span class="path" style="font-family:var(--sans)">${esc(c.subject)}</span><span class="faint">${esc(c.when)}</span></li>`).join("")}</ul>`;
 }

@@ -6,6 +6,7 @@ import {
   parseGitLog,
   parsePytest,
   parseTsc,
+  parseWorktrees,
   pathsInText,
   summarizeVitest,
   worst,
@@ -162,5 +163,20 @@ describe("worst", () => {
     expect(worst(["ok", "slow", "idle"])).toBe("slow");
     expect(worst(["ok", "fail"])).toBe("fail");
     expect(worst([])).toBe("idle");
+  });
+});
+
+describe("parseWorktrees", () => {
+  it("reads branches and skips nothing but blank lines", () => {
+    const out = [
+      "worktree C:/Users/lkspe/petbnb", "HEAD f1b2ab1", "branch refs/heads/feat/showcase", "",
+      "worktree C:/Users/lkspe/petbnb-wt-ics", "HEAD 40c8dd0", "branch refs/heads/agent/add-a-booked-stay", "",
+      "worktree C:/Users/lkspe/petbnb-wt-x", "HEAD 77b44ac", "detached", "",
+    ].join("\n");
+    expect(parseWorktrees(out)).toEqual([
+      { path: "C:/Users/lkspe/petbnb", head: "f1b2ab1", branch: "feat/showcase" },
+      { path: "C:/Users/lkspe/petbnb-wt-ics", head: "40c8dd0", branch: "agent/add-a-booked-stay" },
+      { path: "C:/Users/lkspe/petbnb-wt-x", head: "77b44ac", branch: null },
+    ]);
   });
 });
