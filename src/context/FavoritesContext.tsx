@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface FavoritesValue {
   favorites: Set<string>;
@@ -21,6 +23,8 @@ const FavoritesContext = createContext<FavoritesValue>({
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const toast = useToast();
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
@@ -35,20 +39,24 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     return () => { active = false; };
   }, [user]);
 
+  const save = useCallback(async (id: string) => {
+    setFavorites((prev) => new Set(prev).add(id));
+    await supabase.from("favorites").insert({ sitter_id: id });
+  }, []);
+
   const toggle = useCallback(async (id: string) => {
     if (!user) return;
     const has = favorites.has(id);
+    if (!has) return save(id);
     setFavorites((prev) => {
       const next = new Set(prev);
-      if (has) next.delete(id); else next.add(id);
+      next.delete(id);
       return next;
     });
-    if (has) {
-      await supabase.from("favorites").delete().eq("user_id", user.id).eq("sitter_id", id);
-    } else {
-      await supabase.from("favorites").insert({ sitter_id: id });
-    }
-  }, [user, favorites]);
+    await supabase.from("favorites").delete().eq("user_id", user.id).eq("sitter_id", id);
+    // Erasing with Undo (plan §2.4): only you lose it, and it can come back.
+    toast({ message: t("appPages.favoriteButton.removed"), action: { label: t("common.ui.undo"), onAction: () => void save(id) } });
+  }, [user, favorites, save, toast, t]);
 
   const isFavorite = useCallback((id: string) => favorites.has(id), [favorites]);
 

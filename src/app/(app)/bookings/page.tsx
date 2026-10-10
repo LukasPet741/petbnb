@@ -14,7 +14,10 @@ import { useMyReviews } from "@/hooks/useMyReviews";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import RightRail from "@/components/RightRail";
-import SuccessToast from "@/components/SuccessToast";
+import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/Confirm";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import { ButtonLink } from "@/components/ui/Button";
 import { stagger, fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -45,7 +48,9 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toast = useToast();
+  const confirm = useConfirm();
+  const say = (key: string, tone?: "error") => toast({ message: t(key), tone });
   // Offers per booking: what is on the table decides the price line and who may accept.
   const [offers, setOffers] = useState<Map<string, OfferLike[]>>(new Map());
 
@@ -106,27 +111,47 @@ export default function BookingsPage() {
   const upcoming = showSections ? filtered.filter((b) => new Date(b.start_at).getTime() >= nowMs) : [];
   const past = showSections ? filtered.filter((b) => new Date(b.start_at).getTime() < nowMs).slice().reverse() : [];
 
-  const handleCancel = async (id: string) => {
-    const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
+  // Erasing with Confirm (plan §2.4): the other side is notified, so the dialog says so first.
+  const handleCancel = async (booking: Booking) => {
+    const signed = booking.status === "signed";
+    const name = booking.sitter?.full_name ?? t("appPages.bookings.sitterLabel");
+    const kind = signed ? "confirmCancelStay" : "confirmCancelRequest";
+    const ok = await confirm({
+      title: t(`appPages.bookings.${kind}.title`),
+      body: t(`appPages.bookings.${kind}.body`, { name }),
+      confirmLabel: t(signed ? "appPages.bookings.cancelBookingButton" : "appPages.bookings.cancelRequestButton"),
+    });
+    if (!ok) return;
+    const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", booking.id);
     if (error) {
       const problem = problemFromHint(error.hint);
-      setToastMessage(t(
+      say(
         problem === "sitter_unavailable" ? "appPages.bookings.sitterUnavailable"
           : problem === "already_booked" ? "appPages.bookings.alreadyBooked"
           : "appPages.bookings.actionFailed",
-      ));
+        "error",
+      );
       return;
     }
-    setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: "cancelled" } : b));
-    setToastMessage(t("appPages.bookings.toastCancelled"));
+    setBookings((prev) => prev.map((b) => b.id === booking.id ? { ...b, status: "cancelled" } : b));
+    say(signed ? "appPages.bookings.toastStayCancelled" : "appPages.bookings.toastCancelled");
+  };
+
+  const handleDecline = async (booking: Booking) => {
+    const ok = await confirm({
+      title: t("appPages.bookings.confirmDecline.title"),
+      body: t("appPages.bookings.confirmDecline.body", { name: booking.owner?.full_name ?? t("appPages.bookings.ownerLabel") }),
+      confirmLabel: t("appPages.bookings.declineButton"),
+    });
+    if (ok) await handleUpdateStatus(booking.id, "declined");
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-    if (error) { setToastMessage(t("appPages.bookings.actionFailed")); return; }
+    if (error) { say("appPages.bookings.actionFailed", "error"); return; }
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status } : b));
     const toastKey = status === "signed" ? "toastAccepted" : status === "declined" ? "toastDeclined" : status === "completed" ? "toastCompleted" : null;
-    if (toastKey) setToastMessage(t(`appPages.bookings.${toastKey}`));
+    if (toastKey) say(`appPages.bookings.${toastKey}`);
   };
 
   // Accepting sends the amount the viewer saw; the database refuses it if the table has moved on.
@@ -134,16 +159,17 @@ export default function BookingsPage() {
     const { error } = await supabase.from("bookings").update({ status: "signed", agreed_price: amount }).eq("id", id);
     if (error) {
       const problem = problemFromHint(error.hint);
-      setToastMessage(t(
+      say(
         problem ? acceptClashKey(problem, viewer, "appPages.bookings")
           : error.hint === "price_changed" ? "appPages.bookings.priceChanged"
           : "appPages.bookings.actionFailed",
-      ));
+        "error",
+      );
       void load();
       return;
     }
     setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status: "signed", agreed_price: amount } : b)));
-    setToastMessage(t("appPages.bookings.toastAccepted"));
+    say("appPages.bookings.toastAccepted");
   };
 
   const renderBookingItem = (booking: Booking) => {
@@ -164,13 +190,13 @@ export default function BookingsPage() {
           isSitterView={isSitterView}
           displayProfile={displayProfile}
           displayLabel={displayLabel}
-          onCancel={() => handleCancel(booking.id)}
+          onCancel={() => void handleCancel(booking)}
           onAccept={() => { if (price.acceptAmount !== null) void handleAccept(booking.id, price.acceptAmount, isSitterView ? "sitter" : "owner"); }}
           priceLine={price.priceLine}
           canAccept={price.canAccept}
           acceptLabel={price.acceptLabel}
           waitingLabel={price.waitingLabel}
-          onDecline={() => handleUpdateStatus(booking.id, "declined")}
+          onDecline={() => void handleDecline(booking)}
           onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
           reviewSlot={
             reviewable ? (
@@ -221,12 +247,19 @@ export default function BookingsPage() {
             })}
           </div>
 
-          {!loading && filtered.length === 0 ? (
+          {loading ? (
+            // The shape of what is coming, never a "Loading…" line (plan §2.3).
+            <div className="space-y-4" aria-busy="true">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          ) : filtered.length === 0 ? (
             <EmptyState
               icon={CalendarDays}
               title={tab === "all" ? t("appPages.bookings.emptyTitleAll") : t("appPages.bookings.emptyTitleFiltered", { status: t(`common.bookingStatusGenitive.${tab}`) })}
               description={tab === "all" ? t("appPages.bookings.emptyDescriptionAll") : undefined}
-              action={tab === "all" ? <Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />{t("appPages.bookings.findSitterButton")}</Link> : undefined}
+              action={tab === "all" ? <ButtonLink href="/browse"><Search className="w-4 h-4" aria-hidden="true" />{t("appPages.bookings.findSitterButton")}</ButtonLink> : undefined}
             />
           ) : showSections ? (
             <div className="space-y-8">
@@ -256,8 +289,6 @@ export default function BookingsPage() {
 
         <RightRail showNextBooking={false} />
       </div>
-
-      <SuccessToast message={toastMessage} onDismiss={() => setToastMessage(null)} />
     </div>
   );
 }

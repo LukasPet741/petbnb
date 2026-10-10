@@ -89,6 +89,11 @@ const appPages = {
     sitterUnavailable: "Kai kurias šias dienas pažymėjote kaip išvykimo. Atlaisvinkite jas profilyje, kad priimtumėte.",
     alreadyBooked: "Jau priėmėte užsakymą, kuris sutampa su šiomis datomis.",
     actionFailed: "Nepavyko. Bandykite dar kartą.",
+    // Trynimas su patvirtinimu: kitas žmogus gauna pranešimą, todėl dialogas tai pasako (plano §2.4).
+    confirmCancelRequest: { title: "Atšaukti prašymą?", body: "{name} gaus pranešimą. Vėliau galėsite siųsti naują prašymą." },
+    confirmCancelStay: { title: "Atšaukti šią viešnagę?", body: "{name} gaus pranešimą, o sutarta kaina nebegalios." },
+    confirmDecline: { title: "Atmesti šį prašymą?", body: "{name} gaus pranešimą. Šios datos liks laisvos kitiems." },
+    toastStayCancelled: "Viešnagė atšaukta.",
     relativeToday: "Šiandien",
     relativeTomorrow: "Rytoj",
     relativeInDays: "po {days} d.",
@@ -166,6 +171,9 @@ const appPages = {
     emptyDescription: "Pridėkite pirmąjį augintinį, kad galėtumėte užsakyti globėjus ir saugoti visą informaciją vienoje vietoje.",
     addFirstPetButton: "Pridėkite pirmąjį augintinį",
     removeConfirm: "Pašalinti šį augintinį?",
+    removeConfirmBody: "{name} ir nuotrauka bus ištrinti visam laikui.",
+    removeButton: "Pašalinti",
+    removed: "Augintinis pašalintas.",
     removeFailed: "Augintinio pašalinti nepavyko. Bandykite dar kartą.",
     removeHasBookings: "Šis augintinis yra užsakyme, todėl jo pašalinti negalima — kartu būtų ištrintas užsakymas, jo žinutės ir atsiliepimai.",
   },
@@ -335,6 +343,7 @@ const appPages = {
   favoriteButton: {
     removeFromSaved: "Pašalinti iš išsaugotų",
     saveSitter: "Išsaugoti globėją",
+    removed: "Pašalinta iš išsaugotų.",
   },
   collar: {
     pageLabel: "GPS antkaklis",

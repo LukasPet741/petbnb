@@ -8,6 +8,7 @@ import { FavoritesProvider } from "@/context/FavoritesContext";
 import { NotificationsProvider } from "@/context/NotificationsContext";
 import { CollarLiveProvider } from "@/context/CollarLiveContext";
 import { withNext } from "@/lib/next-path";
+import MoonLoader from "@/components/ui/MoonLoader";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -27,8 +28,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-[100dvh] flex items-center justify-center" aria-busy="true">
+        <MoonLoader size={44} />
       </div>
     );
   }
@@ -45,7 +46,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Sidebar />
 
             <div className="lg:pl-64 relative z-10">
-              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
+              {/* Room at the bottom on phones for the tab bar (BottomNav) and the home indicator. */}
+              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh] pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">{children}</main>
             </div>
           </div>
         </CollarLiveProvider>

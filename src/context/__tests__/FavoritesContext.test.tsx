@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, act, waitFor, screen } from "@testing-library/react";
+import { ToastProvider } from "@/components/ui/Toast";
 import type { ReactNode } from "react";
 import { FavoritesProvider, useFavorites } from "@/context/FavoritesContext";
 
@@ -307,5 +308,31 @@ describe("default context outside a provider", () => {
     expect(result.current.isFavorite("s-1")).toBe(false);
     expect(result.current.loading).toBe(true);
     expect(() => result.current.toggle("s-1")).not.toThrow();
+  });
+});
+
+describe("removing a saved sitter (erase with Undo, plan §2.4)", () => {
+  it("offers Undo, and Undo saves the sitter again", async () => {
+    h.selectResult = { data: rows("s-1"), error: null };
+    const withToasts = ({ children }: { children: ReactNode }) => (
+      <ToastProvider>
+        <FavoritesProvider>{children}</FavoritesProvider>
+      </ToastProvider>
+    );
+    const { result } = renderHook(() => useFavorites(), { wrapper: withToasts });
+    await waitFor(() => expect(result.current.isFavorite("s-1")).toBe(true));
+
+    await act(async () => {
+      await result.current.toggle("s-1");
+    });
+    expect(result.current.isFavorite("s-1")).toBe(false);
+    expect(opsMatching("delete")).toHaveLength(1);
+
+    const undo = await screen.findByRole("button", { name: "common.ui.undo" });
+    await act(async () => {
+      undo.click();
+    });
+    await waitFor(() => expect(result.current.isFavorite("s-1")).toBe(true));
+    expect(opsMatching("insert")).toEqual([{ op: "insert", args: [{ sitter_id: "s-1" }] }]);
   });
 });

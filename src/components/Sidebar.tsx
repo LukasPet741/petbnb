@@ -16,6 +16,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "@/components/NotificationBell";
 import SidebarSpotlight from "@/components/SidebarSpotlight";
 import LiveDot from "@/components/collar/LiveDot";
+import BottomNav from "@/components/BottomNav";
 
 // Legal moved into the footer line (2026-09-26): the collar and Smart-ID cards took its height,
 // and it is reference material, not somewhere anyone came here to go.
@@ -158,13 +159,19 @@ export default function Sidebar() {
           <div className="lg:hidden">
             <motion.div className="fixed inset-0 glass-scrim z-50 touch-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close} />
             <motion.aside className="fixed inset-y-0 left-0 w-72 bg-surface flex flex-col z-50 overflow-y-auto overscroll-contain pl-[max(1rem,env(safe-area-inset-left))] pr-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)]"
-              initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 400, damping: 38 }}>
-              <button type="button" onClick={close} aria-label={t("appShell.sidebar.closeMenu")} className="self-end p-2 rounded-lg text-ink-soft hover:bg-brand-softer -mt-1 mb-1"><X className="w-5 h-5" aria-hidden="true" /></button>
+              initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", stiffness: 400, damping: 38 }}
+              // Swipe it back to the left to close, the way a phone's drawers work.
+              drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={{ left: 0.5, right: 0 }}
+              onDragEnd={(_, info) => { if (info.offset.x < -80 || info.velocity.x < -500) close(); }}>
+              <button type="button" onClick={close} aria-label={t("appShell.sidebar.closeMenu")} className="pb-press self-end p-2 rounded-full text-ink-soft hover:bg-brand-softer -mt-1 mb-1"><X className="w-5 h-5" aria-hidden="true" /></button>
               {Inner}
             </motion.aside>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Last on purpose: the desktop rail's nav stays the page's first navigation landmark. */}
+      <BottomNav pathname={pathname} unread={unreadCount} onMore={() => setOpen(true)} />
     </>
   );
 }

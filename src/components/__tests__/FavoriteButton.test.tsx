@@ -111,19 +111,19 @@ describe("saved / not-saved states", () => {
     const { container } = render(<FavoriteButton sitterId="s-1" />);
 
     const btn = screen.getByRole("button");
-    expect(btn).toHaveClass("bg-surface-2", "text-ink-soft", "hover:text-rose-500");
-    expect(btn).not.toHaveClass("bg-rose-50");
-    expect(heart(container)).not.toHaveClass("fill-rose-500");
+    expect(btn).toHaveClass("bg-surface-2", "text-ink-soft", "hover:text-amber-strong");
+    expect(btn).not.toHaveClass("bg-amber-soft");
+    expect(heart(container)).not.toHaveClass("fill-amber");
   });
 
-  it("uses the rose treatment and a filled heart when saved", () => {
+  it("uses the amber treatment and a filled heart when saved", () => {
     h.favorites = { isFavorite: () => true, toggle: vi.fn() };
     const { container } = render(<FavoriteButton sitterId="s-1" />);
 
     const btn = screen.getByRole("button");
-    expect(btn).toHaveClass("bg-rose-50", "text-rose-500");
+    expect(btn).toHaveClass("bg-amber-soft", "text-amber-strong");
     expect(btn).not.toHaveClass("bg-surface-2");
-    expect(heart(container)).toHaveClass("fill-rose-500");
+    expect(heart(container)).toHaveClass("fill-amber");
   });
 
   it("asks the favourites context about its own sitter id, not another card's", () => {
@@ -141,8 +141,8 @@ describe("saved / not-saved states", () => {
     expect(savedBtn).toHaveAccessibleName(REMOVE_KEY);
     expect(otherBtn).toHaveAccessibleName(SAVE_KEY);
     const hearts = container.querySelectorAll("svg");
-    expect(hearts[0]).toHaveClass("fill-rose-500");
-    expect(hearts[1]).not.toHaveClass("fill-rose-500");
+    expect(hearts[0]).toHaveClass("fill-amber");
+    expect(hearts[1]).not.toHaveClass("fill-amber");
   });
 
   it("is always type=button so it never submits a surrounding form", () => {
@@ -233,7 +233,7 @@ describe("toggle semantics through the real FavoritesProvider", () => {
     // nothing happened; pinned here so a fix has a failing test to flip.
     expect(btn).toHaveAccessibleName(SAVE_KEY);
     expect(btn.className).toBe(before);
-    expect(heart(container)).not.toHaveClass("fill-rose-500");
+    expect(heart(container)).not.toHaveClass("fill-amber");
     expect(container.textContent).toBe("");
     expect(h.inserted).toEqual([]);
     expect(h.deleted).toEqual([]);
@@ -246,7 +246,7 @@ describe("toggle semantics through the real FavoritesProvider", () => {
     await userEvent.click(screen.getByRole("button"));
 
     expect(screen.getByRole("button")).toHaveAccessibleName(REMOVE_KEY);
-    expect(heart(container)).toHaveClass("fill-rose-500");
+    expect(heart(container)).toHaveClass("fill-amber");
     expect(h.inserted).toEqual([{ sitter_id: "s-9" }]);
   });
 
@@ -259,7 +259,7 @@ describe("toggle semantics through the real FavoritesProvider", () => {
     await userEvent.click(btn);
 
     expect(btn).toHaveAccessibleName(SAVE_KEY);
-    expect(heart(container)).not.toHaveClass("fill-rose-500");
+    expect(heart(container)).not.toHaveClass("fill-amber");
     expect(h.deleted).toEqual([{ user_id: "u-1", sitter_id: "s-9" }]);
   });
 
@@ -282,7 +282,7 @@ describe("toggle semantics through the real FavoritesProvider", () => {
     });
 
     expect(btn).toHaveAccessibleName(REMOVE_KEY);
-    expect(heart(container)).toHaveClass("fill-rose-500");
+    expect(heart(container)).toHaveClass("fill-amber");
     expect(btn).not.toBeDisabled();
     expect(btn).not.toHaveAttribute("aria-busy");
     expect(h.inserted).toEqual([{ sitter_id: "s-9" }, { sitter_id: "s-9" }]);
@@ -308,9 +308,9 @@ describe("className merging", () => {
 
     const btn = screen.getByRole("button");
     expect(btn).toHaveClass("bg-white");
-    expect(btn).not.toHaveClass("bg-rose-50");
+    expect(btn).not.toHaveClass("bg-amber-soft");
     // Non-conflicting base utilities survive the merge.
-    expect(btn).toHaveClass("rounded-full", "flex-shrink-0", "text-rose-500");
+    expect(btn).toHaveClass("rounded-full", "flex-shrink-0", "text-amber-strong");
   });
 
   it("keeps every base class when no className is passed", () => {

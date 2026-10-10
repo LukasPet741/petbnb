@@ -99,6 +99,11 @@ const appPages = {
     sitterUnavailable: "You've marked some of these days as away. Free them in your profile to accept.",
     alreadyBooked: "You already accepted a booking that overlaps these dates.",
     actionFailed: "That didn't work. Please try again.",
+    // Erasing with Confirm: the other person is told, so the dialog says so (plan §2.4).
+    confirmCancelRequest: { title: "Cancel this request?", body: "{name} gets a notification. You can send a new request later." },
+    confirmCancelStay: { title: "Cancel this stay?", body: "{name} gets a notification, and the agreed price no longer holds." },
+    confirmDecline: { title: "Decline this request?", body: "{name} gets a notification. The dates stay open for others." },
+    toastStayCancelled: "Stay cancelled.",
   },
   bookingsNew: {
     backToBookings: "Back to bookings",
@@ -167,6 +172,9 @@ const appPages = {
     emptyDescription: "Add your first pet to start booking sitters and keep their details in one place.",
     addFirstPetButton: "Add your first pet",
     removeConfirm: "Remove this pet?",
+    removeConfirmBody: "{name} and the photo are deleted for good.",
+    removeButton: "Remove",
+    removed: "Pet removed.",
     removeFailed: "That pet could not be removed. Please try again.",
     removeHasBookings: "This pet is on a booking, so it cannot be removed — removing it would delete that booking, its messages and its reviews.",
   },
@@ -336,6 +344,7 @@ const appPages = {
   favoriteButton: {
     removeFromSaved: "Remove from saved",
     saveSitter: "Save sitter",
+    removed: "Removed from saved.",
   },
   collar: {
     pageLabel: "GPS collar",

@@ -6,10 +6,11 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import PetForm, { type PetFormValues } from "@/components/PetForm";
-import { storagePathFromPublicUrl, PHOTO_BUCKET } from "@/lib/upload";
 import type { Pet } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { usePetRemoval } from "@/hooks/usePetRemoval";
+import Button from "@/components/ui/Button";
 
 export default function EditPetPage() {
   const { t } = useLanguage();
@@ -20,6 +21,8 @@ export default function EditPetPage() {
   const [initial, setInitial] = useState<PetFormValues | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const removePet = usePetRemoval();
 
   useEffect(() => {
     if (authLoading) return;
@@ -67,16 +70,17 @@ export default function EditPetPage() {
     router.push("/pets");
   };
 
+  // The same removal as /pets (usePetRemoval): a pet with bookings is kept and the page
+  // says why; any other pet goes after a Confirm, row first, photo second.
   const handleDelete = async () => {
-    if (!confirm(t("appPages.pets.removeConfirm"))) return;
+    if (!initial) return;
     setDeleting(true);
-    // Delete the photo first: once the row is gone its URL is unrecoverable
-    // and the object would sit in the bucket forever.
-    const path = storagePathFromPublicUrl(initial?.photo_url ?? null);
-    if (path) await supabase.storage.from(PHOTO_BUCKET).remove([path]);
-    const { error } = await supabase.from("pets").delete().eq("id", id);
-    if (error) { setDeleting(false); return; }
-    router.push("/pets");
+    setDeleteError("");
+    const result = await removePet({ id, name: initial.name, photo_url: initial.photo_url });
+    if (result === "removed") { router.push("/pets"); return; }
+    setDeleting(false);
+    if (result === "has-bookings") setDeleteError(t("appPages.pets.removeHasBookings"));
+    else if (result === "failed") setDeleteError(t("appPages.pets.removeFailed"));
   };
 
   return (
@@ -104,15 +108,15 @@ export default function EditPetPage() {
             cancelHref="/pets"
             onSubmit={handleSubmit}
           />
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
-            className="mt-5 w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl border border-danger/20 text-danger text-sm font-medium hover:bg-danger-soft transition-colors disabled:opacity-60"
-          >
-            <Trash2 className="w-4 h-4" />
+          <Button variant="danger-soft" block loading={deleting} onClick={() => void handleDelete()} className="mt-5">
+            {!deleting && <Trash2 className="w-4 h-4" aria-hidden="true" />}
             {t("appPages.petsEdit.deleteButton")}
-          </button>
+          </Button>
+          {deleteError && (
+            <p role="alert" className="mt-3 p-3 bg-danger-soft border border-danger/20 rounded-[var(--radius-control)] text-sm text-danger">
+              {deleteError}
+            </p>
+          )}
         </>
       )}
     </div>
