@@ -36,6 +36,7 @@ function makeProfile(over: Partial<ProfileRow> = {}): ProfileRow {
   return {
     id: "user-a",
     full_name: "Jonas Petraitis",
+    deleted_at: null,
     phone: "+37060000000",
     city: "Vilnius",
     is_sitter: false,

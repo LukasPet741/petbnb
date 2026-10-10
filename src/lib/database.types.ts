@@ -460,6 +460,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          deleted_at: string | null
           about_me: string | null
           avatar_url: string | null
           city: string | null
@@ -482,6 +483,7 @@ export type Database = {
           verified_full_name: string | null
         }
         Insert: {
+          deleted_at?: string | null
           about_me?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -504,6 +506,7 @@ export type Database = {
           verified_full_name?: string | null
         }
         Update: {
+          deleted_at?: string | null
           about_me?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -838,6 +841,7 @@ export type Database = {
         Returns: string
       }
       create_demo_collar: { Args: never; Returns: string }
+      erase_my_account: { Args: { p_confirm_name: string }; Returns: undefined }
       finish_smart_id_demo_verification: {
         Args: { p_session_id: string }
         Returns: string
