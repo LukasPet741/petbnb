@@ -321,6 +321,13 @@ const appPages = {
     experiencePlaceholder: "pvz. 3",
     servicesOfferedLabel: "Teikiamos paslaugos",
     saveProfileButton: "Išsaugoti profilį",
+    data: {
+      title: "Jūsų duomenys",
+      downloadHint: "Atsisiųskite viską, ką PetBnB apie jus saugo: profilį, augintinius, užsakymus, žinutes, atsiliepimus, išsaugotus globėjus ir antkaklio duomenis – vienu JSON failu.",
+      downloadButton: "Atsisiųsti mano duomenis",
+      downloaded: "Jūsų duomenys atsisiųsti.",
+      downloadFailed: "Jūsų duomenų surinkti nepavyko. Bandykite dar kartą.",
+    },
   },
   saved: {
     title: "Išsaugoti globėjai",

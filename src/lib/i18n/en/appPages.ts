@@ -321,6 +321,13 @@ const appPages = {
     experiencePlaceholder: "e.g. 3",
     servicesOfferedLabel: "Services offered",
     saveProfileButton: "Save profile",
+    data: {
+      title: "Your data",
+      downloadHint: "Download everything PetBnB holds about you: profile, pets, bookings, messages, reviews, saved sitters and collar data, as one JSON file.",
+      downloadButton: "Download my data",
+      downloaded: "Your data is downloaded.",
+      downloadFailed: "Your data could not be gathered. Please try again.",
+    },
   },
   saved: {
     title: "Saved sitters",

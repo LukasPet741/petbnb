@@ -7,6 +7,7 @@
  * octets (bytes, not characters: "š" is two), TEXT values escaped, times in UTC.
  */
 
+import { downloadFile } from "@/lib/download";
 import { toDateTimeLocalValue } from "./booking-duration";
 
 export interface CalendarEvent {
@@ -118,13 +119,5 @@ export function icsFilename(startAt: string): string {
 
 /** Hands the file to the browser: phones offer to add it to the calendar, desktops save it. */
 export function downloadIcs(filename: string, ics: string): void {
-  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  // Revoking straight after the click can cancel the download in Safari.
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  downloadFile(filename, ics, "text/calendar;charset=utf-8");
 }

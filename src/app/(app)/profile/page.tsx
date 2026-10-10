@@ -23,6 +23,7 @@ import { verificationLinkCopy } from "@/lib/verification-link";
 import { PERIOD_DAYS, draftsFromPrices, pricesFromDrafts, type PeriodDays, type PriceDrafts } from "@/lib/pricing";
 import { ABOUT_ME_MAX, CITY_MAX, FULL_NAME_MAX } from "@/lib/text-limits";
 import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import AccountData from "@/components/AccountData";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import { addDays, vilniusDay } from "@/lib/availability";
 
@@ -377,6 +378,7 @@ export default function ProfilePage() {
           )}
         </AnimatePresence>
       </form>
+      <AccountData />
     </div>
   );
 }
