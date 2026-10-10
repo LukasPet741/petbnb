@@ -1,18 +1,16 @@
 "use client";
 import Link from "next/link";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signIn, matchAuthErrorKey } from "@/lib/auth";
-import { AUTH } from "@/lib/images";
-import { fadeUp, stagger, slideRight } from "@/lib/motion";
+import { fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRedirectIfSignedIn } from "@/hooks/useRedirectIfSignedIn";
 import { useNextPath } from "@/hooks/useNextPath";
 import { nextFromSearch, withNext } from "@/lib/next-path";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import Logo from "@/components/Logo";
+import AuthShell, { FormError, PasswordToggle, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
 export default function LoginClient() {
   const { t } = useLanguage();
@@ -41,81 +39,43 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex">
-      <LanguageSwitcher className="fixed top-4 right-4 z-10 glass-panel border rounded-full" />
-      {/* Left - photography */}
-      <motion.div
-        className="hidden lg:block lg:w-1/2 relative overflow-hidden"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
-      >
-        <img src={AUTH.login} alt={t("auth.login.imageAlt")} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-strong/90 via-brand/75 to-ink/80" />
-        <div className="absolute inset-0 p-12 flex flex-col justify-between">
-          <Link href="/" className="w-fit">
-            <Logo size={40} showWordmark wordmarkClassName="text-white" />
-          </Link>
-          <div>
-            <h2 className="text-white font-display text-3xl font-semibold leading-tight mb-2 max-w-sm">{t("auth.login.heroTitle")}</h2>
-            <p className="text-white/70 max-w-sm leading-relaxed">{t("auth.login.heroSubtitle")}</p>
-          </div>
-        </div>
-      </motion.div>
+    <AuthShell>
+      <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">{t("auth.login.title")}</motion.h1>
+      <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.login.subtitle")}</motion.p>
 
-      {/* Right - form */}
-      <motion.div className="flex-1 flex items-center justify-center p-4 sm:p-6" variants={slideRight} initial="hidden" animate="show">
-        {/* The form rests on the ambient field as a glass card; the inputs inside stay solid. */}
-        <motion.div className="w-full max-w-md glass-card rounded-[var(--radius-card)] border p-5 sm:p-8" variants={stagger(0.09)} initial="hidden" animate="show">
-          <motion.div variants={fadeUp} className="lg:hidden mb-8">
-            <Logo size={36} showWordmark />
-          </motion.div>
+      {error && <FormError message={error} />}
 
-          <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">{t("auth.login.title")}</motion.h1>
-          <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.login.subtitle")}</motion.p>
-
-          {error && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <motion.div variants={fadeUp}>
-              <label htmlFor="login-email" className="block text-sm font-medium text-ink mb-1.5">{t("auth.login.form.emailLabel")}</label>
-              <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("auth.login.form.emailPlaceholder")} required autoComplete="email"
-                className="w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />
-            </motion.div>
-            <motion.div variants={fadeUp}>
-              <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                <label htmlFor="login-password" className="block text-sm font-medium text-ink">{t("auth.login.form.passwordLabel")}</label>
-                <Link href="/forgot-password" className="text-sm text-brand font-medium hover:underline">{t("auth.login.forgotPassword")}</Link>
-              </div>
-              <div className="relative">
-                <input id="login-password" type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("auth.login.form.passwordPlaceholder")} required autoComplete="current-password"
-                  className="w-full h-11 px-3.5 pr-11 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition" />
-                <button type="button" onClick={() => setShowPass(!showPass)} aria-label={t(showPass ? "auth.hidePassword" : "auth.showPassword")} aria-pressed={showPass} className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-ink-soft/60 hover:text-ink active:text-ink">
-                  {showPass ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
-                </button>
-              </div>
-            </motion.div>
-            <motion.div variants={fadeUp}>
-              <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className="w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
-                {loading
-                  ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  : <>{t("common.signIn")} <ArrowRight className="w-4 h-4" /></>}
-              </motion.button>
-            </motion.div>
-          </form>
-
-          <motion.p variants={fadeUp} className="text-center text-sm text-ink-soft mt-6">
-            {t("auth.login.noAccount")}{" "}
-            <Link href={withNext("/signup", next)} className="text-brand font-medium hover:underline">{t("auth.login.createOneFree")}</Link>
-          </motion.p>
-          <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
-            {t("auth.login.termsAgreementPrefix")} <Link href="/legal/terms" className="underline">{t("common.terms")}</Link>.
-          </motion.p>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <motion.div variants={fadeUp}>
+          <label htmlFor="login-email" className="block text-sm font-medium text-ink mb-1.5">{t("auth.login.form.emailLabel")}</label>
+          <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("auth.login.form.emailPlaceholder")} required autoComplete="email"
+            className={inputClass} />
         </motion.div>
-      </motion.div>
-    </div>
+        <motion.div variants={fadeUp}>
+          <div className="flex items-baseline justify-between gap-3 mb-1.5">
+            <label htmlFor="login-password" className="block text-sm font-medium text-ink">{t("auth.login.form.passwordLabel")}</label>
+            <Link href="/forgot-password" className="text-sm text-brand font-medium hover:underline">{t("auth.login.forgotPassword")}</Link>
+          </div>
+          <div className="relative">
+            <input id="login-password" type={showPass ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("auth.login.form.passwordPlaceholder")} required autoComplete="current-password"
+              className={`${inputClass} pr-11`} />
+            <PasswordToggle shown={showPass} onToggle={() => setShowPass(!showPass)} />
+          </div>
+        </motion.div>
+        <motion.div variants={fadeUp}>
+          <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className={primaryButtonClass}>
+            {loading ? <Spinner /> : <>{t("common.signIn")} <ArrowRight className="w-4 h-4" /></>}
+          </motion.button>
+        </motion.div>
+      </form>
+
+      <motion.p variants={fadeUp} className="text-center text-sm text-ink-soft mt-6">
+        {t("auth.login.noAccount")}{" "}
+        <Link href={withNext("/signup", next)} className="text-brand font-medium hover:underline">{t("auth.login.createOneFree")}</Link>
+      </motion.p>
+      <motion.p variants={fadeUp} className="text-center text-xs text-ink-soft/70 mt-4">
+        {t("auth.login.termsAgreementPrefix")} <Link href="/legal/terms" className="underline">{t("common.terms")}</Link>.
+      </motion.p>
+    </AuthShell>
   );
 }

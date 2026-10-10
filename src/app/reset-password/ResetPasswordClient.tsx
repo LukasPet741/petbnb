@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Link2Off, ShieldCheck } from "lucide-react";
+import { ArrowRight, Link2Off, ShieldCheck } from "lucide-react";
 import { updatePassword, matchAuthErrorKey } from "@/lib/auth";
 import { isPasswordRecovery } from "@/lib/password-recovery";
 import { fadeUp } from "@/lib/motion";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import PasswordShell, { FormError, Spinner, inputClass, primaryButtonClass } from "@/components/PasswordShell";
+import AuthShell, { FormError, PasswordToggle, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
 /**
  * Where a reset email's link lands. Supabase reads the link's tokens while the session loads, so
@@ -53,17 +53,17 @@ export default function ResetPasswordClient() {
 
   if (sessionLoading) {
     return (
-      <PasswordShell>
+      <AuthShell>
         <div className="flex justify-center py-12">
           <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
         </div>
-      </PasswordShell>
+      </AuthShell>
     );
   }
 
   if (done) {
     return (
-      <PasswordShell>
+      <AuthShell>
         <motion.div variants={fadeUp} className="w-12 h-12 rounded-2xl bg-brand-soft text-brand flex items-center justify-center mb-5">
           <ShieldCheck className="w-6 h-6" aria-hidden />
         </motion.div>
@@ -74,13 +74,13 @@ export default function ResetPasswordClient() {
             {t("auth.reset.continue")} <ArrowRight className="w-4 h-4" aria-hidden />
           </Link>
         </motion.div>
-      </PasswordShell>
+      </AuthShell>
     );
   }
 
   if (!user || !recovering || expired) {
     return (
-      <PasswordShell>
+      <AuthShell>
         <motion.div variants={fadeUp} className="w-12 h-12 rounded-2xl bg-amber-soft text-amber-strong flex items-center justify-center mb-5">
           <Link2Off className="w-6 h-6" aria-hidden />
         </motion.div>
@@ -92,12 +92,12 @@ export default function ResetPasswordClient() {
         <motion.p variants={fadeUp} className="text-center text-sm text-ink-soft mt-6">
           <Link href="/login" className="text-brand font-medium hover:underline">{t("auth.forgot.backToLogin")}</Link>
         </motion.p>
-      </PasswordShell>
+      </AuthShell>
     );
   }
 
   return (
-    <PasswordShell>
+    <AuthShell>
       <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">{t("auth.reset.title")}</motion.h1>
       <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.reset.subtitle")}</motion.p>
 
@@ -110,10 +110,7 @@ export default function ResetPasswordClient() {
             <input id="reset-password" type={showPass ? "text" : "password"} value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder={t("auth.reset.passwordPlaceholder")}
               required minLength={8} autoComplete="new-password" autoFocus className={`${inputClass} pr-11`} />
-            <button type="button" onClick={() => setShowPass(!showPass)} aria-pressed={showPass} aria-label={t(showPass ? "auth.hidePassword" : "auth.showPassword")}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-ink-soft/60 hover:text-ink active:text-ink">
-              {showPass ? <EyeOff className="w-4 h-4" aria-hidden /> : <Eye className="w-4 h-4" aria-hidden />}
-            </button>
+            <PasswordToggle shown={showPass} onToggle={() => setShowPass(!showPass)} />
           </div>
         </motion.div>
         <motion.div variants={fadeUp}>
@@ -128,6 +125,6 @@ export default function ResetPasswordClient() {
           </motion.button>
         </motion.div>
       </form>
-    </PasswordShell>
+    </AuthShell>
   );
 }

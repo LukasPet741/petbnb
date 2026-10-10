@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, MailCheck } from "lucide-react";
 import { requestPasswordReset, matchAuthErrorKey } from "@/lib/auth";
 import { fadeUp } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
-import PasswordShell, { FormError, Spinner, inputClass, primaryButtonClass } from "@/components/PasswordShell";
+import AuthShell, { FormError, Spinner, inputClass, primaryButtonClass } from "@/components/AuthShell";
 
 export default function ForgotPasswordClient() {
   const { t } = useLanguage();
@@ -42,7 +42,7 @@ export default function ForgotPasswordClient() {
 
   if (sent) {
     return (
-      <PasswordShell>
+      <AuthShell>
         <motion.div variants={fadeUp} className="w-12 h-12 rounded-2xl bg-brand-soft text-brand flex items-center justify-center mb-5">
           <MailCheck className="w-6 h-6" aria-hidden />
         </motion.div>
@@ -56,12 +56,12 @@ export default function ForgotPasswordClient() {
           </button>
         </motion.div>
         {backToLogin}
-      </PasswordShell>
+      </AuthShell>
     );
   }
 
   return (
-    <PasswordShell>
+    <AuthShell>
       <motion.h1 variants={fadeUp} className="font-display text-3xl font-semibold text-ink mb-1 tracking-tight">{t("auth.forgot.title")}</motion.h1>
       <motion.p variants={fadeUp} className="text-ink-soft mb-8">{t("auth.forgot.subtitle")}</motion.p>
 
@@ -81,6 +81,6 @@ export default function ForgotPasswordClient() {
       </form>
 
       {backToLogin}
-    </PasswordShell>
+    </AuthShell>
   );
 }
