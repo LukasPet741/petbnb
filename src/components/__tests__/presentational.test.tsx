@@ -126,7 +126,8 @@ describe("EmptyState", () => {
     const { container } = render(<EmptyState icon={TestIcon} title="No bookings yet" />);
     expect(screen.getByText("No bookings yet")).toBeInTheDocument();
     expect(screen.getByTestId("icon")).toBeInTheDocument();
-    expect(container.firstElementChild).toHaveClass("glass-card", "rounded-2xl", "text-center");
+    // The linen "brand moment" panel of plan §2.3, not a glass card.
+    expect(container.firstElementChild).toHaveClass("bg-linen", "rounded-[var(--radius-hero)]", "text-center");
   });
 
   it("sizes the caller's icon component through its className prop", () => {
@@ -193,7 +194,7 @@ describe("EmptyState", () => {
     );
     expect(container.querySelectorAll("p")).toHaveLength(1);
     const action = screen.getByRole("button", { name: "Find a sitter" });
-    expect(action.parentElement).toHaveClass("mt-5", "flex", "justify-center");
+    expect(action.parentElement).toHaveClass("mt-6", "flex", "justify-center");
   });
 
   it("renders the description above the action when both are given", () => {

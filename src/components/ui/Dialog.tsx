@@ -56,7 +56,7 @@ export default function Dialog({
     const focusFirst = () => {
       const target =
         initialFocus?.current ??
-        [...(panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])].find((el) => !el.dataset.dialogClose) ??
+        [...(panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])].find((el) => !("dialogClose" in el.dataset)) ??
         panel.current;
       target?.focus();
     };

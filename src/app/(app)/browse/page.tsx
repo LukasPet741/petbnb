@@ -16,6 +16,10 @@ import { PRICE_CAPS, SORT_KEYS, countByService, filtersFromSearch, sameCity, sor
 import { comparablePrice } from "@/lib/pricing";
 import { cn, normaliseCity } from "@/lib/utils";
 import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
+import Chip from "@/components/ui/Chip";
+import Button from "@/components/ui/Button";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import EmptyState from "@/components/EmptyState";
 import { vilniusDay } from "@/lib/availability";
 
 const SERVICES: { key: ServiceType; icon: LucideIcon }[] = [
@@ -27,16 +31,11 @@ const SERVICES: { key: ServiceType; icon: LucideIcon }[] = [
 const ALL_CITIES = "All cities";
 const RECENTLY_VIEWED_KEY = "petbnb-recently-viewed";
 
-const pillClass = (on: boolean) =>
-  cn(
-    "inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-    on ? "border-ink bg-ink text-white" : "border-ink/10 bg-white/75 text-ink hover:bg-white",
-  );
-
+// A chosen date reads as selected the way a chip does: brand green, never black (plan §2.1).
 const dateClass = (on: boolean) =>
   cn(
-    "h-11 rounded-full border px-4 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-    on ? "border-ink bg-ink text-white [color-scheme:dark]" : "border-ink/10 bg-white/80 text-ink hover:bg-white",
+    "h-11 rounded-full border px-4 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+    on ? "border-brand bg-brand-soft text-brand-strong" : "border-ink/12 bg-surface text-ink hover:border-ink/25",
   );
 
 /** A native select dressed as a chip: keyboard, screen readers and phone pickers come for free. */
@@ -47,7 +46,7 @@ function ChipSelect({ label, value, onChange, children }: { label: string; value
         aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 appearance-none rounded-full border border-ink/10 bg-white/80 pl-4 pr-9 text-sm font-medium text-ink hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        className="h-11 appearance-none rounded-full border border-ink/12 bg-surface pl-4 pr-9 text-sm font-semibold text-ink hover:border-ink/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
         {children}
       </select>
@@ -183,7 +182,7 @@ export default function BrowsePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               enterKeyHint="search"
-              className="h-11 w-full rounded-full border border-ink/10 bg-white pl-11 pr-4 text-ink placeholder:text-ink-soft/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              className="h-11 w-full rounded-full border border-ink/12 bg-surface pl-11 pr-4 text-ink placeholder:text-ink-soft focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand-soft"
             />
           </div>
           {/* One sideways-scrolling row on a phone rather than three stacked rows of chips. */}
@@ -222,15 +221,20 @@ export default function BrowsePage() {
         </div>
 
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-          <button type="button" aria-pressed={!service} onClick={() => setService("")} className={pillClass(!service)}>
+          <Chip pressed={!service} onClick={() => setService("")} className="shrink-0">
             {t("appPages.browse.allServicesOption")}
-          </button>
+          </Chip>
           {SERVICES.map(({ key, icon: Icon }) => (
-            <button key={key} type="button" aria-pressed={service === key} onClick={() => setService(service === key ? "" : key)} className={pillClass(service === key)}>
-              <Icon aria-hidden="true" className="h-4 w-4" />
+            <Chip
+              key={key}
+              pressed={service === key}
+              onClick={() => setService(service === key ? "" : key)}
+              icon={<Icon aria-hidden="true" className="h-4 w-4" />}
+              count={serviceCounts[key]}
+              className="shrink-0"
+            >
               {t(`common.services.${key}`)}
-              <span className={cn("tabular-nums text-xs", service === key ? "text-white/70" : "text-ink-soft")}>{serviceCounts[key]}</span>
-            </button>
+            </Chip>
           ))}
         </div>
       </motion.div>
@@ -240,22 +244,24 @@ export default function BrowsePage() {
           {loading ? t("appPages.browse.loadingText") : t(`appPages.browse.resultsCount.${pluralForm(locale, filtered.length)}`, { count: filtered.length })}
         </p>
         {anyFilter && (
-          <button type="button" onClick={clearAll} className="min-h-[44px] rounded-lg px-2 text-sm font-medium text-brand hover:text-brand-strong transition-colors focus-visible:outline-2 focus-visible:outline-brand">
+          <Button variant="ghost" size="sm" onClick={clearAll} className="min-h-11">
             {t("appPages.browse.clearAllButton")}
-          </button>
+          </Button>
         )}
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-white/50 rounded-2xl border border-white/60 h-80 animate-pulse" />)}
+        // The shape of the cards that are coming (plan §2.3).
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" aria-busy="true">
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} media />)}
         </div>
       ) : filtered.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-2xl border p-16 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-brand-soft flex items-center justify-center mx-auto mb-4"><Search className="w-7 h-7 text-brand" /></div>
-          <p className="text-ink font-medium">{t("appPages.browse.emptyTitle")}</p>
-          <p className="text-ink-soft text-sm mt-1">{t("appPages.browse.emptyDescription")}</p>
-        </motion.div>
+        <EmptyState
+          icon={Search}
+          title={t("appPages.browse.emptyTitle")}
+          description={t("appPages.browse.emptyDescription")}
+          action={anyFilter ? <Button variant="secondary" onClick={clearAll}>{t("appPages.browse.clearAllButton")}</Button> : undefined}
+        />
       ) : (
         <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6" variants={stagger(0.05)} initial="hidden" animate="show">
           {filtered.map((sitter) => (

@@ -192,6 +192,8 @@ describe("Dialog", () => {
     );
     const dialog = screen.getByRole("dialog", { name: "Prašymas" });
     expect(dialog).toHaveAttribute("aria-modal", "true");
+    // Focus starts on the content, not on the close button.
+    expect(screen.getByRole("button", { name: "vienas" })).toHaveFocus();
     const close = screen.getByRole("button", { name: "common.ui.close" });
     close.focus();
     await user.tab();
