@@ -26,6 +26,7 @@ import AvailabilityCalendar from "@/components/AvailabilityCalendar";
 import AccountData from "@/components/AccountData";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import { addDays, vilniusDay } from "@/lib/availability";
+import { PHONE_COUNTRIES, PHONE_DIAL, PHONE_EXAMPLE, PHONE_FLAG, formatPhone, parsePhone, splitPhone, type PhoneCountry } from "@/lib/phone";
 
 /** How far ahead the sitter's own calendar reads: the two months it shows, from today. */
 const CALENDAR_DAYS = 70;
@@ -43,6 +44,9 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<"personal" | "sitter">("personal");
   const [isSitter, setIsSitter] = useState(false);
   const [form, setForm] = useState({ full_name: "", phone: "", city: "", about_me: "", experience_years: "", services: { walking: false, boarding: false, daycare: false, grooming: false } as Record<ServiceType, boolean> });
+  // The phone is split in two: the country picker (LT, LV, EE) and the number as typed.
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>("LT");
+  const [phoneError, setPhoneError] = useState(false);
   const [priceDrafts, setPriceDrafts] = useState<PriceDrafts>(() => draftsFromPrices({}));
   const [missingPrices, setMissingPrices] = useState<ServiceType[]>([]);
   const [saving, setSaving] = useState(false);
@@ -69,9 +73,11 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!profile) return;
     setIsSitter(profile.is_sitter ?? false);
+    const stored = splitPhone(profile.phone);
+    setPhoneCountry(stored.country);
     setForm({
       full_name: profile.full_name ?? "",
-      phone: profile.phone ?? "",
+      phone: stored.national,
       city: profile.city ?? "",
       about_me: profile.about_me ?? "",
       experience_years: profile.experience_years?.toString() ?? "",
@@ -88,6 +94,12 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    const phone = parsePhone(phoneCountry, form.phone);
+    if (!phone) {
+      setPhoneError(true);
+      setTab("personal");
+      return;
+    }
     // A sitter prices every service they offer: a service without a price cannot be requested.
     const { prices, missing } = pricesFromDrafts(priceDrafts, form.services);
     if (isSitter && missing.length > 0) {
@@ -105,7 +117,7 @@ export default function ProfilePage() {
     // to insert: on_auth_user_created creates the row at sign-up, and production carries
     // zero profiles without an auth user. Pinned by profile-columns.test.ts.
     const { error: err } = await supabase.from("profiles").update({
-      full_name: form.full_name, phone: form.phone, city: normaliseCity(form.city),
+      full_name: form.full_name, phone: formatPhone(phone), city: normaliseCity(form.city),
       about_me: form.about_me || null, is_sitter: isSitter,
       prices,
       experience_years: form.experience_years ? Number(form.experience_years) : null,
@@ -230,26 +242,47 @@ export default function ProfilePage() {
                 </motion.div>
               ))}
               <motion.div variants={fadeUp}>
-                <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.phoneLabel")}</label>
+                <label htmlFor="profile-phone" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.phoneLabel")}</label>
                 <div className="flex gap-2">
-                  <div className="h-11 px-3.5 rounded-xl border border-black/10 bg-surface-2 text-ink-soft text-sm flex items-center flex-shrink-0 select-none">
-                    {t("appPages.profile.phoneCountryCode")}
-                  </div>
+                  <select
+                    aria-label={t("appPages.profile.phoneCountryLabel")}
+                    value={phoneCountry}
+                    onChange={(e) => { setPhoneCountry(e.target.value as PhoneCountry); setPhoneError(false); }}
+                    className="h-11 px-3 rounded-xl border border-black/10 bg-surface-2 text-ink text-sm flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-brand"
+                  >
+                    {PHONE_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{PHONE_FLAG[c]} {PHONE_DIAL[c]}</option>
+                    ))}
+                  </select>
+                  {/* Checked in handleSubmit, not by a pattern: a pasted "+371 …" or a domestic
+                      "8 6…" is a real number too, and parsePhone reads both. */}
                   <input
+                    id="profile-phone"
                     type="tel"
-                    value={form.phone.replace(/^\+370\s*/, "")}
+                    value={form.phone}
                     onChange={(e) => {
-                      const digits = e.target.value.replace(/[^\d\s\-]/g, "");
-                      setForm({ ...form, phone: digits ? `+370 ${digits}` : "" });
+                      setForm({ ...form, phone: e.target.value.replace(/[^\d\s\-+()]/g, "") });
+                      setPhoneError(false);
                     }}
-                    placeholder={t("appPages.profile.phonePlaceholder")}
+                    onBlur={() => {
+                      const parsed = parsePhone(phoneCountry, form.phone);
+                      if (!parsed) return;
+                      setPhoneCountry(parsed.country);
+                      setForm((f) => ({ ...f, phone: parsed.national }));
+                    }}
+                    placeholder={PHONE_EXAMPLE[phoneCountry]}
                     required
-                    pattern="[ds-]{8,11}"
-                    autoComplete="tel-national"
-                    title={t("appPages.profile.phoneTitle")}
-                    className={`flex-1 ${inputCls}`}
+                    autoComplete="tel"
+                    aria-invalid={phoneError}
+                    aria-describedby={phoneError ? "profile-phone-error" : undefined}
+                    className={cn("flex-1", inputCls, phoneError && "border-danger focus:ring-danger")}
                   />
                 </div>
+                {phoneError && (
+                  <p id="profile-phone-error" role="alert" className="mt-1.5 text-xs text-danger">
+                    {t(`appPages.profile.phoneInvalid.${phoneCountry}`, { example: PHONE_EXAMPLE[phoneCountry] })}
+                  </p>
+                )}
               </motion.div>
               <motion.div variants={fadeUp}>
                 <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}

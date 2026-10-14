@@ -137,11 +137,17 @@ describe("/signup", () => {
 });
 
 describe("/profile", () => {
+  // A save needs a phone number: the page checks it before writing (profilePhone.test.tsx).
+  const fillAndSave = (container: HTMLElement) => {
+    fireEvent.change(container.querySelector("#profile-phone")!, { target: { value: "612 34567" } });
+    fireEvent.submit(container.querySelector("form")!);
+  };
+
   it("continues to ?next= once the profile is saved", async () => {
     h.auth = SIGNED_IN;
     visit("/profile?next=%2Fbrowse%3Fservice%3Dwalking");
     const { container } = render(<ProfilePage />);
-    fireEvent.submit(container.querySelector("form")!);
+    fillAndSave(container);
     await waitFor(() => expect(h.push).toHaveBeenCalledWith("/browse?service=walking"));
   });
 
@@ -149,7 +155,7 @@ describe("/profile", () => {
     h.auth = SIGNED_IN;
     visit("/profile");
     const { container } = render(<ProfilePage />);
-    fireEvent.submit(container.querySelector("form")!);
+    fillAndSave(container);
     await waitFor(() => expect(h.profile.refresh).toHaveBeenCalled());
     expect(h.push).not.toHaveBeenCalled();
   });

@@ -119,10 +119,6 @@ describe("translation completeness", () => {
   // Anything here is byte-identical between languages. Each entry must be
   // justified, otherwise it is an untranslated string that slipped through.
   const IDENTICAL_ALLOW_LIST = [
-    // A country-code chip, not prose: the flag and "+370" are the same in both.
-    "appPages.profile.phoneCountryCode",
-    // A phone-number example placeholder, digits only.
-    "appPages.profile.phonePlaceholder",
     // The SI kilogram symbol is locale-invariant.
     "appPages.petCard.weightUnit",
     // The badge's "DEMO" tag: an uppercase label kept identical so it reads the same on screenshots.
