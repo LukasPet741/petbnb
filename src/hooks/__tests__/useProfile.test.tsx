@@ -400,6 +400,26 @@ describe("notifyProfileChanged", () => {
     await waitFor(() => expect(first.result.current.profile?.is_verified).toBe(true));
     expect(second.result.current.profile?.is_verified).toBe(true);
   });
+
+  it("resolves only once every mounted copy has read again, so a caller can navigate after it", async () => {
+    // /profile saves, then goes on to ?next=. The app layout's own copy must already be complete
+    // by then, or its guard sends the new account straight back to /profile.
+    h.auth.user = userA;
+    h.auth.loading = false;
+    h.maybeSingle.mockResolvedValue({ data: makeProfile({ full_name: null }), error: null });
+    const layout = renderHook(() => useProfile());
+    await waitFor(() => expect(layout.result.current.loading).toBe(false));
+    expect(layout.result.current.isComplete).toBe(false);
+
+    // An answer that takes a moment, as the network's does.
+    h.maybeSingle.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve({ data: makeProfile(), error: null }), 30)),
+    );
+    await act(async () => {
+      await notifyProfileChanged();
+    });
+    expect(layout.result.current.isComplete).toBe(true);
+  });
 });
 
 describe("refresh", () => {

@@ -24,10 +24,11 @@ const h = vi.hoisted(() => ({
   push: vi.fn(),
   signIn: vi.fn(),
   signUp: vi.fn(),
+  notifyProfileChanged: vi.fn(async () => {}),
 }));
 
 vi.mock("@/context/AuthContext", () => ({ useAuth: () => h.auth }));
-vi.mock("@/hooks/useProfile", () => ({ useProfile: () => h.profile }));
+vi.mock("@/hooks/useProfile", () => ({ useProfile: () => h.profile, notifyProfileChanged: h.notifyProfileChanged }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: h.push, replace: h.replace, refresh: vi.fn(), prefetch: vi.fn() }),
   usePathname: () => h.pathname,
@@ -156,7 +157,8 @@ describe("/profile", () => {
     visit("/profile");
     const { container } = render(<ProfilePage />);
     fillAndSave(container);
-    await waitFor(() => expect(h.profile.refresh).toHaveBeenCalled());
+    // Saved means every copy of the profile read it again (profileSave.test.tsx).
+    await waitFor(() => expect(h.notifyProfileChanged).toHaveBeenCalled());
     expect(h.push).not.toHaveBeenCalled();
   });
 });

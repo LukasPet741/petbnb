@@ -5,7 +5,7 @@ import { Save, User, Briefcase, LogOut, Fingerprint, ChevronRight } from "lucide
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile, notifyProfileChanged } from "@/hooks/useProfile";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
@@ -39,7 +39,7 @@ export default function ProfilePage() {
   usePageTitle(t("appPages.profile.title"));
   const SERVICES = SERVICE_KEYS.map((k) => [k, t(`common.services.${k}`)] as [ServiceType, string]);
   const { user } = useAuth();
-  const { profile, refresh } = useProfile();
+  const { profile } = useProfile();
   const router = useRouter();
   const [tab, setTab] = useState<"personal" | "sitter">("personal");
   const [isSitter, setIsSitter] = useState(false);
@@ -124,7 +124,9 @@ export default function ProfilePage() {
       services: form.services, last_active_at: new Date().toISOString(),
     }).eq("id", user.id);
     if (err) { setError(err.message); setSaving(false); return; }
-    await refresh();
+    // Every copy, not just this page's: the app layout keeps its own and sends an incomplete
+    // profile back here, so a stale copy there locked a new account onto /profile until a reload.
+    await notifyProfileChanged();
     // Finishing the profile is the login wall's last step for a new account: continue to
     // the page the visitor was heading for (?next=, set by the app shell's bounce), if any.
     const next = nextFromSearch(window.location.search);
@@ -139,7 +141,7 @@ export default function ProfilePage() {
     setError("");
     const { error: err } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
     if (err) { setError(err.message); return; }
-    await refresh();
+    await notifyProfileChanged();
   };
 
   const handleSignOut = async () => { await signOut(); router.push("/login"); };
@@ -234,8 +236,8 @@ export default function ProfilePage() {
                 { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true, max: CITY_MAX },
               ].map(({ label, type, key, placeholder, req, max }) => (
                 <motion.div key={key} variants={fadeUp}>
-                  <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
-                  <input type={type} value={form[key as keyof typeof form] as string}
+                  <label htmlFor={`profile-${key}`} className="block text-sm font-medium text-ink mb-1.5">{label}</label>
+                  <input id={`profile-${key}`} type={type} value={form[key as keyof typeof form] as string}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                     placeholder={placeholder} required={req} maxLength={max} className={inputCls}
                     autoComplete={key === "full_name" ? "name" : "address-level2"} />
@@ -298,10 +300,10 @@ export default function ProfilePage() {
               {/* Toggle */}
               <div className="glass-card rounded-2xl border p-5 flex items-center justify-between gap-4">
                 <div>
-                  <div className="font-medium text-ink">{t("appPages.profile.sitterModeLabel")}</div>
+                  <div id="profile-sitter-mode" className="font-medium text-ink">{t("appPages.profile.sitterModeLabel")}</div>
                   <div className="text-sm text-ink-soft mt-0.5">{isSitter ? t("appPages.profile.sitterModeOnDescription") : t("appPages.profile.sitterModeOffDescription")}</div>
                 </div>
-                <button type="button" onClick={() => setIsSitter(!isSitter)}
+                <button type="button" role="switch" aria-checked={isSitter} aria-labelledby="profile-sitter-mode" onClick={() => setIsSitter(!isSitter)}
                   className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${isSitter ? "bg-brand" : "bg-black/15"}`}>
                   <motion.span layout transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[var(--shadow-sm)] ${isSitter ? "left-6" : "left-0.5"}`} />
@@ -323,15 +325,15 @@ export default function ProfilePage() {
                     transition={{ duration: 0.3 }} className="overflow-hidden">
                     <div className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
                       <div>
-                        <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
-                        <textarea value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}
+                        <label htmlFor="profile-about_me" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
+                        <textarea id="profile-about_me" value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}
                           placeholder={t("appPages.profile.aboutMePlaceholder")} rows={4} maxLength={ABOUT_ME_MAX}
                           className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.experienceLabel")}</label>
-                          <input type="number" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
+                          <label htmlFor="profile-experience_years" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.experienceLabel")}</label>
+                          <input id="profile-experience_years" type="number" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })}
                             placeholder={t("appPages.profile.experiencePlaceholder")} min="0" step="1" inputMode="numeric" className={inputCls} />
                         </div>
                       </div>

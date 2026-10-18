@@ -5,15 +5,18 @@ import type { Database } from "@/lib/supabase";
 
 type Profile = Database["public"]["Views"]["my_profile"]["Row"];
 
-const listeners = new Set<() => void>();
+const listeners = new Set<() => Promise<void>>();
 
 /**
  * Every mounted useProfile() reads the profile again. Each component holds its own copy, so
  * without this the sidebar's Smart-ID card stayed "not verified" until a reload after the badge
- * was saved on the Smart-ID page.
+ * was saved on the Smart-ID page, and a new account that saved /profile was sent back to it by
+ * the app layout's stale copy (2026-10-18).
+ *
+ * Resolves once every copy has its answer, so a caller can navigate right after it.
  */
-export function notifyProfileChanged(): void {
-  for (const listener of listeners) listener();
+export async function notifyProfileChanged(): Promise<void> {
+  await Promise.all([...listeners].map((listener) => listener()));
 }
 
 /**
@@ -53,7 +56,7 @@ export function useProfile() {
   }, [user]);
 
   useEffect(() => {
-    const listener = () => void refresh();
+    const listener = () => refresh();
     listeners.add(listener);
     return () => {
       listeners.delete(listener);
