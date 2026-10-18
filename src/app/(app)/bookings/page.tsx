@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { acceptClashKey, problemFromHint } from "@/lib/availability";
 import { useAuth } from "@/context/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
 import { type BookingStatus } from "@/lib/types";
 import BookingCard from "@/components/BookingCard";
 import BookingReview from "@/components/BookingReview";
@@ -44,7 +43,6 @@ export default function BookingsPage() {
     label: value === "all" ? t("appPages.bookings.tabAll") : t(`common.bookingStatus.${value}`),
   }));
   const { user } = useAuth();
-  const { profile } = useProfile();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | BookingStatus>("all");
@@ -69,10 +67,14 @@ export default function BookingsPage() {
 
   const load = async () => {
     if (!user) return;
-    const q = supabase.from("bookings").select("*, sitter:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url), owner:profiles!bookings_owner_id_fkey(id,full_name,avatar_url), pet:pets(id,name,photo_url)");
-    const { data } = profile?.is_sitter
-      ? await q.or(`owner_id.eq.${user.id},sitter_id.eq.${user.id}`).order("start_at")
-      : await q.eq("owner_id", user.id).order("start_at");
+    // Both sides for everyone, and never keyed on the profile: it is still loading on the first
+    // render, and an owner-only first answer landing late used to hide a sitter's incoming
+    // requests. RLS already limits the rows to bookings this viewer is party to.
+    const { data } = await supabase
+      .from("bookings")
+      .select("*, sitter:profiles!bookings_sitter_id_fkey(id,full_name,avatar_url), owner:profiles!bookings_owner_id_fkey(id,full_name,avatar_url), pet:pets(id,name,photo_url)")
+      .or(`owner_id.eq.${user.id},sitter_id.eq.${user.id}`)
+      .order("start_at");
     const rows = (data as unknown as Booking[]) ?? [];
     setBookings(rows);
     const pendingIds = rows.filter((b) => b.status === "pending").map((b) => b.id);
@@ -96,7 +98,7 @@ export default function BookingsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { if (profile !== undefined) load(); }, [user, profile]);
+  useEffect(() => { void load(); }, [user]);
 
   const filtered = tab === "all" ? bookings : bookings.filter((b) => b.status === tab);
 
@@ -173,7 +175,9 @@ export default function BookingsPage() {
   };
 
   const renderBookingItem = (booking: Booking) => {
-    const isSitterView = Boolean(profile?.is_sitter && booking.sitter?.id === user?.id);
+    // Which side of this booking the viewer is on, not whether they sit today: a sitter who has
+    // paused sitting still answers the requests already made with them.
+    const isSitterView = booking.sitter_id === user?.id;
     const displayProfile = isSitterView ? booking.owner : booking.sitter;
     const displayLabel = isSitterView ? t("appPages.bookings.ownerLabel") : t("appPages.bookings.sitterLabel");
     // Both parties may review a completed booking, each about the other. Which side of

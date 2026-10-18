@@ -89,6 +89,14 @@ describe("/bookings/new availability", () => {
     await waitFor(() => expect(submit()).toBeEnabled());
   });
 
+  it("an offer still being typed never leaves the button stuck on its spinner", async () => {
+    await typeStay();
+    fireEvent.click(await screen.findByRole("radio", { name: "appPages.bookingsNew.makeOffer" }));
+    // The disabled button keeps a click out; a submit that gets through anyway must change nothing.
+    fireEvent.submit(document.getElementById("booking-form")!);
+    expect(submit()).not.toHaveAttribute("aria-busy");
+  });
+
   it("names a clash the database found", async () => {
     h.createError = { message: "The sitter is not free for these dates", hint: "already_booked" };
     vi.spyOn(console, "error").mockImplementation(() => {});

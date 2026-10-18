@@ -198,9 +198,10 @@ function NewBookingForm() {
     e.preventDefault();
     if (!user || !form.service || blocker) return;
     if (bookingRangeProblem(form.start_at, form.end_at, new Date())) return;
+    // Every refusal before the spinner: returning after it left the button busy for good.
+    if (!requestPriceValid(priceChoice, asking, form.service)) return;
     setError("");
     setLoading(true);
-    if (!requestPriceValid(priceChoice, asking, form.service)) return;
     const offering = priceChoice.mode === "offer" && form.service !== "grooming";
     // One database call for the request and its opening offer, so neither can be saved alone.
     // The database prices the request itself from the sitter's list (days, asking_price).

@@ -22,3 +22,8 @@ supabase/.temp/
 iot-collar/.venv/
 iot-collar/.pytest_cache/
 iot-collar/queue.jsonl
+
+# Playwright flow tests (npm run e2e)
+test-results/
+playwright-report/
+e2e/.auth/
