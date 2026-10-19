@@ -220,7 +220,7 @@ async function openPanel(user: ReturnType<typeof userEvent.setup>) {
  */
 function rows(container: HTMLElement): HTMLElement[] {
   return Array.from(
-    container.querySelectorAll<HTMLElement>("[data-variants] [data-variants]"),
+    document.body.querySelectorAll<HTMLElement>("[data-variants] [data-variants]"),
   );
 }
 
@@ -352,7 +352,7 @@ describe("panel body states", () => {
     setContext({ loading: true, notifications: [] });
     const { container } = renderBell();
     await openPanel(user);
-    const skeleton = container.querySelector('[role="dialog"] > div[aria-hidden="true"]');
+    const skeleton = document.body.querySelector('[role="dialog"] > div[aria-hidden="true"]');
     expect(skeleton).not.toBeNull();
     expect(skeleton?.children).toHaveLength(3);
     expect(screen.queryByText(K.empty)).not.toBeInTheDocument();
@@ -363,7 +363,7 @@ describe("panel body states", () => {
     const { container } = renderBell();
     await openPanel(user);
     expect(
-      container.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
+      document.body.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
     ).not.toBeNull();
   });
 
@@ -375,7 +375,7 @@ describe("panel body states", () => {
     expect(screen.getByText(K.empty)).toBeInTheDocument();
     expect(screen.getByText(K.emptyHint)).toBeInTheDocument();
     expect(
-      container.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
+      document.body.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
     ).toBeNull();
   });
 
@@ -388,7 +388,7 @@ describe("panel body states", () => {
     await openPanel(user);
     expect(rows(container)).toHaveLength(1);
     expect(
-      container.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
+      document.body.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
     ).toBeNull();
     expect(screen.queryByText(K.empty)).not.toBeInTheDocument();
   });
@@ -401,7 +401,7 @@ describe("panel body states", () => {
     expect(rows(container)).toHaveLength(2);
     expect(screen.queryByText(K.empty)).not.toBeInTheDocument();
     expect(
-      container.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
+      document.body.querySelector('[role="dialog"] > div[aria-hidden="true"]'),
     ).toBeNull();
   });
 
@@ -785,7 +785,7 @@ describe("dismissal", () => {
 
 describe("list stagger", () => {
   const staggerOf = (container: HTMLElement): number => {
-    const list = container.querySelector<HTMLElement>('[role="dialog"] [data-variants]');
+    const list = document.body.querySelector<HTMLElement>('[role="dialog"] [data-variants]');
     const raw = list?.getAttribute("data-variants");
     if (!raw) throw new Error("expected list variants");
     return (JSON.parse(raw) as { show: { transition: { staggerChildren: number } } }).show
@@ -813,29 +813,47 @@ describe("list stagger", () => {
 });
 
 describe("alignment", () => {
-  it("hangs the panel from the right edge by default", async () => {
+  // The desktop rail scrolls (overflow-y-auto), which also clips sideways: a panel nested in it was cut off at
+  // the rail's 256px edge (Lukas, 2026-10-19). So the panel is portalled to <body> and fixed next to the bell.
+  const placeTrigger = (rect: Partial<DOMRect>) => {
+    const button = screen.getAllByRole("button")[0];
+    button.getBoundingClientRect = () => ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}), ...rect }) as DOMRect;
+  };
+
+  it("renders the panel in <body>, outside the bell's own (possibly clipping) container", async () => {
+    const user = userEvent.setup();
+    const { container } = renderBell({ align: "left" });
+    const el = await openPanel(user);
+    expect(container.contains(el)).toBe(false);
+    expect(el.parentElement).toBe(document.body);
+    expect(el.style.position).toBe("fixed");
+  });
+
+  it("hangs the panel from the right edge of the bell by default", async () => {
     const user = userEvent.setup();
     renderBell();
+    placeTrigger({ left: 900, right: 944, top: 10, bottom: 54 });
     const el = await openPanel(user);
-    expect(el.classList.contains("right-0")).toBe(true);
-    expect(el.classList.contains("left-0")).toBe(false);
+    expect(el.style.top).toBe("62px");
+    expect(el.style.right).toBe(`${window.innerWidth - 944}px`);
     expect(el.style.transformOrigin).toBe("top right");
   });
 
-  it('hangs the panel from the left edge when align is "left"', async () => {
+  it('hangs the panel from the left edge of the bell when align is "left"', async () => {
     const user = userEvent.setup();
     renderBell({ align: "left" });
+    placeTrigger({ left: 200, right: 244, top: 16, bottom: 60 });
     const el = await openPanel(user);
-    expect(el.classList.contains("left-0")).toBe(true);
-    expect(el.classList.contains("right-0")).toBe(false);
+    expect(el.style.top).toBe("68px");
+    expect(el.style.left).toBe("200px");
     expect(el.style.transformOrigin).toBe("top left");
   });
 
-  it('matches the default when align is explicitly "right"', async () => {
+  it("stays open on a click inside the portalled panel", async () => {
     const user = userEvent.setup();
-    renderBell({ align: "right" });
-    const el = await openPanel(user);
-    expect(el.classList.contains("right-0")).toBe(true);
-    expect(el.style.transformOrigin).toBe("top right");
+    renderBell({ align: "left" });
+    await openPanel(user);
+    await user.click(within(panel()).getByRole("heading", { name: K.title }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });

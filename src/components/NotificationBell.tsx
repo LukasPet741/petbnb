@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,20 +20,39 @@ import Avatar from "./Avatar";
  * `align` picks which edge the panel hangs from. "right" suits a right-aligned
  * trigger in a full-width bar; "left" is for the 256px desktop rail, where a
  * right-anchored 320-384px panel would open off the left edge of the screen.
+ *
+ * The panel is portalled to <body> and fixed next to the bell: the desktop rail scrolls
+ * (overflow-y-auto), which also clips sideways, and cut a nested panel off at its edge.
  */
+const GAP = 8; // px between the bell and the panel, and the panel's least distance from the screen edge
+
 export default function NotificationBell({ align = "right" }: { align?: "left" | "right" }) {
   const { t } = useLanguage();
   const { notifications, unreadCount, loading, markAllRead, markRead } = useNotifications();
   const [open, setOpen] = useState(false);
+  const [place, setPlace] = useState<CSSProperties>({});
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const titleId = useId();
+
+  // Where the panel goes, from the bell's place on screen at the moment it opens.
+  const measure = (): CSSProperties => {
+    const r = triggerRef.current?.getBoundingClientRect();
+    if (!r) return {};
+    const top = r.bottom + GAP;
+    if (align === "left") return { top, left: Math.max(GAP, r.left) };
+    return { top, right: Math.max(GAP, window.innerWidth - r.right) };
+  };
 
   useEffect(() => {
     if (!open) return;
     const onMouseDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (!rootRef.current?.contains(target) && !panelRef.current?.contains(target)) setOpen(false);
     };
+    const onResize = () => setPlace(measure());
+    window.addEventListener("resize", onResize);
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       setOpen(false);
@@ -41,9 +61,12 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
     document.addEventListener("mousedown", onMouseDown);
     document.addEventListener("keydown", onKeyDown);
     return () => {
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("mousedown", onMouseDown);
       document.removeEventListener("keydown", onKeyDown);
     };
+    // measure reads only refs and `align`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   // Shared with the dashboard's feed, so a notification reads the same in both places.
@@ -64,7 +87,10 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open) setPlace(measure());
+          setOpen(!open);
+        }}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={
@@ -85,20 +111,19 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
         )}
       </button>
 
+      {typeof document !== "undefined" && createPortal(
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={panelRef}
             role="dialog"
             aria-labelledby={titleId}
             initial={{ opacity: 0, scale: 0.95, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -6 }}
             transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{ transformOrigin: align === "left" ? "top left" : "top right" }}
-            className={cn(
-              "absolute top-full mt-2 z-50 w-80 sm:w-96 max-h-[70dvh] overflow-y-auto overscroll-contain bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]",
-              align === "left" ? "left-0" : "right-0"
-            )}
+            style={{ position: "fixed", ...place, transformOrigin: align === "left" ? "top left" : "top right" }}
+            className="z-[60] w-80 sm:w-96 max-w-[calc(100vw-16px)] max-h-[70dvh] overflow-y-auto overscroll-contain bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]"
           >
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 bg-surface border-b border-black/5">
               <h2 id={titleId} className="font-display text-base font-semibold text-ink">
@@ -192,7 +217,9 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   );
 }
