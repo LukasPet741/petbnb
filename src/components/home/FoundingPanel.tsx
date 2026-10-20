@@ -21,7 +21,7 @@ export default function FoundingPanel() {
   const { user } = useAuth();
 
   return (
-    <section className="py-12 md:py-16">
+    <section id="become-a-sitter" className="scroll-mt-16 py-12 md:py-16">
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           {...revealOnScroll(0, reduceMotion)}

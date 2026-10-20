@@ -1,4 +1,17 @@
 const home = {
+  nav: {
+    label: "Pagrindinis",
+    findSitters: "Rasti globėją",
+    becomeSitter: "Tapti globėju",
+    openMenu: "Atidaryti meniu",
+    closeMenu: "Uždaryti meniu",
+    myAccount: "Mano paskyra",
+    signOut: "Atsijungti",
+    services: "Paslaugos",
+    cities: "Miestai",
+    how: "Kaip tai veikia",
+    faq: "DUK",
+  },
   hero: {
     eyebrow: "Augintinių priežiūra Lietuvoje",
     titleLine1: "Priežiūra iš žmonių,",

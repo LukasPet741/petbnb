@@ -1,4 +1,17 @@
 const home = {
+  nav: {
+    label: "Main",
+    findSitters: "Find sitters",
+    becomeSitter: "Become a sitter",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
+    myAccount: "My account",
+    signOut: "Sign out",
+    services: "Services",
+    cities: "Cities",
+    how: "How it works",
+    faq: "FAQ",
+  },
   hero: {
     eyebrow: "Pet sitting in Lithuania",
     titleLine1: "Care from people",

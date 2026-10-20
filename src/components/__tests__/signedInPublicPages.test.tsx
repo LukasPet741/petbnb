@@ -113,12 +113,14 @@ describe("public header", () => {
     render(<PublicHeader />);
     expect(hrefs()).toEqual(expect.arrayContaining(["/login", "/signup"]));
     expect(hrefs()).not.toContain("/dashboard");
+    expect(hrefs()).toEqual(expect.arrayContaining(["/browse", "/#how-it-works", "/#faq"]));
   });
 
-  it("offers the dashboard instead of sign in and sign up when signed in", () => {
+  it("offers the account and sign out instead of sign in and sign up when signed in", () => {
     h.auth = SIGNED_IN;
     render(<PublicHeader />);
-    expect(screen.getByRole("link", { name: /common\.dashboard/ })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("link", { name: /home\.nav\.myAccount/ })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("button", { name: /home\.nav\.signOut/ })).toBeInTheDocument();
     expect(hrefs()).not.toContain("/login");
     expect(hrefs()).not.toContain("/signup");
   });

@@ -24,7 +24,7 @@ export default function ServiceCards() {
   const { t } = useLanguage();
 
   return (
-    <section aria-label={t("home.services.railLabel")}>
+    <section id="services" className="scroll-mt-16" aria-label={t("home.services.railLabel")}>
       <div className="max-w-6xl mx-auto px-4 py-12 lg:py-14">
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand">
           {t("home.services.eyebrow")}
