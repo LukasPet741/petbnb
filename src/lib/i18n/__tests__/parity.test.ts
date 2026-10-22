@@ -128,6 +128,8 @@ describe("translation completeness", () => {
     "appPages.collar.states.demo_idle",
     // "Smart-ID" is SK ID Solutions' product name in every language.
     "appShell.spotlight.smartIdTitle",
+    // "12 min · 0.8 km": min and km are the same abbreviations in Lithuanian (collar walks, 2026-10-22).
+    "appPages.collar.walks.summary",
   ];
 
   it("has no untranslated Lithuanian string outside the documented allow-list", () => {
