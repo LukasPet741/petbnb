@@ -54,6 +54,7 @@ beforeEach(() => {
     sitter_days_off: [],
     collar_devices: [{ id: "c1", label: "Rex" }],
     collar_locations: [{ device_id: "c1", lat: 54.7, lng: 25.3 }],
+    collar_walks: [{ id: "w1", device_id: "c1" }],
   };
 });
 
@@ -72,6 +73,7 @@ describe("collectMyData", () => {
     expect(data.daysOff).toEqual([]);
     expect(data.collars).toHaveLength(1);
     expect(data.collarLocations).toHaveLength(1);
+    expect(data.collarWalks).toHaveLength(1);
   });
 
   it("asks for each section by the person's own id", async () => {
@@ -80,6 +82,8 @@ describe("collectMyData", () => {
     expect(calls("pets").some((c) => c[0] === "is")).toBe(false);
     expect(calls("bookings")).toContainEqual(["or", "owner_id.eq.u1,sitter_id.eq.u1"]);
     expect(calls("messages")).toContainEqual(["in", "booking_id", ["b1", "b2"]]);
+    // Walks on the person's collars and walks they made with someone else's.
+    expect(calls("collar_walks")).toContainEqual(["or", "owner_id.eq.u1,walker_id.eq.u1"]);
     expect(calls("reviews")).toContainEqual(["or", "author_id.eq.u1,subject_id.eq.u1"]);
     expect(calls("favorites")).toContainEqual(["eq", "user_id", "u1"]);
     expect(calls("notifications")).toContainEqual(["eq", "user_id", "u1"]);

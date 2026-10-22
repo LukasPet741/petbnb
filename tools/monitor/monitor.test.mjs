@@ -22,6 +22,12 @@ describe("featuresForPath", () => {
     expect(featuresForPath("src/components/home/Hero.tsx")).toEqual(["landing"]);
   });
 
+  it("lights the walks dot for walk code, on the collar page and on bookings", () => {
+    expect(featuresForPath("src/components/collar/WalkScreen.tsx")).toContain("collar-walks");
+    expect(featuresForPath("src/components/BookingWalks.tsx")).toContain("collar-walks");
+    expect(featuresForPath("src/app/(app)/walks/[walkId]/page.tsx")).toContain("collar-walks");
+  });
+
   it("keeps the Pi's code apart from the collar page", () => {
     expect(featuresForPath("iot-collar/collar/gps.py")).toEqual(["collar-hw"]);
     expect(featuresForPath("iot-collar/supabase/functions/collar-ingest/index.ts")).toEqual(["collar-hw"]);

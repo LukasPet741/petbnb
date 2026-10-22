@@ -74,6 +74,12 @@ export const FEATURES = [
     match: [/^src\/.*(collar|livedot|minimap)/],
   },
   {
+    id: "collar-walks",
+    label: "Collar walks",
+    routes: ["/collar"],
+    match: [/^src\/.*walk/],
+  },
+  {
     id: "smart-id",
     label: "Smart-ID",
     routes: ["/smart-id-demo", "/api/smart-id-demo"],

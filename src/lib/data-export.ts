@@ -41,6 +41,8 @@ export interface MyData {
   daysOff: Rows;
   collars: Rows;
   collarLocations: Rows;
+  /** Walks on the person's collars, and walks they made with someone else's (as a sitter). */
+  collarWalks: Rows;
 }
 
 export async function collectMyData(user: { id: string; email?: string | null }, now = new Date()): Promise<MyData> {
@@ -84,6 +86,9 @@ export async function collectMyData(user: { id: string; email?: string | null },
           .order("recorded_at"),
       )
     : [];
+  const collarWalks = await all(() =>
+    supabase.from("collar_walks").select("*").or(`owner_id.eq.${uid},walker_id.eq.${uid}`).order("started_at"),
+  );
 
   return {
     format: "petbnb-my-data/1",
@@ -99,6 +104,7 @@ export async function collectMyData(user: { id: string; email?: string | null },
     daysOff,
     collars,
     collarLocations,
+    collarWalks,
   };
 }
 
