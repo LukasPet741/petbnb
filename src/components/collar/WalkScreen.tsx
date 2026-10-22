@@ -8,6 +8,7 @@ import {
   loadWalk, stopWalk, walkLiveState, walkStats, WALK_POLL_MS, type WalkDetail,
 } from "@/lib/collar/walks";
 import Button from "@/components/ui/Button";
+import MoonLoader from "@/components/ui/MoonLoader";
 import { cn } from "@/lib/utils";
 import LazyCollarMap from "./LazyCollarMap";
 import LiveDot from "./LiveDot";
@@ -86,8 +87,8 @@ export default function WalkScreen({ walkId }: { walkId: string }) {
             <Button className="mt-3" variant="secondary" onClick={() => void load()}>{t("appPages.collar.replay.tryAgain")}</Button>
           </>
         ) : (
-          <div role="status" aria-label={t("appPages.collar.walks.loading")} className="flex min-h-[50vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <div className="flex min-h-[50vh] items-center justify-center">
+            <MoonLoader size={44} label={t("appPages.collar.walks.loading")} />
           </div>
         )}
       </div>
@@ -129,16 +130,16 @@ export default function WalkScreen({ walkId }: { walkId: string }) {
       </p>
 
       {state !== "ended" && (
-        <p className={cn("mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12.5px] font-medium",
+        <p className={cn("mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium",
           state === "live" ? "border-brand/20 bg-brand-softer text-brand-strong" : "border-ink/10 bg-surface text-ink-soft")}>
           {state === "live" && <LiveDot />}
           {t(`appPages.collar.walks.${state}`)}
         </p>
       )}
-      {walk.end_reason === "time_limit" && <p className="mt-2 text-[12.5px] text-ink-soft">{t("appPages.collar.walks.endedTimeLimit")}</p>}
-      {walk.end_reason === "no_signal" && <p className="mt-2 text-[12.5px] text-ink-soft">{t("appPages.collar.walks.endedNoSignal")}</p>}
+      {walk.end_reason === "time_limit" && <p className="mt-2 text-xs text-ink-soft">{t("appPages.collar.walks.endedTimeLimit")}</p>}
+      {walk.end_reason === "no_signal" && <p className="mt-2 text-xs text-ink-soft">{t("appPages.collar.walks.endedNoSignal")}</p>}
 
-      <div className="relative isolate mt-4 h-[52vh] min-h-[280px] overflow-hidden rounded-[20px] shadow-[var(--shadow-md)]">
+      <div className="relative isolate mt-4 h-[52vh] min-h-[280px] overflow-hidden rounded-[var(--radius-card)] shadow-[var(--shadow-md)]">
         <LazyCollarMap
           lat={center.lat}
           lng={center.lng}
@@ -152,16 +153,16 @@ export default function WalkScreen({ walkId }: { walkId: string }) {
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div className="glass-card rounded-2xl border px-3 py-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.collar.walks.elapsed")}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.collar.walks.elapsed")}</p>
           <b className="text-lg font-semibold tabular-nums">{`${Math.round(stats.durationMin)} min`}</b>
         </div>
         <div className="glass-card rounded-2xl border px-3 py-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.collar.walks.distance")}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.collar.walks.distance")}</p>
           <b className="text-lg font-semibold tabular-nums">{`${stats.distanceKm.toFixed(2)} km`}</b>
         </div>
       </div>
 
-      {failed && <p className="mt-3 text-[12.5px] font-medium text-amber-strong">{t("appPages.collar.walks.failed")}</p>}
+      {failed && <p className="mt-3 text-xs font-medium text-amber-strong">{t("appPages.collar.walks.failed")}</p>}
 
       <div className="mt-4 flex flex-wrap gap-2.5">
         {running && detail.can_stop && (

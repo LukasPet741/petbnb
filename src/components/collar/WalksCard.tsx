@@ -27,7 +27,7 @@ export default function WalksCard({ deviceId, now }: { deviceId: string; now: nu
   };
 
   return (
-    <section className="glass-card mt-4 rounded-[20px] border p-4 sm:p-5" aria-labelledby="collar-walks-title">
+    <section className="glass-card mt-4 rounded-[var(--radius-card)] border p-4 sm:p-5" aria-labelledby="collar-walks-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="collar-walks-title" className="font-display text-lg font-bold text-ink">{t("appPages.collar.walks.recent")}</h2>
         {walks && !running && (
@@ -54,11 +54,11 @@ export default function WalksCard({ deviceId, now }: { deviceId: string; now: nu
       )}
 
       {error && (
-        <p role="alert" className="mt-3 text-[12.5px] font-medium text-amber-strong">
+        <p role="alert" className="mt-3 text-xs font-medium text-amber-strong">
           {t(error === "walk_running" ? "appPages.collar.walks.running" : error === "not_allowed" ? "appPages.collar.walks.notAllowed" : "appPages.collar.walks.failed")}
         </p>
       )}
-      {dropped && <p className="mt-3 text-[12.5px] text-ink-soft">{t("appPages.collar.walks.dropped")}</p>}
+      {dropped && <p className="mt-3 text-xs text-ink-soft">{t("appPages.collar.walks.dropped")}</p>}
 
       {walks && recent.length === 0 && !running && (
         <p className="mt-2 text-sm text-ink-soft">{t("appPages.collar.walks.none")}</p>
@@ -67,7 +67,7 @@ export default function WalksCard({ deviceId, now }: { deviceId: string; now: nu
         <ul className="mt-3 divide-y divide-ink/5">
           {recent.map((walk) => (
             <li key={walk.id}>
-              <Link href={`/walks/${walk.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-white/60">
+              <Link href={`/walks/${walk.id}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-brand-softer">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">
                     {`${formatDayMonth(walk.started_at, locale)}, ${formatClock(walk.started_at, locale)} · ${who(walk)}`}
