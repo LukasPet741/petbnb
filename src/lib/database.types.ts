@@ -238,6 +238,57 @@ export type Database = {
         }
         Relationships: []
       }
+      collar_walks: {
+        Row: {
+          booking_id: string | null
+          device_id: string
+          end_reason: string | null
+          ended_at: string | null
+          id: string
+          owner_id: string
+          points: Json | null
+          started_at: string
+          walker_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          device_id: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          owner_id: string
+          points?: Json | null
+          started_at?: string
+          walker_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          device_id?: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          owner_id?: string
+          points?: Json | null
+          started_at?: string
+          walker_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collar_walks_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collar_walks_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "collar_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -840,7 +891,10 @@ export type Database = {
         }
         Returns: string
       }
+      collar_walks_for_booking: { Args: { p_booking_id: string }; Returns: Json }
+      collar_walks_for_device: { Args: { p_device_id: string }; Returns: Json }
       create_demo_collar: { Args: never; Returns: string }
+      get_collar_walk: { Args: { p_walk_id: string }; Returns: Json }
       erase_my_account: { Args: { p_confirm_name: string }; Returns: undefined }
       finish_smart_id_demo_verification: {
         Args: { p_session_id: string }
@@ -860,6 +914,11 @@ export type Database = {
           total: number
         }[]
       }
+      start_collar_walk: {
+        Args: { p_booking_id?: string; p_device_id: string }
+        Returns: string
+      }
+      stop_collar_walk: { Args: { p_walk_id: string }; Returns: string }
       request_smart_id_demo_verification: {
         Args: { p_session_id: string }
         Returns: undefined
