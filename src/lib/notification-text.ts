@@ -28,6 +28,12 @@ export function notificationContext(n: AppNotification, t: Translate): string {
   return [n.booking?.pet?.name?.trim() || null, service].filter(Boolean).join(" · ");
 }
 
+/** Where a notification leads: a walk to the collar, anything else on a booking to its thread. */
+export function notificationHref(n: AppNotification): string | null {
+  if (n.type === "walk_started" || n.type === "walk_finished") return "/collar";
+  return n.booking_id ? `/messages/${n.booking_id}` : null;
+}
+
 /** The line under the sentence: the context, then how long ago. */
 export function notificationMeta(n: AppNotification, t: Translate): string {
   return [notificationContext(n, t), timeAgo(n.created_at, t)].filter(Boolean).join(" · ");

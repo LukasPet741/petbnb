@@ -81,6 +81,8 @@ const messages = {
     message_received: "{actor} atsiuntė jums žinutę",
     offer_received: "{actor} atsiuntė kainos pasiūlymą",
     price_agreed: "{actor} sutiko su jūsų kaina",
+    walk_started: "{actor} pradėjo pasivaikščiojimą",
+    walk_finished: "{actor} baigė pasivaikščiojimą",
     fallbackPet: "jūsų augintinis",
   },
 };

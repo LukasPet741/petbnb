@@ -5,7 +5,7 @@ import Avatar from "@/components/Avatar";
 import { useLanguage } from "@/context/LanguageContext";
 import { groupByDay } from "@/lib/dashboard";
 import { pluralForm } from "@/lib/i18n/plural";
-import { notificationActor, notificationMeta, notificationSentence } from "@/lib/notification-text";
+import { notificationActor, notificationHref, notificationMeta, notificationSentence } from "@/lib/notification-text";
 import { cn } from "@/lib/utils";
 import type { AppNotification } from "@/lib/types";
 
@@ -40,11 +40,12 @@ export default function ActivityFeed({ notifications, loading, unreadCount, now,
       </>
     );
     const rowClass = "flex items-start gap-3 py-3 -mx-2 px-2 rounded-[var(--radius-input)]";
+    const href = notificationHref(n);
     return (
       <li key={n.id} className="border-b border-ink/5 last:border-b-0">
-        {n.booking_id ? (
+        {href ? (
           <Link
-            href={`/messages/${n.booking_id}`}
+            href={href}
             onClick={() => onOpen(n)}
             className={cn(rowClass, "hover:bg-white/60 transition-colors focus-visible:outline-2 focus-visible:outline-brand")}
           >

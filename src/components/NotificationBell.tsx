@@ -9,7 +9,7 @@ import { useNotifications } from "@/context/NotificationsContext";
 import { cn } from "@/lib/utils";
 import { fadeUp, stagger } from "@/lib/motion";
 import type { AppNotification } from "@/lib/types";
-import { notificationActor, notificationMeta, notificationSentence } from "@/lib/notification-text";
+import { notificationActor, notificationHref, notificationMeta, notificationSentence } from "@/lib/notification-text";
 import Avatar from "./Avatar";
 
 /**
@@ -184,11 +184,12 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
                     </>
                   );
 
+                  const href = notificationHref(n);
                   return (
                     <motion.div key={n.id} variants={fadeUp}>
-                      {n.booking_id ? (
+                      {href ? (
                         <Link
-                          href={`/messages/${n.booking_id}`}
+                          href={href}
                           onClick={() => openRow(n)}
                           className={cn(
                             rowClass,

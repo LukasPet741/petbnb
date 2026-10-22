@@ -215,7 +215,9 @@ export type NotificationType =
   | "booking_completed"
   | "message_received"
   | "offer_received"
-  | "price_agreed";
+  | "price_agreed"
+  | "walk_started"
+  | "walk_finished";
 
 export interface AppNotification {
   id: string;

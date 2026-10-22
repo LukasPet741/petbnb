@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { dictionaries, type Locale } from "@/lib/i18n";
 import { interpolate, lookup } from "@/context/LanguageContext";
-import { notificationActor, notificationContext, notificationMeta, notificationSentence } from "@/lib/notification-text";
+import { notificationActor, notificationContext, notificationHref, notificationMeta, notificationSentence } from "@/lib/notification-text";
 import type { AppNotification, NotificationType } from "@/lib/types";
 
 /**
@@ -27,6 +27,8 @@ const TYPES: NotificationType[] = [
   "message_received",
   "offer_received",
   "price_agreed",
+  "walk_started",
+  "walk_finished",
 ];
 
 function note(overrides: Partial<AppNotification> = {}): AppNotification {
@@ -56,6 +58,8 @@ describe("notificationSentence", () => {
     ["message_received", "Emilija Ambrazevičiūtė atsiuntė jums žinutę"],
     ["offer_received", "Emilija Ambrazevičiūtė atsiuntė kainos pasiūlymą"],
     ["price_agreed", "Emilija Ambrazevičiūtė sutiko su jūsų kaina"],
+    ["walk_started", "Emilija Ambrazevičiūtė pradėjo pasivaikščiojimą"],
+    ["walk_finished", "Emilija Ambrazevičiūtė baigė pasivaikščiojimą"],
   ])("reads %s in Lithuanian with the actor as the only name in it", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("lt"))).toBe(expected);
   });
@@ -69,6 +73,8 @@ describe("notificationSentence", () => {
     ["message_received", "Emilija Ambrazevičiūtė sent you a message"],
     ["offer_received", "Emilija Ambrazevičiūtė sent you a price offer"],
     ["price_agreed", "Emilija Ambrazevičiūtė accepted your price"],
+    ["walk_started", "Emilija Ambrazevičiūtė started a walk"],
+    ["walk_finished", "Emilija Ambrazevičiūtė finished a walk"],
   ])("reads %s in English", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("en"))).toBe(expected);
   });
@@ -116,5 +122,20 @@ describe("notificationMeta", () => {
     const meta = notificationMeta(note({ booking: undefined }), tFor("en"));
     expect(meta).not.toContain("·");
     expect(meta.length).toBeGreaterThan(0);
+  });
+});
+
+describe("notificationHref", () => {
+  it("opens the collar for a walk", () => {
+    expect(notificationHref(note({ type: "walk_started" }))).toBe("/collar");
+    expect(notificationHref(note({ type: "walk_finished" }))).toBe("/collar");
+  });
+
+  it("opens the booking's thread for everything else", () => {
+    expect(notificationHref(note({ type: "price_agreed" }))).toBe("/messages/b-1");
+  });
+
+  it("opens nothing without a booking", () => {
+    expect(notificationHref(note({ booking_id: null }))).toBeNull();
   });
 });

@@ -82,6 +82,8 @@ const messages = {
     message_received: "{actor} sent you a message",
     offer_received: "{actor} sent you a price offer",
     price_agreed: "{actor} accepted your price",
+    walk_started: "{actor} started a walk",
+    walk_finished: "{actor} finished a walk",
     fallbackPet: "your pet",
   },
 };
