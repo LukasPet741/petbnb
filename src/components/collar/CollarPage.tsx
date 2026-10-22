@@ -8,6 +8,7 @@ import CollarEmpty from "./CollarEmpty";
 import CollarHeader from "./CollarHeader";
 import CollarHero from "./CollarHero";
 import PairingWizard from "./PairingWizard";
+import WalksCard from "./WalksCard";
 import WeekCard from "./WeekCard";
 import { RemoveDialog, RenameDialog } from "./CollarDialogs";
 import { collarName } from "./names";
@@ -93,6 +94,7 @@ export default function CollarPage() {
         onStop={live.stopReplay}
       />
 
+      {!device.is_demo && <WalksCard deviceId={device.id} now={live.now} />}
       {!device.is_demo && <WeekCard deviceId={device.id} selectedDay={day} onSelectDay={setDay} />}
 
       {renaming && (

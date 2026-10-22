@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import CollarPage from "@/components/collar/CollarPage";
 import { EMPTY_COLLAR_LIVE, type CollarLiveValue } from "@/context/CollarLiveContext";
 import type { CollarDevice } from "@/lib/collar/types";
@@ -16,6 +16,7 @@ vi.mock("@/components/collar/CollarHero", () => ({
   ),
 }));
 vi.mock("@/components/collar/WeekCard", () => ({ default: () => <div data-testid="week" /> }));
+vi.mock("@/components/collar/WalksCard", () => ({ default: (p: { deviceId: string }) => <div data-testid="walks">{p.deviceId}</div> }));
 vi.mock("@/components/collar/useCollarTrail", () => ({ useCollarTrail: () => [] }));
 vi.mock("@/components/collar/PairingWizard", () => ({
   default: ({ onClose }: { onClose: () => void }) => <div data-testid="wizard"><button onClick={onClose}>close-wizard</button></div>,
@@ -68,6 +69,16 @@ describe("CollarPage", () => {
     expect(screen.getByText("appPages.collar.states.live")).toBeTruthy();
     expect(screen.getByTestId("hero").textContent).toBe("live");
     expect(screen.getByTestId("week")).toBeTruthy();
+  });
+
+  it("offers walks on a real collar, never on the demo one", () => {
+    render(<CollarPage />);
+    expect(screen.getByTestId("walks").textContent).toBe("c1");
+    cleanup();
+    const demo = { ...reksas, id: "d1", is_demo: true, label: "Recorded walk" };
+    h.live = live({ collars: [demo], selected: demo, state: "demo_idle" });
+    render(<CollarPage />);
+    expect(screen.queryByTestId("walks")).toBeNull();
   });
 
   it("plays the recorded walk, and stops it", () => {
