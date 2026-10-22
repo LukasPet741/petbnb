@@ -15,6 +15,7 @@ import BookingsPage from "@/app/(app)/bookings/page";
 const h = vi.hoisted(() => ({
   profile: null as null | { is_sitter: boolean },
   queries: [] as string[],
+  rows: null as unknown[] | null,
   // Stable, as AuthContext's is: a fresh object every render would refetch every render.
   user: { id: "s1" },
 }));
@@ -24,6 +25,7 @@ vi.mock("@/context/AuthContext", () => ({ useAuth: () => ({ user: h.user }) }));
 vi.mock("@/hooks/useProfile", () => ({ useProfile: () => ({ profile: h.profile, loading: h.profile === null }) }));
 vi.mock("@/hooks/useMyReviews", () => ({ useMyReviews: () => ({ reviews: new Map(), saveReview: vi.fn(), error: null }) }));
 vi.mock("@/components/RightRail", () => ({ default: () => null }));
+vi.mock("@/components/BookingWalks", () => ({ default: (p: { bookingId: string }) => <div data-testid="walks">{p.bookingId}</div> }));
 
 const REQUEST = {
   id: "b1", status: "pending", service: "walking",
@@ -45,7 +47,7 @@ vi.mock("@/lib/supabase", () => ({
           // Both sides: the request made with this sitter is among the rows.
           or: (filter: string) => {
             h.queries.push(`or:${filter}`);
-            return { order: () => Promise.resolve({ data: [REQUEST], error: null }) };
+            return { order: () => Promise.resolve({ data: h.rows ?? [REQUEST], error: null }) };
           },
           // Own requests only: the sitter's incoming request is not.
           eq: (column: string) => {
@@ -61,6 +63,7 @@ vi.mock("@/lib/supabase", () => ({
 beforeEach(() => {
   h.profile = null;
   h.queries = [];
+  h.rows = null;
 });
 
 describe("/bookings", () => {
@@ -77,5 +80,16 @@ describe("/bookings", () => {
     render(<BookingsPage />);
     await screen.findByRole("button", { name: "appPages.bookings.acceptForButton" });
     expect(h.queries).toEqual(["or:owner_id.eq.s1,sitter_id.eq.s1"]);
+  });
+
+  it("gives walk controls to the sitter's stays only, never to the owner's", async () => {
+    h.rows = [
+      { ...REQUEST, id: "as-sitter", status: "signed", agreed_price: 25 },
+      { ...REQUEST, id: "as-owner", status: "signed", agreed_price: 25, owner_id: "s1", sitter_id: "o2",
+        owner: { id: "s1", full_name: "Rūta K.", avatar_url: null }, sitter: { id: "o2", full_name: "Tomas", avatar_url: null } },
+    ];
+    render(<BookingsPage />);
+    const slots = await screen.findAllByTestId("walks");
+    expect(slots.map((el) => el.textContent)).toEqual(["as-sitter"]);
   });
 });

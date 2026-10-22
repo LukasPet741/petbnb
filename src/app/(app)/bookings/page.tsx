@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { type BookingStatus } from "@/lib/types";
 import BookingCard from "@/components/BookingCard";
 import BookingReview from "@/components/BookingReview";
+import BookingWalks from "@/components/BookingWalks";
 import { useMyReviews } from "@/hooks/useMyReviews";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
@@ -202,6 +203,7 @@ export default function BookingsPage() {
           waitingLabel={price.waitingLabel}
           onDecline={() => void handleDecline(booking)}
           onMarkCompleted={() => handleUpdateStatus(booking.id, "completed")}
+          walkSlot={isSitterView && (booking.status === "signed" || booking.status === "completed") ? <BookingWalks bookingId={booking.id} /> : null}
           reviewSlot={
             reviewable ? (
               <BookingReview

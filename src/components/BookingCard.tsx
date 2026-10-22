@@ -36,6 +36,8 @@ interface BookingCardProps {
    * both the owner and the sitter view, and only an owner can review anything.
    */
   reviewSlot?: React.ReactNode;
+  /** The sitter's walk controls (BookingWalks), passed by the page like reviewSlot. */
+  walkSlot?: React.ReactNode;
   /** "Prašoma 125 €", "Siūloma 100 €", "Sutarta 115 €": already worded by the page. */
   priceLine?: string | null;
   /**
@@ -65,7 +67,7 @@ export function getRelativeLabel(startAt: string, t: (key: string, vars?: Record
   return t("appPages.bookings.relativeInDays", { days: diffDays });
 }
 
-export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted, reviewSlot, priceLine, canAccept = isSitterView, acceptLabel, waitingLabel }: BookingCardProps) {
+export default function BookingCard({ booking, isSitterView, displayProfile, displayLabel, onAccept, onDecline, onCancel, onMarkCompleted, reviewSlot, walkSlot, priceLine, canAccept = isSitterView, acceptLabel, waitingLabel }: BookingCardProps) {
   const { t, locale } = useLanguage();
   const photo = booking.pet?.photo_url || displayProfile?.avatar_url || null;
   const isPending = booking.status === "pending";
@@ -198,6 +200,7 @@ export default function BookingCard({ booking, isSitterView, displayProfile, dis
       </div>
       {/* Hides itself on cancelled and declined cards. */}
       <BookingTimeline status={booking.status} endAt={booking.end_at} className="mt-3" />
+      {walkSlot}
       {reviewSlot}
     </motion.div>
   );

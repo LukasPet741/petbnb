@@ -87,6 +87,11 @@ describe("state x viewer-role matrix", () => {
     expect(screen.queryByText(K.cancel)).not.toBeInTheDocument();
   });
 
+  it("shows the walk slot under a resolved card", () => {
+    renderCard({ isSitterView: true, booking: booking({ status: "signed" }), walkSlot: <div data-testid="walks" /> });
+    expect(screen.getByTestId("walks")).toBeTruthy();
+  });
+
   it("offers a sitter Mark completed on a signed booking", () => {
     renderCard({ isSitterView: true, booking: booking({ status: "signed" }) });
     expect(buttonKeys()).toEqual([K.calendar, K.markCompleted]);
