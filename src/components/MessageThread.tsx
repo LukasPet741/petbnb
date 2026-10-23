@@ -69,7 +69,7 @@ const MESSAGE_SELECT = `
 `;
 
 const INPUT_CLASS =
-  "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
+  "w-full h-11 px-3.5 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 const COMPOSER_MAX_HEIGHT = 160;
 
@@ -473,11 +473,11 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
                 <div key={m.key}>
                   {divider}
                   <div className="flex items-center gap-3 py-3">
-                    <span className="flex-1 h-px bg-black/5" />
+                    <span className="flex-1 h-px bg-ink/5" />
                     <span className="text-xs text-ink-soft text-center">
                       {t(`messages.systemEvent.${m.event}`, { actor: nameFor(m) })}
                     </span>
-                    <span className="flex-1 h-px bg-black/5" />
+                    <span className="flex-1 h-px bg-ink/5" />
                   </div>
                 </div>
               );
@@ -528,7 +528,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
                   <div
                     className={cn(
                       "max-w-[75%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap break-words",
-                      own ? "bg-brand text-white" : "bg-surface-2 text-ink",
+                      own ? "bg-brand text-on-brand" : "bg-surface-2 text-ink",
                       m.pending && "opacity-70"
                     )}
                   >
@@ -581,7 +581,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
               disabled={sending || draft.trim().length === 0}
               aria-label={t("messages.send")}
               title={t("messages.send")}
-              className="h-11 w-11 flex-shrink-0 flex items-center justify-center gap-2 bg-brand text-white rounded-full text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="h-11 w-11 flex-shrink-0 flex items-center justify-center gap-2 bg-brand text-on-brand rounded-full text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Send className="w-4 h-4" />
             </button>

@@ -50,8 +50,8 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
                 aria-current={isActive ? "page" : undefined}
                 className={`min-h-11 px-4 inline-flex items-center rounded-full text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-ink text-white"
-                    : "bg-white/60 text-ink-soft border border-black/5 hover:text-ink"
+                    ? "bg-brand text-on-brand"
+                    : "bg-surface text-ink-soft border border-ink/8 hover:text-ink"
                 }`}
               >
                 {t(`legal.nav.${doc}`)}

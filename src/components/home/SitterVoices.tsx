@@ -43,7 +43,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
             {Array.from({ length: MAX_VOICES }).map((_, i) => (
               <div
                 key={i}
-                className="mb-5 break-inside-avoid h-40 rounded-[var(--radius-card)] bg-white/50 animate-pulse"
+                className="mb-5 break-inside-avoid h-40 rounded-[var(--radius-card)] bg-surface/50 animate-pulse"
               />
             ))}
           </div>

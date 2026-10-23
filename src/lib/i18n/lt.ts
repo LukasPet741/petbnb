@@ -24,6 +24,7 @@ const lt = {
     footerNote: "Studentų projektas, jungiantis augintinių šeimininkus su vietos globėjais.",
     sitterWord: "globėjas",
     languageLabel: "Kalba",
+    darkMode: "Tamsus režimas",
     experienceSuffix: "{years} m. patirties",
     experienceSuffixPlural: "{years} m. patirties",
     services: {

@@ -13,10 +13,10 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "dang
 export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white hover:bg-brand-strong shadow-[var(--shadow-sm)]",
+  primary: "bg-brand text-on-brand hover:bg-brand-strong shadow-[var(--shadow-sm)]",
   secondary: "bg-surface text-ink border border-ink/12 hover:bg-brand-softer",
   ghost: "bg-transparent text-brand hover:bg-brand-softer",
-  danger: "bg-danger text-white hover:brightness-95",
+  danger: "bg-danger text-on-brand hover:brightness-95",
   "danger-soft": "bg-danger-soft text-danger hover:brightness-95",
 };
 

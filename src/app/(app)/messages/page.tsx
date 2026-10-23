@@ -187,7 +187,7 @@ export default function MessagesPage() {
                         {previewOf(thread, name)}
                       </p>
                       {unread && (
-                        <span className="flex-shrink-0 inline-flex items-center h-5 px-2 rounded-full bg-brand text-white text-[11px] font-semibold leading-none">
+                        <span className="flex-shrink-0 inline-flex items-center h-5 px-2 rounded-full bg-brand text-on-brand text-[11px] font-semibold leading-none">
                           {t("messages.threadListUnread", { count: thread.unreadCount })}
                         </span>
                       )}

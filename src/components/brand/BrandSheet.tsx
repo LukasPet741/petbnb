@@ -60,9 +60,9 @@ export default function BrandSheet() {
               <figcaption className="text-xs font-semibold text-ink-soft">{t("brand.logo.onLight")}</figcaption>
               <Logo size={44} showWordmark />
             </figure>
-            <figure className="rounded-[var(--radius-card)] bg-ink p-6 flex flex-col gap-4">
-              <figcaption className="text-xs font-semibold text-white/70">{t("brand.logo.onDark")}</figcaption>
-              <Logo size={44} showWordmark wordmarkClassName="text-white" />
+            <figure className="rounded-[var(--radius-card)] bg-chrome p-6 flex flex-col gap-4">
+              <figcaption className="text-xs font-semibold text-chrome-ink-soft">{t("brand.logo.onDark")}</figcaption>
+              <Logo size={44} showWordmark wordmarkClassName="text-chrome-ink" />
             </figure>
             <figure className="glass-card border rounded-[var(--radius-card)] p-6 flex flex-col gap-4">
               <figcaption className="text-xs font-semibold text-ink-soft">{t("brand.logo.sizes")}</figcaption>
@@ -87,7 +87,7 @@ export default function BrandSheet() {
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
             {PALETTE.map(({ id, token, hex }) => (
               <div key={id} className="flex flex-col gap-2">
-                <div className="h-20 rounded-[var(--radius-input)] border border-black/5" style={{ background: hex }} />
+                <div className="h-20 rounded-[var(--radius-input)] border border-ink/5" style={{ background: hex }} />
                 <span className="text-sm font-semibold text-ink">{t(`brand.colour.${id}`)}</span>
                 <span className="text-xs text-ink-soft tabular-nums">{hex.toUpperCase()}</span>
                 <code className="text-xs text-ink-soft">--{token}</code>

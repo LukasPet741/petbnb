@@ -18,7 +18,7 @@ function Item({ status, title, detail, children }: { status: ItemStatus; title: 
         aria-hidden="true"
         className={cn(
           "mt-0.5 grid h-6 w-6 flex-shrink-0 place-items-center rounded-full border-2",
-          status === "done" && "border-brand bg-brand text-white",
+          status === "done" && "border-brand bg-brand text-on-brand",
           status === "active" && "animate-spin border-brand-soft border-t-brand",
           status === "warn" && "border-amber bg-amber-soft text-amber-strong",
           status === "wait" && "border-ink/15",

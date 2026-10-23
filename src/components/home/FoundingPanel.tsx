@@ -25,22 +25,22 @@ export default function FoundingPanel() {
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           {...revealOnScroll(0, reduceMotion)}
-          className="grid overflow-hidden rounded-[var(--radius-card)] bg-ink lg:grid-cols-2"
+          className="relative grid overflow-hidden rounded-[var(--radius-card)] bg-[linear-gradient(160deg,var(--hero-from),var(--hero-to))] lg:grid-cols-2"
         >
-          <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-14">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold text-white mb-4 tracking-tight">
+          <div className="pb-grain relative flex flex-col justify-center p-8 sm:p-10 lg:p-14">
+            <h2 className="font-display text-3xl md:text-4xl font-semibold text-chrome-ink mb-4 tracking-tight">
               {t("home.becomeSitter.titleLine1")}
               <br />
               {t("home.becomeSitter.titleLine2")}
             </h2>
-            <p className="text-white/60 mb-8 leading-relaxed max-w-md">
+            <p className="text-chrome-ink-soft mb-8 leading-relaxed max-w-md">
               {t("home.becomeSitter.subtitle")}
             </p>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-9">
               {PERKS.map((key) => (
-                <li key={key} className="flex items-center gap-2 text-white/80 text-sm">
-                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand/30">
-                    <Check className="h-3 w-3 text-white" aria-hidden="true" />
+                <li key={key} className="flex items-center gap-2 text-chrome-ink text-sm">
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-mid">
+                    <Check className="h-3 w-3 text-chrome-ink" aria-hidden="true" />
                   </span>
                   {t(`home.becomeSitter.perks.${key}`)}
                 </li>
@@ -48,7 +48,7 @@ export default function FoundingPanel() {
             </ul>
             <Link
               href={user ? "/profile" : "/signup"}
-              className="inline-flex w-fit min-h-[44px] items-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-white transition-all hover:bg-brand-strong hover:shadow-[var(--shadow-sm)]"
+              className="pb-press inline-flex w-fit min-h-[44px] items-center gap-2 rounded-full bg-brand-leaf px-6 py-3 font-semibold text-brand-deep transition hover:brightness-110"
             >
               {t(user ? "home.becomeSitter.ctaSignedIn" : "home.becomeSitter.cta")} <ArrowRight className="h-4 w-4" />
             </Link>

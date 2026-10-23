@@ -58,11 +58,12 @@ describe("photograph", () => {
   });
 
   it("requests the photograph at a size that does not need upscaling", () => {
-    // The whole defect was a 128px source stretched across 460px.
+    // The whole defect was a 128px source stretched across 460px. The photo is a framed
+    // portrait now (max-w-md, 448px), so twice that covers a 2x screen.
     const { container } = render(<Hero />);
     const src = container.querySelector("img")?.getAttribute("src") ?? "";
     const width = Number(new URL(src).searchParams.get("w"));
-    expect(width).toBeGreaterThanOrEqual(1200);
+    expect(width).toBeGreaterThanOrEqual(896);
   });
 
   it("describes the photograph for screen readers", () => {

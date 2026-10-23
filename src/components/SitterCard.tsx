@@ -96,7 +96,7 @@ export default function SitterCard({
 
       <div className="flex flex-1 min-w-0 flex-col gap-2.5 p-4 sm:gap-3 sm:px-5 sm:pt-0 sm:pb-5">
         <div className="flex items-center gap-3 pr-10 sm:block sm:pr-0">
-          <Avatar name={name} url={sitter.avatar_url} size="lg" className="relative flex-shrink-0 sm:-mt-8 ring-4 ring-white shadow-[var(--shadow-sm)]" />
+          <Avatar name={name} url={sitter.avatar_url} size="lg" className="relative flex-shrink-0 sm:-mt-8 ring-4 ring-surface shadow-[var(--shadow-sm)]" />
           <div className="flex-1 min-w-0 sm:mt-3">
             <div className="flex items-center gap-1.5 min-w-0">
               <h3 className="font-display text-lg font-semibold text-ink leading-tight tracking-tight truncate">{name}</h3>

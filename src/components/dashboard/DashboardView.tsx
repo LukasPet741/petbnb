@@ -106,7 +106,7 @@ export default function DashboardView(props: DashboardViewProps) {
                   const person = booking.counterpart?.full_name ?? t("appShell.sitterFallback");
                   return (
                     <li key={booking.id} className="border-b border-ink/5 last:border-b-0">
-                      <Link href="/bookings" className="flex items-center gap-3 py-3 -mx-2 px-2 rounded-[var(--radius-input)] hover:bg-white/60 transition-colors">
+                      <Link href="/bookings" className="flex items-center gap-3 py-3 -mx-2 px-2 rounded-[var(--radius-input)] hover:bg-surface/60 transition-colors">
                         <Avatar name={person} url={booking.counterpart?.avatar_url} size="md" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-ink truncate">{person}</p>
@@ -132,7 +132,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 href="/pets/new"
                 aria-label={t("appShell.dashboard.pets.addPetTitle")}
                 title={t("appShell.dashboard.pets.addPetTitle")}
-                className="-mr-2 grid h-11 w-11 place-items-center rounded-full text-ink-soft hover:text-brand hover:bg-white/60 transition-colors"
+                className="-mr-2 grid h-11 w-11 place-items-center rounded-full text-ink-soft hover:text-brand hover:bg-surface/60 transition-colors"
               >
                 <Plus className="w-4 h-4" aria-hidden="true" />
               </Link>

@@ -149,7 +149,7 @@ export default function PairingWizard({ onClose }: { onClose: () => void }) {
                     {i === 4 && <span className="h-0.5 w-2 flex-shrink-0 rounded bg-ink-soft" />}
                     <span
                       className={cn(
-                        "grid h-11 w-8 place-items-center rounded-[9px] border-[1.5px] bg-white font-mono text-lg font-bold",
+                        "grid h-11 w-8 place-items-center rounded-[9px] border-[1.5px] bg-surface font-mono text-lg font-bold",
                         codeError && codeError !== "network"
                           ? "border-danger bg-danger-soft text-danger"
                           : i === code.length

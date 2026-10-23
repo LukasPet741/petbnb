@@ -71,7 +71,7 @@ const inputBase =
 // Two complete strings rather than appending a danger colour to the normal one: when
 // two utilities set the same property, Tailwind's bundle order decides the winner, not
 // the order of the class attribute.
-const inputCls = `${inputBase} border-black/10 focus:ring-brand`;
+const inputCls = `${inputBase} border-ink/10 focus:ring-brand`;
 const invalidInputCls = `${inputBase} border-danger/60 focus:ring-danger`;
 
 /** Section heading inside the form panel: an icon, a label, and the optional marker. */
@@ -308,7 +308,7 @@ function NewBookingForm() {
         <form onSubmit={handleSubmit} id="booking-form" className="min-w-0">
           <div className="glass-panel border rounded-[var(--radius-card)] p-6 sm:p-7 space-y-6">
             {bookableSitter && (
-              <div className="flex items-center gap-3.5 pb-5 border-b border-black/5 lg:hidden">
+              <div className="flex items-center gap-3.5 pb-5 border-b border-ink/5 lg:hidden">
                 <Avatar
                   name={bookableSitter.full_name ?? t("appShell.sitterFallback")}
                   url={bookableSitter.avatar_url}
@@ -355,7 +355,7 @@ function NewBookingForm() {
 
               {/* Three states, because "four options regardless of the sitter" was the bug. */}
               {!form.sitter_id || blocker ? (
-                <p className="text-sm text-ink-soft border border-dashed border-black/15 rounded-[var(--radius-input)] px-3.5 py-3">
+                <p className="text-sm text-ink-soft border border-dashed border-ink/15 rounded-[var(--radius-input)] px-3.5 py-3">
                   {t("appPages.bookingsNew.pickSitterFirst")}
                 </p>
               ) : offered.length === 0 ? (
@@ -385,7 +385,7 @@ function NewBookingForm() {
                         } ${
                           selected
                             ? "border-brand bg-brand-soft text-brand-strong shadow-[var(--shadow-sm)]"
-                            : "border-black/10 bg-surface/70 text-ink-soft hover:border-black/20 hover:bg-surface"
+                            : "border-ink/10 bg-surface/70 text-ink-soft hover:border-ink/20 hover:bg-surface"
                         }`}
                       >
                         <input
@@ -480,7 +480,7 @@ function NewBookingForm() {
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder={t("appPages.bookingsNew.notesPlaceholder")}
                 rows={3}
-                className="w-full px-3.5 py-3 rounded-[var(--radius-input)] border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none"
+                className="w-full px-3.5 py-3 rounded-[var(--radius-input)] border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none"
               />
             </div>
           </div>

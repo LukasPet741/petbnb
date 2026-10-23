@@ -3,6 +3,9 @@ import { Inter, Bricolage_Grotesque, Caveat } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import Script from "next/script";
+import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import Atmosphere from "@/components/Atmosphere";
 import MotionRoot from "@/components/MotionRoot";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -77,21 +80,27 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#f4f6f4",
+  themeColor: "#0e2a20",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${caveat.variable} h-full`}>
+    // suppressHydrationWarning: the theme boot script sets data-theme on <html> before React
+    // hydrates, so the server's attribute-less tag is expected to differ there, and only there.
+    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${caveat.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full font-sans antialiased">
+        {/* Dark mode before first paint: see src/lib/theme.ts. */}
+        <Script id="petbnb-theme" strategy="beforeInteractive">{THEME_BOOT_SCRIPT}</Script>
         <Atmosphere />
         <MotionRoot>
           <LanguageProvider>
-            <ToastProvider>
-              <ConfirmProvider>
-                <AuthProvider>{children}</AuthProvider>
-              </ConfirmProvider>
-            </ToastProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                <ConfirmProvider>
+                  <AuthProvider>{children}</AuthProvider>
+                </ConfirmProvider>
+              </ToastProvider>
+            </ThemeProvider>
           </LanguageProvider>
         </MotionRoot>
       </body>

@@ -172,7 +172,7 @@ export default function ImageUpload({
         {/* Camera badge: the affordance on touch, where there is no hover. */}
         <span
           aria-hidden
-          className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center ring-2 ring-surface pointer-events-none"
+          className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-brand text-on-brand flex items-center justify-center ring-2 ring-surface pointer-events-none"
         >
           <Camera className="w-3.5 h-3.5" />
         </span>

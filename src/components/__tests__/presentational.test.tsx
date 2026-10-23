@@ -347,7 +347,7 @@ describe("Logo", () => {
     // shapes against src/app/icon.svg.
     expect(svg.querySelectorAll("circle")).toHaveLength(6);
     expect(svg.querySelectorAll("ellipse")).toHaveLength(1);
-    for (const token of ["--brand", "--linen", "--amber"]) expect(svg.innerHTML).toContain(`var(${token})`);
+    for (const token of ["--brand-mid", "--linen", "--amber"]) expect(svg.innerHTML).toContain(`var(${token})`);
   });
 });
 

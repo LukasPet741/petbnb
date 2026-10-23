@@ -103,7 +103,7 @@ export default function SitterProfilePage() {
               <FavoriteButton sitterId={sitter.id} />
             </div>
             {sitter.about_me && (
-              <div className="mt-6 pt-6 border-t border-black/5">
+              <div className="mt-6 pt-6 border-t border-ink/5">
                 <h2 className="font-semibold text-ink mb-2">{t("appPages.browse.aboutHeading", { name: firstName })}</h2>
                 <p className="text-ink-soft text-sm leading-relaxed whitespace-pre-line">{sitter.about_me}</p>
               </div>
@@ -119,7 +119,7 @@ export default function SitterProfilePage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {activeServices.map(({ key, label }) => (
-                  <div key={key} className="flex items-center justify-between p-3.5 bg-white/60 rounded-xl border border-black/5">
+                  <div key={key} className="flex items-center justify-between p-3.5 bg-surface/60 rounded-xl border border-ink/5">
                     <span className="flex items-center gap-2.5 text-sm font-medium text-ink">
                       <span className="w-6 h-6 rounded-lg bg-brand-soft flex items-center justify-center"><Check className="w-3.5 h-3.5 text-brand" /></span>
                       {label}
@@ -149,7 +149,7 @@ export default function SitterProfilePage() {
         <div>
           <motion.div initial={{ y: 12 }} animate={{ y: 0 }} transition={{ duration: 0.4, delay: 0.12 }}
             className="glass-panel rounded-2xl border p-5 sticky top-24">
-            <div className="text-center pb-4 border-b border-black/5">
+            <div className="text-center pb-4 border-b border-ink/5">
               <PriceTag sitter={sitter} size="xl" />
               <div className="text-xs text-ink-soft mt-1.5">{t("appPages.browse.priceNote")}</div>
             </div>

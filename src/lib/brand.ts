@@ -1,16 +1,16 @@
 /**
- * The PetBnB brand (look A, Calm, chosen 2026-10-10) as data, for the /brand page.
+ * The PetBnB brand (mark from look A, 2026-10-10; colours Spruce & Moss, 2026-10-24) as data, for the /brand page.
  *
  * Every colour here is a token the app already paints with (globals.css); brand.test.ts
  * fails if the two drift apart. Names live in the dictionaries (brand.colour.<id>).
  */
 
 export const PALETTE = [
-  { id: "pine", token: "brand", hex: "#1f5c47" },
-  { id: "night", token: "ink", hex: "#131a17" },
-  { id: "mist", token: "surface-2", hex: "#e9ede8" },
+  { id: "pine", token: "brand", hex: "#1b4d3a" },
+  { id: "night", token: "ink", hex: "#0f1a14" },
+  { id: "mist", token: "surface-2", hex: "#e4e9de" },
   { id: "linen", token: "linen", hex: "#f6f3ec" },
-  { id: "amber", token: "amber", hex: "#dc9a35" },
+  { id: "amber", token: "amber", hex: "#c9923f" },
 ] as const;
 
 /**

@@ -33,7 +33,7 @@ const CEILINGS: Record<string, { re: RegExp; max: number; use: string }> = {
   "raw hex colour": { re: /#[0-9a-fA-F]{6}\b/g, max: 58, use: "a colour token (globals.css)" },
   "text-[Npx] size": { re: /\btext-\[[0-9.]+px\]/g, max: 99, use: "the type scale (text-xs … text-4xl)" },
   "rounded-[Npx] radius": { re: /\brounded-\[[0-9.]+px\]/g, max: 15, use: "--radius-control / --radius-card / --radius-hero / rounded-full" },
-  "bg-white/NN surface": { re: /\bbg-white\/\d+/g, max: 13, use: "bg-surface, glass-card or glass" },
+  "bg-white/NN surface": { re: /\bbg-white\/\d+/g, max: 3, use: "bg-surface, glass-card or glass" },
   "animate-spin spinner": { re: /\banimate-spin\b/g, max: 13, use: "MoonLoader or a Skeleton" },
 };
 

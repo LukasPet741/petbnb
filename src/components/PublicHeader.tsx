@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "./Logo";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeSwitch from "./ThemeSwitch";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { signOut } from "@/lib/auth";
@@ -19,10 +20,12 @@ const NAV = [
   { href: "/#faq", key: "home.nav.faq" },
 ] as const;
 
-const PRIMARY = "h-9 inline-flex items-center justify-center whitespace-nowrap px-4 bg-brand text-white rounded-full text-sm font-medium hover:bg-brand-strong transition-colors";
-const QUIET = "h-9 inline-flex items-center justify-center whitespace-nowrap px-3 rounded-full text-sm font-medium text-ink-soft hover:text-ink hover:bg-ink/5 transition-colors";
+// The header is the deep-green chrome (Spruce & Moss, look Layered), so its colours come
+// from the --chrome-* tokens and the call to action is leaf on deep.
+const PRIMARY = "pb-press h-9 inline-flex items-center justify-center whitespace-nowrap px-4 bg-brand-leaf text-brand-deep rounded-full text-sm font-semibold hover:brightness-110 transition";
+const QUIET = "h-9 inline-flex items-center justify-center whitespace-nowrap px-3 rounded-full text-sm font-medium text-chrome-ink-soft hover:text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors";
 
-const MENU_ITEM = "min-h-11 flex items-center rounded-lg px-2 text-base font-medium text-ink hover:bg-ink/5 transition-colors";
+const MENU_ITEM = "min-h-11 flex items-center rounded-lg px-2 text-base font-medium text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors";
 
 export default function PublicHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -62,13 +65,13 @@ export default function PublicHeader() {
   );
 
   return (
-    <header className={`sticky top-0 z-50 glass border-b transition-shadow duration-300 ease-out ${scrolled || open ? "shadow-[var(--shadow-sm)]" : ""}`}>
+    <header className={`sticky top-0 z-50 bg-chrome text-chrome-ink border-b border-[var(--chrome-line)] transition-shadow duration-300 ease-out ${scrolled || open ? "shadow-[var(--shadow-md)]" : ""}`}>
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center shrink-0">
           {/* The wordmark gives way below 440px: with it, the Lithuanian labels pushed the
               header past a 390px phone and the whole page scrolled sideways. The mark keeps
               its aria-label, so the link is still named. */}
-          <Logo size={32} showWordmark wordmarkClassName="text-ink hidden min-[440px]:inline" />
+          <Logo size={32} showWordmark wordmarkClassName="text-chrome-ink hidden min-[440px]:inline" />
         </Link>
 
         <nav aria-label={t("home.nav.label")} className="hidden lg:flex items-center gap-0.5">
@@ -78,6 +81,7 @@ export default function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeSwitch onChrome />
           <LanguageSwitcher />
           <div className="hidden md:flex">{secondary(QUIET)}</div>
           {primary}
@@ -87,7 +91,7 @@ export default function PublicHeader() {
             aria-expanded={open}
             aria-controls="public-menu"
             aria-label={t(open ? "home.nav.closeMenu" : "home.nav.openMenu")}
-            className="lg:hidden w-11 h-11 -mr-2 inline-flex items-center justify-center rounded-full text-ink hover:bg-ink/5 transition-colors"
+            className="lg:hidden w-11 h-11 -mr-2 inline-flex items-center justify-center rounded-full text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors"
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -95,14 +99,14 @@ export default function PublicHeader() {
       </div>
 
       {open && (
-        <div id="public-menu" className="lg:hidden border-t border-ink/5">
+        <div id="public-menu" className="lg:hidden border-t border-[var(--chrome-line)]">
           <nav aria-label={t("home.nav.label")} className="max-w-6xl mx-auto px-4 py-3 flex flex-col">
             {NAV.map(({ href, key }) => (
               <Link key={href} href={href} onClick={() => setOpen(false)} className={MENU_ITEM}>
                 {t(key)}
               </Link>
             ))}
-            <div className="md:hidden mt-2 pt-2 border-t border-ink/5 flex flex-col">{secondary(MENU_ITEM)}</div>
+            <div className="md:hidden mt-2 pt-2 border-t border-[var(--chrome-line)] flex flex-col">{secondary(MENU_ITEM)}</div>
           </nav>
         </div>
       )}

@@ -44,9 +44,9 @@ export default function BookingTimeline({
               <span
                 className={cn(
                   "relative grid h-5 w-5 flex-shrink-0 place-items-center rounded-full",
-                  step.state === "done" && "bg-brand text-white",
-                  step.state === "current" && "bg-white ring-2 ring-brand",
-                  step.state === "todo" && "bg-white ring-1 ring-ink/15",
+                  step.state === "done" && "bg-brand text-on-brand",
+                  step.state === "current" && "bg-surface ring-2 ring-brand",
+                  step.state === "todo" && "bg-surface ring-1 ring-ink/15",
                 )}
               >
                 {step.state === "done" && <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />}

@@ -6,6 +6,7 @@ import { AUTH } from "@/lib/images";
 import { fadeUp, stagger, slideRight } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ThemeSwitch from "@/components/ThemeSwitch";
 import Logo from "@/components/Logo";
 import { buttonClasses } from "@/components/ui/Button";
 
@@ -30,7 +31,10 @@ export default function AuthShell({
 
   return (
     <div className="min-h-[100dvh] flex">
-      <LanguageSwitcher className="fixed top-4 right-4 z-10 glass-panel border rounded-full" />
+      <div className="fixed top-4 right-4 z-10 flex items-center gap-2">
+        <ThemeSwitch className="glass-panel" />
+        <LanguageSwitcher className="glass-panel border rounded-full" />
+      </div>
       <motion.div
         className="hidden lg:block lg:w-1/2 relative overflow-hidden"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
@@ -64,7 +68,7 @@ export default function AuthShell({
 }
 
 export const inputClass =
-  "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
+  "w-full h-11 px-3.5 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 // The shared pill (components/ui/Button), full width on the auth forms.
 export const primaryButtonClass = buttonClasses({ block: true });

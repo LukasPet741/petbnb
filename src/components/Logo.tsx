@@ -39,7 +39,7 @@ export function LogoMark({ size = 32, className, decorative = false }: LogoMarkP
           <circle cx="74" cy="46" r="29" fill="#000" />
         </mask>
       </defs>
-      <rect width="120" height="120" rx="28" fill="var(--brand)" />
+      <rect width="120" height="120" rx="28" fill="var(--brand-mid)" />
       <circle cx="56" cy="60" r="36" fill="var(--linen)" mask={`url(#${mask})`} />
       <ellipse cx="79" cy="57" rx="8.5" ry="7.5" fill="var(--amber)" />
       <circle cx="68" cy="47" r="3.8" fill="var(--amber)" />

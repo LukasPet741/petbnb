@@ -22,7 +22,7 @@ export default function Chip({
       className={cn(
         "pb-press inline-flex items-center gap-1.5 h-10 px-4 rounded-full border text-sm font-semibold whitespace-nowrap",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-        pressed ? "bg-brand border-brand text-white" : "bg-surface border-ink/12 text-ink hover:border-ink/25",
+        pressed ? "bg-brand border-brand text-on-brand" : "bg-surface border-ink/12 text-ink hover:border-ink/25",
         className,
       )}
       {...rest}

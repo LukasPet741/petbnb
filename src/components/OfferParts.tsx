@@ -12,9 +12,9 @@ import { cn, formatCurrency } from "@/lib/utils";
  */
 
 const primary =
-  "inline-flex items-center justify-center h-9 px-4 rounded-full bg-brand text-white text-xs font-semibold hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center h-9 px-4 rounded-full bg-brand text-on-brand text-xs font-semibold hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
 const secondary =
-  "inline-flex items-center justify-center h-9 px-4 rounded-full border border-black/10 bg-surface/80 text-ink text-xs font-semibold hover:bg-surface transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center h-9 px-4 rounded-full border border-ink/10 bg-surface/80 text-ink text-xs font-semibold hover:bg-surface transition-colors disabled:opacity-60 disabled:cursor-not-allowed";
 
 /** The price as it stands, under the thread header. */
 export function PriceBar({
@@ -37,7 +37,7 @@ export function PriceBar({
   error: string | null;
 }) {
   return (
-    <div className="border-t border-black/5">
+    <div className="border-t border-ink/5">
       <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink tabular-nums">{line}</p>
@@ -96,7 +96,7 @@ export function OfferCard({
       <div
         className={cn(
           "w-full max-w-[20rem] rounded-2xl border px-4 py-3",
-          replaced ? "border-black/5 bg-surface-2/60" : own ? "border-brand/20 bg-brand-soft" : "border-amber/30 bg-amber-soft",
+          replaced ? "border-ink/5 bg-surface-2/60" : own ? "border-brand/20 bg-brand-soft" : "border-amber/30 bg-amber-soft",
         )}
       >
         <div className="flex items-baseline justify-between gap-3">
@@ -157,7 +157,7 @@ export function OfferForm({
         e.preventDefault();
         if (valid && !busy) onSubmit(value, note.trim());
       }}
-      className="mb-3 rounded-2xl border border-black/10 bg-surface/80 p-3 grid gap-3 sm:grid-cols-[9rem_1fr_auto] sm:items-end"
+      className="mb-3 rounded-2xl border border-ink/10 bg-surface/80 p-3 grid gap-3 sm:grid-cols-[9rem_1fr_auto] sm:items-end"
     >
       <div>
         <label htmlFor={amountId} className="block text-xs font-medium text-ink-soft mb-1">
@@ -173,7 +173,7 @@ export function OfferForm({
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           aria-invalid={(amount !== "" && !valid) || undefined}
-          className="w-full h-10 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          className="w-full h-10 px-3 rounded-xl border border-ink/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         />
         <p className="mt-1 text-[11px] text-ink-soft">
           {t("messages.offer.range", { min: formatCurrency(bounds.min, locale), max: formatCurrency(bounds.max, locale) })}
@@ -189,7 +189,7 @@ export function OfferForm({
           maxLength={OFFER_NOTE_MAX}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="w-full h-10 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          className="w-full h-10 px-3 rounded-xl border border-ink/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         />
         <p className="mt-1 text-[11px] text-transparent select-none" aria-hidden>.</p>
       </div>

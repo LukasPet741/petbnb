@@ -1,25 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  /* Surfaces — cool "bone", not warm cream */
-  --canvas: #f4f6f4;      /* cool bone page background */
-  --surface: #ffffff;     /* cards */
-  --surface-2: #e9ede8;   /* subtle insets / inputs */
+  /* Spruce & Moss (2026-10-24, chosen in the Green Studio): a family of greens, deepest to
+     lightest, layered for texture, on a cool sage paper. Light theme; [data-theme="dark"]
+     below redefines the same tokens. */
 
-  /* Brand — deep pine */
-  --brand: #1f5c47;
-  --brand-strong: #153f2f; /* hover / active */
-  --brand-soft: #dfe9e2;   /* chips, soft fills */
-  --brand-softer: #eef3ef;
+  /* Surfaces — cool sage paper */
+  --canvas: #f2f4ee;      /* page background */
+  --surface: #fbfcf8;     /* cards */
+  --surface-2: #e4e9de;   /* subtle insets / inputs */
+
+  /* Brand — the greens */
+  --brand-deep: #0e2a20;   /* the deepest: headers, the hero, the app rail */
+  --brand-strong: #123a2c; /* hover / active, deep tiles */
+  --brand: #1b4d3a;        /* buttons, links */
+  --brand-mid: #3f6b45;    /* moss: hills, active pills on deep chrome */
+  --brand-leaf: #7e9c66;   /* leaf: light accents on deep chrome */
+  --brand-soft: #d9e3d3;   /* chips, soft fills */
+  --brand-softer: #edf1e8;
+  --on-brand: #ffffff;     /* text and icons on a --brand fill */
+
+  /* Chrome — the deep-green header, hero and app rail (look "Layered") */
+  --chrome: var(--brand-deep);
+  --chrome-ink: #f3f5ef;
+  --chrome-ink-soft: #b9c9b0;
+  --chrome-active: rgb(255 255 255 / 0.10);
+  --chrome-line: rgb(255 255 255 / 0.08);
+
+  /* The landing hero's band and its hills, back to front (the front hill is --canvas, so
+     the band melts into the page). Own tokens because --brand turns light in dark mode. */
+  --hero-from: #0e2a20;
+  --hero-to: #143d2e;
+  --hill-back: #3f6b45;
+  --hill-mid: #1b4d3a;
 
   /* Ink */
-  --ink: #131a17;
-  --ink-soft: #56635c;     /* secondary text */
+  --ink: #0f1a14;
+  --ink-soft: #4b5a50;     /* secondary text */
 
-  /* Accent for warmth (sparingly — e.g. highlights, live markers) */
-  --amber: #dc9a35;
-  --amber-soft: #faf1de;
-  --amber-strong: #8a5c1f; /* on-soft text, meets contrast where raw --amber can't */
+  /* Accent for warmth (sparingly — e.g. highlights, live markers): brass */
+  --amber: #c9923f;
+  --amber-soft: #f7eedc;
+  --amber-strong: #7a561c; /* on-soft text, meets contrast where raw --amber can't */
 
   /* The moon in the mark (brand look A, Calm, 2026-10-10) */
   --linen: #f6f3ec;
@@ -33,10 +55,10 @@
   --danger-soft: #f6e5e2;
 
   /* Depth: tinted shadow scale — always tinted from --ink, never pure black */
-  --shadow-color: 19 26 23; /* rgb channels of --ink */
-  --shadow-sm: 0 1px 2px rgb(19 26 23 / 0.06), 0 1px 1px rgb(19 26 23 / 0.04);
-  --shadow-md: 0 6px 16px rgb(19 26 23 / 0.10), 0 2px 6px rgb(19 26 23 / 0.06);
-  --shadow-lg: 0 16px 40px rgb(19 26 23 / 0.14), 0 6px 14px rgb(19 26 23 / 0.08);
+  --shadow-color: 15 26 20; /* rgb channels of --ink */
+  --shadow-sm: 0 1px 2px rgb(15 26 20 / 0.06), 0 1px 1px rgb(15 26 20 / 0.04);
+  --shadow-md: 0 6px 16px rgb(15 26 20 / 0.10), 0 2px 6px rgb(15 26 20 / 0.06);
+  --shadow-lg: 0 16px 40px rgb(15 26 20 / 0.14), 0 6px 14px rgb(15 26 20 / 0.08);
 
   /* Shape — four values (docs/design/unification-plan.md §2.1): control, card, hero, and
      the pill (rounded-full) for buttons, chips and badges. --radius-input is the old name
@@ -58,8 +80,8 @@
      Saturation is the load-bearing part: on a light, low-contrast ground like
      --canvas, blur alone renders grey and dirty. Boosting saturation of the
      sampled backdrop is what reads as "glass" rather than "fog". */
-  --glass-tint: rgb(244 246 244 / 0.72);   /* --canvas, held back so content reads through */
-  --glass-tint-panel: rgb(255 255 255 / 0.88); /* --surface; higher, because panels sit over photos */
+  --glass-tint: rgb(242 244 238 / 0.72);   /* --canvas, held back so content reads through */
+  --glass-tint-panel: rgb(251 252 248 / 0.88); /* --surface; higher, because panels sit over photos */
   --glass-tint-scrim: rgb(19 26 23 / 0.42);    /* --ink, for the dim behind modals */
   --glass-blur: 12px;
   --glass-blur-panel: 16px;
@@ -86,11 +108,76 @@
      worst point anywhere in the viewport keeps --ink-soft at 4.55:1; pine at 0.24 (tried
      in the browser, and it looked lovely) drops it to 3.97:1. glass-system.test.ts
      recomputes this from the rule below and fails under 4.5:1. */
-  --aurora-pine: rgb(31 92 71 / 0.16);    /* --brand */
-  --aurora-amber: rgb(220 154 53 / 0.22); /* --amber */
-  --aurora-slate: rgb(63 100 114 / 0.16); /* --slate */
-  --aurora-mist: rgb(31 92 71 / 0.11);    /* --brand, fainter */
+  --aurora-pine: rgb(63 107 69 / 0.16);   /* --brand-mid */
+  --aurora-amber: rgb(201 146 63 / 0.20); /* --amber */
+  --aurora-slate: rgb(63 100 114 / 0.14); /* --slate */
+  --aurora-mist: rgb(126 156 102 / 0.14); /* --brand-leaf */
   --aurora-grain: 0.045;
+
+  color-scheme: light;
+}
+
+/* Dark theme: chosen by the visitor (ThemeSwitch), never forced by the OS. The same tokens,
+   so every component that paints through them follows. Greens get lighter here, not darker:
+   on a deep ground the brand has to be the bright thing, so a --brand fill carries
+   --on-brand (dark) text. Every pairing below was measured at 4.5:1 or more. */
+:root[data-theme="dark"] {
+  --canvas: #0b1d16;
+  --surface: #11271e;
+  --surface-2: #183328;
+
+  --brand-deep: #06130e;
+  --brand-strong: #9ccbab;  /* hover is lighter on dark */
+  --brand: #7fb794;
+  --brand-mid: #2f5a3d;
+  --brand-leaf: #7e9c66;
+  --brand-soft: #1e3b2f;
+  --brand-softer: #142c22;
+  --on-brand: #0b1d16;
+
+  --chrome: #07150f;
+  --chrome-ink: #e8eee9;
+  --chrome-ink-soft: #a6b6ac;
+  --chrome-active: rgb(255 255 255 / 0.08);
+  --chrome-line: rgb(255 255 255 / 0.06);
+
+  --hero-from: #06130e;
+  --hero-to: #0d2419;
+  --hill-back: #2f5a3d;
+  --hill-mid: #163a2b;
+
+  --ink: #e8eee9;
+  --ink-soft: #a6b6ac;
+
+  --amber: #e2b062;
+  --amber-soft: #33281a;
+  --amber-strong: #edc88c;
+  --linen: #f3efe4;
+  --slate: #93b8c4;
+  --slate-soft: #1b2e33;
+  --danger: #e88a7e;
+  --danger-soft: #3a201c;
+
+  --shadow-color: 0 0 0;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.30);
+  --shadow-md: 0 6px 16px rgb(0 0 0 / 0.35), 0 2px 6px rgb(0 0 0 / 0.25);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.45), 0 6px 14px rgb(0 0 0 / 0.30);
+
+  --glass-tint: rgb(11 29 22 / 0.72);
+  --glass-tint-panel: rgb(17 39 30 / 0.90);
+  --glass-tint-scrim: rgb(0 0 0 / 0.55);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-sheen: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --glass-tint-card: rgb(17 39 30 / 0.72);
+  --glass-border-card: rgb(255 255 255 / 0.07);
+
+  --aurora-pine: rgb(63 107 69 / 0.22);
+  --aurora-amber: rgb(201 146 63 / 0.08);
+  --aurora-slate: rgb(63 100 114 / 0.12);
+  --aurora-mist: rgb(126 156 102 / 0.10);
+  --aurora-grain: 0.06;
+
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -98,6 +185,13 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-mid: var(--brand-mid);
+  --color-brand-leaf: var(--brand-leaf);
+  --color-on-brand: var(--on-brand);
+  --color-chrome: var(--chrome);
+  --color-chrome-ink: var(--chrome-ink);
+  --color-chrome-ink-soft: var(--chrome-ink-soft);
   --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);
   --color-brand-softer: var(--brand-softer);
@@ -323,6 +417,12 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* The deep bands' texture: a fine diagonal grain, like brushed paper. Used on the landing
+   hero and the dark call-to-action block. */
+.pb-grain {
+  background-image: repeating-linear-gradient(115deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 7px);
+}
+
 ::selection {
   background: var(--brand-soft);
   color: var(--brand-strong);
@@ -332,7 +432,7 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgb(19 26 23 / 0.18);
+  background: rgb(var(--shadow-color) / 0.18);
   border-radius: 999px;
   border: 3px solid var(--canvas);
 }

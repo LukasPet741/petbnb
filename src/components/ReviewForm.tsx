@@ -151,7 +151,7 @@ export default function ReviewForm({
           type="button"
           onClick={handleSubmit}
           disabled={!canPost}
-          className="px-4 py-1.5 rounded-[var(--radius-input)] bg-brand text-white text-sm font-medium hover:bg-brand-strong disabled:opacity-40 disabled:hover:bg-brand"
+          className="px-4 py-1.5 rounded-[var(--radius-input)] bg-brand text-on-brand text-sm font-medium hover:bg-brand-strong disabled:opacity-40 disabled:hover:bg-brand"
         >
           {t("sitters.reviews.form.post")}
         </button>

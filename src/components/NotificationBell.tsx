@@ -98,13 +98,14 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
             ? t("messages.notifications.bellAriaLabelUnread", { count: unreadCount })
             : t("messages.notifications.bellAriaLabel")
         }
-        className="relative w-11 h-11 flex items-center justify-center rounded-lg text-ink-soft hover:text-ink hover:bg-brand-softer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        // Lives on the deep-green chrome (top bar and rail), so it takes the chrome colours.
+        className="relative w-11 h-11 flex items-center justify-center rounded-lg text-chrome-ink-soft hover:text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-leaf"
       >
         <Bell className="w-[18px] h-[18px]" />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
-            className="absolute top-2 right-2 min-w-[17px] h-[17px] px-1 flex items-center justify-center rounded-full bg-brand text-white text-[10px] font-semibold leading-none tabular-nums shadow-[var(--shadow-sm)]"
+            className="absolute top-2 right-2 min-w-[17px] h-[17px] px-1 flex items-center justify-center rounded-full bg-brand text-on-brand text-[10px] font-semibold leading-none tabular-nums shadow-[var(--shadow-sm)]"
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -123,9 +124,9 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
             exit={{ opacity: 0, scale: 0.95, y: -6 }}
             transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ position: "fixed", ...place, transformOrigin: align === "left" ? "top left" : "top right" }}
-            className="z-[60] w-80 sm:w-96 max-w-[calc(100vw-16px)] max-h-[70dvh] overflow-y-auto overscroll-contain bg-surface rounded-2xl border border-black/5 shadow-[var(--shadow-lg)]"
+            className="z-[60] w-80 sm:w-96 max-w-[calc(100vw-16px)] max-h-[70dvh] overflow-y-auto overscroll-contain bg-surface rounded-2xl border border-ink/5 shadow-[var(--shadow-lg)]"
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 bg-surface border-b border-black/5">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 bg-surface border-b border-ink/5">
               <h2 id={titleId} className="font-display text-base font-semibold text-ink">
                 {t("messages.notifications.title")}
               </h2>
@@ -164,7 +165,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
                 variants={stagger(listStagger)}
                 initial="hidden"
                 animate="show"
-                className="divide-y divide-black/5"
+                className="divide-y divide-ink/5"
               >
                 {notifications.map((n) => {
                   const rowClass = cn(
@@ -207,7 +208,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
               </motion.div>
             )}
 
-            <div className="sticky bottom-0 bg-surface border-t border-black/5 px-4 py-2.5">
+            <div className="sticky bottom-0 bg-surface border-t border-ink/5 px-4 py-2.5">
               <Link
                 href="/messages"
                 onClick={() => setOpen(false)}

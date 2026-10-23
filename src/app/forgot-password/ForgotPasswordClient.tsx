@@ -51,7 +51,7 @@ export default function ForgotPasswordClient() {
         <motion.p variants={fadeUp} className="text-sm text-ink-soft/80 mb-6">{t("auth.forgot.sentHint")}</motion.p>
         <motion.div variants={fadeUp}>
           <button type="button" onClick={() => setSent(false)}
-            className="w-full h-11 rounded-xl border border-black/10 bg-surface text-ink font-medium text-sm hover:bg-black/[0.03] transition-colors">
+            className="w-full h-11 rounded-xl border border-ink/10 bg-surface text-ink font-medium text-sm hover:bg-ink/[0.03] transition-colors">
             {t("auth.forgot.tryAgain")}
           </button>
         </motion.div>

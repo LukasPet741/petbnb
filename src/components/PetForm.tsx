@@ -11,8 +11,8 @@ import { PET_BIO_MAX, PET_NAME_MAX } from "@/lib/text-limits";
 import { buttonClasses } from "@/components/ui/Button";
 
 const PET_TYPE_KEYS = Object.keys(PET_TYPE_LABELS) as PetType[];
-const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
-const selectCls = "w-full h-11 px-3 rounded-xl border border-black/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand";
+const inputCls = "w-full h-11 px-3.5 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
+const selectCls = "w-full h-11 px-3 rounded-xl border border-ink/10 bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand";
 
 export interface PetFormValues {
   name: string;
@@ -149,7 +149,7 @@ export default function PetForm({
           <textarea id="pet-bio" value={form.bio}
             onChange={(e) => setForm({ ...form, bio: e.target.value })}
             placeholder={t("appPages.petsNew.bioPlaceholder")} rows={4} maxLength={PET_BIO_MAX}
-            className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
+            className="w-full px-3.5 py-3 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
         </div>
 
         <div className="flex gap-3 pt-1">

@@ -75,7 +75,7 @@ export default function SmartIdForm({ starting, onStart }: { starting: boolean; 
       )}
 
       <button type="submit" disabled={starting}
-        className="mt-4 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-[15px] font-semibold text-white transition-colors hover:bg-brand-strong disabled:opacity-60">
+        className="mt-4 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-brand text-[15px] font-semibold text-on-brand transition-colors hover:bg-brand-strong disabled:opacity-60">
         {starting ? (
           <>
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />

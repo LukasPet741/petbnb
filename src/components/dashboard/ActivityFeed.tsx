@@ -47,7 +47,7 @@ export default function ActivityFeed({ notifications, loading, unreadCount, now,
           <Link
             href={href}
             onClick={() => onOpen(n)}
-            className={cn(rowClass, "hover:bg-white/60 transition-colors focus-visible:outline-2 focus-visible:outline-brand")}
+            className={cn(rowClass, "hover:bg-surface/60 transition-colors focus-visible:outline-2 focus-visible:outline-brand")}
           >
             {inner}
           </Link>

@@ -34,7 +34,7 @@ import MoonLoader from "@/components/ui/MoonLoader";
 const CALENDAR_DAYS = 70;
 
 const SERVICE_KEYS = Object.keys(SERVICE_LABELS) as ServiceType[];
-const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
+const inputCls = "w-full h-11 px-3.5 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 export default function ProfilePage() {
   const { t } = useLanguage();
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                     aria-label={t("appPages.profile.phoneCountryLabel")}
                     value={phoneCountry}
                     onChange={(e) => { setPhoneCountry(e.target.value as PhoneCountry); setPhoneError(false); }}
-                    className="h-11 px-3 rounded-xl border border-black/10 bg-surface-2 text-ink text-sm flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-brand"
+                    className="h-11 px-3 rounded-xl border border-ink/10 bg-surface-2 text-ink text-sm flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-brand"
                   >
                     {PHONE_COUNTRIES.map((c) => (
                       <option key={c} value={c}>{PHONE_FLAG[c]} {PHONE_DIAL[c]}</option>
@@ -305,7 +305,7 @@ export default function ProfilePage() {
                   <div className="text-sm text-ink-soft mt-0.5">{isSitter ? t("appPages.profile.sitterModeOnDescription") : t("appPages.profile.sitterModeOffDescription")}</div>
                 </div>
                 <button type="button" role="switch" aria-checked={isSitter} aria-labelledby="profile-sitter-mode" onClick={() => setIsSitter(!isSitter)}
-                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${isSitter ? "bg-brand" : "bg-black/15"}`}>
+                  className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${isSitter ? "bg-brand" : "bg-ink/15"}`}>
                   <motion.span layout transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[var(--shadow-sm)] ${isSitter ? "left-6" : "left-0.5"}`} />
                 </button>
@@ -329,7 +329,7 @@ export default function ProfilePage() {
                         <label htmlFor="profile-about_me" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.aboutMeLabel")}</label>
                         <textarea id="profile-about_me" value={form.about_me} onChange={(e) => setForm({ ...form, about_me: e.target.value })}
                           placeholder={t("appPages.profile.aboutMePlaceholder")} rows={4} maxLength={ABOUT_ME_MAX}
-                          className="w-full px-3.5 py-3 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
+                          className="w-full px-3.5 py-3 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -343,9 +343,9 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-2 gap-2.5">
                           {SERVICES.map(([k, v]) => (
                             <label key={k}
-                              className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all text-sm ${form.services[k] ? "border-brand bg-brand-soft text-brand-strong" : "border-black/10 text-ink-soft hover:border-black/20"}`}>
+                              className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all text-sm ${form.services[k] ? "border-brand bg-brand-soft text-brand-strong" : "border-ink/10 text-ink-soft hover:border-ink/20"}`}>
                               <input type="checkbox" checked={form.services[k]} onChange={(e) => setForm({ ...form, services: { ...form.services, [k]: e.target.checked } })} className="sr-only" />
-                              <span className={`w-4 h-4 rounded flex items-center justify-center border ${form.services[k] ? "bg-brand border-brand" : "border-black/25"}`}>
+                              <span className={`w-4 h-4 rounded flex items-center justify-center border ${form.services[k] ? "bg-brand border-brand" : "border-ink/25"}`}>
                                 {form.services[k] && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                               </span>
                               {v}
@@ -361,7 +361,7 @@ export default function ProfilePage() {
                             {SERVICES.filter(([k]) => form.services[k]).map(([k, label]) => {
                               const invalid = missingPrices.includes(k);
                               return (
-                                <div key={k} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-xl border border-black/10 bg-surface/60">
+                                <div key={k} className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-xl border border-ink/10 bg-surface/60">
                                   <span className="w-full sm:w-auto sm:flex-1 text-sm font-medium text-ink">{label}</span>
                                   <span className="flex items-center gap-2">
                                     <input

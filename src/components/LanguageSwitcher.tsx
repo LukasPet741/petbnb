@@ -16,7 +16,7 @@ export default function LanguageSwitcher({ className = "" }: { className?: strin
           // Drawn at 32px so the control sits level with the header's buttons; at a drawn
           // 44px it towered over them. The ::before restores the 44px touch target.
           className={`relative h-8 min-w-10 px-2.5 inline-flex items-center justify-center rounded-full transition-colors before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
-            locale === code ? "bg-brand text-white shadow-[var(--shadow-sm)]" : "text-ink-soft hover:text-ink"
+            locale === code ? "bg-brand text-on-brand shadow-[var(--shadow-sm)]" : "text-ink-soft hover:text-ink"
           }`}
         >
           {code.toUpperCase()}

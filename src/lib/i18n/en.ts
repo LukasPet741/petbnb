@@ -24,6 +24,7 @@ const en = {
     footerNote: "A student project connecting pet owners with local sitters.",
     sitterWord: "sitter",
     languageLabel: "Language",
+    darkMode: "Dark mode",
     experienceSuffix: "{years} yr experience",
     experienceSuffixPlural: "{years} yrs experience",
     services: {

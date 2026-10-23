@@ -21,11 +21,11 @@ export const contentType = "image/png";
  * The mark is read from src/app/icon.svg, the one file it is drawn in (brand look A).
  */
 export default async function OpengraphImage() {
-  const canvas = "#f4f6f4";
-  const brand = "#1f5c47";
-  const ink = "#131a17";
-  const inkSoft = "#56635c";
-  const amber = "#dc9a35";
+  const canvas = "#f2f4ee";
+  const brand = "#1b4d3a";
+  const ink = "#0f1a14";
+  const inkSoft = "#4b5a50";
+  const amber = "#c9923f";
   const mark = await readFile(join(process.cwd(), "src/app/icon.svg"));
   const markSrc = `data:image/svg+xml;base64,${mark.toString("base64")}`;
 

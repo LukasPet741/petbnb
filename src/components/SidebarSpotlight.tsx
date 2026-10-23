@@ -64,15 +64,16 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         onClick={onNavigate}
         aria-current={onCollar ? "page" : undefined}
         className={cn(
-          "glass-card block overflow-hidden rounded-2xl border transition-shadow hover:shadow-[var(--shadow-md)]",
-          onCollar && "ring-2 ring-brand",
+          // Solid, not glass: these sit on the deep-green rail, where glass would turn grey.
+          "bg-surface text-ink block overflow-hidden rounded-2xl border border-transparent transition-shadow hover:shadow-[var(--shadow-md)]",
+          onCollar && "ring-2 ring-brand-leaf",
         )}
       >
         {selected && latest && (
           <div className="relative">
             <MiniMap lat={latest.lat} lng={latest.lng} height={56} muted={state !== "live" && state !== "replaying"} />
             {(state === "live" || state === "replaying") && (
-              <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2 py-px text-[9.5px] font-bold tracking-[0.08em] text-ink shadow-sm">
+              <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-2 py-px text-[9.5px] font-bold tracking-[0.08em] text-ink shadow-sm">
                 <LiveDot className="h-1.5 w-1.5" />
                 {state === "replaying" ? t("appShell.spotlight.demo") : t("appShell.spotlight.live")}
               </span>
@@ -107,8 +108,8 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         onClick={onNavigate}
         aria-current={onSmartId ? "page" : undefined}
         className={cn(
-          "glass-card flex items-center gap-2.5 rounded-2xl border px-2.5 py-2 transition-shadow hover:shadow-[var(--shadow-md)]",
-          onSmartId && "ring-2 ring-brand",
+          "bg-surface text-ink flex items-center gap-2.5 rounded-2xl border border-transparent px-2.5 py-2 transition-shadow hover:shadow-[var(--shadow-md)]",
+          onSmartId && "ring-2 ring-brand-leaf",
         )}
       >
         <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-[10px] bg-gradient-to-br from-[#2a7a5e] to-brand-strong text-white">

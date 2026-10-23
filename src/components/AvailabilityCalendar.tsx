@@ -10,12 +10,12 @@ const STATES = ["free", "off", "booked"] as const;
 type DayState = (typeof STATES)[number];
 
 const STATE_CLASS: Record<DayState, string> = {
-  free: "bg-white/70 text-ink",
+  free: "bg-surface/70 text-ink",
   off: "bg-amber-soft text-amber-strong line-through decoration-amber-strong/60",
-  booked: "bg-brand text-white",
+  booked: "bg-brand text-on-brand",
 };
 const SWATCH_CLASS: Record<DayState, string> = {
-  free: "bg-white ring-1 ring-ink/15",
+  free: "bg-surface ring-1 ring-ink/15",
   off: "bg-amber-soft ring-1 ring-amber-strong/30",
   booked: "bg-brand",
 };

@@ -7,8 +7,8 @@ import { LocateFixed, Minus, Plus } from "lucide-react";
 // Literal hex, not var(--token) — Leaflet's SVG renderer writes stroke/fill
 // as presentation attributes, which don't resolve CSS custom properties.
 // Keep these in sync with globals.css.
-const BRAND = "#1f5c47"; // --brand — the solid walked-route line
-const AMBER = "#dc9a35"; // --amber — live position + waypoint dots
+const BRAND = "#1b4d3a"; // --brand — the solid walked-route line
+const AMBER = "#c9923f"; // --amber — live position + waypoint dots
 const SLATE = "#3f6472"; // --slate — route casing / the collar system's own "instrument" accent
 const STALE = "#8a948f"; // a position the collar is no longer reporting
 

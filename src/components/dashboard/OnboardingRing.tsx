@@ -71,7 +71,7 @@ export default function OnboardingRing({ steps }: { steps: OnboardingStep[] }) {
               ) : (
                 <Link
                   href={step.href}
-                  className="group -mx-2 flex min-h-11 items-center gap-2 rounded-[var(--radius-input)] px-2 text-sm font-medium text-ink hover:bg-white/60 transition-colors"
+                  className="group -mx-2 flex min-h-11 items-center gap-2 rounded-[var(--radius-input)] px-2 text-sm font-medium text-ink hover:bg-surface/60 transition-colors"
                 >
                   <span className="h-4 w-4 flex-shrink-0 rounded-full ring-1 ring-ink/25" aria-hidden="true" />
                   {t(`appShell.dashboard.onboarding.steps.${step.key}`)}

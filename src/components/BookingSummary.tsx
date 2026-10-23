@@ -36,7 +36,7 @@ interface BookingSummaryProps {
 /** One label/value row. Values that are not known yet get the muted placeholder. */
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-2 border-b border-black/5 last:border-0">
+    <div className="flex items-baseline justify-between gap-3 py-2 border-b border-ink/5 last:border-0">
       <span className="text-xs text-ink-soft flex-shrink-0">{label}</span>
       <span className="text-sm text-ink text-right min-w-0">{children}</span>
     </div>
@@ -70,7 +70,7 @@ export default function BookingSummary({ sitter, service, startAt, endAt, offer 
       </h2>
 
       {sitter && (
-        <div className="flex items-center gap-3 pb-3 mb-1 border-b border-black/5">
+        <div className="flex items-center gap-3 pb-3 mb-1 border-b border-ink/5">
           <Avatar name={sitter.full_name ?? ""} url={sitter.avatar_url} size="sm" />
           <div className="min-w-0">
             <div className="text-sm font-medium text-ink truncate">{sitter.full_name}</div>

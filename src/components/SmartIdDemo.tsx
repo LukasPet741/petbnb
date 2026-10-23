@@ -154,7 +154,7 @@ export default function SmartIdDemo({
               {t("appPages.smartIdDemo.timeLeft", { time: `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}` })}
             </p>
             <button type="button" onClick={reset}
-              className="mt-5 h-11 w-full rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-6 text-sm font-semibold text-ink transition-colors hover:bg-surface sm:w-auto">
+              className="mt-5 h-11 w-full rounded-[var(--radius-input)] border border-ink/10 bg-surface/70 px-6 text-sm font-semibold text-ink transition-colors hover:bg-surface sm:w-auto">
               {t("appPages.smartIdDemo.cancel")}
             </button>
           </div>
@@ -166,7 +166,7 @@ export default function SmartIdDemo({
               </span>
               <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">{t("appPages.smartIdDemo.okTitle")}</h2>
             </div>
-            <dl className="mt-5 divide-y divide-black/5 text-sm">
+            <dl className="mt-5 divide-y divide-ink/5 text-sm">
               {[
                 ["name", `${phase.verification.identity.givenName} ${phase.verification.identity.surname}`],
                 ["country", phase.verification.identity.country],
@@ -205,7 +205,7 @@ export default function SmartIdDemo({
               </p>
             )}
             <button type="button" onClick={reset}
-              className="mt-5 h-11 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
+              className="mt-5 h-11 rounded-[var(--radius-input)] border border-ink/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
               {t("appPages.smartIdDemo.again")}
             </button>
           </div>
@@ -223,7 +223,7 @@ export default function SmartIdDemo({
                 </div>
                 <p className="mt-3 text-sm text-ink-soft">{t(`appPages.smartIdDemo.${keys.text}`)}</p>
                 <button type="button" onClick={reset}
-                  className="mt-5 h-11 rounded-[var(--radius-input)] border border-black/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
+                  className="mt-5 h-11 rounded-[var(--radius-input)] border border-ink/10 bg-surface/70 px-5 text-sm font-semibold text-ink transition-colors hover:bg-surface">
                   {t("appPages.smartIdDemo.again")}
                 </button>
               </div>

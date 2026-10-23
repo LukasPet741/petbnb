@@ -34,7 +34,7 @@ export function requestPriceValid(choice: PriceChoice, asking: number | null, se
 }
 
 const inputCls =
-  "w-full h-11 px-3.5 rounded-[var(--radius-input)] border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
+  "w-full h-11 px-3.5 rounded-[var(--radius-input)] border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
 /**
  * The request form's price section. Presentational: the page owns the choice and computes the
@@ -70,7 +70,7 @@ export default function RequestPrice({
 
   if (service === "grooming") {
     return (
-      <p className="text-sm text-ink-soft border border-dashed border-black/15 rounded-[var(--radius-input)] px-3.5 py-3">
+      <p className="text-sm text-ink-soft border border-dashed border-ink/15 rounded-[var(--radius-input)] px-3.5 py-3">
         <span className="font-semibold text-ink">{price}</span> · <span>{t("appPages.bookingsNew.groomingFixedPrice")}</span>
       </p>
     );
@@ -87,7 +87,7 @@ export default function RequestPrice({
       } ${
         choice.mode === mode
           ? "border-brand bg-brand-soft text-brand-strong shadow-[var(--shadow-sm)]"
-          : "border-black/10 bg-surface/70 text-ink-soft hover:border-black/20 hover:bg-surface"
+          : "border-ink/10 bg-surface/70 text-ink-soft hover:border-ink/20 hover:bg-surface"
       }`}
     >
       <input
@@ -155,7 +155,7 @@ export default function RequestPrice({
               value={choice.note}
               onChange={(e) => onChange({ ...choice, note: e.target.value })}
               placeholder={t("appPages.bookingsNew.offerNotePlaceholder")}
-              className="w-full px-3.5 py-2.5 rounded-[var(--radius-input)] border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none"
+              className="w-full px-3.5 py-2.5 rounded-[var(--radius-input)] border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none"
             />
           </div>
         </div>

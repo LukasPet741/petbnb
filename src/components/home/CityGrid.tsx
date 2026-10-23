@@ -54,7 +54,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
             {CELLS.map((cell, i) => (
               <div
                 key={i}
-                className={`${cell} min-h-[140px] rounded-[var(--radius-card)] bg-white/50 animate-pulse`}
+                className={`${cell} min-h-[140px] rounded-[var(--radius-card)] bg-surface/50 animate-pulse`}
               />
             ))}
           </div>
@@ -92,7 +92,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
                     // .glass-card sets its own border and shadow, and two utilities setting
                     // one property are ordered by the bundle, not by this attribute.
                     className={`group relative flex h-full min-h-[140px] flex-col justify-end overflow-hidden rounded-[var(--radius-card)] border p-5 transition-shadow hover:shadow-[var(--shadow-md)] ${
-                      lead ? "border-black/5 text-white shadow-[var(--shadow-sm)]" : "glass-card text-ink"
+                      lead ? "border-ink/5 text-white shadow-[var(--shadow-sm)]" : "glass-card text-ink"
                     }`}
                   >
                     {/* The lead cell carries a photograph so the grid is not five

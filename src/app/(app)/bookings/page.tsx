@@ -243,7 +243,7 @@ export default function BookingsPage() {
                   <span className="inline-flex items-center gap-1.5">
                     {label}
                     {count > 0 && (
-                      <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold leading-none ${tab === value ? "bg-brand-soft text-brand-strong" : "bg-black/10 text-ink-soft"}`}>
+                      <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold leading-none ${tab === value ? "bg-brand-soft text-brand-strong" : "bg-ink/10 text-ink-soft"}`}>
                         {count}
                       </span>
                     )}
