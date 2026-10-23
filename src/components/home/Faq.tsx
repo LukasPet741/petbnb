@@ -1,62 +1,39 @@
 "use client";
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Plus } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const ITEMS = ["howItWorks", "cost", "areas", "becomeSitter", "realCompany"] as const;
 
+/**
+ * The same accordion as "What we do, and what we don't" (Honest.tsx), so the two sections that
+ * sit back to back read as one family: one card, hairline dividers, a plus that turns into a
+ * cross. Native <details>, so it opens before the page hydrates and needs no state.
+ */
 export default function Faq() {
   const { t } = useLanguage();
-  const reduceMotion = useReducedMotion();
-  const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="scroll-mt-16 py-12 md:py-16">
-      <div className="max-w-2xl mx-auto px-4">
-        <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink mb-8 text-center tracking-tight">
+    <section id="faq" className="scroll-mt-16">
+      <div className="max-w-6xl mx-auto px-4 py-12 lg:py-16">
+        <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink tracking-tight">
           {t("home.faq.title")}
         </h2>
-        <div className="space-y-3">
-          {ITEMS.map((key, i) => {
-            const expanded = open === i;
-            return (
-              <div key={key} className="overflow-hidden rounded-[var(--radius-input)] glass-card border">
-                <button
-                  type="button"
-                  onClick={() => setOpen(expanded ? null : i)}
-                  aria-expanded={expanded}
-                  aria-controls={`faq-panel-${key}`}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-brand-softer"
-                >
-                  <span className="pr-4 text-sm font-medium text-ink">{t(`home.faq.items.${key}.q`)}</span>
-                  <motion.span
-                    animate={{ rotate: expanded ? 180 : 0 }}
-                    transition={{ duration: reduceMotion ? 0 : 0.25 }}
-                    className="flex-shrink-0"
-                  >
-                    <ChevronDown className="h-4 w-4 text-ink-soft" aria-hidden="true" />
-                  </motion.span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {expanded && (
-                    <motion.div
-                      id={`faq-panel-${key}`}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-5 pb-4 text-sm leading-relaxed text-ink-soft">
-                        {t(`home.faq.items.${key}.a`)}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+
+        <div className="mt-6 rounded-[var(--radius-card)] glass-card border px-5 sm:px-6">
+          {ITEMS.map((key, i) => (
+            <details key={key} open={i === 0} className="group border-b border-ink/8 last:border-b-0">
+              <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 py-3 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                {t(`home.faq.items.${key}.q`)}
+                <Plus
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0 text-brand transition-transform group-open:rotate-45 motion-reduce:transition-none"
+                />
+              </summary>
+              <p className="max-w-2xl pb-4 pr-9 text-sm leading-relaxed text-ink-soft">
+                {t(`home.faq.items.${key}.a`)}
+              </p>
+            </details>
+          ))}
         </div>
       </div>
     </section>

@@ -9,6 +9,7 @@ import { cleanPairCode, formatPairCode, isPairCode, PAIR_CODE_LENGTH } from "@/l
 import { cn } from "@/lib/utils";
 import CollarArt from "./CollarArt";
 import ConnectChecklist from "./ConnectChecklist";
+import { buttonClasses } from "@/components/ui/Button";
 
 type Step = 1 | 2 | 3 | 4;
 type CodeError = "notFound" | "taken" | "network" | null;
@@ -113,7 +114,7 @@ export default function PairingWizard({ onClose }: { onClose: () => void }) {
             <h2 className="font-display text-[19px] font-semibold leading-tight text-ink">{t("appPages.collar.wizard.on.title")}</h2>
             <CollarArt className="my-3 h-[104px] w-full rounded-2xl bg-gradient-to-br from-brand-softer to-white" />
             <p className="text-[13px] text-ink-soft">{t("appPages.collar.wizard.on.text")}</p>
-            <button type="button" onClick={() => setStep(2)} className="mt-4 h-11 w-full rounded-xl bg-brand text-sm font-semibold text-white">
+            <button type="button" onClick={() => setStep(2)} className={cn(buttonClasses({ block: true }), "mt-4")}>
               {t("appPages.collar.wizard.on.next")}
             </button>
           </div>
@@ -169,7 +170,7 @@ export default function PairingWizard({ onClose }: { onClose: () => void }) {
               </p>
             )}
             <button type="button" onClick={() => void submitCode()} disabled={!isPairCode(code) || busy}
-              className="h-11 w-full rounded-xl bg-brand text-sm font-semibold text-white disabled:opacity-50">
+              className={buttonClasses({ block: true })}>
               {t("appPages.collar.wizard.code.submit")}
             </button>
           </div>
@@ -194,7 +195,7 @@ export default function PairingWizard({ onClose }: { onClose: () => void }) {
             <input id="collar-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={40}
               className="mb-4 mt-1.5 h-11 w-full rounded-xl border border-ink/12 px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand" />
             <button type="button" onClick={() => void submitName()} disabled={busy}
-              className="h-11 w-full rounded-xl bg-brand text-sm font-semibold text-white disabled:opacity-50">
+              className={buttonClasses({ block: true })}>
               {t("appPages.collar.wizard.name.submit")}
             </button>
           </div>

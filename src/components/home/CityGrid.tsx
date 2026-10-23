@@ -15,7 +15,8 @@ import { type HomeStatus } from "@/components/home/status";
 /** Four columns by two rows is eight cells. The lead city takes 2x2 and the
  *  other four take one each, so five cities fill the grid exactly with no
  *  blank tile. Change the city count and this array changes with it. */
-const CELLS = ["md:col-span-2 lg:col-span-2 lg:row-span-2", "", "", "", ""];
+// A phone shows the lead city across both columns and the other four two by two.
+const CELLS = ["col-span-2 lg:row-span-2", "", "", "", ""];
 
 const MAX_FACES = 4;
 
@@ -28,7 +29,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
     t(`home.cities.sitterCount.${pluralForm(locale, n)}`, { count: n });
 
   const gridClass =
-    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-4 lg:h-[380px]";
+    "grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-3 sm:gap-4 lg:h-[380px]";
 
   return (
     <section id="cities" className="scroll-mt-16 py-12 md:py-16">

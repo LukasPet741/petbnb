@@ -7,6 +7,7 @@ import { formatClock } from "@/lib/collar/stats";
 import { CHECKIN_TIMEOUT_MS, isOnline, pairedAt } from "@/lib/collar/status";
 import { cn } from "@/lib/utils";
 import { collarName } from "./names";
+import { buttonClasses } from "@/components/ui/Button";
 
 type ItemStatus = "done" | "active" | "warn" | "wait";
 
@@ -103,10 +104,10 @@ export default function ConnectChecklist({ onDone, onPlay }: { onDone: () => voi
             ))}
           </ul>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setWaitFrom(now)} className="h-11 flex-1 rounded-xl border border-ink/10 bg-surface text-[13px] font-semibold text-ink">
+            <button type="button" onClick={() => setWaitFrom(now)} className={cn(buttonClasses({ variant: "secondary" }), "flex-1")}>
               {t("appPages.collar.wizard.connect.keepWaiting")}
             </button>
-            <button type="button" onClick={onPlay} className="h-11 flex-1 rounded-xl bg-brand text-[13px] font-semibold text-white">
+            <button type="button" onClick={onPlay} className={cn(buttonClasses(), "flex-1")}>
               {t("appPages.collar.wizard.connect.recordedWalk")}
             </button>
           </div>

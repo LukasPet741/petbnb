@@ -104,6 +104,7 @@ function NewBookingForm() {
   usePageTitle(t("appPages.bookingsNew.title"));
   const router = useRouter();
   const searchParams = useSearchParams();
+  const backHref = searchParams.get("sitter") ? `/browse/${encodeURIComponent(searchParams.get("sitter")!)}` : "/bookings";
   const { user } = useAuth();
   // undefined until the fetch answers, null when it finds nobody -- sitterBlocker needs
   // the difference, or every valid link would flash "not found" first.
@@ -257,11 +258,13 @@ function NewBookingForm() {
         )}
       </div>
 
+      {/* Opened from a sitter's profile (?sitter=), so back goes to that profile, not to
+          a bookings list the visitor never came from. */}
       <Link
-        href="/bookings"
+        href={backHref}
         className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" /> {t("appPages.bookingsNew.backToBookings")}
+        <ArrowLeft className="w-4 h-4" /> {t(searchParams.get("sitter") ? "appPages.bookingsNew.backToSitter" : "appPages.bookingsNew.backToBookings")}
       </Link>
       <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">
         {t("appPages.bookingsNew.title")}
@@ -505,7 +508,7 @@ function NewBookingForm() {
               right-aligned from sm up, because a 900px primary button looks broken. */}
           <div className="max-w-5xl mx-auto flex gap-3 sm:justify-end">
             <Link
-              href="/bookings"
+              href={backHref}
               className={cn(buttonClasses({ variant: "secondary" }), "flex-1 sm:flex-none sm:px-8")}
             >
               {t("appPages.bookingsNew.cancelButton")}

@@ -80,7 +80,7 @@ const sitters = {
     freeToJoinNote: "Free to join. {name} confirms before anything is booked.",
     // Signed-in visitors: the same wording as appPages.browse.bookCta / paymentNote.
     bookCtaSignedIn: "Book {name}",
-    paymentNoteSignedIn: "You won't be charged yet. The sitter confirms first.",
+    paymentNoteSignedIn: "Nothing is booked until the sitter accepts.",
   },
 };
 

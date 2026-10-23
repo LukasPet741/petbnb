@@ -3,6 +3,7 @@ import { Play } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import type { ReplayError } from "@/context/CollarLiveContext";
 import CollarArt from "./CollarArt";
+import { buttonClasses } from "@/components/ui/Button";
 
 /** The page before anything is paired: pair the real collar, or watch a recorded walk. */
 export default function CollarEmpty({ onPair, onPlay, replayError }: { onPair: () => void; onPlay: () => void; replayError: ReplayError | null }) {
@@ -14,12 +15,12 @@ export default function CollarEmpty({ onPair, onPlay, replayError }: { onPair: (
       <CollarArt className="mx-auto my-4 h-[104px] w-full max-w-[300px] rounded-2xl bg-gradient-to-br from-brand-softer to-white" />
       <p className="mx-auto max-w-xs text-sm text-ink-soft">{t("appPages.collar.empty.text")}</p>
       <div className="mt-5 grid gap-2">
-        <button type="button" onClick={onPair} className="h-11 rounded-xl bg-brand text-sm font-semibold text-white hover:bg-brand-strong">
+        <button type="button" onClick={onPair} className={buttonClasses({ block: true })}>
           {t("appPages.collar.empty.pair")}
         </button>
         {/* Once the database says there is no recording, offering it again would only fail again. */}
         {replayError !== "no_recording" && (
-          <button type="button" onClick={onPlay} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-ink/10 bg-surface/80 text-sm font-semibold text-ink hover:bg-surface">
+          <button type="button" onClick={onPlay} className={buttonClasses({ variant: "secondary", block: true })}>
             <Play className="h-4 w-4" aria-hidden="true" />
             {t("appPages.collar.play")}
           </button>

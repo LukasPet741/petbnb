@@ -80,7 +80,7 @@ const sitters = {
     freeToJoinNote: "Registracija nemokama. {name} patvirtina prieš bet kokį užsakymą.",
     // Prisijungusiems: tas pats tekstas kaip appPages.browse.bookCta / paymentNote.
     bookCtaSignedIn: "Užsakyti {name}",
-    paymentNoteSignedIn: "Kol kas jokių mokesčių nebus. Pirmiausia globėjas turi patvirtinti.",
+    paymentNoteSignedIn: "Niekas neužsakoma, kol globėjas nepatvirtina.",
   },
 };
 

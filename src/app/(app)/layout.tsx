@@ -1,13 +1,14 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+import Sidebar, { hasTabBar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { NotificationsProvider } from "@/context/NotificationsContext";
 import { CollarLiveProvider } from "@/context/CollarLiveContext";
 import { withNext } from "@/lib/next-path";
+import { cn } from "@/lib/utils";
 import MoonLoader from "@/components/ui/MoonLoader";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +47,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Sidebar />
 
             <div className="lg:pl-64 relative z-10">
-              <main className="min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh]">{children}</main>
+              {/* Room under the content for the phone tab bar (h-16 + the home-indicator inset). */}
+              <main className={cn("min-h-[calc(100dvh-3.5rem)] lg:min-h-[100dvh] lg:pb-0", hasTabBar(pathname) && "pb-[calc(4rem+env(safe-area-inset-bottom))]")}>{children}</main>
             </div>
           </div>
         </CollarLiveProvider>

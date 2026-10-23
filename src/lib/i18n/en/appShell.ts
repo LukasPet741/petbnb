@@ -16,6 +16,8 @@ const appShell = {
     signOut: "Sign out",
     openMenu: "Open menu",
     closeMenu: "Close menu",
+    moreTab: "More",
+    tabBarLabel: "Main navigation",
     youFallback: "You",
     footerNote: "PetBnB · a student project",
   },

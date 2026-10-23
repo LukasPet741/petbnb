@@ -50,7 +50,7 @@ const appPages = {
     noServicesListed: "Šis globėjas dar nenurodė jokių paslaugų.",
     priceNote: "Galutinę kainą sutarsite su globėju pokalbyje.",
     bookCta: "Užsakyti {name}",
-    paymentNote: "Kol kas jokių mokesčių nebus. Pirmiausia globėjas turi patvirtinti.",
+    paymentNote: "Niekas neužsakoma, kol globėjas nepatvirtina.",
   },
   bookings: {
     title: "Užsakymai",
@@ -106,6 +106,7 @@ const appPages = {
   },
   bookingsNew: {
     backToBookings: "Grįžti į užsakymus",
+    backToSitter: "Grįžti į globėjo profilį",
     title: "Užsakykite paslaugą",
     subtitle: "Pasirinkite augintinį ir reikiamą paslaugą. Toliau globėjas patvirtins užklausą.",
     noSitterSelected: "Globėjas dar nepasirinktas.",
@@ -287,7 +288,7 @@ const appPages = {
   profile: {
     title: "Profilis",
     signOutButton: "Atsijungti",
-    completeProfileFallback: "Užpildykite profilį",
+    completeProfileFallback: "Jūsų vardas",
     noCitySetFallback: "Miestas nenurodytas",
     sitterAndOwnerBadge: "Globėjas(-a) ir šeimininkas(-ė)",
     petOwnerBadge: "Augintinio šeimininkas(-ė)",

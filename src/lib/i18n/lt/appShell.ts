@@ -16,6 +16,8 @@ const appShell = {
     signOut: "Atsijungti",
     openMenu: "Atidaryti meniu",
     closeMenu: "Uždaryti meniu",
+    moreTab: "Daugiau",
+    tabBarLabel: "Pagrindinis meniu",
     youFallback: "Jūs",
     footerNote: "PetBnB · studentų projektas",
   },

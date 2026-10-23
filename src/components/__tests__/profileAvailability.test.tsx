@@ -29,7 +29,7 @@ const profileState = vi.hoisted(() => ({
   loading: false,
   refresh: () => Promise.resolve(),
 }));
-vi.mock("@/hooks/useProfile", () => ({ useProfile: () => profileState }));
+vi.mock("@/hooks/useProfile", () => ({ useProfile: () => profileState, notifyProfileChanged: async () => {} }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() }),
   usePathname: () => "/profile",

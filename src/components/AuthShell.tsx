@@ -7,6 +7,7 @@ import { fadeUp, stagger, slideRight } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Logo from "@/components/Logo";
+import { buttonClasses } from "@/components/ui/Button";
 
 /**
  * The frame of every auth page (/login, /signup, /forgot-password, /reset-password): a photo half
@@ -65,8 +66,8 @@ export default function AuthShell({
 export const inputClass =
   "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
 
-export const primaryButtonClass =
-  "w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors flex items-center justify-center gap-2 disabled:opacity-60";
+// The shared pill (components/ui/Button), full width on the auth forms.
+export const primaryButtonClass = buttonClasses({ block: true });
 
 export function Spinner() {
   return <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />;

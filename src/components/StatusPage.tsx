@@ -2,6 +2,7 @@
 import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Logo from "@/components/Logo";
+import { buttonClasses } from "@/components/ui/Button";
 
 /**
  * The frame of the not-found and error pages: one glass card on the site's atmosphere, with
@@ -35,8 +36,6 @@ export default function StatusPage({
   );
 }
 
-export const statusPrimaryClass =
-  "w-full h-11 bg-brand text-white rounded-xl font-medium text-sm hover:bg-brand-strong transition-colors inline-flex items-center justify-center";
+export const statusPrimaryClass = buttonClasses({ block: true });
 
-export const statusSecondaryClass =
-  "w-full h-11 rounded-xl border border-black/10 bg-surface text-ink font-medium text-sm hover:bg-brand-soft transition-colors inline-flex items-center justify-center";
+export const statusSecondaryClass = buttonClasses({ variant: "secondary", block: true });

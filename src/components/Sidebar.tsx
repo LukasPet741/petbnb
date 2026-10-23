@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Search, Heart, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut, Radar } from "lucide-react";
+import { LayoutDashboard, Search, PawPrint, CalendarDays, MessageCircle, Bookmark, User, Menu, X, LogOut, Radar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -24,12 +24,19 @@ import LiveDot from "@/components/collar/LiveDot";
 const LINKS = [
   { href: "/dashboard", key: "appShell.sidebar.nav.dashboard", icon: LayoutDashboard },
   { href: "/browse", key: "appShell.sidebar.nav.browse", icon: Search },
-  { href: "/pets", key: "appShell.sidebar.nav.pets", icon: Heart },
+  { href: "/pets", key: "appShell.sidebar.nav.pets", icon: PawPrint },
   { href: "/bookings", key: "appShell.sidebar.nav.bookings", icon: CalendarDays },
   { href: "/messages", key: "appShell.sidebar.nav.messages", icon: MessageCircle },
   { href: "/saved", key: "appShell.sidebar.nav.saved", icon: Bookmark },
   { href: "/profile", key: "appShell.sidebar.nav.profile", icon: User },
 ];
+
+// The phone's bottom bar carries the four places people go most; "More" opens the drawer
+// with the rest (pets, saved, profile, language). Screens with their own bottom bar or a
+// full-height layout hide it: the booking form's Send bar, a chat's composer, a walk map.
+const TABS = ["/dashboard", "/browse", "/bookings", "/messages"];
+const NO_TAB_BAR = [/^\/bookings\/new/, /^\/messages\/[^/]+/, /^\/walks\/[^/]+/];
+export const hasTabBar = (pathname: string) => !NO_TAB_BAR.some((re) => re.test(pathname));
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -78,8 +85,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <SidebarSpotlight onNavigate={close} />
-
       <nav className="space-y-0.5">
         {LINKS.map(({ href, key, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
@@ -100,6 +105,11 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Below the navigation, not above it: the places someone came to go come first. */}
+      <div className="mt-4">
+        <SidebarSpotlight onNavigate={close} />
+      </div>
 
       <div className="flex-1" />
 
@@ -146,11 +156,47 @@ export default function Sidebar() {
             <Radar className="h-[17px] w-[17px]" aria-hidden="true" />
             {collarPulsing && <LiveDot className="absolute -right-0.5 -top-0.5" />}
           </Link>
-          <LanguageSwitcher />
           <NotificationBell />
-          <button type="button" onClick={() => setOpen(true)} aria-label={t("appShell.sidebar.openMenu")} aria-expanded={open} className="p-2 rounded-lg text-ink-soft hover:bg-brand-softer"><Menu className="w-5 h-5" aria-hidden="true" /></button>
+          {/* Where there is no tab bar (and so no More), the menu stays reachable from here. */}
+          {!hasTabBar(pathname) && (
+            <button type="button" onClick={() => setOpen(true)} aria-label={t("appShell.sidebar.openMenu")} aria-expanded={open} className="p-2 rounded-lg text-ink-soft hover:bg-brand-softer"><Menu className="w-5 h-5" aria-hidden="true" /></button>
+          )}
         </div>
       </header>
+
+      {/* Phone tab bar */}
+      {hasTabBar(pathname) && (
+        <nav aria-label={t("appShell.sidebar.tabBarLabel")}
+          className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass border-t pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+          <div className="grid grid-cols-5 h-16">
+            {TABS.map((href) => {
+              const link = LINKS.find((l) => l.href === href)!;
+              const Icon = link.icon;
+              const active = pathname === href || pathname.startsWith(href + "/");
+              const badge = href === "/messages" ? unreadCount : 0;
+              return (
+                <Link key={href} href={href} aria-current={active ? "page" : undefined}
+                  className={cn("pb-press relative flex flex-col items-center justify-center gap-1 text-xs font-medium", active ? "text-brand-strong" : "text-ink-soft")}>
+                  <span className={cn("grid h-7 w-12 place-items-center rounded-full transition-colors", active && "bg-brand-soft")}>
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="max-w-full truncate px-1">{t(link.key)}</span>
+                  {badge > 0 && (
+                    <span className="absolute top-1.5 left-1/2 ml-2 bg-brand text-white text-xs font-semibold rounded-full min-w-[18px] h-[18px] px-1 grid place-items-center">
+                      {badge > 9 ? "9+" : badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+            <button type="button" onClick={() => setOpen(true)} aria-expanded={open}
+              className="pb-press flex flex-col items-center justify-center gap-1 text-xs font-medium text-ink-soft">
+              <span className="grid h-7 w-12 place-items-center rounded-full"><Menu className="h-5 w-5" aria-hidden="true" /></span>
+              <span>{t("appShell.sidebar.moreTab")}</span>
+            </button>
+          </div>
+        </nav>
+      )}
 
       {/* Desktop fixed sidebar. Scrolls on short screens now that it carries the spotlight cards,
           without a visible scrollbar: a 10 px Windows one narrowed the cards and clipped their text. */}

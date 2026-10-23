@@ -10,6 +10,7 @@ import OnboardingRing from "@/components/dashboard/OnboardingRing";
 import { onboardingPercent, type OnboardingStep } from "@/lib/sitter-onboarding";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp, stagger } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import { pluralForm } from "@/lib/i18n/plural";
 import { dayLabel, type DashBooking, type Hero, type Role } from "@/lib/dashboard";
 import type { AppNotification } from "@/lib/types";
@@ -60,13 +61,16 @@ export default function DashboardView(props: DashboardViewProps) {
             {t(`appShell.dashboard.greeting.${greetingKey(today.getHours())}`)}, {props.firstName}
           </h1>
         </div>
-        <Link
-          href="/browse"
-          className={buttonClasses()}
-        >
-          {t("appShell.findASitter")}
-          <ArrowRight className="w-4 h-4" aria-hidden="true" />
-        </Link>
+        {/* The empty lead card carries its own Find a sitter, and on a phone the tab bar has Browse. */}
+        {props.hero.kind !== "empty" && (
+          <Link
+            href="/browse"
+            className={cn(buttonClasses(), "hidden sm:inline-flex")}
+          >
+            {t("appShell.findASitter")}
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
+        )}
       </motion.header>
 
       {props.onboarding && onboardingPercent(props.onboarding) < 100 && (

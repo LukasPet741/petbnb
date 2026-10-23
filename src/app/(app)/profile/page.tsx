@@ -27,6 +27,8 @@ import AccountData from "@/components/AccountData";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import { addDays, vilniusDay } from "@/lib/availability";
 import { PHONE_COUNTRIES, PHONE_DIAL, PHONE_EXAMPLE, PHONE_FLAG, formatPhone, parsePhone, splitPhone, type PhoneCountry } from "@/lib/phone";
+import { buttonClasses } from "@/components/ui/Button";
+import MoonLoader from "@/components/ui/MoonLoader";
 
 /** How far ahead the sitter's own calendar reads: the two months it shows, from today. */
 const CALENDAR_DAYS = 70;
@@ -287,10 +289,9 @@ export default function ProfilePage() {
                 )}
               </motion.div>
               <motion.div variants={fadeUp}>
-                <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-                  className="w-full h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60">
-                  {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveChangesButton")}</>}
-                </motion.button>
+                <button type="submit" disabled={saving} className={buttonClasses({ block: true })}>
+                  {saving ? <MoonLoader bare size={18} /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveChangesButton")}</>}
+                </button>
               </motion.div>
             </motion.div>
           )}
@@ -405,10 +406,9 @@ export default function ProfilePage() {
                 )}
               </AnimatePresence>
 
-              <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-                className="w-full h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60">
-                {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveProfileButton")}</>}
-              </motion.button>
+              <button type="submit" disabled={saving} className={buttonClasses({ block: true })}>
+                {saving ? <MoonLoader bare size={18} /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveProfileButton")}</>}
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

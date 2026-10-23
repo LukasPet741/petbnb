@@ -51,7 +51,7 @@ const appPages = {
     noServicesListed: "This sitter hasn't listed any services yet.",
     priceNote: "You agree the final price with the sitter in the chat.",
     bookCta: "Book {name}",
-    paymentNote: "You won't be charged yet. The sitter confirms first.",
+    paymentNote: "Nothing is booked until the sitter accepts.",
   },
   bookings: {
     title: "Bookings",
@@ -107,6 +107,7 @@ const appPages = {
   },
   bookingsNew: {
     backToBookings: "Back to bookings",
+    backToSitter: "Back to the sitter",
     title: "Request a booking",
     subtitle: "Choose your pet and the service you need. The sitter confirms next.",
     noSitterSelected: "No sitter selected yet.",
@@ -287,7 +288,7 @@ const appPages = {
   profile: {
     title: "Profile",
     signOutButton: "Sign out",
-    completeProfileFallback: "Complete your profile",
+    completeProfileFallback: "Your name",
     noCitySetFallback: "No city set",
     sitterAndOwnerBadge: "Sitter & Owner",
     petOwnerBadge: "Pet Owner",

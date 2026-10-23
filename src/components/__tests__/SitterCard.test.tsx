@@ -411,9 +411,9 @@ describe("overflow guards", () => {
     expect(container.querySelector("div.flex-1")).toHaveClass("min-w-0");
   });
 
-  it("clamps a long about-me to two lines", () => {
+  it("clamps a long about-me to one line on a phone and two from sm", () => {
     render(<SitterCard sitter={sitter({ about_me: LONG_ABOUT }) } />);
-    expect(screen.getByText(LONG_ABOUT.trim())).toHaveClass("line-clamp-2");
+    expect(screen.getByText(LONG_ABOUT.trim())).toHaveClass("line-clamp-1", "sm:line-clamp-2");
   });
 
   it("omits the about-me paragraph entirely when it is null or empty", () => {

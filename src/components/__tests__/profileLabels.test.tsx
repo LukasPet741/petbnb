@@ -20,7 +20,7 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("@/context/AuthContext", () => ({ useAuth: () => ({ user: h.user }) }));
-vi.mock("@/hooks/useProfile", () => ({ useProfile: () => ({ profile: h.profile, refresh: vi.fn() }) }));
+vi.mock("@/hooks/useProfile", () => ({ useProfile: () => ({ profile: h.profile, refresh: vi.fn() }), notifyProfileChanged: async () => {} }));
 vi.mock("@/hooks/useBusyDays", () => ({ useBusyDays: () => ({ busy: new Map(), reload: vi.fn() }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/lib/supabase", () => ({ supabase: {} }));

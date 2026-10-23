@@ -14,6 +14,7 @@ import { formatCurrency, timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import type { Booking, Message, Thread } from "@/lib/types";
+import { buttonClasses } from "@/components/ui/Button";
 
 // The two profile embeds name their columns because neither role holds a
 // table-level SELECT on profiles any more -- `profiles ( * )` is a 42501, not a
@@ -148,7 +149,7 @@ export default function MessagesPage() {
           action={
             <Link
               href="/browse"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"
+              className={buttonClasses()}
             >
               <Search className="w-4 h-4" />
               {t("messages.findASitter")}

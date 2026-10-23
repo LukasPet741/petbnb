@@ -25,7 +25,7 @@ export default function Honest() {
   return (
     <section>
       <div className="max-w-6xl mx-auto px-4 py-12 lg:py-16">
-        <h2 className="font-display text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
+        <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink tracking-tight">
           {t("home.honest.title")}
         </h2>
 

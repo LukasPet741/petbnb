@@ -581,7 +581,7 @@ export default function MessageThread({ bookingId }: { bookingId: string }) {
               disabled={sending || draft.trim().length === 0}
               aria-label={t("messages.send")}
               title={t("messages.send")}
-              className="h-11 w-11 flex-shrink-0 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="h-11 w-11 flex-shrink-0 flex items-center justify-center gap-2 bg-brand text-white rounded-full text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Send className="w-4 h-4" />
             </button>

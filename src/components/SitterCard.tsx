@@ -67,12 +67,14 @@ export default function SitterCard({
 
   return (
     <motion.div
-      className="group relative glass-card rounded-2xl border overflow-hidden flex flex-col h-full"
+      className="group relative glass-card rounded-[var(--radius-card)] border overflow-hidden flex flex-col h-full"
       whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(19, 26, 23, 0.12), 0 2px 6px rgba(19, 26, 23, 0.06)" }}
       whileTap={{ y: -1, boxShadow: "0 1px 2px rgba(19, 26, 23, 0.06), 0 1px 1px rgba(19, 26, 23, 0.04)" }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative h-36 overflow-hidden bg-gradient-to-br from-brand-soft via-surface-2 to-amber-soft">
+      {/* No cover on a phone: one card per row there, and a 144px stock photo on each made
+          the list ~400px a sitter. The phone card is a compact row; the cover returns from sm. */}
+      <div className="relative hidden sm:block h-36 overflow-hidden bg-gradient-to-br from-brand-soft via-surface-2 to-amber-soft">
         {cover && coverSrc && (
           <img
             src={coverSrc}
@@ -89,30 +91,32 @@ export default function SitterCard({
             {t(`sitters.activity.${activityBucket}`)}
           </span>
         )}
-        {showFavorite && <FavoriteButton sitterId={sitter.id} className="absolute right-3 top-3 z-20 shadow-[var(--shadow-sm)]" />}
       </div>
+      {showFavorite && <FavoriteButton sitterId={sitter.id} className="absolute right-3 top-3 z-20 shadow-[var(--shadow-sm)]" />}
 
-      <div className="flex flex-1 min-w-0 flex-col gap-3 px-5 pb-5">
-        <Avatar name={name} url={sitter.avatar_url} size="lg" className="relative -mt-8 ring-4 ring-white shadow-[var(--shadow-sm)]" />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="font-display text-lg font-semibold text-ink leading-tight tracking-tight truncate">{name}</h3>
-            <VerifiedSeal method={sitter.verification_method} size="md" />
-          </div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-ink-soft">
-            <span className="flex items-center gap-1 min-w-0"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{sitter.city}</span></span>
-            {sitter.experience_years != null && (
-              <span className="flex items-center gap-1 flex-shrink-0"><Clock className="w-3.5 h-3.5" />{t(sitter.experience_years !== 1 ? "sitters.card.experiencePlural" : "sitters.card.experienceSingular", { years: sitter.experience_years })}</span>
-            )}
+      <div className="flex flex-1 min-w-0 flex-col gap-2.5 p-4 sm:gap-3 sm:px-5 sm:pt-0 sm:pb-5">
+        <div className="flex items-center gap-3 pr-10 sm:block sm:pr-0">
+          <Avatar name={name} url={sitter.avatar_url} size="lg" className="relative flex-shrink-0 sm:-mt-8 ring-4 ring-white shadow-[var(--shadow-sm)]" />
+          <div className="flex-1 min-w-0 sm:mt-3">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h3 className="font-display text-lg font-semibold text-ink leading-tight tracking-tight truncate">{name}</h3>
+              <VerifiedSeal method={sitter.verification_method} size="md" />
+            </div>
+            <div className="flex items-center gap-3 mt-1 text-xs text-ink-soft">
+              <span className="flex items-center gap-1 min-w-0"><MapPin className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{sitter.city}</span></span>
+              {sitter.experience_years != null && (
+                <span className="flex items-center gap-1 flex-shrink-0"><Clock className="w-3.5 h-3.5" />{t(sitter.experience_years !== 1 ? "sitters.card.experiencePlural" : "sitters.card.experienceSingular", { years: sitter.experience_years })}</span>
+              )}
+            </div>
           </div>
         </div>
 
         {sitter.about_me && (
-          <p className="text-sm text-ink-soft leading-relaxed line-clamp-2">{sitter.about_me}</p>
+          <p className="text-sm text-ink-soft leading-relaxed line-clamp-1 sm:line-clamp-2">{sitter.about_me}</p>
         )}
 
         {activeServices.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="hidden sm:flex flex-wrap gap-1.5">
             {activeServices.map((s) => <Badge key={s} variant="brand">{s}</Badge>)}
           </div>
         )}
@@ -125,7 +129,7 @@ export default function SitterCard({
 
       <Link
         href={`/browse/${sitter.id}`}
-        className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="absolute inset-0 z-10 rounded-[var(--radius-card)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         <span className="sr-only">{t("sitters.card.viewProfile")}</span>
       </Link>

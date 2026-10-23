@@ -62,7 +62,8 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
             tone="encouraging"
           />
         ) : (
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-5">
+          // A swipeable row on a phone (six stacked quotes were ~1,000px of scroll); the masonry from md up.
+          <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:block md:columns-2 md:gap-5 md:overflow-visible md:px-0 md:pb-0 lg:columns-3">
             {voices.map((sitter, i) => {
               const name = sitter.full_name ?? t("appShell.sitterFallback");
               // The first voice carries more weight typographically. That is the
@@ -73,12 +74,12 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
                 <motion.figure
                   key={sitter.id}
                   {...revealOnScroll(i % 3, reduceMotion, 0.07)}
-                  className="mb-5 break-inside-avoid"
+                  className="w-[85%] flex-shrink-0 snap-start break-inside-avoid md:mb-5 md:w-auto"
                 >
                   <Link
                     href={`/browse/${sitter.id}`}
                     aria-label={t("home.voices.openProfile", { name })}
-                    className="group block rounded-[var(--radius-card)] glass-card border p-6 transition-shadow hover:shadow-[var(--shadow-md)]"
+                    className="group block h-full rounded-[var(--radius-card)] glass-card border p-6 transition-shadow hover:shadow-[var(--shadow-md)]"
                   >
                     <blockquote
                       className={`text-ink line-clamp-3 ${
@@ -92,7 +93,7 @@ export default function SitterVoices({ sitters, status }: { sitters: Profile[]; 
                     <figcaption className="mt-5 flex items-center gap-3">
                       <Avatar name={name} url={sitter.avatar_url} size="md" />
                       <div className="min-w-0">
-                        <div className="font-[family-name:var(--font-script)] text-xl leading-none text-brand-strong truncate">
+                        <div className="font-[family-name:var(--font-script)] text-xl leading-tight text-brand-strong truncate pr-1.5">
                           {name}
                         </div>
                         <div className="mt-1 flex items-center gap-1.5 text-xs text-ink-soft">

@@ -43,7 +43,9 @@ const LIVE_COLLAR: CollarLiveValue = {
   state: "live",
 };
 
-const nav = () => screen.getAllByRole("navigation")[0];
+// The rail's nav has no label; the phone tab bar is the labelled one.
+const nav = () => screen.getAllByRole("navigation").find((n) => !n.hasAttribute("aria-label"))!;
+const tabBar = () => screen.queryAllByRole("navigation").find((n) => n.hasAttribute("aria-label")) ?? null;
 const navHrefs = () => within(nav()).getAllByRole("link").map((a) => a.getAttribute("href"));
 /** The desktop rail and the phone drawer share markup; the rail is the first match. */
 const first = (name: RegExp) => screen.getAllByRole("link", { name })[0];
@@ -60,6 +62,26 @@ describe("Sidebar navigation", () => {
   it("lists the app's sections in a deliberate order, legal no longer among them", () => {
     render(<Sidebar />);
     expect(navHrefs()).toEqual(["/dashboard", "/browse", "/pets", "/bookings", "/messages", "/saved", "/profile"]);
+  });
+
+  it("gives a phone a bottom tab bar with the four main places and More", () => {
+    h.pathname = "/dashboard";
+    render(<Sidebar />);
+    const bar = tabBar();
+    expect(bar).not.toBeNull();
+    expect(within(bar!).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/dashboard", "/browse", "/bookings", "/messages"]);
+    expect(within(bar!).getByRole("button")).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("hides the tab bar on screens with their own bottom bar", () => {
+    for (const path of ["/bookings/new", "/messages/abc", "/walks/abc"]) {
+      h.pathname = path;
+      const { unmount } = render(<Sidebar />);
+      expect(tabBar()).toBeNull();
+      // ...and the top bar keeps a menu button instead, so the rest of the app stays reachable.
+      expect(screen.getByRole("button", { name: /open menu|appShell.sidebar.openMenu/i })).toBeInTheDocument();
+      unmount();
+    }
   });
 
   it("marks only the section you are actually in", () => {

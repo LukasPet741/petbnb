@@ -42,7 +42,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/supabase", () => ({
   supabase: { from: () => ({ update: () => ({ eq: () => Promise.resolve({ error: null }) }) }) },
 }));
-vi.mock("@/components/Sidebar", () => ({ default: () => null }));
+vi.mock("@/components/Sidebar", () => ({ default: () => null, hasTabBar: () => true }));
 vi.mock("@/components/ImageUpload", () => ({ default: () => null }));
 vi.mock("@/context/FavoritesContext", () => ({ FavoritesProvider: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/context/NotificationsContext", () => ({ NotificationsProvider: ({ children }: { children: React.ReactNode }) => children }));

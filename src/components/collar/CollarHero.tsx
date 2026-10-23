@@ -11,6 +11,7 @@ import StateCard from "./StateCard";
 import StatusCard from "./StatusCard";
 import LiveDot from "./LiveDot";
 import { usePlaceName } from "./usePlaceName";
+import { buttonClasses } from "@/components/ui/Button";
 
 const VILNIUS = { lat: 54.6872, lng: 25.2797 };
 
@@ -30,7 +31,7 @@ interface HeroProps {
 function PlayButton({ onPlay, label }: { onPlay: () => void; label: string }) {
   return (
     <button type="button" onClick={onPlay}
-      className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-[13px] font-semibold text-white hover:bg-brand-strong">
+      className={cn(buttonClasses({ block: true }), "mt-3")}>
       <Play className="h-4 w-4" aria-hidden="true" />
       {label}
     </button>
@@ -94,7 +95,7 @@ export default function CollarHero({ state, device, latest, trail, fitKey, now, 
         {replayError === "stopped" || (noRecording && state === "live") ? (
           <StateCard title={t(noRecording ? "appPages.collar.replay.noRecording" : "appPages.collar.replay.stopped")}>
             {replayError === "stopped" && (
-              <button type="button" onClick={onPlay} className="mt-3 inline-flex h-10 items-center rounded-xl border border-ink/10 bg-surface px-4 text-[13px] font-semibold text-ink">
+              <button type="button" onClick={onPlay} className={cn(buttonClasses({ variant: "secondary" }), "mt-3")}>
                 {t("appPages.collar.replay.tryAgain")}
               </button>
             )}

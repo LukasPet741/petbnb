@@ -44,9 +44,13 @@ const { http: supabaseHttp, ws: supabaseWs } = supabaseOrigins();
  * - style-src needs 'unsafe-inline' for real: framer-motion animates via inline style
  *   attributes and Leaflet injects its own.
  */
+// React's development build uses eval() for its debugging stack traces; without this the dev
+// overlay reports a CSP error on every page. Production never gets it.
+const devEval = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
+
 const csp = [
   `default-src 'self'`,
-  `script-src 'self' 'unsafe-inline'`,
+  `script-src 'self' 'unsafe-inline'${devEval}`,
   `style-src 'self' 'unsafe-inline'`,
   // randomuser.me serves 24 of the 25 seed sitter avatars and unsplash the rest,
   // and both are stored as absolute URLs in profiles.avatar_url / pets.photo_url

@@ -15,6 +15,7 @@ import { useSitterRatings } from "@/hooks/useSitterRatings";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { rememberCovers, spreadCoverPhotos } from "@/lib/images";
+import { buttonClasses } from "@/components/ui/Button";
 
 export default function SavedPage() {
   const { t } = useLanguage();
@@ -54,7 +55,7 @@ export default function SavedPage() {
           icon={Bookmark}
           title={t("appPages.saved.emptyTitle")}
           description={t("appPages.saved.emptyDescription")}
-          action={<Link href="/browse" className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors"><Search className="w-4 h-4" />{t("appPages.saved.findSitterButton")}</Link>}
+          action={<Link href="/browse" className={buttonClasses()}><Search className="w-4 h-4" />{t("appPages.saved.findSitterButton")}</Link>}
           tone="encouraging"
         />
       ) : (

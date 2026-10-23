@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 function Dialog({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
   const titleId = useId();
@@ -32,8 +34,8 @@ export function RenameDialog({ initial, onSave, onClose }: { initial: string; on
       <input id={inputId} autoFocus value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40}
         className="mt-1.5 h-11 w-full rounded-xl border border-ink/10 bg-surface px-3.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand" />
       <div className="mt-5 flex gap-2">
-        <button type="button" onClick={onClose} className="h-11 flex-1 rounded-xl bg-surface-2 text-sm font-medium text-ink">{t("appPages.collar.cancel")}</button>
-        <button type="button" disabled={!label.trim()} onClick={() => onSave(label.trim())} className="h-11 flex-1 rounded-xl bg-brand text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={onClose} className={cn(buttonClasses({ variant: "secondary" }), "flex-1")}>{t("appPages.collar.cancel")}</button>
+        <button type="button" disabled={!label.trim()} onClick={() => onSave(label.trim())} className={cn(buttonClasses(), "flex-1")}>
           {t("appPages.collar.save")}
         </button>
       </div>
@@ -47,8 +49,8 @@ export function RemoveDialog({ name, onRemove, onClose }: { name: string; onRemo
     <Dialog title={t("appPages.collar.removeTitle", { name })} onClose={onClose}>
       <p className="mt-2 text-sm text-ink-soft">{t("appPages.collar.removeText")}</p>
       <div className="mt-5 flex gap-2">
-        <button type="button" onClick={onClose} className="h-11 flex-1 rounded-xl bg-surface-2 text-sm font-medium text-ink">{t("appPages.collar.cancel")}</button>
-        <button type="button" onClick={onRemove} className="h-11 flex-1 rounded-xl bg-danger text-sm font-semibold text-white">{t("appPages.collar.remove")}</button>
+        <button type="button" onClick={onClose} className={cn(buttonClasses({ variant: "secondary" }), "flex-1")}>{t("appPages.collar.cancel")}</button>
+        <button type="button" onClick={onRemove} className={cn(buttonClasses({ variant: "danger" }), "flex-1")}>{t("appPages.collar.remove")}</button>
       </div>
     </Dialog>
   );

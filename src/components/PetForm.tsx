@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import ImageUpload from "@/components/ImageUpload";
 import { PET_BIO_MAX, PET_NAME_MAX } from "@/lib/text-limits";
+import { buttonClasses } from "@/components/ui/Button";
 
 const PET_TYPE_KEYS = Object.keys(PET_TYPE_LABELS) as PetType[];
 const inputCls = "w-full h-11 px-3.5 rounded-xl border border-black/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition";
@@ -152,11 +153,11 @@ export default function PetForm({
         </div>
 
         <div className="flex gap-3 pt-1">
-          <Link href={cancelHref} className="flex-1 h-11 flex items-center justify-center rounded-xl border border-black/10 text-ink text-sm font-medium hover:bg-brand-softer transition-colors">
+          <Link href={cancelHref} className={cn(buttonClasses({ variant: "secondary" }), "flex-1")}>
             {t("appPages.petsNew.cancelButton")}
           </Link>
           <button type="submit" disabled={loading}
-            className="flex-1 h-11 flex items-center justify-center gap-2 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-strong transition-colors disabled:opacity-60">
+            className={cn(buttonClasses(), "flex-1")}>
             {loading
               ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               : <><Save className="w-4 h-4" />{submitLabel}</>}
