@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import SitterProfilePage from "@/app/(app)/browse/[id]/page";
 
 /**
@@ -55,7 +55,8 @@ describe("/browse/[id] availability", () => {
   it("reads this sitter's busy days for the two months it shows", async () => {
     render(<SitterProfilePage />);
     await screen.findByText("appPages.availability.heading");
-    expect(h.rpc).toHaveBeenCalledWith("sitter_busy_days", { p_sitter: "s1", p_from: "2026-10-10", p_to: "2026-12-19" });
+    // The heading can paint before the effect that asks for the busy days has run.
+    await waitFor(() => expect(h.rpc).toHaveBeenCalledWith("sitter_busy_days", { p_sitter: "s1", p_from: "2026-10-10", p_to: "2026-12-19" }));
   });
 
   it("shows away and booked days, read-only", async () => {

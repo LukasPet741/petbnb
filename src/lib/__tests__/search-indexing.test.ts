@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // @ts-expect-error Next ships its compiled path-to-regexp (the matcher headers() uses) without types.
 import { pathToRegexp as untypedPathToRegexp } from "next/dist/compiled/path-to-regexp";
 
@@ -48,6 +48,17 @@ describe("X-Robots-Tag noindex", () => {
   ])("is sent for %s", async (path) => {
     expect(await noindexed(path)).toBe(true);
   });
+});
+
+// SITE_ORIGIN is read once at import from NEXT_PUBLIC_SITE_URL, which CI sets to localhost.
+// Pin what a production build sees (no override) and re-import, so the result does not depend
+// on the machine running the tests.
+beforeEach(() => {
+  vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+  vi.resetModules();
+});
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("robots.txt", () => {
