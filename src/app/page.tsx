@@ -5,6 +5,8 @@ import { type Profile, PUBLIC_PROFILE_COLUMNS } from "@/lib/types";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import Hero from "@/components/home/Hero";
+import SitterRibbon from "@/components/home/SitterRibbon";
+import WhyPetbnb from "@/components/home/WhyPetbnb";
 import ServiceCards from "@/components/home/ServiceCards";
 import CityGrid from "@/components/home/CityGrid";
 import SitterVoices from "@/components/home/SitterVoices";
@@ -15,7 +17,7 @@ import FoundingPanel from "@/components/home/FoundingPanel";
 import { type HomeStatus } from "@/components/home/status";
 
 /**
- * One query for the whole page. The hero, the city grid and the voices wall all
+ * One query for the whole page. The sitter ribbon, the city grid and the voices wall all
  * describe the same set of sitters, and the previous version fetched that set
  * twice (once here, once inside the hero) for two round trips and two chances
  * to disagree with itself. The sections are presentational now: they receive
@@ -61,10 +63,12 @@ export default function LandingPage() {
       <PublicHeader />
       <main>
         <Hero />
+        <SitterRibbon sitters={sitters} status={status} />
         <ServiceCards />
+        <WhyPetbnb />
+        <HowItWorks />
         <CityGrid sitters={sitters} status={status} />
         <SitterVoices sitters={sitters} status={status} />
-        <HowItWorks />
         <Honest />
         <Faq />
         <FoundingPanel />

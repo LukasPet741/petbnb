@@ -21,8 +21,8 @@ const NAV = [
 ] as const;
 
 // The header is the deep-green chrome (Spruce & Moss, look Layered), so its colours come
-// from the --chrome-* tokens and the call to action is leaf on deep.
-const PRIMARY = "pb-press h-9 inline-flex items-center justify-center whitespace-nowrap px-4 bg-brand-leaf text-brand-deep rounded-full text-sm font-semibold hover:brightness-110 transition";
+// from the --chrome-* tokens and the call to action is the hero accent on deep.
+const PRIMARY = "pb-press h-9 inline-flex items-center justify-center whitespace-nowrap px-4 bg-[var(--hero-accent)] text-brand-deep rounded-full text-sm font-semibold hover:brightness-105 transition";
 const QUIET = "h-9 inline-flex items-center justify-center whitespace-nowrap px-3 rounded-full text-sm font-medium text-chrome-ink-soft hover:text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors";
 
 const MENU_ITEM = "min-h-11 flex items-center rounded-lg px-2 text-base font-medium text-chrome-ink hover:bg-[var(--chrome-active)] transition-colors";
@@ -82,7 +82,7 @@ export default function PublicHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeSwitch onChrome />
-          <LanguageSwitcher />
+          <LanguageSwitcher onChrome />
           <div className="hidden md:flex">{secondary(QUIET)}</div>
           {primary}
           <button

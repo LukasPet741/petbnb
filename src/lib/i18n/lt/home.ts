@@ -20,7 +20,58 @@ const home = {
       "Šunų vedžiojimas, apgyvendinimas, dienos priežiūra ir kirpimas, sutariama tiesiogiai su žmogumi jūsų mieste.",
     searchButton: "Ieškoti globėjų",
     cityPlaceholder: "Jūsų miestas",
-    photoAlt: "Šuo, kurį Lietuvoje prižiūri globėjas",
+    photoAlt: "Biglis, žiūrintis į kamerą",
+    glimpse: {
+      offerTitle: "Apgyvendinimas · 3 naktys",
+      offerSub: "Derinama kaina",
+      offerMine: "Gal tiktų {price}?",
+      offerTheirs: "Sutarkim {price}, su ilgais pasivaikščiojimais.",
+      agreed: "Kaina sutarta",
+      sealTitle: "Smart-ID ženklelis",
+      sealSub: "Patvirtintuose profiliuose",
+      walkTitle: "Pasivaikščiojimas",
+      walkStats: "2,4 km · 38 min.",
+      live: "GYVAI",
+      reviewsTitle: "Atsiliepimai abiem kryptimis",
+      reviewsBody: "Šeimininkai vertina globėjus, o globėjai – šeimininkus.",
+    },
+  },
+  ribbon: {
+    label: "Globėjai petbnb",
+    count: {
+      one: "{count} vietinis globėjas",
+      few: "{count} vietiniai globėjai",
+      other: "{count} vietinių globėjų",
+    },
+    seeAll: "Visi",
+  },
+  why: {
+    eyebrow: "Kodėl petbnb",
+    title: "Sukurta kaimynams, ne tarpininkams.",
+    bargain: {
+      title: "Kainą sutarkite pokalbyje",
+      body: "Pasiūlykite kainą, gaukite atsakymą ir sutarkite. Niekas neužsakoma, kol abu nesutinkate.",
+      mine: "Gal tiktų {price}?",
+      theirs: "Galiu už {price}, su ilgu pasivaikščiojimu.",
+      accept: "Sutinku už {price}",
+      counter: "Siūlyti kitą",
+    },
+    fees: {
+      big: "0 %",
+      title: "Jokių komisinių.",
+      body: "Mokate globėjui tiesiogiai. petbnb pinigų neliečia.",
+    },
+    seal: {
+      title: "Smart-ID ženklelis",
+      body: "Globėjai patvirtina tapatybę per Smart-ID maždaug per minutę, ir jų profilyje atsiranda ženklelis. Čia tai veikia kaip demonstracija.",
+    },
+    walks: {
+      title: "Stebėkite pasivaikščiojimą gyvai",
+      body: "Prijunkite GPS antkaklį ir matykite pasivaikščiojimą žemėlapyje: maršrutą, atstumą ir laiką.",
+      live: "Gyvai",
+      distance: "2,4 km",
+      time: "38 min.",
+    },
   },
   services: {
     railLabel: "Naršyti pagal paslaugą",
@@ -107,6 +158,7 @@ const home = {
     emptyDesc: "Užsukite vėliau arba tapkite pirmuoju globėju.",
   },
   how: {
+    eyebrow: "Kaip tai veikia",
     title: "Kaip vyksta užsakymas",
     subtitle: "Trys žingsniai ir tai, kas jus apsaugo kiekviename iš jų.",
     steps: {

@@ -20,7 +20,59 @@ const home = {
       "Dog walking, boarding, daycare and grooming, arranged directly with someone in your own city.",
     searchButton: "Find sitters",
     cityPlaceholder: "Your city",
-    photoAlt: "A dog being looked after by a sitter in Lithuania",
+    photoAlt: "A beagle looking into the camera",
+    // The cards floating over the photo: drawn glimpses of the app, no real person in them.
+    glimpse: {
+      offerTitle: "Boarding · 3 nights",
+      offerSub: "Agreeing the price",
+      offerMine: "Would {price} work?",
+      offerTheirs: "Let's say {price}, long walks included.",
+      agreed: "Price agreed",
+      sealTitle: "Smart-ID seal",
+      sealSub: "On verified profiles",
+      walkTitle: "Live walk",
+      walkStats: "2.4 km · 38 min",
+      live: "LIVE",
+      reviewsTitle: "Reviews go both ways",
+      reviewsBody: "Owners rate sitters, and sitters rate owners.",
+    },
+  },
+  ribbon: {
+    label: "Sitters on petbnb",
+    count: {
+      one: "{count} local sitter",
+      few: "{count} local sitters",
+      other: "{count} local sitters",
+    },
+    seeAll: "See all",
+  },
+  why: {
+    eyebrow: "Why petbnb",
+    title: "Built for neighbours, not middlemen.",
+    bargain: {
+      title: "Agree the price in the chat",
+      body: "Send an offer, get a counter, settle on a number. Nothing is booked until you both say yes.",
+      mine: "Would {price} work?",
+      theirs: "I can do {price}, a long walk included.",
+      accept: "Accept {price}",
+      counter: "Counter",
+    },
+    fees: {
+      big: "0%",
+      title: "Commission. Ever.",
+      body: "You pay the sitter directly. petbnb never touches the money.",
+    },
+    seal: {
+      title: "The Smart-ID seal",
+      body: "Sitters confirm who they are with Smart-ID in about a minute, and the seal appears on their profile. Here it runs as a demo.",
+    },
+    walks: {
+      title: "Follow the walk, live",
+      body: "Pair a GPS collar and watch the walk on the map as it happens: the route, the distance, the time.",
+      live: "Live",
+      distance: "2.4 km",
+      time: "38 min",
+    },
   },
   services: {
     railLabel: "Browse by service",
@@ -107,6 +159,7 @@ const home = {
     emptyDesc: "Check back soon, or be the first to list yourself as a sitter.",
   },
   how: {
+    eyebrow: "How it works",
     title: "How a booking happens",
     subtitle: "Three steps, and what protects you at each one.",
     steps: {

@@ -40,7 +40,7 @@ export default function AuthShell({
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
       >
         <img src={image} alt={imageAlt ?? t("auth.login.imageAlt")} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-strong/90 via-brand/75 to-ink/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--hero-to)]/90 via-[var(--hero-from)]/75 to-brand-deep/85" />
         <div className="absolute inset-0 p-12 flex flex-col justify-between">
           <Link href="/" className="w-fit">
             <Logo size={40} showWordmark wordmarkClassName="text-white" />

@@ -33,6 +33,16 @@
   --hero-to: #143d2e;
   --hill-back: #3f6b45;
   --hill-mid: #1b4d3a;
+  /* The bright green set on the band: the headline's second line, counts, live marks.
+     Leaf (--brand-leaf) is too dull to carry a headline on --hero-from; this passes 9:1. */
+  --hero-accent: #b5d69c;
+
+  /* The little maps that illustrate a walk (landing hero, the "why" bento): paper, streets,
+     a park, and the route. Their own tokens so a map reads as a map in both themes. */
+  --map-bg: #e5ebdd;
+  --map-road: #ffffff;
+  --map-park: #cfdcc2;
+  --map-route: #1b4d3a;
 
   /* Ink */
   --ink: #0f1a14;
@@ -145,6 +155,12 @@
   --hero-to: #0d2419;
   --hill-back: #2f5a3d;
   --hill-mid: #163a2b;
+  --hero-accent: #9fd0ad;
+
+  --map-bg: #183328;
+  --map-road: #24463b;
+  --map-park: #1f3d2e;
+  --map-route: #9fd0ad;
 
   --ink: #e8eee9;
   --ink-soft: #a6b6ac;
@@ -232,8 +248,7 @@
 
    Not glass, on purpose: form inputs (text over moving colour is harder to read),
    dropdowns, toasts and dialogs (they sit over content, not over the field), and the
-   dark ink blocks — the landing page's closing call to action and the footer — which
-   would only turn grey.
+   deep-green blocks — the landing page's bands and the footer — which would only turn grey.
 
    Written as @utility (Tailwind v4) rather than in tailwind.config.ts, which is
    DEAD in this project: there is no @config directive, so v4 never loads it.

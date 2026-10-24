@@ -115,7 +115,7 @@ export default function Sidebar() {
       <div className="flex-1" />
 
       <div className="px-1 mt-2 flex items-center gap-2">
-        <LanguageSwitcher />
+        <LanguageSwitcher onChrome />
         <ThemeSwitch onChrome />
       </div>
 

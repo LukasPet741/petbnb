@@ -174,3 +174,104 @@ describe("onboarding ring", () => {
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });
+
+/**
+ * Night Forest (2026-10-24): a deep Today band with the visitor's numbers, a request answered
+ * on the lead card itself, and the week ahead.
+ */
+describe("today band", () => {
+  it("greets the visitor by name in the page's one h1", () => {
+    render(<DashboardView {...props()} />);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.textContent).toContain("Lukas");
+  });
+
+  it("says how many requests wait on an answer, and that nothing does when nothing does", () => {
+    const { rerender } = render(<DashboardView {...props({ hero: { kind: "answer", booking: { ...booking, status: "pending" }, count: 2 } })} />);
+    expect(screen.getByText(/appShell\.dashboard\.today\.toAnswer\./)).toBeInTheDocument();
+    rerender(<DashboardView {...props()} />);
+    expect(screen.getByText("appShell.dashboard.today.allClear")).toBeInTheDocument();
+  });
+
+  it("shows the numbers once there is something to count, and not before", () => {
+    const { rerender } = render(<DashboardView {...props({ stats: { rating: { average: 4.7, count: 3 }, completed: 3, upcoming: 2 } })} />);
+    const numbers = screen.getByLabelText("appShell.dashboard.today.stats.label");
+    expect(numbers.tagName).toBe("DL");
+    expect(within(numbers).getByText("appShell.dashboard.today.stats.completed")).toBeInTheDocument();
+    expect(within(numbers).getByText("appShell.dashboard.today.stats.upcoming")).toBeInTheDocument();
+
+    rerender(<DashboardView {...props({ stats: { rating: null, completed: 0, upcoming: 0 } })} />);
+    expect(screen.queryByText("appShell.dashboard.today.stats.completed")).not.toBeInTheDocument();
+  });
+});
+
+describe("answering on the lead card", () => {
+  const request = { kind: "answer" as const, booking: { ...booking, status: "pending", notes: "Vėjas loves long walks." }, count: 1 };
+  const answer = (over: Partial<NonNullable<DashboardViewProps["answer"]>> = {}) => ({
+    priceLine: "common.pricing.asking",
+    canAccept: true,
+    acceptLabel: "appPages.bookings.acceptForButton",
+    waitingLabel: null,
+    busy: false,
+    onAccept: vi.fn(),
+    onDecline: vi.fn(),
+    ...over,
+  });
+
+  it("accepts at the price on the table and declines, right on the card", () => {
+    const a = answer();
+    render(<DashboardView {...props({ hero: request, answer: a })} />);
+    fireEvent.click(screen.getByRole("button", { name: "appPages.bookings.acceptForButton" }));
+    expect(a.onAccept).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "appPages.bookings.declineButton" }));
+    expect(a.onDecline).toHaveBeenCalled();
+  });
+
+  it("sends a counter-offer to the chat, where offers are made", () => {
+    render(<DashboardView {...props({ hero: request, answer: answer() })} />);
+    expect(hrefOf("appShell.dashboard.hero.counter")).toBe("/messages/bk-1");
+  });
+
+  it("quotes what the owner wrote and shows the price on the table", () => {
+    render(<DashboardView {...props({ hero: request, answer: answer() })} />);
+    expect(screen.getByText("“Vėjas loves long walks.”")).toBeInTheDocument();
+    expect(screen.getByText("common.pricing.asking")).toBeInTheDocument();
+  });
+
+  it("offers no accept when the sitter is waiting on the owner's reply, and says so", () => {
+    render(<DashboardView {...props({ hero: request, answer: answer({ canAccept: false, acceptLabel: undefined, waitingLabel: "appPages.bookings.waitingForOwner" }) })} />);
+    expect(screen.queryByRole("button", { name: "appPages.bookings.acceptForButton" })).not.toBeInTheDocument();
+    expect(screen.getByText("appPages.bookings.waitingForOwner")).toBeInTheDocument();
+  });
+
+  it("holds the buttons while a write is in flight", () => {
+    render(<DashboardView {...props({ hero: request, answer: answer({ busy: true }) })} />);
+    expect(screen.getByRole("button", { name: "appPages.bookings.acceptForButton" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "appPages.bookings.declineButton" })).toBeDisabled();
+  });
+});
+
+describe("coming up", () => {
+  const later = { ...booking, id: "bk-later", start_at: new Date("2026-09-17T09:00:00+03:00").toISOString(), end_at: new Date("2026-09-17T18:00:00+03:00").toISOString() };
+  const over = { ...booking, id: "bk-over", start_at: new Date("2026-09-14T09:00:00+03:00").toISOString(), end_at: new Date("2026-09-14T10:00:00+03:00").toISOString() };
+
+  it("lists the bookings ahead, each opening its conversation, with whose pet it is", () => {
+    render(<DashboardView {...props({ agenda: [{ booking: later, role: "sitter" }] })} />);
+    const card = screen.getByRole("region", { name: "appShell.dashboard.agenda.heading" });
+    expect(within(card).getByRole("link", { name: /appShell\.dashboard\.agenda\.youSit/ })).toHaveAttribute("href", "/messages/bk-later");
+  });
+
+  it("asks a sitter to mark a finished booking completed", () => {
+    const onMarkDone = vi.fn();
+    render(<DashboardView {...props({ toFinish: [over], onMarkDone })} />);
+    fireEvent.click(screen.getByRole("button", { name: "appPages.bookings.markCompletedButton" }));
+    expect(onMarkDone).toHaveBeenCalledWith(expect.objectContaining({ id: "bk-over" }));
+  });
+
+  it("draws the next seven days and says when nothing is booked", () => {
+    render(<DashboardView {...props()} />);
+    const week = screen.getByRole("list", { name: "appShell.dashboard.agenda.weekLabel" });
+    expect(within(week).getAllByRole("listitem")).toHaveLength(7);
+    expect(screen.getByText("appShell.dashboard.agenda.empty")).toBeInTheDocument();
+  });
+});

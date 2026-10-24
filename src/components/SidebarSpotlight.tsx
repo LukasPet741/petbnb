@@ -17,6 +17,10 @@ import type { VerificationMethod } from "@/lib/types";
 /**
  * Sidebar option A (Lukas, 2026-09-26): the collar and Smart-ID at the top of the menu on every
  * page — the two things the thesis defence is about. Shared by the desktop rail and the phone drawer.
+ *
+ * Night Forest (2026-10-24) keeps them where Lukas put them but draws them in the rail's own
+ * material, a lighter green over the deep one, instead of two white slabs that outshone the
+ * navigation they sit under.
  */
 export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => void }) {
   const { t, locale } = useLanguage();
@@ -65,7 +69,7 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         aria-current={onCollar ? "page" : undefined}
         className={cn(
           // Solid, not glass: these sit on the deep-green rail, where glass would turn grey.
-          "bg-surface text-ink block overflow-hidden rounded-2xl border border-transparent transition-shadow hover:shadow-[var(--shadow-md)]",
+          "block overflow-hidden rounded-2xl border border-[var(--chrome-line)] bg-[var(--chrome-active)] text-chrome-ink transition-colors hover:border-chrome-ink-soft/40",
           onCollar && "ring-2 ring-brand-leaf",
         )}
       >
@@ -82,24 +86,24 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         )}
         <div className="flex items-center gap-2.5 px-3 py-2">
           {!selected && (
-            <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-[10px] bg-slate text-white">
+            <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-[10px] bg-brand-mid text-chrome-ink">
               <Radar className="h-4 w-4" aria-hidden="true" />
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13.5px] font-semibold text-ink">
+            <div className="truncate text-[13.5px] font-semibold text-chrome-ink">
               {selected ? (
                 <>
                   {collarName(selected, t)}
-                  <span className="font-medium text-ink-soft"> · {t("appShell.spotlight.collarTitle")}</span>
+                  <span className="font-medium text-chrome-ink-soft"> · {t("appShell.spotlight.collarTitle")}</span>
                 </>
               ) : (
                 t(loadingCollars ? "appShell.spotlight.collarTitle" : "appShell.spotlight.pairTitle")
               )}
             </div>
-            <div className="truncate text-[11.5px] text-ink-soft">{line}</div>
+            <div className="truncate text-[11.5px] text-chrome-ink-soft">{line}</div>
           </div>
-          <ChevronRight className="h-4 w-4 flex-shrink-0 text-ink-soft/70" aria-hidden="true" />
+          <ChevronRight className="h-4 w-4 flex-shrink-0 text-chrome-ink-soft" aria-hidden="true" />
         </div>
       </Link>
 
@@ -108,16 +112,16 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
         onClick={onNavigate}
         aria-current={onSmartId ? "page" : undefined}
         className={cn(
-          "bg-surface text-ink flex items-center gap-2.5 rounded-2xl border border-transparent px-2.5 py-2 transition-shadow hover:shadow-[var(--shadow-md)]",
+          "flex items-center gap-2.5 rounded-2xl border border-[var(--chrome-line)] bg-[var(--chrome-active)] px-2.5 py-2 text-chrome-ink transition-colors hover:border-chrome-ink-soft/40",
           onSmartId && "ring-2 ring-brand-leaf",
         )}
       >
-        <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-[10px] bg-gradient-to-br from-[#2a7a5e] to-brand-strong text-white">
+        <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-[10px] bg-brand-mid text-chrome-ink">
           <ShieldCheck className="h-[17px] w-[17px]" aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-[13.5px] font-semibold text-ink">{t("appShell.spotlight.smartIdTitle")}</div>
-          <div className={cn("flex min-w-0 items-center gap-1 text-[11.5px] font-medium", verified ? "text-brand" : "text-amber-strong")}>
+          <div className="text-[13.5px] font-semibold text-chrome-ink">{t("appShell.spotlight.smartIdTitle")}</div>
+          <div className={cn("flex min-w-0 items-center gap-1 text-[11.5px] font-medium", verified ? "text-[var(--hero-accent)]" : "text-amber")}>
             {verified && <Check className="h-3 w-3 flex-shrink-0" strokeWidth={2.6} aria-hidden="true" />}
             {/* Its own span: text-overflow works on a block, not on the flex line around it. */}
             <span className="truncate">
@@ -130,7 +134,7 @@ export default function SidebarSpotlight({ onNavigate }: { onNavigate?: () => vo
             {t("appShell.spotlight.demo")}
           </span>
         ) : (
-          <ChevronRight className="h-4 w-4 flex-shrink-0 text-ink-soft/70" aria-hidden="true" />
+          <ChevronRight className="h-4 w-4 flex-shrink-0 text-chrome-ink-soft" aria-hidden="true" />
         )}
       </Link>
     </div>

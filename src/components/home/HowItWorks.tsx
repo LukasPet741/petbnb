@@ -12,47 +12,42 @@ const STEPS = ["find", "request", "confirm"] as const;
  * three screens further down, which is the wrong place for them: the worry
  * about being charged before a sitter agrees arrives while you are reading
  * about sending the request, not later.
+ *
+ * Night Forest (2026-10-24) sets it on a full-width deep band, the page's one dark
+ * stripe between the hero and the footer, with the step numbers drawn large: the
+ * rhythm of light and dark sections is what keeps a long page from reading as one list.
  */
 export default function HowItWorks() {
   const { t } = useLanguage();
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="how-it-works" className="scroll-mt-16 py-12 md:py-16">
+    <section
+      id="how-it-works"
+      className="relative isolate scroll-mt-16 bg-[linear-gradient(180deg,var(--hero-from),var(--hero-to))] py-14 text-chrome-ink md:py-20"
+    >
+      <div aria-hidden="true" className="pb-grain absolute inset-0 -z-10" />
       <div className="max-w-6xl mx-auto px-4">
-        <div className="max-w-xl mb-10">
-          <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink mb-3 tracking-tight">
-            {t("home.how.title")}
-          </h2>
-          <p className="text-ink-soft">{t("home.how.subtitle")}</p>
+        <div className="mb-10 max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--hero-accent)]">{t("home.how.eyebrow")}</p>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-5xl md:leading-[1.05]">{t("home.how.title")}</h2>
+          <p className="mt-3 text-chrome-ink-soft">{t("home.how.subtitle")}</p>
         </div>
 
-        <ol className="relative grid gap-8 md:grid-cols-3 md:gap-6">
-          {/* The rule is the sequence made visible. It is decorative only in the
-              sense that the order is already in the DOM, so it is hidden from
-              assistive tech and drawn behind the markers. */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-[7px] top-2 bottom-2 w-px bg-brand/20 md:left-0 md:right-0 md:top-[7px] md:bottom-auto md:h-px md:w-auto"
-          />
+        <ol className="grid gap-4 md:grid-cols-3">
           {STEPS.map((key, i) => (
             <motion.li
               key={key}
               {...revealOnScroll(i, reduceMotion, 0.1)}
-              className="relative pl-8 md:pl-0 md:pt-8"
+              className="flex flex-col rounded-[var(--radius-hero)] border border-[var(--chrome-line)] bg-[var(--chrome-active)] p-6 sm:p-7"
             >
-              <span
-                aria-hidden="true"
-                className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-[3px] border-canvas bg-brand md:top-0"
-              />
-              <h3 className="font-semibold text-ink text-lg mb-2">
-                {t(`home.how.steps.${key}.title`)}
-              </h3>
-              <p className="text-sm text-ink-soft leading-relaxed mb-4">
-                {t(`home.how.steps.${key}.desc`)}
-              </p>
-              <p className="flex items-start gap-2 rounded-[var(--radius-input)] bg-brand-softer p-3 text-sm text-brand-strong leading-relaxed">
-                <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span aria-hidden="true" className="font-display text-5xl font-bold leading-none tracking-tight text-[var(--hero-accent)]">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-5 text-lg font-semibold">{t(`home.how.steps.${key}.title`)}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-chrome-ink-soft">{t(`home.how.steps.${key}.desc`)}</p>
+              <p className="mt-auto flex items-start gap-2 pt-5 text-sm leading-relaxed text-chrome-ink">
+                <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--hero-accent)]" aria-hidden="true" />
                 {t(`home.how.steps.${key}.note`)}
               </p>
             </motion.li>

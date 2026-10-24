@@ -12,6 +12,9 @@ const p = (id: string, w: number, h: number) =>
 
 export const HERO = {
   main: p("photo-1450778869180-41d0601e046e", 900, 1200), // dog, warm
+  // The landing hero's framed portrait (Night Forest, 2026-10-24): a beagle looking straight
+  // at you. It replaced `main`, a cat and a dog lying sideways, which read as a rotated photo.
+  portrait: p("photo-1543466835-00a7907e9de1", 1000, 1250),
   // The full-bleed hero backdrop. Deliberately the dog-walking frame rather than a
   // wide crop of `main`: `main` is a portrait close-up, and cropping it to 16:10
   // lands on abstract fur with no animal readable. Requested at 1600px because it

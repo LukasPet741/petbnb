@@ -90,10 +90,11 @@ describe("image constants", () => {
     ...Object.values(AUTH),
   ];
 
-  it("exposes eight curated URLs", () => {
+  it("exposes nine curated URLs", () => {
     // Eight since HERO.wide was added: the landscape crop the hero renders
     // full-bleed, replacing the pinboard that upscaled 128px sitter avatars.
-    expect(allUrls).toHaveLength(8);
+    // Nine since HERO.portrait (Night Forest, 2026-10-24): the framed beagle.
+    expect(allUrls).toHaveLength(9);
   });
 
   it("requests the full-bleed hero photograph large enough not to upscale", () => {

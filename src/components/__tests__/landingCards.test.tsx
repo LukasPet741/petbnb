@@ -6,9 +6,9 @@ import { dictionaries } from "@/lib/i18n";
 
 /**
  * Landing variant B (2026-09-15): each service is a photo tile showing a name and one
- * line, with its details sliding up on hover; the "what we do and don't" cards became an
- * accordion. Chosen by Lukas from four mocked directions because the old cards carried
- * ~25 words each.
+ * line, with its details sliding up on hover. Chosen by Lukas from four mocked directions
+ * because the old cards carried ~25 words each. The "what we do and don't" facts were an
+ * accordion from then until Night Forest (2026-10-24) opened them into four cards.
  *
  * Rendered without a LanguageProvider, so `t` is the identity function and each label is
  * the translation key it asked for.
@@ -47,18 +47,18 @@ describe("ServiceCards", () => {
 });
 
 describe("Honest", () => {
-  it("lists the four facts as disclosure items with only the first one open", () => {
-    const { container } = render(<Honest />);
+  it("shows all four facts open, each a heading with its sentence, no tap needed", () => {
+    render(<Honest />);
 
-    const items = [...container.querySelectorAll("details")];
-
-    expect(items.map((d) => d.querySelector("summary")?.textContent?.trim())).toEqual([
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
       "home.honest.points.fees.title",
       "home.honest.points.vetting.title",
       "home.honest.points.insurance.title",
       "home.honest.points.data.title",
     ]);
-    expect(items.map((d) => d.open)).toEqual([true, false, false, false]);
+    for (const key of ["fees", "vetting", "insurance", "data"]) {
+      expect(screen.getByText(`home.honest.points.${key}.body`)).toBeVisible();
+    }
   });
 
   it("keeps the links to the full terms and the privacy policy", () => {

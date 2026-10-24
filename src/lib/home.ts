@@ -98,3 +98,13 @@ export function pickVoices(profiles: Profile[], limit = 6): Profile[] {
     .slice(0, limit);
 }
 
+/**
+ * The faces in the strip under the hero: sitters with a photo first (a strip of initials reads
+ * as empty), then most experienced, then by name. Same data, same order on every render.
+ */
+export function pickRibbon(profiles: Profile[], limit = 12): Profile[] {
+  return profiles
+    .filter((p) => p.is_sitter)
+    .sort((a, b) => Number(Boolean(b.avatar_url)) - Number(Boolean(a.avatar_url)) || byStanding(a, b))
+    .slice(0, limit);
+}

@@ -64,6 +64,40 @@ const appShell = {
       evening: "Good evening",
       night: "Good night",
     },
+    today: {
+      toAnswer: {
+        one: "{count} request needs your answer",
+        few: "{count} requests need your answer",
+        other: "{count} requests need your answer",
+      },
+      unread: {
+        one: "{count} unread update",
+        few: "{count} unread updates",
+        other: "{count} unread updates",
+      },
+      allClear: "Nothing needs you right now.",
+      stats: {
+        label: "Your numbers",
+        noRating: "No reviews yet",
+        reviews: {
+          one: "{count} review",
+          few: "{count} reviews",
+          other: "{count} reviews",
+        },
+        completed: "Completed",
+        upcoming: "Coming up",
+      },
+    },
+    agenda: {
+      heading: "Coming up",
+      allBookings: "All bookings",
+      weekLabel: "The next seven days",
+      yourPet: "Your pet",
+      youSit: "You're sitting",
+      finishTitle: "{pet}: all done?",
+      finishText: "Mark it completed so {person} can leave a review.",
+      empty: "Nothing booked for the days ahead.",
+    },
     fallbackName: "there",
     fallbackPetName: "your pet",
     hero: {
@@ -80,6 +114,7 @@ const appShell = {
         other: "{count} requests in total",
       },
       answer: "Answer",
+      counter: "Counter-offer",
       message: "Message",
       details: "Booking details",
       emptyTitle: "Nothing booked yet",

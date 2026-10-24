@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Coins, Database, ScanFace, ShieldOff, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 /**
@@ -13,11 +13,16 @@ import { useLanguage } from "@/context/LanguageContext";
  * like a real booking platform: someone about to hand over their animal should know
  * nobody checked the person.
  *
- * An accordion since 2026-09-15 (landing variant B): four titles read at a glance, and
- * the first stays open so the section never looks empty. Native <details>, so it opens
- * with the keyboard and without JavaScript.
+ * Four open cards since Night Forest (2026-10-24), no longer an accordion: each fact is a
+ * sentence or two, so hiding three of them behind a tap saved little, and an accordion here
+ * sat straight on top of the FAQ's, two identical blocks in a row.
  */
-const POINTS = ["fees", "vetting", "insurance", "data"] as const;
+const POINTS: { key: "fees" | "vetting" | "insurance" | "data"; icon: LucideIcon }[] = [
+  { key: "fees", icon: Coins },
+  { key: "vetting", icon: ScanFace },
+  { key: "insurance", icon: ShieldOff },
+  { key: "data", icon: Database },
+];
 
 export default function Honest() {
   const { t } = useLanguage();
@@ -29,22 +34,19 @@ export default function Honest() {
           {t("home.honest.title")}
         </h2>
 
-        <div className="mt-6 rounded-[var(--radius-card)] glass-card border px-5 sm:px-6">
-          {POINTS.map((key, i) => (
-            <details key={key} open={i === 0} className="group border-b border-ink/8 last:border-b-0">
-              <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 py-3 font-semibold text-ink [&::-webkit-details-marker]:hidden">
-                {t(`home.honest.points.${key}.title`)}
-                <Plus
-                  aria-hidden="true"
-                  className="h-5 w-5 shrink-0 text-brand transition-transform group-open:rotate-45 motion-reduce:transition-none"
-                />
-              </summary>
-              <p className="max-w-2xl pb-4 pr-9 text-sm leading-relaxed text-ink-soft">
-                {t(`home.honest.points.${key}.body`)}
-              </p>
-            </details>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {POINTS.map(({ key, icon: Icon }) => (
+            <li key={key} className="glass-card flex gap-4 rounded-[var(--radius-card)] border p-4 sm:block sm:p-5">
+              <span className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-ink sm:mt-4">{t(`home.honest.points.${key}.title`)}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft sm:mt-1.5">{t(`home.honest.points.${key}.body`)}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <Link href="/legal/terms" className="text-brand hover:underline">

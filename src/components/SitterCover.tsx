@@ -28,7 +28,7 @@ export default function SitterCover({ sitter }: { sitter: Pick<Profile, "id" | "
       <img src={src} alt="" referrerPolicy="no-referrer" style={{ objectPosition: focus }} className="absolute inset-0 h-full w-full object-cover" />
       {/* Darkens only the top, where the caption sits; the bottom stays bright because the
           header card covers it and needs colour behind its glass, not shadow. */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink/35 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-brand-deep/40 to-transparent" />
       {service && (
         <span className="glass-chip-dark absolute left-4 top-4 sm:left-5 sm:top-5 inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium text-white">
           {t(`common.services.${service}`)}

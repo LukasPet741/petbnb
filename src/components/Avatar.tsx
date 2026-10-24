@@ -19,7 +19,7 @@ const COLORS = [
   "bg-brand-soft text-brand-strong",
   "bg-amber-soft text-amber-strong",
   "bg-slate-soft text-slate",
-  "bg-linen text-brand-strong",
+  "bg-linen text-brand-deep",
   "bg-brand-softer text-brand",
   "bg-surface-2 text-ink",
 ];

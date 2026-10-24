@@ -50,7 +50,7 @@ export default function ServiceCards() {
                 style={{ objectPosition: SERVICE_PHOTO_FOCUS[key] }}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
               />
-              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-transparent from-45% to-ink/75" />
+              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-transparent from-45% to-brand-deep/80" />
 
               {/* Resting caption, only where a pointer can hover to replace it. It repeats
                   the panel's name, so it is hidden from assistive tech. */}

@@ -64,6 +64,40 @@ const appShell = {
       evening: "Labas vakaras",
       night: "Labanaktis",
     },
+    today: {
+      toAnswer: {
+        one: "{count} užklausa laukia jūsų atsakymo",
+        few: "{count} užklausos laukia jūsų atsakymo",
+        other: "{count} užklausų laukia jūsų atsakymo",
+      },
+      unread: {
+        one: "{count} neperskaitytas pranešimas",
+        few: "{count} neperskaityti pranešimai",
+        other: "{count} neperskaitytų pranešimų",
+      },
+      allClear: "Šiuo metu jūsų niekas nelaukia.",
+      stats: {
+        label: "Jūsų skaičiai",
+        noRating: "Atsiliepimų dar nėra",
+        reviews: {
+          one: "{count} atsiliepimas",
+          few: "{count} atsiliepimai",
+          other: "{count} atsiliepimų",
+        },
+        completed: "Įvykdyta",
+        upcoming: "Netrukus",
+      },
+    },
+    agenda: {
+      heading: "Artimiausi",
+      allBookings: "Visi užsakymai",
+      weekLabel: "Artimiausios septynios dienos",
+      yourPet: "Jūsų augintinis",
+      youSit: "Jūs prižiūrite",
+      finishTitle: "{pet}: viskas įvykdyta?",
+      finishText: "Pažymėkite kaip įvykdytą, kad {person} galėtų palikti atsiliepimą.",
+      empty: "Artimiausioms dienoms nieko neužsakyta.",
+    },
     fallbackName: "svečias",
     fallbackPetName: "jūsų augintinis",
     hero: {
@@ -80,6 +114,7 @@ const appShell = {
         other: "Iš viso {count} užklausų",
       },
       answer: "Atsakyti",
+      counter: "Kita kaina",
       message: "Rašyti žinutę",
       details: "Užsakymo detalės",
       emptyTitle: "Kol kas nieko neužsakyta",

@@ -106,7 +106,7 @@ export default function CityGrid({ sitters, status }: { sitters: Profile[]; stat
                           aria-hidden="true"
                           className="absolute inset-0 h-full w-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/10" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-brand-deep/85 via-brand-deep/45 to-brand-deep/10" />
                       </>
                     )}
 

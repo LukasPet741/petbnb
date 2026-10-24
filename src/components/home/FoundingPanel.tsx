@@ -6,6 +6,8 @@ import { revealOnScroll } from "@/lib/motion";
 import { SECTION } from "@/lib/images";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
+import { buttonClasses } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 const PERKS = ["ownRate", "chooseServices", "ownHours", "free"] as const;
 
@@ -13,6 +15,9 @@ const PERKS = ["ownRate", "chooseServices", "ownHours", "free"] as const;
  * The page's closing call to action, and the only signup CTA in the body. The
  * old page also ended on a "create a free account" block, which competed with
  * this one for the same intent; one door per intent is the point.
+ *
+ * A light card since Night Forest (2026-10-24): the footer right under it is deep green,
+ * and two deep blocks in a row read as one heavy slab at the end of the page.
  */
 export default function FoundingPanel() {
   const { t } = useLanguage();
@@ -25,35 +30,28 @@ export default function FoundingPanel() {
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           {...revealOnScroll(0, reduceMotion)}
-          className="relative grid overflow-hidden rounded-[var(--radius-card)] bg-[linear-gradient(160deg,var(--hero-from),var(--hero-to))] lg:grid-cols-2"
+          className="glass-card grid overflow-hidden rounded-[var(--radius-hero)] border lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         >
-          <div className="pb-grain relative flex flex-col justify-center p-8 sm:p-10 lg:p-14">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold text-chrome-ink mb-4 tracking-tight">
+          <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-14">
+            <h2 className="font-display text-3xl font-semibold tracking-tight text-ink md:text-5xl md:leading-[1.05]">
               {t("home.becomeSitter.titleLine1")}
               <br />
               {t("home.becomeSitter.titleLine2")}
             </h2>
-            <p className="text-chrome-ink-soft mb-8 leading-relaxed max-w-md">
-              {t("home.becomeSitter.subtitle")}
-            </p>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-9">
+            <p className="mt-4 max-w-md leading-relaxed text-ink-soft">{t("home.becomeSitter.subtitle")}</p>
+            <ul className="mt-6 flex flex-wrap gap-2">
               {PERKS.map((key) => (
-                <li key={key} className="flex items-center gap-2 text-chrome-ink text-sm">
-                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-mid">
-                    <Check className="h-3 w-3 text-chrome-ink" aria-hidden="true" />
-                  </span>
+                <li key={key} className="inline-flex items-center gap-1.5 rounded-full bg-brand-softer px-3 py-1.5 text-sm font-medium text-ink">
+                  <Check className="h-3.5 w-3.5 text-brand" strokeWidth={3} aria-hidden="true" />
                   {t(`home.becomeSitter.perks.${key}`)}
                 </li>
               ))}
             </ul>
-            <Link
-              href={user ? "/profile" : "/signup"}
-              className="pb-press inline-flex w-fit min-h-[44px] items-center gap-2 rounded-full bg-brand-leaf px-6 py-3 font-semibold text-brand-deep transition hover:brightness-110"
-            >
-              {t(user ? "home.becomeSitter.ctaSignedIn" : "home.becomeSitter.cta")} <ArrowRight className="h-4 w-4" />
+            <Link href={user ? "/profile" : "/signup"} className={cn(buttonClasses({ size: "lg" }), "mt-8 w-fit")}>
+              {t(user ? "home.becomeSitter.ctaSignedIn" : "home.becomeSitter.cta")} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-          <div className="relative min-h-[240px] lg:min-h-0">
+          <div className="relative min-h-[16rem] lg:min-h-0">
             <img
               src={SECTION.becomeSitter}
               alt={t("home.becomeSitter.imageAlt")}
