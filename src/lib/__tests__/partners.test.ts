@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PARTNERS, formatPartnerPrice, partnerPlace, partnerWebsite, type Partner } from "@/lib/partners";
+import { PARTNERS, formatPartnerPrice, mapPlaces, partnerPlace, partnerWebsite, partnersFor, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -14,6 +14,19 @@ describe("partners data", () => {
     }
   });
 
+  it("says which animals every partner takes", () => {
+    for (const p of PARTNERS) expect(p.accepts.length, p.slug).toBeGreaterThan(0);
+  });
+
+  it("places every geocoded location inside Lithuania", () => {
+    for (const place of mapPlaces(PARTNERS)) {
+      expect(place.lat, place.slug).toBeGreaterThan(53.8);
+      expect(place.lat, place.slug).toBeLessThan(56.5);
+      expect(place.lng, place.slug).toBeGreaterThan(20.9);
+      expect(place.lng, place.slug).toBeLessThan(26.9);
+    }
+  });
+
   it("links only to https sites and to logos under /partners/", () => {
     for (const p of PARTNERS) {
       if (p.website) expect(p.website, p.slug).toMatch(/^https:\/\//);
@@ -25,7 +38,7 @@ describe("partners data", () => {
 
 describe("partnerWebsite", () => {
   const base: Partner = {
-    slug: "x", name: "X", categories: [], locations: [{ city: "Kaunas" }],
+    slug: "x", name: "X", categories: [], accepts: ["dog"], locations: [{ city: "Kaunas" }],
     description: { lt: "a", en: "a" }, services: [],
   };
 
@@ -54,7 +67,7 @@ describe("formatPartnerPrice", () => {
 
 describe("partnerPlace", () => {
   const base: Partner = {
-    slug: "x", name: "X", categories: [], locations: [],
+    slug: "x", name: "X", categories: [], accepts: ["dog"], locations: [],
     description: { lt: "a", en: "a" }, services: [],
   };
 
@@ -65,5 +78,34 @@ describe("partnerPlace", () => {
   it("lists each city once when there are several places", () => {
     const locations = [{ city: "Vilnius" }, { city: "Panevėžys" }, { city: "Vilnius" }];
     expect(partnerPlace({ ...base, locations })).toBe("Vilnius · Panevėžys");
+  });
+});
+
+describe("partnersFor", () => {
+  const base: Omit<Partner, "slug" | "accepts"> = {
+    name: "X", categories: [], locations: [], description: { lt: "a", en: "a" }, services: [],
+  };
+  const dogs: Partner = { ...base, slug: "dogs", accepts: ["dog"] };
+  const both: Partner = { ...base, slug: "both", accepts: ["dog", "cat"] };
+
+  it("keeps only partners that take one of the pets", () => {
+    expect(partnersFor(["cat"], [dogs, both]).map((p) => p.slug)).toEqual(["both"]);
+  });
+
+  it("keeps every partner when no pet is given", () => {
+    expect(partnersFor([], [dogs, both])).toHaveLength(2);
+  });
+});
+
+describe("mapPlaces", () => {
+  it("gives one point per geocoded location and skips the rest", () => {
+    const partner: Partner = {
+      slug: "two", name: "Two", categories: [], accepts: ["dog"], description: { lt: "a", en: "a" }, services: [],
+      locations: [{ city: "Vilnius", lat: 54.7, lng: 25.3 }, { city: "Kaunas" }, { city: "Panevėžys", lat: 55.7, lng: 24.4, approximate: true }],
+    };
+    expect(mapPlaces([partner])).toEqual([
+      { slug: "two", name: "Two", lat: 54.7, lng: 25.3, approximate: false },
+      { slug: "two", name: "Two", lat: 55.7, lng: 24.4, approximate: true },
+    ]);
   });
 });

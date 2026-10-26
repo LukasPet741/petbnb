@@ -14,6 +14,22 @@ const partners = {
     training: "Dresūra",
     walking: "Vedžiojimas",
   },
+  filter: {
+    label: "Kokiam augintiniui",
+    all: "Visi",
+    dog: "Šunims",
+    cat: "Katėms",
+    none: "Tokių partnerių dar nėra. Netrukus jų bus daugiau.",
+  },
+  map: {
+    label: "Partnerių žemėlapis",
+  },
+  near: {
+    title: "Vietos jūsų augintiniui",
+    forPets: "Rodomos vietos, kurios priima: {names}",
+    all: "Visos partnerių vietos",
+    seeAll: "Visi partneriai",
+  },
   about: "Apie",
   services: "Paslaugos ir kainos",
   pricesOnSite: "Kainos nurodytos partnerio svetainėje.",

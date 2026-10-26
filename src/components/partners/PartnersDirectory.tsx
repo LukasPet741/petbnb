@@ -1,16 +1,22 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, Clock, MapPin } from "lucide-react";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import Dialog from "@/components/ui/Dialog";
+import Chip from "@/components/ui/Chip";
+import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
-import { PARTNERS, formatPartnerPrice, partnerPlace, partnerWebsite, trackedUrl, type Partner } from "@/lib/partners";
+import { PARTNERS, formatPartnerPrice, mapPlaces, partnerPlace, partnerWebsite, partnersFor, trackedUrl, type Partner } from "@/lib/partners";
+import type { PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+/** The animals the filter offers; a partner list for any other is still empty. */
+const SPECIES: PetType[] = ["dog", "cat"];
+
 /**
- * /partners: every business that agreed to be featured, as logo cards. A card opens the
+ * /partners: every business that agreed to be featured, on a map and as logo cards. A card opens the
  * partner in the one dialog (a bottom sheet on a phone): who they are, what they offer and
  * for how much, where, and a link out to their own site.
  *
@@ -20,7 +26,15 @@ import { cn } from "@/lib/utils";
 export default function PartnersDirectory() {
   const { t } = useLanguage();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [species, setSpecies] = useState<PetType | null>(null);
   const open = PARTNERS.find((p) => p.slug === openSlug) ?? null;
+  // /partners?p=dogiday opens that partner: the dashboard map's pins link here.
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get("p");
+    if (slug && PARTNERS.some((p) => p.slug === slug)) setOpenSlug(slug);
+  }, []);
+  const shown = useMemo(() => partnersFor(species ? [species] : []), [species]);
+  const places = useMemo(() => mapPlaces(shown), [shown]);
 
   return (
     <div className="min-h-[100dvh]">
@@ -34,8 +48,23 @@ export default function PartnersDirectory() {
           <p className="mt-4 max-w-2xl text-chrome-ink-soft leading-relaxed sm:text-lg">{t("partners.intro")}</p>
         </header>
 
-        <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {PARTNERS.map((partner) => (
+        <div role="group" aria-label={t("partners.filter.label")} className="mt-6 flex flex-wrap gap-2">
+          <Chip pressed={species === null} onClick={() => setSpecies(null)}>{t("partners.filter.all")}</Chip>
+          {SPECIES.map((s) => (
+            <Chip key={s} pressed={species === s} onClick={() => setSpecies(s)}>{t(`partners.filter.${s}`)}</Chip>
+          ))}
+        </div>
+
+        <div className="mt-4 h-72 overflow-hidden rounded-[var(--radius-card)] border border-ink/8 bg-surface-2 sm:h-96">
+          <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} />
+        </div>
+
+        {shown.length === 0 && (
+          <p className="mt-6 text-ink-soft">{t("partners.filter.none")}</p>
+        )}
+
+        <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {shown.map((partner) => (
             <li key={partner.slug}>
               <PartnerCard partner={partner} onOpen={() => setOpenSlug(partner.slug)} />
             </li>
