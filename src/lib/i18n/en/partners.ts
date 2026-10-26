@@ -37,6 +37,13 @@ const partners = {
     allPlaces: "All places",
     seeAll: "All partners",
   },
+  people: {
+    layerLabel: "On the map",
+    toggle: "Sitters per city",
+    legend: "Sitters on PetBnB: {list}.",
+    floor: "A count per city, never a pin; a city with fewer than {floor} sitters is not shown, so no one can be singled out.",
+    sitters: { one: "{count} sitter", few: "{count} sitters", other: "{count} sitters" },
+  },
   listed: {
     tag: "Not a partner yet",
     note: "Listed from public information (OpenStreetMap). Not a PetBnB partner yet, so check the details with them.",

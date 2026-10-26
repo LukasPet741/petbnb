@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import PlacesNearCard from "@/components/partners/PlacesNearCard";
 
 // The real hook reads the places tables over the network; here it is the built-in list.
+vi.mock("@/lib/useSitterAreas", () => ({ useSitterAreas: () => [] }));
 vi.mock("@/lib/usePlaces", async () => {
   const { ALL_PLACES } = await import("@/lib/partners");
   return { usePlaces: () => ALL_PLACES };

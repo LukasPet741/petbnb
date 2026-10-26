@@ -7,6 +7,7 @@ import Dialog from "@/components/ui/Dialog";
 import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import PlaceMark from "@/components/partners/PlaceMark";
+import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
 import { usePlaces } from "@/lib/usePlaces";
+import { useSitterAreas } from "@/lib/useSitterAreas";
 import { cn } from "@/lib/utils";
 
 /** The animals the filter offers: the pet-profile species, less fish and "other". */
@@ -34,6 +36,9 @@ export default function PartnersDirectory() {
   const [species, setSpecies] = useState<PetType | null>(null);
   const [category, setCategory] = useState<PartnerCategory | null>(null);
   const [allListed, setAllListed] = useState(false);
+  const [showPeople, setShowPeople] = useState(true);
+  const areas = useSitterAreas(showPeople);
+  const areaLabel = useAreaLabel();
   const allPlaces = usePlaces();
   // An unknown slug (or one the places table has not answered with yet) simply opens nothing.
   const open = allPlaces.find((p) => p.slug === openSlug) ?? null;
@@ -75,12 +80,16 @@ export default function PartnersDirectory() {
               <Chip key={s} pressed={species === s} onClick={() => setSpecies(s)}>{t(`partners.filter.${s}`)}</Chip>
             ))}
           </ChipRow>
+          <ChipRow label={t("partners.people.layerLabel")}>
+            <Chip pressed={showPeople} onClick={() => setShowPeople(!showPeople)}>{t("partners.people.toggle")}</Chip>
+          </ChipRow>
         </div>
 
         {/* isolate: Leaflet's panes sit at z-index 400+, which would paint over the sticky header. */}
         <div className="relative isolate mt-4 h-72 overflow-hidden rounded-[var(--radius-card)] border border-ink/8 bg-surface-2 sm:h-96">
-          <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} />
+          <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} areas={showPeople ? areas : []} areaLabel={areaLabel} />
         </div>
+        {showPeople && <AreaLegend areas={areas} className="mt-2" />}
 
         {shown.length === 0 && (
           <p className="mt-6 text-ink-soft">{t("partners.filter.none")}</p>

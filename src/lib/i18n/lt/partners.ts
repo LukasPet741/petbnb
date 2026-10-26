@@ -37,6 +37,13 @@ const partners = {
     allPlaces: "Visos vietos",
     seeAll: "Visi partneriai",
   },
+  people: {
+    layerLabel: "Žemėlapyje",
+    toggle: "Globėjai pagal miestą",
+    legend: "PetBnB globėjai: {list}.",
+    floor: "Tik skaičius mieste, niekada taškas; miestas, kuriame mažiau nei {floor} globėjai, nerodomas, kad niekas nebūtų atpažintas.",
+    sitters: { one: "{count} globėjas", few: "{count} globėjai", other: "{count} globėjų" },
+  },
   listed: {
     tag: "Dar ne partneris",
     note: "Įtraukta iš viešos informacijos (OpenStreetMap). Dar ne PetBnB partneris, todėl informaciją pasitikslinkite pas juos.",

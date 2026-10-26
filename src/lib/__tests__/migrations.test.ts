@@ -58,3 +58,22 @@ describe("places migration", () => {
     expect(sql).toMatch(/create function public\.places_touch_updated_at\(\)[^$]*set search_path = ''/);
   });
 });
+
+describe("sitter area counts migration", () => {
+  const sql = read("20261026200000_sitter_area_counts.sql").replace(/--.*$/gm, "").toLowerCase();
+
+  it("hands out totals per city only, never a person's row", () => {
+    expect(sql).toMatch(/returns table \(city text, sitters integer\)/);
+    expect(sql).toMatch(/group by btrim\(p\.city\)/);
+  });
+
+  it("keeps the privacy floor of 5 in the database too", () => {
+    expect(sql).toMatch(/having count\(\*\) >= 5/);
+  });
+
+  it("runs as its owner with a pinned search path, and only that function is granted", () => {
+    expect(sql).toMatch(/security definer\s+set search_path = ''/);
+    expect(sql).toContain("revoke all on function public.sitter_counts_by_city() from public");
+    expect(sql).not.toMatch(/grant (select|insert|update|delete)/);
+  });
+});

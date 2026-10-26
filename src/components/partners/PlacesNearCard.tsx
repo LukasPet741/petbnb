@@ -8,6 +8,8 @@ import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { useLanguage } from "@/context/LanguageContext";
 import { joinPetNames, mapPlaces, partnersFor } from "@/lib/partners";
 import { usePlaces } from "@/lib/usePlaces";
+import { useSitterAreas } from "@/lib/useSitterAreas";
+import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import type { PetType } from "@/lib/types";
 
 /**
@@ -19,6 +21,8 @@ export default function PlacesNearCard({ pets }: { pets: { id: string; name: str
   const { t, locale } = useLanguage();
   const router = useRouter();
   const allPlaces = usePlaces();
+  const areas = useSitterAreas();
+  const areaLabel = useAreaLabel();
   // null: every place, whatever it takes.
   const [chosen, setChosen] = useState<string[] | null>(() => (pets.length > 0 ? pets.map((p) => p.id) : null));
   const picked = useMemo(() => (chosen ? pets.filter((p) => chosen.includes(p.id)) : []), [chosen, pets]);
@@ -58,8 +62,9 @@ export default function PlacesNearCard({ pets }: { pets: { id: string; name: str
       )}
       {/* isolate: Leaflet's panes sit at z-index 400+, which would paint over the app's sticky chrome. */}
       <div className="relative isolate h-64 border-t border-ink/8 bg-surface-2">
-        <LazyPlacesMap places={places} onSelect={(slug) => router.push(`/partners?p=${slug}`)} label={t("partners.map.label")} />
+        <LazyPlacesMap places={places} onSelect={(slug) => router.push(`/partners?p=${slug}`)} label={t("partners.map.label")} areas={areas} areaLabel={areaLabel} />
       </div>
+      <AreaLegend areas={areas} className="border-t border-ink/8 px-5 py-3" />
     </section>
   );
 }

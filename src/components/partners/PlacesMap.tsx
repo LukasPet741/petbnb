@@ -3,11 +3,28 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { MapPlace } from "@/lib/partners";
+import type { AreaCircle } from "@/lib/areaCounts";
 
 // Leaflet writes colours as SVG presentation attributes, which don't resolve var(--token), so the
 // brand green is read from the stylesheet once the map mounts (and follows the dark theme).
 function brandColour() {
   return getComputedStyle(document.documentElement).getPropertyValue("--brand").trim();
+}
+
+/**
+ * A city's sitter count: a soft amber disc with the number, in amber (the app's colour for
+ * people and the live collar). Pixel-sized, so it reads at a country zoom, where a circle in
+ * metres would shrink to a dot. An HTML icon, so the colour tokens resolve.
+ */
+function areaIcon(count: number) {
+  const size = Math.round(30 + Math.sqrt(count) * 6);
+  return L.divIcon({
+    className: "",
+    html: `<span style="display:grid;place-items:center;width:${size}px;height:${size}px;border-radius:9999px;background:color-mix(in srgb, var(--amber) 28%, white);box-shadow:0 1px 4px rgb(19 26 23 / 0.25);border:2px solid var(--amber);color:var(--amber-strong);font-weight:700;font-size:13px;line-height:1;">${count}</span>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    tooltipAnchor: [0, -size / 2 - 2],
+  });
 }
 
 /** All of Lithuania, for a map with nothing on it yet. */
@@ -79,8 +96,9 @@ function pinIcon(brand: string, approximate: boolean) {
  * Pet businesses on a map: a paw pin per partner address, a small dot per listed place, drawn pale in a dashed ring where only the
  * area is known (Dogiday's "Antakalnis"). A tap on a pin opens that partner, the same as its card.
  *
- * Businesses only. People are never drawn here: sitters will show as counts per area, and no
- * one's home is ever a point on this map (PetBnB ecosystem plan, "The map").
+ * Businesses are points. People never are: sitters show only as a soft circle per city with a
+ * count (the People layer, under the pins), and no one's home is ever a point on this map
+ * (PetBnB ecosystem plan, "The map").
  *
  * Tiles are OpenStreetMap's, as on the collar map; a public map with real traffic moves to a tile
  * provider, since OSM's own servers are not for production use.
@@ -89,15 +107,24 @@ export default function PlacesMap({
   places,
   onSelect,
   label,
+  areas = [],
+  areaLabel,
 }: {
   places: MapPlace[];
   onSelect: (slug: string) => void;
   /** Names the map for assistive tech. */
   label: string;
+  /** Sitters per city, already over the privacy floor; drawn as circles, never as pins. */
+  areas?: AreaCircle[];
+  /** The hover text of an area: "Vilnius: 6 sitters". */
+  areaLabel?: (area: AreaCircle) => string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
+  const areaLayerRef = useRef<L.LayerGroup | null>(null);
+  const areaLabelRef = useRef(areaLabel);
+  areaLabelRef.current = areaLabel;
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
 
@@ -114,14 +141,34 @@ export default function PlacesMap({
       maxZoom: 19,
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
+    areaLayerRef.current = L.layerGroup().addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
     return () => {
       map.remove();
       mapRef.current = null;
       layerRef.current = null;
+      areaLayerRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const layer = areaLayerRef.current;
+    if (!layer) return;
+    layer.clearLayers();
+    for (const area of areas) {
+      const text = areaLabelRef.current?.(area) ?? "";
+      const bubble = L.marker([area.lat, area.lng], {
+        icon: areaIcon(area.count),
+        title: text,
+        keyboard: false,
+        // Under every business pin: the count explains the city, the pins stay tappable.
+        zIndexOffset: -1000,
+      });
+      if (text) bubble.bindTooltip(escapeHtml(text), { direction: "top" });
+      bubble.addTo(layer);
+    }
+  }, [areas]);
 
   useEffect(() => {
     const map = mapRef.current;

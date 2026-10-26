@@ -6,6 +6,7 @@ import type { AppNotification } from "@/lib/types";
 import type { OnboardingStep } from "@/lib/sitter-onboarding";
 
 // The real hook reads the places tables over the network; here it is the built-in list.
+vi.mock("@/lib/useSitterAreas", () => ({ useSitterAreas: () => [] }));
 vi.mock("@/lib/usePlaces", async () => {
   const { ALL_PLACES } = await import("@/lib/partners");
   return { usePlaces: () => ALL_PLACES };
