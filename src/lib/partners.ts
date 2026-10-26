@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/i18n";
 import type { PetType } from "@/lib/types";
+import { LISTED_PLACES } from "@/lib/listedPlaces";
 
 /**
  * Partner businesses shown on /partners: groomers, dog hotels, day centres, training
@@ -10,7 +11,7 @@ import type { PetType } from "@/lib/types";
  * .svg) and set `logo`; without one the card shows the name's first letter.
  */
 
-export type PartnerCategory = "boarding" | "daycare" | "grooming" | "training" | "walking";
+export type PartnerCategory = "boarding" | "daycare" | "grooming" | "training" | "walking" | "vet" | "shop";
 
 /** Copy the partner is described in, one string per language. */
 export type Localized = Record<Locale, string>;
@@ -46,11 +47,17 @@ export interface Partner {
   slug: string;
   name: string;
   categories: PartnerCategory[];
-  /** The animals they take; the map and the list filter on it. */
+  /**
+   * "listed": a business from public information (OpenStreetMap) that has not agreed to
+   * anything: facts only, no logo or copy, until it claims its page. Left out = a partner.
+   */
+  tier?: "partner" | "listed";
+  /** The animals they take; the map and the list filter on it. Empty = not known yet. */
   accepts: PetType[];
   locations: PartnerLocation[];
   hours?: Localized;
-  description: Localized;
+  /** Every partner has one; a listed place has none until it claims its page. */
+  description?: Localized;
   services: PartnerService[];
   /** Shown when the services carry no prices of their own. */
   pricesNote?: Localized;
@@ -150,6 +157,17 @@ export function partnerWebsite(partner: Partner): string | null {
 }
 
 /** "Vilnius, Antakalnis", or "Vilnius · Panevėžys" for a partner in several cities. */
+/** The addresses to list, each once: a chain's stores with no street address read as one city. */
+export function distinctLocations(locations: PartnerLocation[]): PartnerLocation[] {
+  const seen = new Set<string>();
+  return locations.filter((l) => {
+    const key = [l.city, l.area, l.address].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function partnerPlace(partner: Partner): string {
   if (partner.locations.length === 1) {
     const [only] = partner.locations;
@@ -159,7 +177,7 @@ export function partnerPlace(partner: Partner): string {
 }
 
 /** Fixed order for the "what they do" chips, whatever order the data lists them in. */
-const CATEGORY_ORDER: PartnerCategory[] = ["boarding", "daycare", "grooming", "training", "walking"];
+const CATEGORY_ORDER: PartnerCategory[] = ["boarding", "daycare", "grooming", "training", "walking", "vet", "shop"];
 
 /** Partners that do this; no category chosen = every partner. */
 export function partnersDoing(category: PartnerCategory | null, partners: Partner[] = PARTNERS): Partner[] {
@@ -178,9 +196,16 @@ export function joinPetNames(names: string[], locale: Locale): string {
 }
 
 /** Partners that take at least one of these animals; no animals given = every partner. */
+/** Partners first, then every listed place: what the map draws. */
+export const ALL_PLACES: Partner[] = [...PARTNERS, ...LISTED_PLACES];
+
+/** Listed from public information, not a partner (yet). */
+export const isListed = (place: Partner) => place.tier === "listed";
+
 export function partnersFor(species: readonly PetType[], partners: Partner[] = PARTNERS): Partner[] {
   if (species.length === 0) return partners;
-  return partners.filter((p) => p.accepts.some((a) => species.includes(a)));
+  // A place whose pets are not known yet (a listed vet or shop) stays: the owner asks them.
+  return partners.filter((p) => p.accepts.length === 0 || p.accepts.some((a) => species.includes(a)));
 }
 
 export interface MapPlace {
@@ -189,6 +214,8 @@ export interface MapPlace {
   lat: number;
   lng: number;
   approximate: boolean;
+  /** A listed place: drawn as a small dot under the partners' pins. */
+  listed: boolean;
 }
 
 /** One point per geocoded location: a partner in two cities is two points. */
@@ -196,7 +223,7 @@ export function mapPlaces(partners: Partner[]): MapPlace[] {
   return partners.flatMap((p) =>
     p.locations.flatMap((l) =>
       l.lat != null && l.lng != null
-        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false }]
+        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p) }]
         : [],
     ),
   );

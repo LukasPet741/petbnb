@@ -9,7 +9,7 @@ import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  PARTNERS, formatPartnerPrice, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  ALL_PLACES, distinctLocations, formatPartnerPrice, isListed, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
@@ -31,13 +31,19 @@ export default function PartnersDirectory() {
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [species, setSpecies] = useState<PetType | null>(null);
   const [category, setCategory] = useState<PartnerCategory | null>(null);
-  const open = PARTNERS.find((p) => p.slug === openSlug) ?? null;
+  const [allListed, setAllListed] = useState(false);
+  const open = ALL_PLACES.find((p) => p.slug === openSlug) ?? null;
   // /partners?p=dogiday opens that partner: the dashboard map's pins link here.
   useEffect(() => {
     const slug = new URLSearchParams(window.location.search).get("p");
-    if (slug && PARTNERS.some((p) => p.slug === slug)) setOpenSlug(slug);
+    if (slug && ALL_PLACES.some((p) => p.slug === slug)) setOpenSlug(slug);
   }, []);
-  const shown = useMemo(() => partnersDoing(category, partnersFor(species ? [species] : [])), [category, species]);
+  const shown = useMemo(
+    () => partnersDoing(category, partnersFor(species ? [species] : [], ALL_PLACES)),
+    [category, species],
+  );
+  const partners = shown.filter((p) => !isListed(p));
+  const listed = shown.filter(isListed);
   const places = useMemo(() => mapPlaces(shown), [shown]);
 
   return (
@@ -55,7 +61,7 @@ export default function PartnersDirectory() {
         <div className="mt-6 space-y-2">
           <ChipRow label={t("partners.filter.categoryLabel")}>
             <Chip pressed={category === null} onClick={() => setCategory(null)}>{t("partners.filter.all")}</Chip>
-            {offeredCategories().map((c) => (
+            {offeredCategories(ALL_PLACES).map((c) => (
               <Chip key={c} pressed={category === c} onClick={() => setCategory(c)}>{t(`partners.categories.${c}`)}</Chip>
             ))}
           </ChipRow>
@@ -76,13 +82,44 @@ export default function PartnersDirectory() {
           <p className="mt-6 text-ink-soft">{t("partners.filter.none")}</p>
         )}
 
-        <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {shown.map((partner) => (
-            <li key={partner.slug}>
-              <PartnerCard partner={partner} onOpen={() => setOpenSlug(partner.slug)} />
-            </li>
-          ))}
-        </ul>
+        {partners.length > 0 && (
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {partners.map((partner) => (
+              <li key={partner.slug}>
+                <PartnerCard partner={partner} onOpen={() => setOpenSlug(partner.slug)} />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Listed from public information: a plain list under the partners, never a logo card. */}
+        {listed.length > 0 && (
+          <section aria-labelledby="listed-places" className="mt-10">
+            <h2 id="listed-places" className="font-display text-xl font-semibold text-ink">{t("partners.listed.heading")}</h2>
+            <p className="mt-1 text-sm text-ink-soft">{t("partners.listed.intro")}</p>
+            <ul className="mt-4 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
+              {(allListed ? listed : listed.slice(0, LISTED_PREVIEW)).map((place) => (
+                <li key={place.slug} className="border-b border-ink/8">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSlug(place.slug)}
+                    className="flex w-full flex-col gap-0.5 py-3 text-left transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  >
+                    <span className="font-medium text-ink">{place.name}</span>
+                    <span className="text-sm text-ink-soft">
+                      {place.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")} · {partnerPlace(place)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {!allListed && listed.length > LISTED_PREVIEW && (
+              <button type="button" onClick={() => setAllListed(true)} className="mt-4 text-sm font-semibold text-brand underline-offset-4 hover:underline">
+                {t("partners.listed.showAll", { count: listed.length })}
+              </button>
+            )}
+          </section>
+        )}
 
         <section className="mt-12 rounded-[var(--radius-card)] border border-ink/8 bg-surface p-6 sm:p-8">
           <h2 className="font-display text-xl font-semibold text-ink">{t("partners.join.title")}</h2>
@@ -95,6 +132,9 @@ export default function PartnersDirectory() {
     </div>
   );
 }
+
+/** Listed places shown before "Show all": enough to read as a directory, short enough to scroll past. */
+const LISTED_PREVIEW = 12;
 
 /** A labelled row of filter chips that scrolls sideways on a phone instead of wrapping. */
 function ChipRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -197,14 +237,19 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
           <div ref={top} tabIndex={-1} className="flex flex-wrap gap-1.5 outline-none">
             <Tag>{t("partners.business")}</Tag>
             {partner.founding && <Tag tone="brand">{t("partners.founding")}</Tag>}
+            {isListed(partner) && <Tag>{t("partners.listed.tag")}</Tag>}
           </div>
 
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("partners.about")}</h3>
-            <p className="mt-2 leading-relaxed text-ink">{partner.description[locale]}</p>
-          </section>
+          {partner.description && (
+            <section>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("partners.about")}</h3>
+              <p className="mt-2 leading-relaxed text-ink">{partner.description[locale]}</p>
+            </section>
+          )}
 
-          <section>
+          {isListed(partner) && <p className="text-sm leading-relaxed text-ink-soft">{t("partners.listed.note")}</p>}
+
+          {partner.services.length > 0 && <section>
             <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("partners.services")}</h3>
             <ul className="mt-2 divide-y divide-ink/8 rounded-[var(--radius-input)] border border-ink/8">
               {partner.services.map((service) => (
@@ -231,12 +276,12 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
                 {t("partners.pricesOnSite")}
               </p>
             )}
-          </section>
+          </section>}
 
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("partners.where")}</h3>
             <ul className="mt-2 flex flex-col gap-1.5 text-ink">
-              {partner.locations.map((place) => (
+              {distinctLocations(partner.locations).map((place) => (
                 <li key={`${place.city}-${place.address ?? place.area ?? ""}`} className="flex items-start gap-2">
                   <MapPin className="mt-1 h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
                   <span>

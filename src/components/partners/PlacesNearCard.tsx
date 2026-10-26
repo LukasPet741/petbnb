@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { useLanguage } from "@/context/LanguageContext";
-import { joinPetNames, mapPlaces, partnersFor } from "@/lib/partners";
+import { ALL_PLACES, joinPetNames, mapPlaces, partnersFor } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
 
 /**
@@ -21,7 +21,7 @@ export default function PlacesNearCard({ pets }: { pets: { id: string; name: str
   const [chosen, setChosen] = useState<string[] | null>(() => (pets.length > 0 ? pets.map((p) => p.id) : null));
   const picked = useMemo(() => (chosen ? pets.filter((p) => chosen.includes(p.id)) : []), [chosen, pets]);
   const places = useMemo(
-    () => mapPlaces(partnersFor([...new Set(picked.map((p) => p.type as PetType))])),
+    () => mapPlaces(partnersFor([...new Set(picked.map((p) => p.type as PetType))], ALL_PLACES)),
     [picked],
   );
 

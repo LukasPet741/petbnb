@@ -13,6 +13,8 @@ const partners = {
     grooming: "Groomer",
     training: "Training",
     walking: "Walking",
+    vet: "Vet",
+    shop: "Pet shop",
   },
   filter: {
     label: "Which pet",
@@ -34,6 +36,13 @@ const partners = {
     all: "Every partner place",
     allPlaces: "All places",
     seeAll: "All partners",
+  },
+  listed: {
+    tag: "Not a partner yet",
+    note: "Listed from public information (OpenStreetMap). Not a PetBnB partner yet, so check the details with them.",
+    heading: "More places on the map",
+    intro: "Vets, pet shops and groomers from public information. Data © OpenStreetMap contributors.",
+    showAll: "Show all {count}",
   },
   about: "About",
   services: "Services and prices",

@@ -13,6 +13,8 @@ const partners = {
     grooming: "Kirpykla",
     training: "Dresūra",
     walking: "Vedžiojimas",
+    vet: "Veterinarija",
+    shop: "Gyvūnų prekės",
   },
   filter: {
     label: "Kokiam augintiniui",
@@ -34,6 +36,13 @@ const partners = {
     all: "Visos partnerių vietos",
     allPlaces: "Visos vietos",
     seeAll: "Visi partneriai",
+  },
+  listed: {
+    tag: "Dar ne partneris",
+    note: "Įtraukta iš viešos informacijos (OpenStreetMap). Dar ne PetBnB partneris, todėl informaciją pasitikslinkite pas juos.",
+    heading: "Daugiau vietų žemėlapyje",
+    intro: "Veterinarijos klinikos, gyvūnų prekių parduotuvės ir kirpyklos iš viešos informacijos. Duomenys © OpenStreetMap bendruomenė.",
+    showAll: "Rodyti visas ({count})",
   },
   about: "Apie",
   services: "Paslaugos ir kainos",

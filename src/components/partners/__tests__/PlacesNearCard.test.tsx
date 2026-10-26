@@ -19,9 +19,10 @@ describe("PlacesNearCard", () => {
     expect(slugs()).toContain("dogiday");
   });
 
-  it("does not show a cat owner a dogs-only place", () => {
+  it("does not show a cat owner a dogs-only place, but does show the listed vets and shops", () => {
     render(<PlacesNearCard pets={[murka]} />);
     expect(slugs()).not.toContain("dogiday");
+    expect(slugs()).toContain("kika");
   });
 
   it("shows every partner to someone with no pets yet, without pet chips", () => {
@@ -36,7 +37,7 @@ describe("PlacesNearCard", () => {
     expect(slugs()).toContain("dogiday");
 
     fireEvent.click(screen.getByRole("button", { name: /Reksas/ }));
-    expect(slugs()).toBe("");
+    expect(slugs()).not.toContain("dogiday");
 
     fireEvent.click(screen.getByRole("button", { name: /partners.near.allPlaces/ }));
     expect(slugs()).toContain("dogpunk");

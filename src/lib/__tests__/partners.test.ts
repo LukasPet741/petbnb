@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PARTNERS, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
+import { ALL_PLACES, PARTNERS, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -9,7 +9,7 @@ describe("partners data", () => {
 
   it("describes every partner and service in both languages", () => {
     for (const p of PARTNERS) {
-      expect(p.description.lt && p.description.en, p.slug).toBeTruthy();
+      expect(p.description?.lt && p.description?.en, p.slug).toBeTruthy();
       for (const s of p.services) expect(s.name.lt && s.name.en, p.slug).toBeTruthy();
     }
   });
@@ -65,6 +65,17 @@ describe("formatPartnerPrice", () => {
   });
 });
 
+describe("distinctLocations", () => {
+  it("lists two stores with no street address in one city once", () => {
+    const lines = distinctLocations([
+      { city: "Kaunas", lat: 54.9, lng: 23.9 },
+      { city: "Kaunas", lat: 54.8, lng: 23.8 },
+      { city: "Kaunas", address: "Jonavos g. 60" },
+    ]);
+    expect(lines.map((l) => l.address ?? l.city)).toEqual(["Kaunas", "Jonavos g. 60"]);
+  });
+});
+
 describe("partnerPlace", () => {
   const base: Partner = {
     slug: "x", name: "X", categories: [], accepts: ["dog"], locations: [],
@@ -95,6 +106,11 @@ describe("partnersFor", () => {
   it("keeps every partner when no pet is given", () => {
     expect(partnersFor([], [dogs, both])).toHaveLength(2);
   });
+
+  it("keeps a listed place whose pets are not known yet, whatever the pet", () => {
+    const vet: Partner = { ...base, slug: "vet", accepts: [], tier: "listed" };
+    expect(partnersFor(["reptile"], [dogs, vet]).map((p) => p.slug)).toEqual(["vet"]);
+  });
 });
 
 describe("mapPlaces", () => {
@@ -104,9 +120,17 @@ describe("mapPlaces", () => {
       locations: [{ city: "Vilnius", lat: 54.7, lng: 25.3 }, { city: "Kaunas" }, { city: "Panevėžys", lat: 55.7, lng: 24.4, approximate: true }],
     };
     expect(mapPlaces([partner])).toEqual([
-      { slug: "two", name: "Two", lat: 54.7, lng: 25.3, approximate: false },
-      { slug: "two", name: "Two", lat: 55.7, lng: 24.4, approximate: true },
+      { slug: "two", name: "Two", lat: 54.7, lng: 25.3, approximate: false, listed: false },
+      { slug: "two", name: "Two", lat: 55.7, lng: 24.4, approximate: true, listed: false },
     ]);
+  });
+
+  it("marks the pins of a listed place", () => {
+    const listed: Partner = {
+      slug: "vet", name: "Vet", tier: "listed", categories: ["vet"], accepts: [], services: [],
+      locations: [{ city: "Kaunas", lat: 54.9, lng: 23.9 }],
+    };
+    expect(mapPlaces([listed])[0].listed).toBe(true);
   });
 });
 
@@ -135,5 +159,43 @@ describe("joinPetNames", () => {
     expect(joinPetNames(["Reksas", "Murka"], "en")).toBe("Reksas or Murka");
     expect(joinPetNames(["Reksas", "Murka"], "lt")).toBe("Reksas ar Murka");
     expect(joinPetNames(["Reksas"], "en")).toBe("Reksas");
+  });
+});
+
+describe("listed places (OpenStreetMap)", () => {
+  const listed = ALL_PLACES.filter((p) => p.tier === "listed");
+
+  it("fills the map beyond the partners", () => {
+    expect(listed.length).toBeGreaterThan(20);
+    expect(offeredCategories(ALL_PLACES)).toEqual(expect.arrayContaining(["vet", "shop"]));
+  });
+
+  it("gives every place, partner or listed, its own slug", () => {
+    const slugs = ALL_PLACES.map((p) => p.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it("lists facts only: no logo, no copy, no claimed pets, no founding badge", () => {
+    for (const p of listed) {
+      expect(p.logo, p.slug).toBeUndefined();
+      expect(p.description, p.slug).toBeUndefined();
+      expect(p.founding, p.slug).toBeFalsy();
+      expect(p.accepts, p.slug).toEqual([]);
+      if (p.website) expect(p.website, p.slug).toMatch(/^https:\/\//);
+    }
+  });
+
+  it("puts every listed pin inside Lithuania", () => {
+    for (const place of mapPlaces(listed)) {
+      expect(place.lat, place.slug).toBeGreaterThan(53.8);
+      expect(place.lat, place.slug).toBeLessThan(56.5);
+      expect(place.lng, place.slug).toBeGreaterThan(20.9);
+      expect(place.lng, place.slug).toBeLessThan(26.9);
+    }
+  });
+
+  it("never lists a partner a second time", () => {
+    expect(listed.map((p) => p.slug)).not.toEqual(expect.arrayContaining(["dogiday"]));
+    expect(listed.some((p) => /dog ?punk|dogiday/i.test(p.name))).toBe(false);
   });
 });
