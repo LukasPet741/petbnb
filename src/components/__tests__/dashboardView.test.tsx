@@ -5,6 +5,12 @@ import type { DashBooking } from "@/lib/dashboard";
 import type { AppNotification } from "@/lib/types";
 import type { OnboardingStep } from "@/lib/sitter-onboarding";
 
+// The real hook reads the places tables over the network; here it is the built-in list.
+vi.mock("@/lib/usePlaces", async () => {
+  const { ALL_PLACES } = await import("@/lib/partners");
+  return { usePlaces: () => ALL_PLACES };
+});
+
 /**
  * Dashboard variant A (2026-09-15): one hero card for what needs the visitor next, the latest
  * notifications grouped by day, and a side column with what is waiting on an answer.

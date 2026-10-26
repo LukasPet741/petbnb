@@ -9,10 +9,11 @@ import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  ALL_PLACES, distinctLocations, formatPartnerPrice, isListed, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  distinctLocations, formatPartnerPrice, isListed, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
+import { usePlaces } from "@/lib/usePlaces";
 import { cn } from "@/lib/utils";
 
 /** The animals the filter offers: the pet-profile species, less fish and "other". */
@@ -32,15 +33,17 @@ export default function PartnersDirectory() {
   const [species, setSpecies] = useState<PetType | null>(null);
   const [category, setCategory] = useState<PartnerCategory | null>(null);
   const [allListed, setAllListed] = useState(false);
-  const open = ALL_PLACES.find((p) => p.slug === openSlug) ?? null;
+  const allPlaces = usePlaces();
+  // An unknown slug (or one the places table has not answered with yet) simply opens nothing.
+  const open = allPlaces.find((p) => p.slug === openSlug) ?? null;
   // /partners?p=dogiday opens that partner: the dashboard map's pins link here.
   useEffect(() => {
     const slug = new URLSearchParams(window.location.search).get("p");
-    if (slug && ALL_PLACES.some((p) => p.slug === slug)) setOpenSlug(slug);
+    if (slug) setOpenSlug(slug);
   }, []);
   const shown = useMemo(
-    () => partnersDoing(category, partnersFor(species ? [species] : [], ALL_PLACES)),
-    [category, species],
+    () => partnersDoing(category, partnersFor(species ? [species] : [], allPlaces)),
+    [allPlaces, category, species],
   );
   const partners = shown.filter((p) => !isListed(p));
   const listed = shown.filter(isListed);
@@ -61,7 +64,7 @@ export default function PartnersDirectory() {
         <div className="mt-6 space-y-2">
           <ChipRow label={t("partners.filter.categoryLabel")}>
             <Chip pressed={category === null} onClick={() => setCategory(null)}>{t("partners.filter.all")}</Chip>
-            {offeredCategories(ALL_PLACES).map((c) => (
+            {offeredCategories(allPlaces).map((c) => (
               <Chip key={c} pressed={category === c} onClick={() => setCategory(c)}>{t(`partners.categories.${c}`)}</Chip>
             ))}
           </ChipRow>
