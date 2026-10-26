@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { ArrowUpRight, Clock, MapPin } from "lucide-react";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
@@ -8,11 +9,12 @@ import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import PlaceMark from "@/components/partners/PlaceMark";
 import PlaceCommunity from "@/components/partners/PlaceCommunity";
+import PlaceBusinessActions from "@/components/partners/PlaceBusinessActions";
 import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  distinctLocations, formatPartnerPrice, isListed, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  distinctLocations, formatPartnerPrice, isListed, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
@@ -88,7 +90,7 @@ export default function PartnersDirectory() {
 
         {/* isolate: Leaflet's panes sit at z-index 400+, which would paint over the sticky header. */}
         <div className="relative isolate mt-4 h-72 overflow-hidden rounded-[var(--radius-card)] border border-ink/8 bg-surface-2 sm:h-96">
-          <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} areas={showPeople ? areas : []} areaLabel={areaLabel} />
+          <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} areas={showPeople ? areas : []} areaLabel={areaLabel} adLabel={t("partners.forBusiness.ad")} />
         </div>
         {showPeople && <AreaLegend areas={areas} className="mt-2" />}
 
@@ -141,6 +143,10 @@ export default function PartnersDirectory() {
         <section className="mt-12 rounded-[var(--radius-card)] border border-ink/8 bg-surface p-6 sm:p-8">
           <h2 className="font-display text-xl font-semibold text-ink">{t("partners.join.title")}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{t("partners.join.text")}</p>
+          <Link href="/business" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline">
+            {t("partners.forBusiness.page.title")}
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </section>
       </main>
       <PublicFooter />
@@ -194,19 +200,20 @@ function PartnerCard({ partner, onOpen }: { partner: Partner; onOpen: () => void
         <span className="text-sm text-ink-soft">
           {partner.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")}
         </span>
-        <span className="mt-auto pt-2">
+        <span className="mt-auto flex flex-wrap gap-1.5 pt-2">
           <Tag>{t("partners.business")}</Tag>
+          {isPromoted(partner) && <Tag tone="ad">{t("partners.forBusiness.ad")}</Tag>}
         </span>
       </div>
     </button>
   );
 }
 
-function Tag({ children, tone = "plain" }: { children: React.ReactNode; tone?: "plain" | "brand" }) {
+function Tag({ children, tone = "plain" }: { children: React.ReactNode; tone?: "plain" | "brand" | "ad" }) {
   return (
     <span className={cn(
       "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-      tone === "brand" ? "bg-brand-soft text-brand-strong" : "bg-ink/6 text-ink-soft",
+      tone === "brand" ? "bg-brand-soft text-brand-strong" : tone === "ad" ? "bg-amber-soft text-amber-strong" : "bg-ink/6 text-ink-soft",
     )}>
       {children}
     </span>
@@ -243,7 +250,10 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
             <Tag>{t("partners.business")}</Tag>
             {partner.founding && <Tag tone="brand">{t("partners.founding")}</Tag>}
             {isListed(partner) && <Tag>{t("partners.listed.tag")}</Tag>}
+            {isPromoted(partner) && <Tag tone="ad">{t("partners.forBusiness.ad")}</Tag>}
           </div>
+
+          {isPromoted(partner) && <p className="-mt-3 text-xs text-ink-soft">{t("partners.forBusiness.adNote")}</p>}
 
           {partner.description && (
             <section>
@@ -303,6 +313,8 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
               )}
             </ul>
           </section>
+
+          <PlaceBusinessActions place={partner} />
 
           <PlaceCommunity slug={partner.slug} />
         </div>

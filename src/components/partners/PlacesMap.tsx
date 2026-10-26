@@ -68,10 +68,10 @@ function dotIcon(brand: string) {
 }
 
 /** A partner with a logo: the logo on a white disc in a brand ring (dashed where only the area is known). */
-function logoIcon(brand: string, logo: string, approximate: boolean) {
+function logoIcon(ring: string, logo: string, approximate: boolean) {
   return L.divIcon({
     className: "",
-    html: `<span style="display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:#fff;border:3px ${approximate ? "dashed" : "solid"} ${brand};box-shadow:0 2px 8px rgb(19 26 23 / 0.35);overflow:hidden;"><img src="${escapeHtml(logo)}" alt="" style="width:28px;height:28px;object-fit:contain;" /></span>`,
+    html: `<span style="display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:#fff;border:3px ${approximate ? "dashed" : "solid"} ${ring};box-shadow:0 2px 8px rgb(19 26 23 / 0.35);overflow:hidden;"><img src="${escapeHtml(logo)}" alt="" style="width:28px;height:28px;object-fit:contain;" /></span>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
     tooltipAnchor: [0, -23],
@@ -109,6 +109,7 @@ export default function PlacesMap({
   label,
   areas = [],
   areaLabel,
+  adLabel = "Ad",
 }: {
   places: MapPlace[];
   onSelect: (slug: string) => void;
@@ -118,6 +119,8 @@ export default function PlacesMap({
   areas?: AreaCircle[];
   /** The hover text of an area: "Vilnius: 6 sitters". */
   areaLabel?: (area: AreaCircle) => string;
+  /** Said before a promoted place's name: paid placement is always labelled ("Reklama"). */
+  adLabel?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -180,14 +183,15 @@ export default function PlacesMap({
     for (const place of places) {
       const select = () => onSelectRef.current(place.slug);
       const pin = L.marker([place.lat, place.lng], {
-        icon: place.listed ? dotIcon(brand) : place.logo ? logoIcon(brand, place.logo, place.approximate) : pinIcon(brand, place.approximate),
+        // A promoted place's ring is amber, and its name says it is an ad.
+        icon: place.listed ? dotIcon(brand) : place.logo ? logoIcon(place.promoted ? "var(--amber)" : brand, place.logo, place.approximate) : pinIcon(brand, place.approximate),
         title: place.name,
         keyboard: true,
         // An exact address sits above an approximate area when the two overlap at a wide zoom.
         // Listed dots sit under every partner pin.
-        zIndexOffset: place.listed ? -500 : place.approximate ? 0 : 500,
+        zIndexOffset: place.listed ? -500 : place.promoted ? 800 : place.approximate ? 0 : 500,
       });
-      pin.bindTooltip(escapeHtml(place.name), { direction: "top" }).on("click", select).addTo(layer);
+      pin.bindTooltip(escapeHtml(place.promoted ? `${adLabel} · ${place.name}` : place.name), { direction: "top" }).on("click", select).addTo(layer);
       // Enter on a focused pin opens it, like a click.
       pin.on("keypress", (e) => { if ((e.originalEvent as KeyboardEvent).key === "Enter") select(); });
     }

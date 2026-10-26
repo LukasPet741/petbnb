@@ -51,7 +51,9 @@ export interface Partner {
    * "listed": a business from public information (OpenStreetMap) that has not agreed to
    * anything: facts only, no logo or copy, until it claims its page. Left out = a partner.
    */
-  tier?: "partner" | "listed";
+  tier?: "partner" | "listed" | "bookable" | "promoted";
+  /** The places table's id, once the map reads it; the built-in list has none. Writes need it. */
+  id?: string;
   /** The animals they take; the map and the list filter on it. Empty = not known yet. */
   accepts: PetType[];
   locations: PartnerLocation[];
@@ -205,6 +207,12 @@ export const ALL_PLACES: Partner[] = [...PARTNERS, ...LISTED_PLACES];
 /** Listed from public information, not a partner (yet). */
 export const isListed = (place: Partner) => place.tier === "listed";
 
+/** Takes booking requests through PetBnB (the Bookable tier). */
+export const isBookable = (place: Partner) => place.tier === "bookable";
+
+/** Paid placement: always labelled as advertising ("Reklama"; Business, Tax & Legal Handbook §7). */
+export const isPromoted = (place: Partner) => place.tier === "promoted";
+
 export function partnersFor(species: readonly PetType[], partners: Partner[] = PARTNERS): Partner[] {
   if (species.length === 0) return partners;
   // A place whose pets are not known yet (a listed vet or shop) stays: the owner asks them.
@@ -221,6 +229,8 @@ export interface MapPlace {
   listed: boolean;
   /** A partner's pin shows its logo instead of the paw. */
   logo?: string;
+  /** Paid placement: a highlighted pin, labelled as advertising. */
+  promoted?: boolean;
 }
 
 /** One point per geocoded location: a partner in two cities is two points. */
@@ -228,7 +238,7 @@ export function mapPlaces(partners: Partner[]): MapPlace[] {
   return partners.flatMap((p) =>
     p.locations.flatMap((l) =>
       l.lat != null && l.lng != null
-        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p), logo: p.logo }]
+        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p), logo: p.logo, promoted: isPromoted(p) || undefined }]
         : [],
     ),
   );

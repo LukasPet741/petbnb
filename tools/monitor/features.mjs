@@ -128,6 +128,12 @@ export const FEATURES = [
     match: [/^supabase\//],
   },
   {
+    id: "business",
+    label: "My business",
+    routes: ["/business"],
+    match: [/\/business\/|placeBusiness|PlaceBusinessActions|BusinessCards/],
+  },
+  {
     id: "partners-map",
     label: "Partners & places map",
     routes: ["/partners"],

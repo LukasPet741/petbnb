@@ -31,6 +31,7 @@ export interface PlaceServiceRow {
 }
 
 export interface PlaceRow {
+  id?: string;
   slug: string;
   name: string;
   categories: string[];
@@ -50,7 +51,7 @@ export interface PlaceRow {
 }
 
 const COLUMNS =
-  "slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +
+  "id, slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +
   "hours_lt, hours_en, website_url, logo_path, is_founding_partner, " +
   "place_locations(city, area, address, note_lt, note_en, lat, lng, approximate, sort_order), " +
   "place_services(name_lt, name_en, price_from, price_to, unit_lt, unit_en, url, sort_order)";
@@ -98,8 +99,8 @@ export function rowToPlace(row: PlaceRow): Partner {
   return {
     slug: row.slug,
     name: row.name,
-    // "listed" stays listed; every other tier (partner, bookable, promoted) is a partner here.
-    tier: row.tier === "listed" ? "listed" : "partner",
+    tier: row.tier === "listed" || row.tier === "bookable" || row.tier === "promoted" ? row.tier : "partner",
+    id: row.id,
     categories: row.categories as PartnerCategory[],
     accepts: row.accepts as PetType[],
     locations,
@@ -113,14 +114,17 @@ export function rowToPlace(row: PlaceRow): Partner {
   };
 }
 
-/** Published places, partners first and then by name; null when there is nothing to read. */
+const rank = (p: Partner) => (p.tier === "promoted" ? 0 : p.tier === "listed" ? 2 : 1);
+
+/** Published places, promoted and partners first and then by name; null when there is nothing to read. */
 export async function fetchPlaces(client: PlacesClient): Promise<Partner[] | null> {
   try {
     const { data, error } = await client.from("places").select(COLUMNS).eq("status", "published");
     if (error || !Array.isArray(data) || data.length === 0) return null;
     return (data as PlaceRow[])
       .map(rowToPlace)
-      .sort((a, b) => Number(a.tier === "listed") - Number(b.tier === "listed") || a.name.localeCompare(b.name, "lt"));
+      // Promoted first (it is what was paid for, and it is labelled), then partners, then listed.
+    .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, "lt"));
   } catch {
     return null;
   }

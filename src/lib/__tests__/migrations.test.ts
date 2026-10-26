@@ -111,3 +111,35 @@ describe("place community migration", () => {
     expect(sql).toContain("revoke all on function public.public_author_name(uuid) from public, anon, authenticated");
   });
 });
+
+describe("place business migration", () => {
+  const sql = read("20261026220000_place_business.sql").replace(/--.*$/gm, "").toLowerCase();
+
+  it("turns on row level security for claims and booking requests", () => {
+    for (const t of ["place_claims", "place_booking_requests"]) expect(sql, t).toContain(`alter table public.${t} enable row level security`);
+  });
+
+  it("lets an owner edit only their page's words, never its tier, status, name or logo", () => {
+    expect(sql).toContain("grant update (description_lt, description_en, hours_lt, hours_en, prices_note_lt, prices_note_en, website_url, accepts)");
+    expect(sql).not.toMatch(/grant update \([^)]*\b(tier|status|slug|name|logo_path|consent_logo|owner_user_id)\b/);
+  });
+
+  it("never rejects a claim without a reason", () => {
+    expect(sql).toContain("check (status <> 'rejected' or decided_reason is not null)");
+  });
+
+  it("changes a booking request's status only through its two functions", () => {
+    expect(sql).toContain("grant select, insert on public.place_booking_requests to authenticated");
+    expect(sql).not.toMatch(/grant [^;]*update[^;]* on public\.place_booking_requests/);
+    expect(sql.match(/security definer\s+set search_path = ''/g)).toHaveLength(4);
+  });
+
+  it("keeps everything away from anon", () => {
+    expect(sql).toContain("revoke all on public.place_claims, public.place_booking_requests from anon, authenticated");
+    expect(sql).not.toMatch(/to anon/);
+  });
+
+  it("shows pet owner counts only above the floor", () => {
+    expect(sql).toMatch(/having count\(distinct pr\.id\) >= 5/);
+  });
+});

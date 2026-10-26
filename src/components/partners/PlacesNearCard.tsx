@@ -62,7 +62,7 @@ export default function PlacesNearCard({ pets }: { pets: { id: string; name: str
       )}
       {/* isolate: Leaflet's panes sit at z-index 400+, which would paint over the app's sticky chrome. */}
       <div className="relative isolate h-64 border-t border-ink/8 bg-surface-2">
-        <LazyPlacesMap places={places} onSelect={(slug) => router.push(`/partners?p=${slug}`)} label={t("partners.map.label")} areas={areas} areaLabel={areaLabel} />
+        <LazyPlacesMap places={places} onSelect={(slug) => router.push(`/partners?p=${slug}`)} label={t("partners.map.label")} areas={areas} areaLabel={areaLabel} adLabel={t("partners.forBusiness.ad")} />
       </div>
       <AreaLegend areas={areas} className="border-t border-ink/8 px-5 py-3" />
     </section>
