@@ -151,6 +151,11 @@ const partners = {
     error: "Nepavyko išsaugoti. Bandykite dar kartą.",
     rules: "Atsiliepimai ir apsilankymai skelbiami viešai jūsų vardu. Praneškite apie taisyklių pažeidimus; jei ką nors pašaliname, jo autoriui nurodome priežastį.",
   },
+  hours: {
+    openNow: "Dabar dirba",
+    open: "Dabar dirba",
+    closed: "Dabar nedirba",
+  },
   people: {
     layerLabel: "Žemėlapyje",
     toggle: "Globėjai pagal miestą",

@@ -151,6 +151,11 @@ const partners = {
     error: "Couldn't save that. Try again.",
     rules: "Reviews and visits are public under your first name. Report anything that breaks the rules; when we remove something, we tell its author why.",
   },
+  hours: {
+    openNow: "Open now",
+    open: "Open now",
+    closed: "Closed now",
+  },
   people: {
     layerLabel: "On the map",
     toggle: "Sitters per city",

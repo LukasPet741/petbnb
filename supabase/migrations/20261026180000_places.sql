@@ -55,6 +55,8 @@ create table public.place_locations (
   lng double precision check (lng between 20.9 and 26.9),
   -- Only the area is known: the map marks it as approximate.
   approximate boolean not null default false,
+  -- OpenStreetMap syntax ("Mo-Fr 09:00-18:00; Sa 10:00-14:00"), read by the map's "Open now".
+  opening_hours text check (opening_hours is null or char_length(opening_hours) <= 255),
   sort_order int not null default 0,
   constraint place_locations_coords_together check ((lat is null) = (lng is null))
 );
@@ -126,8 +128,8 @@ with dogiday as (
     'Email from Dogiday, 26 Oct 2026', now())
   returning id
 ), dogiday_location as (
-  insert into public.place_locations (place_id, city, area, lat, lng, approximate)
-  select id, 'Vilnius', 'Antakalnis', 54.7056, 25.3145, true from dogiday
+  insert into public.place_locations (place_id, city, area, lat, lng, approximate, opening_hours)
+  select id, 'Vilnius', 'Antakalnis', 54.7056, 25.3145, true, 'Mo-Su 07:30-19:30' from dogiday
 )
 insert into public.place_services (place_id, name_lt, name_en, sort_order)
 select dogiday.id, s.name_lt, s.name_en, s.sort_order

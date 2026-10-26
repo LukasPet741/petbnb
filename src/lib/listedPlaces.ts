@@ -20,19 +20,22 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "M. Mažvydo g. 16",
         "lat": 54.71141,
-        "lng": 25.18312
+        "lng": 25.18312,
+        "openingHours": "Mo-Su 09:00-18:00"
       },
       {
         "city": "Vilnius",
         "address": "Naugarduko g. 59",
         "lat": 54.66982,
-        "lng": 25.25766
+        "lng": 25.25766,
+        "openingHours": "Mo-Su 07:00-23:00"
       },
       {
         "city": "Vilnius",
         "address": "Nemenčinės pl. 4C",
         "lat": 54.72449,
-        "lng": 25.32111
+        "lng": 25.32111,
+        "openingHours": "24/7"
       }
     ],
     "services": [],
@@ -70,7 +73,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Antakalnio g. 40",
         "lat": 54.70298,
-        "lng": 25.30952
+        "lng": 25.30952,
+        "openingHours": "Mo-Fr 10:00-19:00; Sa 10:00-15:00"
       }
     ],
     "services": [],
@@ -89,13 +93,15 @@ export const LISTED_PLACES: Partner[] = [
       {
         "city": "Vilnius",
         "lat": 54.73776,
-        "lng": 25.21817
+        "lng": 25.21817,
+        "openingHours": "Mo-Sa 10:00-19:00; Su 10:00-17:00"
       },
       {
         "city": "Vilnius",
         "address": "Savanorių pr. 31",
         "lat": 54.67393,
-        "lng": 25.24736
+        "lng": 25.24736,
+        "openingHours": "Mo-Fr 10:00-19:00"
       }
     ],
     "services": [],
@@ -115,7 +121,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Antakalnio g. 50",
         "lat": 54.70481,
-        "lng": 25.31001
+        "lng": 25.31001,
+        "openingHours": "Mo-Fr 09:00-20:00; Sa 09:00-20:00"
       }
     ],
     "services": [],
@@ -134,7 +141,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "V. Krėvės pr. 113A",
         "lat": 54.9262,
-        "lng": 23.99396
+        "lng": 23.99396,
+        "openingHours": "Mo-Fr 11:00-18:00"
       }
     ],
     "services": []
@@ -152,7 +160,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Laumėnų g. 2",
         "lat": 54.70241,
-        "lng": 25.2706
+        "lng": 25.2706,
+        "openingHours": "Mo-Fr 09:00-18:00"
       }
     ],
     "services": []
@@ -170,7 +179,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "S. Žukausko g. 41",
         "lat": 54.70899,
-        "lng": 25.3029
+        "lng": 25.3029,
+        "openingHours": "8:30-20:00"
       }
     ],
     "services": [],
@@ -190,7 +200,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Ukmergės g. 221",
         "lat": 54.71466,
-        "lng": 25.24925
+        "lng": 25.24925,
+        "openingHours": "Mo-Sa 11:00-19:00"
       }
     ],
     "services": []
@@ -226,7 +237,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Antakalnio g. 95",
         "lat": 54.71941,
-        "lng": 25.31763
+        "lng": 25.31763,
+        "openingHours": "Mo-Fr 08:00-22:00; Sa-Su 09:00-20:00"
       }
     ],
     "services": [],
@@ -245,7 +257,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Panevėžys",
         "address": "Klaipėdos g. 120",
         "lat": 55.73019,
-        "lng": 24.32725
+        "lng": 24.32725,
+        "openingHours": "Mo-Fr 10:00-18:30"
       }
     ],
     "services": []
@@ -281,7 +294,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Savanorių pr. 429A",
         "lat": 54.92656,
-        "lng": 23.9677
+        "lng": 23.9677,
+        "openingHours": "Mo-Fr 09:00-20:00; Sa 09:00-15:00"
       }
     ],
     "services": [],
@@ -300,7 +314,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Vytauto g. 36",
         "lat": 54.69325,
-        "lng": 25.25601
+        "lng": 25.25601,
+        "openingHours": "Mo-Fr 09:00-19:00; Sa 09:00-16:00"
       }
     ],
     "services": []
@@ -318,7 +333,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Kovo 11-osios g. 31A",
         "lat": 54.90959,
-        "lng": 23.97353
+        "lng": 23.97353,
+        "openingHours": "Mo-Fr 09:00-17:00; Sa-Su off"
       }
     ],
     "services": []
@@ -356,7 +372,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "M. Mažvydo g. 30",
         "lat": 54.71131,
-        "lng": 25.1755
+        "lng": 25.1755,
+        "openingHours": "Mo-Fr 09:00-20:00; Sa-Su 10:00-18:00"
       }
     ],
     "services": []
@@ -392,7 +409,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Nemenčinės pl. 1C",
         "lat": 54.72207,
-        "lng": 25.31946
+        "lng": 25.31946,
+        "openingHours": "Mo-Th 10:00-19:00; Fr 10:00-18:00; Sa 10:00-16:00"
       }
     ],
     "services": [],
@@ -411,7 +429,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Gerosios Vilties g. 1",
         "lat": 54.67234,
-        "lng": 25.24133
+        "lng": 25.24133,
+        "openingHours": "Mo-Sa 09:00-22:00; Su 09:00-21:00"
       }
     ],
     "services": [],
@@ -431,7 +450,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Rygos g. 1",
         "lat": 54.71691,
-        "lng": 25.22981
+        "lng": 25.22981,
+        "openingHours": "Tu-Fr 09:00-19:00; Sa 10:00-14:00"
       }
     ],
     "services": []
@@ -522,19 +542,22 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Islandijos pl. 32",
         "lat": 54.93945,
-        "lng": 23.8894
+        "lng": 23.8894,
+        "openingHours": "Mo-Su 09:00-21:00"
       },
       {
         "city": "Kaunas",
         "address": "Jonavos g. 60",
         "lat": 54.90407,
-        "lng": 23.89893
+        "lng": 23.89893,
+        "openingHours": "Mo-Su 10:00-21:00"
       },
       {
         "city": "Kaunas",
         "address": "K. Baršausko g. 66A",
         "lat": 54.89888,
-        "lng": 23.96656
+        "lng": 23.96656,
+        "openingHours": "Mo-Su 10:00-21:00"
       },
       {
         "city": "Kaunas",
@@ -546,7 +569,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Pramonės pr. 29",
         "lat": 54.91195,
-        "lng": 23.9829
+        "lng": 23.9829,
+        "openingHours": "Mo-Sa 09:00-21:00; Su 10:00-19:00"
       },
       {
         "city": "Kaunas",
@@ -564,7 +588,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Jeruzalės g. 4",
         "lat": 54.74,
-        "lng": 25.27505
+        "lng": 25.27505,
+        "openingHours": "Mo-Fr 10:00-21:00; Sa 10:00-20:00; Su 10:00-19:00"
       },
       {
         "city": "Vilnius",
@@ -576,25 +601,29 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Mamoničių g. 3",
         "lat": 54.65732,
-        "lng": 25.13831
+        "lng": 25.13831,
+        "openingHours": "Mo-Su 09:00-20:00"
       },
       {
         "city": "Vilnius",
         "address": "Mindaugo g. 11",
         "lat": 54.67799,
-        "lng": 25.2732
+        "lng": 25.2732,
+        "openingHours": "Mo-Su 09:00-20:00"
       },
       {
         "city": "Vilnius",
         "address": "Ozo g. 25",
         "lat": 54.70934,
-        "lng": 25.26174
+        "lng": 25.26174,
+        "openingHours": "Mo-Su 09:00-22:00"
       },
       {
         "city": "Vilnius",
         "address": "P. Lukšio g. 34",
         "lat": 54.71082,
-        "lng": 25.29951
+        "lng": 25.29951,
+        "openingHours": "Mo-Sa 09:00-20:00; Su 09:00-18:00"
       },
       {
         "city": "Vilnius",
@@ -606,13 +635,15 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Pilaitės pr. 31",
         "lat": 54.70975,
-        "lng": 25.18867
+        "lng": 25.18867,
+        "openingHours": "Mo-Fr 10:00-21:00, Sa 10:00-20:00, Su 10:00-19:00"
       },
       {
         "city": "Vilnius",
         "address": "Rygos g. 8",
         "lat": 54.71578,
-        "lng": 25.2247
+        "lng": 25.2247,
+        "openingHours": "Mo-Su 11:00-20:00"
       },
       {
         "city": "Vilnius",
@@ -624,19 +655,22 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Santaros g. 5",
         "lat": 54.75721,
-        "lng": 25.27709
+        "lng": 25.27709,
+        "openingHours": "Mo-Su 10:00-19:00"
       },
       {
         "city": "Vilnius",
         "address": "Vydūno g. 4",
         "lat": 54.7071,
-        "lng": 25.18831
+        "lng": 25.18831,
+        "openingHours": "Mo-Fr 11:00-20:00, Sa 10:00-18:00, Su off"
       },
       {
         "city": "Vilnius",
         "address": "Vikingų g. 3",
         "lat": 54.65357,
-        "lng": 25.27757
+        "lng": 25.27757,
+        "openingHours": "Mo-Sa 10:00-21:00; Su 10:00-20:00"
       }
     ],
     "services": [],
@@ -691,7 +725,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Erfurto g. 10",
         "lat": 54.67729,
-        "lng": 25.21292
+        "lng": 25.21292,
+        "openingHours": "Mo-Fr 10:00-18:00"
       }
     ],
     "services": [],
@@ -711,7 +746,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Šiltnamių g. 21",
         "lat": 54.66715,
-        "lng": 25.21629
+        "lng": 25.21629,
+        "openingHours": "Mo-Fr 11:00-20:00; Sa,Su 12:00-18:00"
       }
     ],
     "services": [],
@@ -751,7 +787,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Zanavykų g. 25F",
         "lat": 54.90922,
-        "lng": 23.9159
+        "lng": 23.9159,
+        "openingHours": "Tu-Fr 08:00-17:00; Sa,Su 07:00-15:00"
       }
     ],
     "services": []
@@ -769,13 +806,15 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Jonažolių g. 3",
         "lat": 54.66698,
-        "lng": 25.21389
+        "lng": 25.21389,
+        "openingHours": "Mo-Fr 09:00-20:00; Sa 10:00-15:00"
       },
       {
         "city": "Vilnius",
         "address": "M. Mažvydo g. 14",
         "lat": 54.7114,
-        "lng": 25.18467
+        "lng": 25.18467,
+        "openingHours": "Mo-Fr 10:00-19:00"
       }
     ],
     "services": []
@@ -811,7 +850,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Vytenio g. 2",
         "lat": 54.91508,
-        "lng": 23.89699
+        "lng": 23.89699,
+        "openingHours": "Mo-Fr 10:00-19:00, Sa 10:00-14:00"
       }
     ],
     "services": []
@@ -852,7 +892,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Ozo g. 18",
         "lat": 54.71372,
-        "lng": 25.2738
+        "lng": 25.2738,
+        "openingHours": "Mo-Su 10:00-21:00"
       },
       {
         "city": "Vilnius",
@@ -864,7 +905,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Vikingų g. 3",
         "lat": 54.65187,
-        "lng": 25.2772
+        "lng": 25.2772,
+        "openingHours": "Mo-Sa 10:00-21:00; Su 10:00-20:00"
       }
     ],
     "services": [],
@@ -906,13 +948,15 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Pramonės pr. 4E",
         "lat": 54.90657,
-        "lng": 23.9812
+        "lng": 23.9812,
+        "openingHours": "Mo-Fr 10:00-19:00;Sa-Su 10:00-16:00"
       },
       {
         "city": "Vilnius",
         "address": "Bajorų kel. 4",
         "lat": 54.75456,
-        "lng": 25.26203
+        "lng": 25.26203,
+        "openingHours": "Mo-Fr 10:00-20:00;Sa-Su 10:00-18:00"
       },
       {
         "city": "Vilnius",
@@ -924,25 +968,29 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Laisvės pr. 125",
         "lat": 54.72778,
-        "lng": 25.2375
+        "lng": 25.2375,
+        "openingHours": "Mo-Fr 10:00-20:00; Sa-Su 10:00-17:00"
       },
       {
         "city": "Vilnius",
         "address": "Ozo g. 25",
         "lat": 54.71178,
-        "lng": 25.26575
+        "lng": 25.26575,
+        "openingHours": "Mo-Fr 10:00-22:00;Sa-Su 10:00-19:00"
       },
       {
         "city": "Vilnius",
         "address": "Priegliaus g. 1",
         "lat": 54.70964,
-        "lng": 25.18769
+        "lng": 25.18769,
+        "openingHours": "Mo-Fr 10:00-20:00; Sa-Su 10:00-18:00"
       },
       {
         "city": "Vilnius",
         "address": "Verkių g. 31B",
         "lat": 54.71463,
-        "lng": 25.29858
+        "lng": 25.29858,
+        "openingHours": "Mo-Su 10:00-20:00"
       }
     ],
     "services": [],
@@ -961,7 +1009,8 @@ export const LISTED_PLACES: Partner[] = [
       {
         "city": "Vilnius",
         "lat": 54.68105,
-        "lng": 25.41391
+        "lng": 25.41391,
+        "openingHours": "Mo-Fr 10:00-19:00; Sa 10:00-17:00; Su off"
       }
     ],
     "services": [],
@@ -1039,7 +1088,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Liejyklos g. 5",
         "lat": 54.68307,
-        "lng": 25.28087
+        "lng": 25.28087,
+        "openingHours": "Mo-Fr 09:00-21:00; Sa 09:00-19:00"
       }
     ],
     "services": []
@@ -1057,7 +1107,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Algirdo g. 37",
         "lat": 54.67468,
-        "lng": 25.27178
+        "lng": 25.27178,
+        "openingHours": "Mo-Fr 10:00-19:00; Sa 10:00-16:00"
       }
     ],
     "services": []
@@ -1113,7 +1164,8 @@ export const LISTED_PLACES: Partner[] = [
       {
         "city": "Vilnius",
         "lat": 54.71137,
-        "lng": 25.18722
+        "lng": 25.18722,
+        "openingHours": "\"Pagal išankstinę registraciją\""
       }
     ],
     "services": []
@@ -1149,7 +1201,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "P. Žadeikos g. 9",
         "lat": 54.73395,
-        "lng": 25.24642
+        "lng": 25.24642,
+        "openingHours": "Mo-Fr 10:00-19:00"
       }
     ],
     "services": []
@@ -1168,7 +1221,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Naujakurių g. 31",
         "lat": 54.91607,
-        "lng": 23.86532
+        "lng": 23.86532,
+        "openingHours": "Mo-Fr 09:00-19:00; Sa 09:00-18:00; Su 09:00-17:00"
       },
       {
         "city": "Panevėžys",
@@ -1192,13 +1246,15 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Nemenčinės pl. 2",
         "lat": 54.72433,
-        "lng": 25.31985
+        "lng": 25.31985,
+        "openingHours": "Mo-Fr 10:00-20:00; Sa 10:00-19:00; Su 10:00-18:00"
       },
       {
         "city": "Vilnius",
         "address": "Upės g. 9",
         "lat": 54.69336,
-        "lng": 25.27672
+        "lng": 25.27672,
+        "openingHours": "Mo-Su 10:00-21:00"
       }
     ],
     "services": [],
@@ -1218,7 +1274,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Kaunas",
         "address": "Raudondvario pl. 184",
         "lat": 54.91601,
-        "lng": 23.83682
+        "lng": 23.83682,
+        "openingHours": "Mo-Sa 09:00-19:00"
       }
     ],
     "services": []
@@ -1236,7 +1293,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Gabijos g. 40",
         "lat": 54.73636,
-        "lng": 25.22547
+        "lng": 25.22547,
+        "openingHours": "Mo-Fr 09:00-17:00"
       }
     ],
     "services": [],
@@ -1272,7 +1330,8 @@ export const LISTED_PLACES: Partner[] = [
       {
         "city": "Kaunas",
         "lat": 54.93854,
-        "lng": 23.77756
+        "lng": 23.77756,
+        "openingHours": "Mo-Fr 10:00-18:00; Sa 10:00-15:00"
       }
     ],
     "services": []
@@ -1349,7 +1408,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Kovo 11-osios g. 37A",
         "lat": 54.66924,
-        "lng": 25.09571
+        "lng": 25.09571,
+        "openingHours": "Mo-Fr 10:00-19:00; Sa 10:00-17:00"
       },
       {
         "city": "Vilnius",
@@ -1361,7 +1421,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Zarasų g. 5",
         "lat": 54.68069,
-        "lng": 25.31219
+        "lng": 25.31219,
+        "openingHours": "Mo-Sa 10:00-20:00; Su 10:00-15:00"
       }
     ],
     "services": []
@@ -1379,7 +1440,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Vydūno g. 16",
         "lat": 54.70755,
-        "lng": 25.17727
+        "lng": 25.17727,
+        "openingHours": "Mo-Fr 10:00-19:00; Sa 10:00-15:00"
       }
     ],
     "services": [],
@@ -1416,7 +1478,8 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Kareivių g. 11",
         "lat": 54.718,
-        "lng": 25.29887
+        "lng": 25.29887,
+        "openingHours": "Mo-Fr 09:00-18:00"
       }
     ],
     "services": []
@@ -1434,13 +1497,15 @@ export const LISTED_PLACES: Partner[] = [
         "city": "Vilnius",
         "address": "Filaretų g. 35",
         "lat": 54.68497,
-        "lng": 25.31165
+        "lng": 25.31165,
+        "openingHours": "Mo-Fr 08:30-20:00; Sa-Su 09:00-18:00"
       },
       {
         "city": "Vilnius",
         "address": "Kęstučio g. 54",
         "lat": 54.69766,
-        "lng": 25.24955
+        "lng": 25.24955,
+        "openingHours": "Mo-Fr 08:30-20:00; Sa 09:00-18:00"
       }
     ],
     "services": [],

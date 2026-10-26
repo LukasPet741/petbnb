@@ -20,7 +20,7 @@ const placeRows = places.map(
   (p) => `    (${q(p.slug)}, ${q(p.name)}, ${arr(p.categories)}, 'listed', 'public', 'published', ${q(p.website)}, ${q(p.logo)}, now())`,
 );
 const locationRows = places.flatMap((p) =>
-  p.locations.map((l, i) => `    (${q(p.slug)}, ${q(l.city)}, ${q(l.address)}, ${l.lat}, ${l.lng}, ${i + 1})`),
+  p.locations.map((l, i) => `    (${q(p.slug)}, ${q(l.city)}, ${q(l.address)}, ${l.lat}, ${l.lng}, ${q(l.openingHours)}, ${i + 1})`),
 );
 
 const sql = `-- The places map's Listed tier: ${places.length} pet businesses (${locationRows.length} addresses) from OpenStreetMap.
@@ -41,12 +41,12 @@ with p as (
 ${placeRows.join(",\n")}
   returning id, slug
 )
-insert into public.place_locations (place_id, city, address, lat, lng, sort_order)
-select p.id, l.city, l.address, l.lat, l.lng, l.sort_order
+insert into public.place_locations (place_id, city, address, lat, lng, opening_hours, sort_order)
+select p.id, l.city, l.address, l.lat, l.lng, l.opening_hours, l.sort_order
 from p
 join (values
 ${locationRows.join(",\n")}
-) as l(slug, city, address, lat, lng, sort_order) on l.slug = p.slug;
+) as l(slug, city, address, lat, lng, opening_hours, sort_order) on l.slug = p.slug;
 `;
 fs.writeFileSync(out, sql);
 console.log(`${places.length} places, ${locationRows.length} addresses → ${out}`);

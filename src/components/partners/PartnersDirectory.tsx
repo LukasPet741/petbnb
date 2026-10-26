@@ -14,12 +14,13 @@ import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  distinctLocations, formatPartnerPrice, isListed, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
 import { usePlaces } from "@/lib/usePlaces";
 import { useSitterAreas } from "@/lib/useSitterAreas";
+import { formatHours, isOpenAt, parseOpeningHours } from "@/lib/openingHours";
 import { cn } from "@/lib/utils";
 
 /** The animals the filter offers: the pet-profile species, less fish and "other". */
@@ -40,6 +41,7 @@ export default function PartnersDirectory() {
   const [category, setCategory] = useState<PartnerCategory | null>(null);
   const [allListed, setAllListed] = useState(false);
   const [showPeople, setShowPeople] = useState(true);
+  const [openNow, setOpenNow] = useState(false);
   const areas = useSitterAreas(showPeople);
   const areaLabel = useAreaLabel();
   const allPlaces = usePlaces();
@@ -51,8 +53,8 @@ export default function PartnersDirectory() {
     if (slug) setOpenSlug(slug);
   }, []);
   const shown = useMemo(
-    () => partnersDoing(category, partnersFor(species ? [species] : [], allPlaces)),
-    [allPlaces, category, species],
+    () => partnersDoing(category, partnersFor(species ? [species] : [], allPlaces)).filter((p) => !openNow || isOpenNow(p)),
+    [allPlaces, category, species, openNow],
   );
   const partners = shown.filter((p) => !isListed(p));
   const listed = shown.filter(isListed);
@@ -84,6 +86,7 @@ export default function PartnersDirectory() {
             ))}
           </ChipRow>
           <ChipRow label={t("partners.people.layerLabel")}>
+            <Chip pressed={openNow} onClick={() => setOpenNow(!openNow)}>{t("partners.hours.openNow")}</Chip>
             <Chip pressed={showPeople} onClick={() => setShowPeople(!showPeople)}>{t("partners.people.toggle")}</Chip>
           </ChipRow>
         </div>
@@ -153,6 +156,22 @@ export default function PartnersDirectory() {
 
       <PartnerDialog partner={open} onClose={() => setOpenSlug(null)} />
     </div>
+  );
+}
+
+/** An address's hours in the visitor's language, with whether it is open right now; nothing when unknown. */
+function LocationHours({ openingHours }: { openingHours?: string }) {
+  const { t, locale } = useLanguage();
+  const week = parseOpeningHours(openingHours);
+  if (!week) return null;
+  const open = isOpenAt(week, new Date());
+  return (
+    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-ink-soft">
+      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", open ? "bg-brand-soft text-brand-strong" : "bg-ink/6 text-ink-soft")}>
+        {t(open ? "partners.hours.open" : "partners.hours.closed")}
+      </span>
+      {formatHours(week, locale)}
+    </span>
   );
 }
 
@@ -302,10 +321,12 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
                   <span>
                     {[place.city, place.area, place.address].filter(Boolean).join(", ")}
                     {place.note && <span className="block text-sm text-ink-soft">{place.note[locale]}</span>}
+                    <LocationHours openingHours={place.openingHours} />
                   </span>
                 </li>
               ))}
-              {partner.hours && (
+              {/* The free-text hours only where no address has hours the app can read (and show per address). */}
+              {partner.hours && !partner.locations.some((l) => parseOpeningHours(l.openingHours)) && (
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
                   {partner.hours[locale]}

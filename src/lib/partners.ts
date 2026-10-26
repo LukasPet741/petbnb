@@ -1,6 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import type { PetType } from "@/lib/types";
 import { LISTED_PLACES } from "@/lib/listedPlaces";
+import { isOpenAt, parseOpeningHours } from "@/lib/openingHours";
 
 /**
  * Partner businesses shown on /partners: groomers, dog hotels, day centres, training
@@ -41,6 +42,8 @@ export interface PartnerLocation {
   lng?: number;
   /** Only the area is known, so the map marks it as approximate (a dashed pin). */
   approximate?: boolean;
+  /** OpenStreetMap syntax ("Mo-Fr 09:00-18:00; Sa 10:00-14:00"), for "Open now"; see openingHours.ts. */
+  openingHours?: string;
 }
 
 export interface Partner {
@@ -79,7 +82,7 @@ export const PARTNERS: Partner[] = [
     categories: ["boarding", "daycare", "grooming"],
     accepts: ["dog"],
     // No street address yet (ask when sending the preview): the centre of Antakalnis.
-    locations: [{ city: "Vilnius", area: "Antakalnis", lat: 54.7056, lng: 25.3145, approximate: true }],
+    locations: [{ city: "Vilnius", area: "Antakalnis", lat: 54.7056, lng: 25.3145, approximate: true, openingHours: "Mo-Su 07:30-19:30" }],
     hours: { lt: "Kasdien 7:30–19:30", en: "Every day 7:30–19:30" },
     description: {
       lt: "Šunų viešbutis, dienos centras ir kirpykla Vilniaus Antakalnyje. Šunys čia apsistoja trumpam ar ilgesniam laikui, praleidžia dieną dienos centre arba užsuka nusikirpti. Dirba tik su šunimis.",
@@ -201,6 +204,14 @@ export function joinPetNames(names: string[], locale: Locale): string {
 }
 
 /** Partners that take at least one of these animals; no animals given = every partner. */
+/** Open at this moment at one of its addresses; a place with no hours we can read never is. */
+export function isOpenNow(place: Partner, now: Date = new Date()): boolean {
+  return place.locations.some((l) => {
+    const week = parseOpeningHours(l.openingHours);
+    return week !== null && isOpenAt(week, now);
+  });
+}
+
 /** Partners first, then every listed place: what the map draws. */
 export const ALL_PLACES: Partner[] = [...PARTNERS, ...LISTED_PLACES];
 

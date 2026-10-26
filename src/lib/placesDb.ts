@@ -16,6 +16,7 @@ export interface PlaceLocationRow {
   lat: number | null;
   lng: number | null;
   approximate: boolean;
+  opening_hours?: string | null;
   sort_order: number;
 }
 
@@ -53,7 +54,7 @@ export interface PlaceRow {
 const COLUMNS =
   "id, slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +
   "hours_lt, hours_en, website_url, logo_path, is_founding_partner, " +
-  "place_locations(city, area, address, note_lt, note_en, lat, lng, approximate, sort_order), " +
+  "place_locations(city, area, address, note_lt, note_en, lat, lng, approximate, opening_hours, sort_order), " +
   "place_services(name_lt, name_en, price_from, price_to, unit_lt, unit_en, url, sort_order)";
 
 /**
@@ -83,6 +84,7 @@ export function rowToPlace(row: PlaceRow): Partner {
       loc.lng = l.lng;
     }
     if (l.approximate) loc.approximate = true;
+    if (l.opening_hours) loc.openingHours = l.opening_hours;
     return loc;
   });
 

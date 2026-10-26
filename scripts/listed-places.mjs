@@ -1,4 +1,5 @@
 // Writes src/lib/listedPlaces.ts: pet businesses from OpenStreetMap for the places map's Listed tier.
+// Then run scripts/place-logos-apply.mjs, which puts back the reviewed logos and drops dead websites.
 //
 //   node scripts/listed-places.mjs [overpass-endpoint]
 //
@@ -101,7 +102,7 @@ for (const e of elements) {
   place.website ??= httpsUrl(tags.website ?? tags["contact:website"]);
   const street = tags["addr:street"];
   const address = street ? [street, tags["addr:housenumber"]].filter(Boolean).join(" ") : undefined;
-  place.locations.push({ city, address, lat: Math.round(lat * 1e5) / 1e5, lng: Math.round(lng * 1e5) / 1e5 });
+  place.locations.push({ city, address, lat: Math.round(lat * 1e5) / 1e5, lng: Math.round(lng * 1e5) / 1e5, openingHours: tags.opening_hours?.trim() || undefined });
   byName.set(k, place);
 }
 
@@ -121,7 +122,7 @@ const places = [...byName.values()]
       tier: "listed",
       categories: [...p.categories].sort(),
       accepts: [],
-      locations: p.locations.map((l) => (l.address ? l : { city: l.city, lat: l.lat, lng: l.lng })),
+      locations: p.locations.map((l) => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined))),
       services: [],
       ...(p.website ? { website: p.website } : {}),
     };
