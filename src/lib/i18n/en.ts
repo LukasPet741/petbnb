@@ -7,6 +7,7 @@ import tips from "./en/tips";
 import messages from "./en/messages";
 import legal from "./en/legal";
 import brand from "./en/brand";
+import partners from "./en/partners";
 
 const en = {
   common: {
@@ -130,6 +131,7 @@ const en = {
   messages,
   legal,
   brand,
+  partners,
 };
 
 export default en;

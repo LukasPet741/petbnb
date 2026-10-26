@@ -7,6 +7,7 @@ import tips from "./lt/tips";
 import messages from "./lt/messages";
 import legal from "./lt/legal";
 import brand from "./lt/brand";
+import partners from "./lt/partners";
 
 const lt = {
   common: {
@@ -131,6 +132,7 @@ const lt = {
   messages,
   legal,
   brand,
+  partners,
 };
 
 export default lt;
