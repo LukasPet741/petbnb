@@ -7,6 +7,7 @@ import Dialog from "@/components/ui/Dialog";
 import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import PlaceMark from "@/components/partners/PlaceMark";
+import PlaceCommunity from "@/components/partners/PlaceCommunity";
 import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
@@ -302,6 +303,8 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
               )}
             </ul>
           </section>
+
+          <PlaceCommunity slug={partner.slug} />
         </div>
       )}
     </Dialog>

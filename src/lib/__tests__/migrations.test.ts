@@ -77,3 +77,37 @@ describe("sitter area counts migration", () => {
     expect(sql).not.toMatch(/grant (select|insert|update|delete)/);
   });
 });
+
+describe("place community migration", () => {
+  const sql = read("20261026210000_place_community.sql").replace(/--.*$/gm, "").toLowerCase();
+  const tables = ["place_reviews", "place_posts", "pet_places", "content_reports"];
+
+  it("turns on row level security for every community table", () => {
+    for (const t of tables) expect(sql, t).toContain(`alter table public.${t} enable row level security`);
+  });
+
+  it("gives anon no table at all, and authors only their rating and words to change", () => {
+    expect(sql).toContain("revoke all on public.place_reviews, public.place_posts, public.pet_places, public.content_reports from anon, authenticated");
+    expect(sql).toContain("grant update (rating, body) on public.place_reviews to authenticated");
+    expect(sql).not.toMatch(/grant (select|insert|update|delete|all)[^;]* to anon/);
+  });
+
+  it("never hides anything without a stated reason (DSA)", () => {
+    expect(sql).toContain("check (status = 'visible' or hidden_reason is not null)");
+    expect(sql.match(/hidden_has_reason/g)).toHaveLength(2);
+  });
+
+  it("lets nobody but an admin read reports", () => {
+    expect(sql).not.toMatch(/on public\.content_reports\s+for select/);
+    expect(sql).toContain("grant insert on public.content_reports to authenticated");
+  });
+
+  it("keeps pets private until their owner says otherwise", () => {
+    expect(sql).toContain("add column is_public boolean not null default false");
+  });
+
+  it("reads publicly only through definer functions with a pinned search path", () => {
+    expect(sql.match(/security definer\s+set search_path = ''/g)).toHaveLength(3);
+    expect(sql).toContain("revoke all on function public.public_author_name(uuid) from public, anon, authenticated");
+  });
+});
