@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PARTNERS, formatPartnerPrice, partnerWebsite, type Partner } from "@/lib/partners";
+import { PARTNERS, formatPartnerPrice, partnerPlace, partnerWebsite, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -18,13 +18,14 @@ describe("partners data", () => {
     for (const p of PARTNERS) {
       if (p.website) expect(p.website, p.slug).toMatch(/^https:\/\//);
       if (p.logo) expect(p.logo, p.slug).toMatch(/^\/partners\//);
+      for (const s of p.services) if (s.url) expect(s.url, p.slug).toMatch(/^https:\/\//);
     }
   });
 });
 
 describe("partnerWebsite", () => {
   const base: Partner = {
-    slug: "x", name: "X", categories: [], city: "Kaunas",
+    slug: "x", name: "X", categories: [], locations: [{ city: "Kaunas" }],
     description: { lt: "a", en: "a" }, services: [],
   };
 
@@ -48,5 +49,21 @@ describe("formatPartnerPrice", () => {
 
   it("says 'from' when there is none", () => {
     expect(formatPartnerPrice({ from: 25, unit }, "en", "from")).toBe("from €25 per night");
+  });
+});
+
+describe("partnerPlace", () => {
+  const base: Partner = {
+    slug: "x", name: "X", categories: [], locations: [],
+    description: { lt: "a", en: "a" }, services: [],
+  };
+
+  it("names the area when there is one place", () => {
+    expect(partnerPlace({ ...base, locations: [{ city: "Vilnius", area: "Antakalnis" }] })).toBe("Vilnius, Antakalnis");
+  });
+
+  it("lists each city once when there are several places", () => {
+    const locations = [{ city: "Vilnius" }, { city: "Panevėžys" }, { city: "Vilnius" }];
+    expect(partnerPlace({ ...base, locations })).toBe("Vilnius · Panevėžys");
   });
 });

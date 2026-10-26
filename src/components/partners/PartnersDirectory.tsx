@@ -6,7 +6,7 @@ import PublicFooter from "@/components/PublicFooter";
 import Dialog from "@/components/ui/Dialog";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
-import { PARTNERS, formatPartnerPrice, partnerWebsite, type Partner } from "@/lib/partners";
+import { PARTNERS, formatPartnerPrice, partnerPlace, partnerWebsite, trackedUrl, type Partner } from "@/lib/partners";
 import { cn } from "@/lib/utils";
 
 /**
@@ -85,7 +85,7 @@ function PartnerCard({ partner, onOpen }: { partner: Partner; onOpen: () => void
         <span className="font-display text-lg font-semibold leading-tight text-ink">{partner.name}</span>
         <span className="inline-flex items-center gap-1 text-sm text-ink-soft">
           <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          {partner.area ? `${partner.city}, ${partner.area}` : partner.city}
+          {partnerPlace(partner)}
         </span>
         <span className="text-sm text-ink-soft">
           {partner.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")}
@@ -150,7 +150,14 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
             <ul className="mt-2 divide-y divide-ink/8 rounded-[var(--radius-input)] border border-ink/8">
               {partner.services.map((service) => (
                 <li key={service.name.en} className="flex items-baseline justify-between gap-4 px-4 py-3">
-                  <span className="text-ink">{service.name[locale]}</span>
+                  {service.url ? (
+                    <a href={trackedUrl(service.url)} target="_blank" rel="noopener" className="inline-flex items-baseline gap-1 text-ink underline decoration-ink/25 underline-offset-4 hover:text-brand hover:decoration-brand">
+                      {service.name[locale]}
+                      <ArrowUpRight className="h-3.5 w-3.5 shrink-0 self-center" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <span className="text-ink">{service.name[locale]}</span>
+                  )}
                   {service.price && (
                     <span className="shrink-0 font-semibold text-ink">
                       {formatPartnerPrice(service.price, locale, t("common.pricing.from"))}
@@ -170,10 +177,15 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("partners.where")}</h3>
             <ul className="mt-2 flex flex-col gap-1.5 text-ink">
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
-                {partner.area ? `${partner.city}, ${partner.area}` : partner.city}
-              </li>
+              {partner.locations.map((place) => (
+                <li key={`${place.city}-${place.address ?? place.area ?? ""}`} className="flex items-start gap-2">
+                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
+                  <span>
+                    {[place.city, place.area, place.address].filter(Boolean).join(", ")}
+                    {place.note && <span className="block text-sm text-ink-soft">{place.note[locale]}</span>}
+                  </span>
+                </li>
+              ))}
               {partner.hours && (
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
