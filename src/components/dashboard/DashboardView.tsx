@@ -9,6 +9,7 @@ import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import OnboardingRing from "@/components/dashboard/OnboardingRing";
 import TodayBand from "@/components/dashboard/TodayBand";
 import ComingUp from "@/components/dashboard/ComingUp";
+import PlacesNearCard from "@/components/partners/PlacesNearCard";
 import { onboardingPercent, type OnboardingStep } from "@/lib/sitter-onboarding";
 import { useLanguage } from "@/context/LanguageContext";
 import { fadeUp, stagger } from "@/lib/motion";
@@ -114,6 +115,10 @@ export default function DashboardView(props: DashboardViewProps) {
               busy={props.busy}
               onMarkDone={props.onMarkDone}
             />
+          </motion.div>
+
+          <motion.div variants={fadeUp}>
+            <PlacesNearCard pets={props.pets} />
           </motion.div>
         </div>
 

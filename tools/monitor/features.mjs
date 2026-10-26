@@ -127,6 +127,12 @@ export const FEATURES = [
     routes: [],
     match: [/^supabase\//],
   },
+  {
+    id: "partners-map",
+    label: "Partners & places map",
+    routes: ["/partners"],
+    match: [/partners|places/],
+  },
 ];
 
 const FALLBACK = "shell";

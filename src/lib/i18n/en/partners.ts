@@ -14,6 +14,22 @@ const partners = {
     training: "Training",
     walking: "Walking",
   },
+  filter: {
+    label: "Which pet",
+    all: "All",
+    dog: "For dogs",
+    cat: "For cats",
+    none: "No partners like that yet. More are coming soon.",
+  },
+  map: {
+    label: "Map of partners",
+  },
+  near: {
+    title: "Places for your pets",
+    forPets: "Showing places that take {names}",
+    all: "Every partner place",
+    seeAll: "All partners",
+  },
   about: "About",
   services: "Services and prices",
   pricesOnSite: "Prices are on the partner's website.",

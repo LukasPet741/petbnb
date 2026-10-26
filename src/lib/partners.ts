@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n";
+import type { PetType } from "@/lib/types";
 
 /**
  * Partner businesses shown on /partners: groomers, dog hotels, day centres, training
@@ -34,12 +35,19 @@ export interface PartnerLocation {
   address?: string;
   /** "Indoors and outdoors across the city"… */
   note?: Localized;
+  /** Geocoded once, from OpenStreetMap (Nominatim), when the address is entered. */
+  lat?: number;
+  lng?: number;
+  /** Only the area is known, so the map marks it as approximate (a dashed pin). */
+  approximate?: boolean;
 }
 
 export interface Partner {
   slug: string;
   name: string;
   categories: PartnerCategory[];
+  /** The animals they take; the map and the list filter on it. */
+  accepts: PetType[];
   locations: PartnerLocation[];
   hours?: Localized;
   description: Localized;
@@ -60,7 +68,9 @@ export const PARTNERS: Partner[] = [
     slug: "dogiday",
     name: "Dogiday",
     categories: ["boarding", "daycare", "grooming"],
-    locations: [{ city: "Vilnius", area: "Antakalnis" }],
+    accepts: ["dog"],
+    // No street address yet (ask when sending the preview): the centre of Antakalnis.
+    locations: [{ city: "Vilnius", area: "Antakalnis", lat: 54.7056, lng: 25.3145, approximate: true }],
     hours: { lt: "Kasdien 7:30–19:30", en: "Every day 7:30–19:30" },
     description: {
       lt: "Šunų viešbutis, dienos centras ir kirpykla Vilniaus Antakalnyje. Šunys čia apsistoja trumpam ar ilgesniam laikui, praleidžia dieną dienos centre arba užsuka nusikirpti. Dirba tik su šunimis.",
@@ -85,15 +95,20 @@ export const PARTNERS: Partner[] = [
     slug: "dogpunk",
     name: "DogPunk",
     categories: ["training"],
+    accepts: ["dog"],
     locations: [
       {
         city: "Vilnius",
         address: "Kalvarijų g. 143",
+        lat: 54.7185,
+        lng: 25.2902,
         note: { lt: "Salėje ir lauke visame mieste", en: "Indoors, and outdoors across the city" },
       },
       {
         city: "Panevėžys",
         address: "Ramygalos g. 94B",
+        lat: 55.7183,
+        lng: 24.3646,
         note: { lt: "Salėje ir lauke visame mieste", en: "Indoors, and outdoors across the city" },
       },
     ],
@@ -141,6 +156,31 @@ export function partnerPlace(partner: Partner): string {
     return only.area ? `${only.city}, ${only.area}` : only.city;
   }
   return [...new Set(partner.locations.map((l) => l.city))].join(" · ");
+}
+
+/** Partners that take at least one of these animals; no animals given = every partner. */
+export function partnersFor(species: readonly PetType[], partners: Partner[] = PARTNERS): Partner[] {
+  if (species.length === 0) return partners;
+  return partners.filter((p) => p.accepts.some((a) => species.includes(a)));
+}
+
+export interface MapPlace {
+  slug: string;
+  name: string;
+  lat: number;
+  lng: number;
+  approximate: boolean;
+}
+
+/** One point per geocoded location: a partner in two cities is two points. */
+export function mapPlaces(partners: Partner[]): MapPlace[] {
+  return partners.flatMap((p) =>
+    p.locations.flatMap((l) =>
+      l.lat != null && l.lng != null
+        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false }]
+        : [],
+    ),
+  );
 }
 
 /** "€25–40 per night", or "from €25 per night" when there is no upper bound. */
