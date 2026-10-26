@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, PawPrint } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,12 +47,13 @@ export default function PetsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
       <PageHeader
+        icon={PawPrint}
         title={t("appPages.pets.title")}
         subtitle={loading ? t("appPages.pets.loadingText") : t(`appPages.pets.count.${pluralForm(locale, pets.length)}`, { count: pets.length })}
         action={!loading && pets.length > 0 ? (
-          <ButtonLink href="/pets/new"><Plus className="w-4 h-4" aria-hidden="true" />{t("appPages.pets.addPetButton")}</ButtonLink>
+          <ButtonLink href="/pets/new" variant="accent"><Plus className="w-4 h-4" aria-hidden="true" />{t("appPages.pets.addPetButton")}</ButtonLink>
         ) : undefined}
       />
 
@@ -79,8 +81,8 @@ export default function PetsPage() {
               tone="encouraging"
             />
           ) : (
-            <motion.div className="space-y-4" variants={reveal()} initial="hidden" animate="show">
-              {/* A removed pet departs (fade, scale 0.98) and the list closes the gap. */}
+            <motion.div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3" variants={reveal()} initial="hidden" animate="show">
+              {/* A removed pet departs (fade, scale 0.98) and the grid closes the gap. */}
               <AnimatePresence mode="popLayout">
                 {pets.map((pet) => (
                   <motion.div key={pet.id} layout variants={arrive} exit="exit">
@@ -88,6 +90,18 @@ export default function PetsPage() {
                   </motion.div>
                 ))}
               </AnimatePresence>
+              {/* The next pet's place in the grid. */}
+              <motion.div layout variants={arrive}>
+                <Link
+                  href="/pets/new"
+                  className="group flex h-full min-h-56 flex-col items-center justify-center gap-3 rounded-[var(--radius-card)] border-2 border-dashed border-ink/12 p-6 text-center transition-colors hover:border-brand/40 hover:bg-brand-softer"
+                >
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-brand transition-transform group-hover:scale-110">
+                    <Plus className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="text-sm font-semibold text-ink">{t("appPages.pets.addPetButton")}</span>
+                </Link>
+              </motion.div>
             </motion.div>
           )}
         </div>

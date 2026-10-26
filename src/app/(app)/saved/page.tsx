@@ -47,8 +47,8 @@ export default function SavedPage() {
   useEffect(() => rememberCovers(covers), [covers]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title={t("appPages.saved.title")} subtitle={loading ? t("appPages.saved.loadingText") : t("appPages.saved.savedCountLabel", { count: visible.length })} />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <PageHeader icon={Bookmark} title={t("appPages.saved.title")} subtitle={loading ? t("appPages.saved.loadingText") : t("appPages.saved.savedCountLabel", { count: visible.length })} />
 
       {!loading && visible.length === 0 ? (
         <EmptyState

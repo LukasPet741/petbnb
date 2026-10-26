@@ -81,7 +81,7 @@ export default function AccountData() {
   };
 
   return (
-    <section aria-labelledby="account-data-title" className="glass-card mt-5 rounded-2xl border p-6 sm:p-7">
+    <section aria-labelledby="account-data-title" className="glass-card rounded-[var(--radius-card)] border p-5 sm:p-6">
       <h2 id="account-data-title" className="font-medium text-ink">{t("appPages.profile.data.title")}</h2>
       <p className="mt-0.5 text-sm text-ink-soft">{t("appPages.profile.data.downloadHint")}</p>
       <div className="mt-4 flex flex-wrap gap-2.5">

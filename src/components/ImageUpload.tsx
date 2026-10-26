@@ -29,6 +29,8 @@ interface ImageUploadProps {
   /** Size classes for the frame, e.g. "w-20 h-20". */
   className?: string;
   disabled?: boolean;
+  /** "chrome" when it sits on the deep band (.pb-band): light labels, a ring in the band's colour. */
+  tone?: "default" | "chrome";
 }
 
 /**
@@ -49,6 +51,7 @@ export default function ImageUpload({
   shape = "circle",
   className,
   disabled = false,
+  tone = "default",
 }: ImageUploadProps) {
   const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +59,7 @@ export default function ImageUpload({
   const [error, setError] = useState<string | null>(null);
 
   const radius = shape === "circle" ? "rounded-full" : "rounded-2xl";
+  const onChrome = tone === "chrome";
 
   /** Deletes a previous object, ignoring failures: an orphan is not worth an error. */
   const removeStoredObject = async (url: string | null) => {
@@ -172,7 +176,10 @@ export default function ImageUpload({
         {/* Camera badge: the affordance on touch, where there is no hover. */}
         <span
           aria-hidden
-          className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-brand text-on-brand flex items-center justify-center ring-2 ring-surface pointer-events-none"
+          className={cn(
+            "absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center ring-2 pointer-events-none",
+            onChrome ? "bg-[var(--hero-accent)] text-brand-deep ring-[var(--hero-from)]" : "bg-brand text-on-brand ring-surface",
+          )}
         >
           <Camera className="w-3.5 h-3.5" />
         </span>
@@ -183,7 +190,10 @@ export default function ImageUpload({
           type="button"
           onClick={openPicker}
           disabled={disabled || busy}
-          className="text-sm font-medium text-brand hover:text-brand-strong transition-colors disabled:opacity-60"
+          className={cn(
+            "text-sm font-medium transition-colors disabled:opacity-60",
+            onChrome ? "text-[var(--hero-accent)] hover:text-chrome-ink" : "text-brand hover:text-brand-strong",
+          )}
         >
           {value ? t("appPages.imageUpload.changePhoto") : t("appPages.imageUpload.addPhoto")}
         </button>
@@ -192,7 +202,10 @@ export default function ImageUpload({
             type="button"
             onClick={handleRemove}
             disabled={disabled || busy}
-            className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-danger transition-colors disabled:opacity-60"
+            className={cn(
+              "inline-flex items-center gap-1.5 text-sm transition-colors disabled:opacity-60",
+              onChrome ? "text-chrome-ink-soft hover:text-chrome-ink" : "text-ink-soft hover:text-danger",
+            )}
           >
             <Trash2 className="w-3.5 h-3.5" />
             {t("appPages.imageUpload.removePhoto")}
@@ -201,7 +214,7 @@ export default function ImageUpload({
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className={cn("text-sm text-danger", onChrome && "rounded-[var(--radius-control)] bg-danger-soft px-2.5 py-1")}>
           {error}
         </p>
       )}

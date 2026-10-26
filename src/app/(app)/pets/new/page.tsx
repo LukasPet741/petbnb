@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PawPrint } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import PetForm, { type PetFormValues } from "@/components/PetForm";
@@ -30,12 +31,11 @@ export default function NewPetPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <Link href="/pets" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <Link href="/pets" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-4 transition-colors">
         <ArrowLeft className="w-4 h-4" /> {t("appPages.petsNew.backToMyPets")}
       </Link>
-      <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">{t("appPages.petsNew.title")}</h1>
-      <p className="text-ink-soft text-sm mt-2 mb-8">{t("appPages.petsNew.subtitle")}</p>
+      <PageHeader icon={PawPrint} title={t("appPages.petsNew.title")} subtitle={t("appPages.petsNew.subtitle")} />
 
       <PetForm
         userId={user?.id ?? ""}

@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, PawPrint, Trash2 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import PetForm, { type PetFormValues } from "@/components/PetForm";
@@ -84,12 +85,11 @@ export default function EditPetPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <Link href="/pets" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <Link href="/pets" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-4 transition-colors">
         <ArrowLeft className="w-4 h-4" /> {t("appPages.petsNew.backToMyPets")}
       </Link>
-      <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">{t("appPages.petsEdit.title")}</h1>
-      <p className="text-ink-soft text-sm mt-2 mb-8">{t("appPages.petsEdit.subtitle")}</p>
+      <PageHeader icon={PawPrint} title={t("appPages.petsEdit.title")} subtitle={t("appPages.petsEdit.subtitle")} />
 
       {notFound ? (
         <div className="glass-card rounded-2xl border p-6 text-sm text-ink-soft">
@@ -108,7 +108,7 @@ export default function EditPetPage() {
             cancelHref="/pets"
             onSubmit={handleSubmit}
           />
-          <Button variant="danger-soft" block loading={deleting} onClick={() => void handleDelete()} className="mt-5">
+          <Button variant="danger-soft" loading={deleting} onClick={() => void handleDelete()} className="mt-5 w-full sm:w-auto">
             {!deleting && <Trash2 className="w-4 h-4" aria-hidden="true" />}
             {t("appPages.petsEdit.deleteButton")}
           </Button>

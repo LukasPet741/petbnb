@@ -185,6 +185,7 @@ const appPages = {
   },
   petsNew: {
     backToMyPets: "Back to my pets",
+    previewLabel: "How sitters will see it",
     title: "Add a pet",
     subtitle: "Tell sitters a little about your companion.",
     photoLabel: "Photo",

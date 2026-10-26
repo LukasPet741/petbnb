@@ -184,6 +184,7 @@ const appPages = {
   },
   petsNew: {
     backToMyPets: "Grįžti į mano augintinius",
+    previewLabel: "Taip jį matys globėjai",
     title: "Pridėti augintinį",
     subtitle: "Papasakokite globėjams šiek tiek apie savo augintinį.",
     photoLabel: "Nuotrauka",

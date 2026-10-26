@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Save, User, Briefcase, LogOut, Fingerprint, ChevronRight } from "lucide-react";
+import { Save, User, Briefcase, LogOut, Fingerprint, ArrowRight, MapPin, Mail, PawPrint } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { SERVICE_LABELS, type ServiceType } from "@/lib/types";
 import Avatar from "@/components/Avatar";
 import ImageUpload from "@/components/ImageUpload";
-import PageHeader from "@/components/PageHeader";
 import { fadeUp, stagger } from "@/lib/motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -27,7 +26,7 @@ import AccountData from "@/components/AccountData";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import { addDays, vilniusDay } from "@/lib/availability";
 import { PHONE_COUNTRIES, PHONE_DIAL, PHONE_EXAMPLE, PHONE_FLAG, formatPhone, parsePhone, splitPhone, type PhoneCountry } from "@/lib/phone";
-import { buttonClasses } from "@/components/ui/Button";
+import Button, { buttonClasses } from "@/components/ui/Button";
 import MoonLoader from "@/components/ui/MoonLoader";
 
 /** How far ahead the sitter's own calendar reads: the two months it shows, from today. */
@@ -151,27 +150,21 @@ export default function ProfilePage() {
   // Follows the Sitter mode switch as it is flipped, before the profile is saved.
   const linkCopy = verificationLinkCopy(profile?.verification_method as VerificationMethod | null | undefined, isSitter);
 
-  return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader
-        title={t("appPages.profile.title")}
-        action={
-          <button onClick={handleSignOut} className="flex items-center gap-2 px-3.5 py-2 text-sm text-ink-soft hover:text-ink hover:bg-brand-softer rounded-lg transition-colors">
-            <LogOut className="w-4 h-4" />{t("appPages.profile.signOutButton")}
-          </button>
-        }
-      />
+  const roleLabel = isSitter ? t("appPages.profile.sitterAndOwnerBadge") : t("appPages.profile.petOwnerBadge");
 
-      {/* Avatar card */}
-      <div className="glass-card rounded-2xl border p-6 mb-6">
-        <div className="flex items-start gap-5">
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      {/* Who you are, on the deep band the dashboard opens with. */}
+      <header className="pb-band mb-6 sm:mb-8 rounded-[var(--radius-hero)] border border-[var(--chrome-line)] p-6 sm:p-8">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-5">
           <ImageUpload
             userId={user?.id ?? ""}
             kind="avatar"
             value={profile?.avatar_url ?? null}
             onChange={handleAvatarChange}
             shape="circle"
-            className="w-20 h-20"
+            tone="chrome"
+            className="w-20 h-20 sm:w-24 sm:h-24"
             fallback={
               <Avatar
                 name={form.full_name || t("appPages.profile.avatarFallbackName")}
@@ -180,37 +173,47 @@ export default function ProfilePage() {
               />
             }
           />
-          <div className="min-w-0 pt-1">
-            <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-ink tracking-tight min-w-0">
+          <div className="min-w-0 flex-1 basis-60">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-chrome-ink-soft">{t("appPages.profile.title")}</p>
+            <h1 className="mt-1.5 flex items-center gap-2.5 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-chrome-ink min-w-0">
               <span className="truncate">{form.full_name || t("appPages.profile.completeProfileFallback")}</span>
               <VerifiedSeal method={profile?.verification_method as VerificationMethod | null | undefined} size="md" />
-            </h2>
-            <p className="text-ink-soft text-sm mt-0.5">{form.city || t("appPages.profile.noCitySetFallback")}</p>
-            <p className="text-ink-soft/70 text-xs mt-1 truncate">{user?.email}</p>
-            <div className="mt-2.5">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isSitter ? "bg-brand-soft text-brand-strong" : "bg-surface-2 text-ink-soft"}`}>
-                {isSitter ? t("appPages.profile.sitterAndOwnerBadge") : t("appPages.profile.petOwnerBadge")}
-              </span>
-            </div>
+            </h1>
+            <p className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-chrome-ink-soft">
+              <span className="inline-flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" aria-hidden="true" />{form.city || t("appPages.profile.noCitySetFallback")}</span>
+              <span className="inline-flex min-w-0 items-center gap-1.5"><Mail className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" /><span className="truncate">{user?.email}</span></span>
+            </p>
+            <span className={cn(
+              "mt-3.5 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold",
+              isSitter ? "border-transparent bg-[var(--hero-accent)] text-brand-deep" : "border-[var(--chrome-line)] bg-[var(--chrome-active)] text-chrome-ink",
+            )}>
+              {isSitter ? <Briefcase className="w-3.5 h-3.5" aria-hidden="true" /> : <PawPrint className="w-3.5 h-3.5" aria-hidden="true" />}
+              {roleLabel}
+            </span>
           </div>
+          <Button variant="on-chrome" size="sm" onClick={handleSignOut} className="self-start">
+            <LogOut className="w-4 h-4" aria-hidden="true" />{t("appPages.profile.signOutButton")}
+          </Button>
         </div>
-      </div>
+      </header>
 
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-8">
+      <div className="min-w-0">
       {!profile?.full_name && (
-        <div className="mb-6 p-4 bg-amber-soft border border-amber/20 rounded-2xl text-sm text-amber-strong">
+        <div className="mb-5 p-4 bg-amber-soft border border-amber/20 rounded-[var(--radius-card)] text-sm text-amber-strong">
           {t("appPages.profile.completeProfileBanner")}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-6">
+      <div className="flex sm:inline-flex gap-1 rounded-full border border-ink/8 bg-surface p-1 mb-5 shadow-[var(--shadow-sm)]">
         {[{ value: "personal" as const, label: t("appPages.profile.tabPersonalInfo"), icon: User }, { value: "sitter" as const, label: t("appPages.profile.tabSitterSettings"), icon: Briefcase }].map(({ value, label, icon: Icon }) => (
           <button key={value} onClick={() => setTab(value)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
+            className={`relative isolate flex flex-1 sm:flex-none items-center justify-center gap-2 h-10 px-4 sm:px-5 rounded-full text-sm font-semibold transition-colors ${tab === value ? "text-on-brand" : "text-ink-soft hover:text-ink"}`}>
             {tab === value && (
-              <motion.div layoutId="profile-tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-[var(--shadow-sm)]" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+              <motion.div layoutId="profile-tab-pill" className="absolute inset-0 -z-10 bg-brand rounded-full shadow-[var(--shadow-sm)]" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
             )}
-            <Icon className="w-4 h-4" />{label}
+            <Icon className="w-4 h-4" aria-hidden="true" />{label}
           </button>
         ))}
       </div>
@@ -232,7 +235,7 @@ export default function ProfilePage() {
         <AnimatePresence mode="wait">
           {tab === "personal" && (
             <motion.div key="personal" variants={stagger(0.07)} initial="hidden" animate="show" exit={{ opacity: 0, y: 8 }}
-              className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
+              className="glass-card rounded-[var(--radius-card)] border p-6 sm:p-7 grid gap-5 sm:grid-cols-2">
               {[
                 { label: t("appPages.profile.fullNameLabel"), type: "text", key: "full_name", placeholder: t("appPages.profile.fullNamePlaceholder"), req: true, max: FULL_NAME_MAX },
                 { label: t("appPages.profile.cityLabel"), type: "text", key: "city", placeholder: t("appPages.profile.cityPlaceholder"), req: true, max: CITY_MAX },
@@ -245,7 +248,7 @@ export default function ProfilePage() {
                     autoComplete={key === "full_name" ? "name" : "address-level2"} />
                 </motion.div>
               ))}
-              <motion.div variants={fadeUp}>
+              <motion.div variants={fadeUp} className="sm:col-span-2">
                 <label htmlFor="profile-phone" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.profile.phoneLabel")}</label>
                 <div className="flex gap-2">
                   <select
@@ -288,8 +291,8 @@ export default function ProfilePage() {
                   </p>
                 )}
               </motion.div>
-              <motion.div variants={fadeUp}>
-                <button type="submit" disabled={saving} className={buttonClasses({ block: true })}>
+              <motion.div variants={fadeUp} className="sm:col-span-2 flex justify-end border-t border-ink/6 pt-5">
+                <button type="submit" disabled={saving} className={cn(buttonClasses(), "w-full sm:w-auto sm:min-w-44")}>
                   {saving ? <MoonLoader bare size={18} /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveChangesButton")}</>}
                 </button>
               </motion.div>
@@ -310,15 +313,6 @@ export default function ProfilePage() {
                     className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[var(--shadow-sm)] ${isSitter ? "left-6" : "left-0.5"}`} />
                 </button>
               </div>
-
-              <Link href="/smart-id-demo" className="group flex items-center gap-4 glass-card rounded-2xl border p-5 hover:shadow-[var(--shadow-md)] transition-shadow">
-                <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Fingerprint className="w-5 h-5" aria-hidden="true" /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-medium text-ink">{t(linkCopy.title)}</span>
-                  <span className="block text-sm text-ink-soft mt-0.5">{t(linkCopy.text)}</span>
-                </span>
-                <ChevronRight className="w-4 h-4 text-ink-soft group-hover:text-brand transition-colors" aria-hidden="true" />
-              </Link>
 
               <AnimatePresence>
                 {isSitter && (
@@ -406,14 +400,30 @@ export default function ProfilePage() {
                 )}
               </AnimatePresence>
 
-              <button type="submit" disabled={saving} className={buttonClasses({ block: true })}>
-                {saving ? <MoonLoader bare size={18} /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveProfileButton")}</>}
-              </button>
+              <div className="flex justify-end">
+                <button type="submit" disabled={saving} className={cn(buttonClasses(), "w-full sm:w-auto sm:min-w-44")}>
+                  {saving ? <MoonLoader bare size={18} /> : <><Save className="w-4 h-4" />{t("appPages.profile.saveProfileButton")}</>}
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </form>
-      <AccountData />
+      </div>
+
+      <aside className="min-w-0 space-y-5">
+        {/* Identity is worth having as an owner too, so it sits beside both tabs. */}
+        <Link href="/smart-id-demo" className="group glass-card block rounded-[var(--radius-card)] border p-5 transition-shadow hover:shadow-[var(--shadow-md)]">
+          <span className="flex items-center justify-between gap-3">
+            <span className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Fingerprint className="w-5 h-5" aria-hidden="true" /></span>
+            <ArrowRight className="w-4 h-4 text-ink-soft transition-all group-hover:translate-x-0.5 group-hover:text-brand" aria-hidden="true" />
+          </span>
+          <span className="mt-4 block font-display text-base font-semibold tracking-tight text-ink">{t(linkCopy.title)}</span>
+          <span className="mt-1 block text-sm text-ink-soft">{t(linkCopy.text)}</span>
+        </Link>
+        <AccountData />
+      </aside>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import MoonLoader from "./MoonLoader";
  * `ButtonLink` is the same look on a link, for navigation.
  */
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "danger-soft";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "danger-soft" | "accent" | "on-chrome";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANT: Record<ButtonVariant, string> = {
@@ -18,6 +18,9 @@ const VARIANT: Record<ButtonVariant, string> = {
   ghost: "bg-transparent text-brand hover:bg-brand-softer",
   danger: "bg-danger text-on-brand hover:brightness-95",
   "danger-soft": "bg-danger-soft text-danger hover:brightness-95",
+  // On the deep band (.pb-band): the leaf accent for its one action, a quiet glass one beside it.
+  accent: "bg-[var(--hero-accent)] text-brand-deep hover:brightness-105 shadow-[var(--shadow-sm)]",
+  "on-chrome": "bg-[var(--chrome-active)] text-chrome-ink border border-[var(--chrome-line)] hover:brightness-125",
 };
 
 const SIZE: Record<ButtonSize, string> = {

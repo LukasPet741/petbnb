@@ -43,12 +43,12 @@ export default function BrandSheet() {
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight">{t("brand.title")}</h1>
           <p className="text-ink-soft mt-3 max-w-2xl leading-relaxed">{t("brand.intro")}</p>
 
-          <div className="mt-8 rounded-[var(--radius-card)] bg-brand px-6 py-12 sm:py-16 flex flex-col items-center gap-5 text-center">
+          <div className="pb-band mt-8 rounded-[var(--radius-hero)] border border-[var(--chrome-line)] px-6 py-12 sm:py-20 flex flex-col items-center gap-5 text-center">
             <span className="inline-flex items-center gap-4">
               <LogoMark size={72} decorative className="sm:w-24 sm:h-24" />
-              <span className="font-display font-bold tracking-[-0.04em] text-5xl sm:text-7xl text-[var(--linen)]">petbnb</span>
+              <span className="font-display font-bold tracking-[-0.04em] text-5xl sm:text-7xl text-chrome-ink">petbnb</span>
             </span>
-            <p className="text-lg text-brand-soft">{t("brand.tagline")}</p>
+            <p className="text-lg text-[var(--hero-accent)]">{t("brand.tagline")}</p>
           </div>
         </div>
 

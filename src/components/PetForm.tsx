@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Save } from "lucide-react";
-import { PET_TYPE_LABELS, type PetType } from "@/lib/types";
+import { PET_TYPE_LABELS, type Pet, type PetType } from "@/lib/types";
+import PetCard from "@/components/PetCard";
 import { petColor, petIcon } from "@/lib/petVisuals";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
@@ -76,40 +77,56 @@ export default function PetForm({
     // than flashing back to an idle button on a page that is unmounting.
   };
 
+  // The card the pets list will draw, from the draft as it is typed.
+  const preview = {
+    id: "preview",
+    owner_id: userId,
+    created_at: "",
+    name: form.name.trim() || t("appPages.petsNew.namePlaceholder"),
+    type: form.type,
+    sex: form.sex,
+    weight_kg: form.weight_kg ? Number(form.weight_kg) : null,
+    bio: form.bio.trim() || null,
+    photo_url: form.photo_url,
+  } as Pet;
+
   return (
     <>
       {error && (
-        <div role="alert" className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-xl text-sm text-danger">
+        <div role="alert" className="mb-4 p-3 bg-danger-soft border border-danger/20 rounded-[var(--radius-control)] text-sm text-danger">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="glass-card rounded-2xl border p-6 sm:p-7 space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-ink mb-2">
-            {t("appPages.petsNew.photoLabel")}{" "}
-            <span className="text-ink-soft/70 font-normal">{t("appPages.petsNew.optionalSuffix")}</span>
-          </label>
-          <ImageUpload
-            userId={userId}
-            kind="pet"
-            value={form.photo_url}
-            onChange={(url) => setForm((f) => ({ ...f, photo_url: url }))}
-            shape="square"
-            className="w-24 h-24"
-            fallback={
-              <span className={cn("w-full h-full flex items-center justify-center", petColor(form.type))}>
-                <Icon className="w-9 h-9" />
-              </span>
-            }
-          />
-        </div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-8">
+      <form onSubmit={handleSubmit} className="glass-card rounded-[var(--radius-card)] border p-6 sm:p-7 space-y-5">
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-5">
+          <div>
+            <label className="block text-sm font-medium text-ink mb-2">
+              {t("appPages.petsNew.photoLabel")}{" "}
+              <span className="text-ink-soft/70 font-normal">{t("appPages.petsNew.optionalSuffix")}</span>
+            </label>
+            <ImageUpload
+              userId={userId}
+              kind="pet"
+              value={form.photo_url}
+              onChange={(url) => setForm((f) => ({ ...f, photo_url: url }))}
+              shape="square"
+              className="w-24 h-24"
+              fallback={
+                <span className={cn("w-full h-full flex items-center justify-center", petColor(form.type))}>
+                  <Icon className="w-9 h-9" />
+                </span>
+              }
+            />
+          </div>
 
-        <div>
-          <label htmlFor="pet-name" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.petsNew.nameLabel")}</label>
-          <input id="pet-name" type="text" value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder={t("appPages.petsNew.namePlaceholder")} required maxLength={PET_NAME_MAX} className={inputCls} />
+          <div className="min-w-0 flex-1 basis-56 sm:pt-7">
+            <label htmlFor="pet-name" className="block text-sm font-medium text-ink mb-1.5">{t("appPages.petsNew.nameLabel")}</label>
+            <input id="pet-name" type="text" value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder={t("appPages.petsNew.namePlaceholder")} required maxLength={PET_NAME_MAX} className={inputCls} />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -152,18 +169,24 @@ export default function PetForm({
             className="w-full px-3.5 py-3 rounded-xl border border-ink/10 bg-surface text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent text-sm transition resize-none" />
         </div>
 
-        <div className="flex gap-3 pt-1">
-          <Link href={cancelHref} className={cn(buttonClasses({ variant: "secondary" }), "flex-1")}>
+        <div className="flex gap-3 border-t border-ink/6 pt-5 sm:justify-end">
+          <Link href={cancelHref} className={cn(buttonClasses({ variant: "secondary" }), "flex-1 sm:flex-none sm:min-w-32")}>
             {t("appPages.petsNew.cancelButton")}
           </Link>
           <button type="submit" disabled={loading}
-            className={cn(buttonClasses(), "flex-1")}>
+            className={cn(buttonClasses(), "flex-1 sm:flex-none sm:min-w-40")}>
             {loading
               ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               : <><Save className="w-4 h-4" />{submitLabel}</>}
           </button>
         </div>
       </form>
+
+      <aside className="hidden lg:block lg:sticky lg:top-6" aria-hidden="true">
+        <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{t("appPages.petsNew.previewLabel")}</p>
+        <PetCard pet={preview} />
+      </aside>
+      </div>
     </>
   );
 }

@@ -69,8 +69,8 @@ export default function SitterProfilePage() {
   const firstName = sitter.full_name?.split(" ")[0] ?? t("appPages.browse.fallbackFirstName");
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <Link href="/browse" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <Link href="/browse" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-4 transition-colors">
         <ArrowLeft className="w-4 h-4" /> {t("appPages.browse.backToBrowse")}
       </Link>
 
@@ -148,16 +148,17 @@ export default function SitterProfilePage() {
         {/* Booking sidebar */}
         <div>
           <motion.div initial={{ y: 12 }} animate={{ y: 0 }} transition={{ duration: 0.4, delay: 0.12 }}
-            className="glass-panel rounded-2xl border p-5 sticky top-24">
-            <div className="text-center pb-4 border-b border-ink/5">
+            className="pb-band rounded-[var(--radius-card)] border border-[var(--chrome-line)] p-5 sm:p-6 sticky top-24 shadow-[var(--shadow-lg)]">
+            {/* The price card in the deep band's material, the page's one call to action. */}
+            <div className="text-center pb-5 border-b border-[var(--chrome-line)] [&_.text-ink]:text-chrome-ink [&_.text-ink-soft]:text-chrome-ink-soft">
               <PriceTag sitter={sitter} size="xl" />
-              <div className="text-xs text-ink-soft mt-1.5">{t("appPages.browse.priceNote")}</div>
+              <div className="text-xs text-chrome-ink-soft mt-2">{t("appPages.browse.priceNote")}</div>
             </div>
-            <div className="pt-4 space-y-3">
-              <Link href={`/bookings/new?sitter=${sitter.id}`} className={buttonClasses({ block: true })}>
+            <div className="pt-5 space-y-3">
+              <Link href={`/bookings/new?sitter=${sitter.id}`} className={buttonClasses({ variant: "accent", size: "lg", block: true })}>
                 <Calendar className="w-4 h-4" />{t("appPages.browse.bookCta", { name: firstName })}
               </Link>
-              <p className="text-xs text-ink-soft/80 text-center">{t("appPages.browse.paymentNote")}</p>
+              <p className="text-xs text-chrome-ink-soft text-center">{t("appPages.browse.paymentNote")}</p>
             </div>
           </motion.div>
         </div>

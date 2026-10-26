@@ -25,14 +25,14 @@ function pet(over: Partial<Pet> = {}): Pet {
 
 /** The lucide icon rendered in the fallback tile, identified by its class. */
 function iconEl(container: HTMLElement): SVGElement {
-  const el = container.querySelector("svg.w-7");
+  const el = container.querySelector("svg.w-12");
   if (!el) throw new Error("expected an icon in the fallback tile");
   return el as SVGElement;
 }
 
 /** The coloured tile that stands in for a missing photo. */
 function tile(container: HTMLElement): HTMLElement {
-  const el = container.querySelector(".w-16.h-16");
+  const el = container.querySelector("[data-slot=\"photo\"]");
   if (!el) throw new Error("expected a photo slot");
   return el as HTMLElement;
 }
@@ -206,13 +206,13 @@ describe("bio", () => {
     expect(container.querySelectorAll("p")).toHaveLength(1);
   });
 
-  // SitterCard clamps its equivalent copy with line-clamp-2. This one does not,
-  // so a long bio grows the card without limit and breaks the grid rhythm.
-  it("applies no line clamp to a long bio (current behaviour)", () => {
+  // SitterCard clamps its equivalent copy with line-clamp-2; in the pets grid this one
+  // clamps to three lines, so a long bio cannot break the grid rhythm.
+  it("clamps a long bio to three lines", () => {
     const long = "A ".repeat(400);
     render(<PetCard pet={pet({ bio: long })} />);
     const paragraph = screen.getByText(long.trim());
-    expect(paragraph.className).not.toContain("line-clamp");
+    expect(paragraph).toHaveClass("line-clamp-3");
   });
 
   it("applies no truncation to a long pet name either", () => {

@@ -225,25 +225,25 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title={t("appPages.bookings.title")} subtitle={loading ? t("appPages.bookings.loadingText") : t(`appPages.bookings.count.${pluralForm(locale, bookings.length)}`, { count: bookings.length })} />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <PageHeader icon={CalendarDays} title={t("appPages.bookings.title")} action={<ButtonLink href="/browse" variant="accent"><Search className="w-4 h-4" aria-hidden="true" />{t("appShell.findASitter")}</ButtonLink>} subtitle={loading ? t("appPages.bookings.loadingText") : t(`appPages.bookings.count.${pluralForm(locale, bookings.length)}`, { count: bookings.length })} />
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 lg:gap-10">
         <div className="min-w-0">
           {/* Tabs */}
-          <div className="flex gap-1 bg-surface-2 rounded-xl p-1 mb-8">
+          <div className="flex gap-1 overflow-x-auto rounded-full border border-ink/8 bg-surface p-1 mb-6 shadow-[var(--shadow-sm)]">
             {TABS.map(({ label, value }) => {
               const count = tabCounts[value];
               return (
                 <button key={value} onClick={() => setTab(value)}
-                  className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${tab === value ? "text-ink" : "text-ink-soft hover:text-ink"}`}>
+                  className={`relative isolate flex-1 whitespace-nowrap h-10 px-3 sm:px-4 rounded-full text-sm font-semibold transition-colors ${tab === value ? "text-on-brand" : "text-ink-soft hover:text-ink"}`}>
                   {tab === value && (
-                    <motion.div layoutId="tab-pill" className="absolute inset-0 bg-surface rounded-lg shadow-[var(--shadow-sm)]" style={{ zIndex: -1 }} transition={{ type: "spring", stiffness: 400, damping: 30 }} />
+                    <motion.div layoutId="tab-pill" className="absolute inset-0 -z-10 bg-brand rounded-full shadow-[var(--shadow-sm)]" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
                   )}
                   <span className="inline-flex items-center gap-1.5">
                     {label}
                     {count > 0 && (
-                      <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold leading-none ${tab === value ? "bg-brand-soft text-brand-strong" : "bg-ink/10 text-ink-soft"}`}>
+                      <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold leading-none ${tab === value ? "bg-[var(--hero-accent)] text-brand-deep" : "bg-ink/10 text-ink-soft"}`}>
                         {count}
                       </span>
                     )}

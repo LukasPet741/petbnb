@@ -25,12 +25,14 @@ export default function PartnersDirectory() {
   return (
     <div className="min-h-[100dvh]">
       <PublicHeader />
-      <main className="max-w-6xl mx-auto px-4 py-10 lg:py-14">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-brand">{t("partners.eyebrow")}</p>
-        <h1 className="mt-1 font-display text-3xl sm:text-4xl font-semibold text-ink tracking-tight">
-          {t("partners.heading")}
-        </h1>
-        <p className="mt-3 max-w-2xl text-ink-soft leading-relaxed">{t("partners.intro")}</p>
+      <main className="max-w-6xl mx-auto px-4 py-6 lg:py-10">
+        <header className="pb-band rounded-[var(--radius-hero)] border border-[var(--chrome-line)] px-6 py-8 sm:px-10 sm:py-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--hero-accent)]">{t("partners.eyebrow")}</p>
+          <h1 className="mt-2 font-display text-3xl sm:text-5xl sm:leading-[1.05] font-semibold text-chrome-ink tracking-tight">
+            {t("partners.heading")}
+          </h1>
+          <p className="mt-4 max-w-2xl text-chrome-ink-soft leading-relaxed sm:text-lg">{t("partners.intro")}</p>
+        </header>
 
         <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {PARTNERS.map((partner) => (
@@ -52,13 +54,17 @@ export default function PartnersDirectory() {
   );
 }
 
-function PartnerLogo({ partner, className }: { partner: Partner; className?: string }) {
+function PartnerLogo({ partner, className, onBand = false }: { partner: Partner; className?: string; onBand?: boolean }) {
   if (partner.logo) {
     return <img src={partner.logo} alt="" className={cn("object-contain", className)} />;
   }
   // No logo yet: the name's first letter, so the grid still reads as a wall of brands.
   return (
-    <span aria-hidden="true" className={cn("inline-flex items-center justify-center rounded-full bg-brand-soft font-display font-semibold text-brand-strong", className)}>
+    <span aria-hidden="true" className={cn(
+      "inline-flex items-center justify-center rounded-full font-display font-semibold",
+      onBand ? "border border-[var(--chrome-line)] bg-[var(--chrome-active)] text-[var(--hero-accent)]" : "bg-brand-soft text-brand-strong",
+      className,
+    )}>
       {partner.name.charAt(0)}
     </span>
   );
@@ -73,13 +79,14 @@ function PartnerCard({ partner, onOpen }: { partner: Partner; onOpen: () => void
       aria-label={t("partners.open", { name: partner.name })}
       className="pb-press group flex h-full w-full flex-col rounded-[var(--radius-card)] border border-ink/8 bg-surface text-left shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
-      <div className="relative flex aspect-[4/3] items-center justify-center rounded-t-[var(--radius-card)] bg-surface-2 p-6">
+      {/* A real logo sits on a light field; the letter stand-in on the deep band, like a monogram. */}
+      <div className={cn("relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-t-[var(--radius-card)] p-6", partner.logo ? "bg-surface-2" : "pb-band")}>
         {partner.founding && (
-          <span className="absolute left-2 top-2 whitespace-nowrap rounded-full bg-surface px-2 py-0.5 text-xs font-semibold text-brand-strong shadow-[var(--shadow-sm)]">
+          <span className="absolute left-2 top-2 whitespace-nowrap rounded-full bg-[var(--hero-accent)] px-2 py-0.5 text-xs font-semibold text-brand-deep shadow-[var(--shadow-sm)]">
             {t("partners.founding")}
           </span>
         )}
-        <PartnerLogo partner={partner} className="h-16 w-16 text-3xl sm:h-20 sm:w-20 sm:text-4xl" />
+        <PartnerLogo partner={partner} onBand={!partner.logo} className="h-16 w-16 text-3xl sm:h-20 sm:w-20 sm:text-4xl transition-transform duration-300 group-hover:scale-105" />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <span className="font-display text-lg font-semibold leading-tight text-ink">{partner.name}</span>

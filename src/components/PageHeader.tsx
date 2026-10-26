@@ -1,20 +1,34 @@
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  /** A single primary action (e.g. a Link styled as a button). Optional. */
+  /** The page's sidebar icon, set in a small tile above the title. Optional. */
+  icon?: LucideIcon;
+  /** A single primary action, drawn for the deep band: `variant: "accent"` or `"on-chrome"`. Optional. */
   action?: ReactNode;
 }
 
-export default function PageHeader({ title, subtitle, action }: PageHeaderProps) {
+/**
+ * The top of every app page (Night Forest, 2026-10-26): the dashboard's deep band, so each page
+ * opens in the same material as the first screen after sign-in.
+ */
+export default function PageHeader({ title, subtitle, icon: Icon, action }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4 mb-8">
-      <div className="min-w-0">
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink tracking-tight">{title}</h1>
-        {subtitle && <p className="text-ink-soft mt-2 text-sm sm:text-base">{subtitle}</p>}
+    <header className="pb-band mb-6 sm:mb-8 flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-hero)] border border-[var(--chrome-line)] px-5 py-5 sm:px-8 sm:py-7">
+      <div className="min-w-0 flex-1 basis-64">
+        <div className="flex items-center gap-3.5">
+          {Icon && (
+            <span aria-hidden="true" className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-[var(--radius-control)] border border-[var(--chrome-line)] bg-[var(--chrome-active)] text-[var(--hero-accent)]">
+              <Icon className="h-5 w-5" />
+            </span>
+          )}
+          <h1 className="min-w-0 font-display text-3xl sm:text-4xl font-semibold text-chrome-ink tracking-tight">{title}</h1>
+        </div>
+        {subtitle && <p className="text-chrome-ink-soft mt-2 text-sm sm:text-base">{subtitle}</p>}
       </div>
       {action && <div className="flex-shrink-0">{action}</div>}
-    </div>
+    </header>
   );
 }

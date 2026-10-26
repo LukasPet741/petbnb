@@ -150,8 +150,8 @@ export default function BrowsePage() {
   const clearAll = () => { setSearch(""); setCity(ALL_CITIES); setService(""); setMaxRate(null); setFrom(""); setTo(""); };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title={t("appPages.browse.title")} subtitle={t("appPages.browse.subtitle")} />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <PageHeader icon={Search} title={t("appPages.browse.title")} subtitle={t("appPages.browse.subtitle")} />
 
       {recentSitters.length > 0 && (
         <motion.div className="mb-6" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>

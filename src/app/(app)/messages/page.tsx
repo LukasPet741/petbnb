@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertCircle, MessageCircle, Search } from "lucide-react";
+import { AlertCircle, ChevronRight, MessageCircle, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -9,8 +9,9 @@ import { useProfile } from "@/hooks/useProfile";
 import Avatar from "@/components/Avatar";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
+import RightRail from "@/components/RightRail";
 import { stagger, fadeUp } from "@/lib/motion";
-import { formatCurrency, timeAgo } from "@/lib/utils";
+import { cn, formatCurrency, timeAgo } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import type { Booking, Message, Thread } from "@/lib/types";
@@ -132,8 +133,8 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <PageHeader title={t("messages.title")} subtitle={t("messages.subtitle")} />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-10">
+      <PageHeader icon={MessageCircle} title={t("messages.title")} subtitle={t("messages.subtitle")} />
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
@@ -158,31 +159,40 @@ export default function MessagesPage() {
           tone="encouraging"
         />
       ) : (
-        <motion.div className="space-y-3" variants={stagger(0.07)} initial="hidden" animate="show">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 lg:gap-10">
+        {/* One inbox card, a row per booking, the unread ones lit. */}
+        <motion.ul className="glass-card min-w-0 self-start overflow-hidden rounded-[var(--radius-card)] border divide-y divide-ink/6" variants={stagger(0.07)} initial="hidden" animate="show">
           {threads.map((thread) => {
             const name = thread.counterparty?.full_name || t("messages.unknownPerson");
             const petName = thread.booking.pet?.name || t("messages.notifications.fallbackPet");
             const unread = thread.unreadCount > 0;
             return (
-              <motion.div key={thread.booking.id} variants={fadeUp}>
+              <motion.li key={thread.booking.id} variants={fadeUp}>
                 <Link
                   href={`/messages/${thread.booking.id}`}
-                  className="flex items-start gap-4 glass-card rounded-2xl border p-4 sm:p-5 transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] active:-translate-y-px active:shadow-[var(--shadow-sm)]"
+                  className={cn(
+                    "relative flex items-center gap-4 px-4 py-4 sm:px-5 transition-colors hover:bg-brand-softer",
+                    unread && "bg-brand-softer/60",
+                  )}
                 >
+                  {unread && <span aria-hidden="true" className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-brand" />}
                   <Avatar name={name} url={thread.counterparty?.avatar_url} size="lg" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-3">
                       <span className={`truncate text-ink ${unread ? "font-semibold" : "font-medium"}`}>{name}</span>
+                      <span className="hidden sm:inline-flex flex-shrink-0 items-center rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-soft">
+                        {petName} · {t(`common.services.${thread.booking.service}`)}
+                      </span>
                       {thread.lastMessage && (
                         <span className="ml-auto flex-shrink-0 text-xs text-ink-soft">
                           {timeAgo(thread.lastMessage.created_at, t)}
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-ink-soft truncate mt-0.5">
+                    <div className="text-xs text-ink-soft truncate mt-0.5 sm:hidden">
                       {petName} · {t(`common.services.${thread.booking.service}`)}
                     </div>
-                    <div className="flex items-center gap-3 mt-1.5">
+                    <div className="flex items-center gap-3 mt-1">
                       <p className={`min-w-0 flex-1 truncate text-sm ${unread ? "text-ink" : "text-ink-soft"}`}>
                         {previewOf(thread, name)}
                       </p>
@@ -193,11 +203,14 @@ export default function MessagesPage() {
                       )}
                     </div>
                   </div>
+                  <ChevronRight className="hidden sm:block h-4 w-4 flex-shrink-0 text-ink-soft/60" aria-hidden="true" />
                 </Link>
-              </motion.div>
+              </motion.li>
             );
           })}
-        </motion.div>
+        </motion.ul>
+        <RightRail />
+        </div>
       )}
     </div>
   );

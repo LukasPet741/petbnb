@@ -240,7 +240,7 @@ describe("PageHeader", () => {
     const { container } = render(<PageHeader title="Your bookings" subtitle="Past and upcoming" />);
     const p = container.querySelector("p");
     expect(p).toHaveTextContent("Past and upcoming");
-    expect(p).toHaveClass("text-ink-soft", "mt-2");
+    expect(p).toHaveClass("text-chrome-ink-soft", "mt-2");
     expect(container.firstElementChild?.children).toHaveLength(1);
   });
 
@@ -272,7 +272,7 @@ describe("PageHeader", () => {
       />,
     );
     const row = container.firstElementChild as HTMLElement;
-    expect(row).toHaveClass("flex", "items-start", "justify-between", "gap-4");
+    expect(row).toHaveClass("flex", "items-center", "justify-between", "gap-4");
     // min-w-0 is what actually lets the flex text column shrink below its
     // content width; flex-shrink-0 is what stops the CTA collapsing.
     expect(row.children[0]).toHaveClass("min-w-0");

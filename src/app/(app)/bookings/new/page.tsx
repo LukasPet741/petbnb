@@ -27,6 +27,7 @@ import { sitterBlocker } from "@/lib/sitter-blocker";
 import { addDays, formClash, problemFromHint, vilniusDay } from "@/lib/availability";
 import { useBusyDays } from "@/hooks/useBusyDays";
 import Avatar from "@/components/Avatar";
+import PageHeader from "@/components/PageHeader";
 import BookingSummary from "@/components/BookingSummary";
 import RequestPrice, { requestPriceValid, type PriceChoice } from "@/components/RequestPrice";
 import { askingPrice, stayDays } from "@/lib/pricing";
@@ -234,7 +235,7 @@ function NewBookingForm() {
   };
 
   return (
-    <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14 pb-32">
+    <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-10 pb-32">
       {/* The colour the glass panels refract, on top of the site-wide field.
           The first attempt blurred the sitter's avatar inside a box with overflow-hidden,
           and a blur clipped by its own container leaves hard straight edges -- measured at
@@ -262,14 +263,11 @@ function NewBookingForm() {
           a bookings list the visitor never came from. */}
       <Link
         href={backHref}
-        className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> {t(searchParams.get("sitter") ? "appPages.bookingsNew.backToSitter" : "appPages.bookingsNew.backToBookings")}
       </Link>
-      <h1 className="font-display text-3xl font-semibold text-ink tracking-tight">
-        {t("appPages.bookingsNew.title")}
-      </h1>
-      <p className="text-ink-soft text-sm mt-2 mb-8">{t("appPages.bookingsNew.subtitle")}</p>
+      <PageHeader icon={CalendarDays} title={t("appPages.bookingsNew.title")} subtitle={t("appPages.bookingsNew.subtitle")} />
 
       {!form.sitter_id && (
         <div className="mb-6 glass-panel border rounded-[var(--radius-card)] p-4 flex items-center gap-3">
