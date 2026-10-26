@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import PetCard from "@/components/PetCard";
+import PetPublicToggle from "@/components/PetPublicToggle";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import RightRail from "@/components/RightRail";
@@ -87,6 +88,7 @@ export default function PetsPage() {
                 {pets.map((pet) => (
                   <motion.div key={pet.id} layout variants={arrive} exit="exit">
                     <PetCard pet={pet} onEdit={() => router.push(`/pets/${pet.id}/edit`)} onDelete={() => void handleDelete(pet)} />
+                    <PetPublicToggle pet={pet} />
                   </motion.div>
                 ))}
               </AnimatePresence>

@@ -104,6 +104,11 @@ const partners = {
     },
   },
   petPage: {
+    toggle: "Viešas profilis",
+    hint: "Vardas, nuotrauka ir lankomos vietos; nieko daugiau.",
+    open: "Atidaryti",
+    copy: "Kopijuoti nuorodą",
+    copied: "Nuoroda nukopijuota",
     places: "Vietos, kuriose lankosi {name}",
     noPlaces: "Vietų dar nepridėta.",
     notFound: "Šis augintinio profilis privatus arba jo nebėra.",

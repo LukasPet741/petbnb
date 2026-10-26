@@ -104,6 +104,11 @@ const partners = {
     },
   },
   petPage: {
+    toggle: "Public profile",
+    hint: "Name, photo and the places it goes; nothing else.",
+    open: "Open",
+    copy: "Copy link",
+    copied: "Link copied",
     places: "Places {name} goes",
     noPlaces: "No places added yet.",
     notFound: "This pet profile is private, or it no longer exists.",
