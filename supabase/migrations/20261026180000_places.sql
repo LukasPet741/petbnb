@@ -19,7 +19,7 @@ create table public.places (
     'dog', 'cat', 'bird', 'reptile', 'small_mammal', 'fish', 'other'
   ]),
   tier text not null default 'listed' check (tier in ('listed', 'partner', 'bookable', 'promoted')),
-  -- 'public': entered from public information, facts only, no logo, until the business claims it.
+  -- 'public': entered from public information, facts only, until the business claims it.
   source text not null default 'partner' check (source in ('partner', 'public')),
   status text not null default 'draft' check (status in ('draft', 'preview', 'published', 'hidden')),
   description_lt text,
@@ -38,8 +38,9 @@ create table public.places (
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  -- A logo is shown only with the business's yes to it.
-  constraint places_logo_needs_consent check (logo_path is null or consent_logo)
+  -- A partner's logo is shown only with its yes to it. A public listing may show the icon the
+  -- business publishes on its own site, to identify it next to "Not a partner yet".
+  constraint places_logo_needs_consent check (logo_path is null or consent_logo or source = 'public')
 );
 
 create table public.place_locations (
@@ -111,17 +112,17 @@ create policy "Anyone reads the services of published places" on public.place_se
 revoke insert, update, delete, truncate on public.places, public.place_locations, public.place_services from anon, authenticated;
 
 -- The two partners already on /partners, as src/lib/partners.ts has them. Both agreed by email on
--- 26 Oct 2026; neither has sent a logo file yet, so consent_logo is recorded and logo_path is empty.
+-- 26 Oct 2026, logo included; the logo files come from their own sites (scripts/place-logos.mjs).
 with dogiday as (
   insert into public.places (slug, name, categories, accepts, tier, source, status, description_lt, description_en,
-    prices_note_lt, prices_note_en, hours_lt, hours_en, website_url, is_founding_partner, consent_logo, consent_photos,
+    prices_note_lt, prices_note_en, hours_lt, hours_en, website_url, logo_path, is_founding_partner, consent_logo, consent_photos,
     consent_note, published_at)
   values ('dogiday', 'Dogiday', array['boarding', 'daycare', 'grooming'], array['dog'], 'partner', 'partner', 'published',
     'Šunų viešbutis, dienos centras ir kirpykla Vilniaus Antakalnyje. Šunys čia apsistoja trumpam ar ilgesniam laikui, praleidžia dieną dienos centre arba užsuka nusikirpti. Dirba tik su šunimis.',
     'A dog hotel, day centre and grooming salon in Antakalnis, Vilnius. Dogs stay for a few days or longer, spend the day at the day centre, or come in for a groom. Dogs only.',
     'Kainos priklauso nuo viešnagės trukmės, šuns dydžio ir švenčių laikotarpio.',
     'Prices depend on the length of the stay, the dog''s size and holiday periods.',
-    'Kasdien 7:30–19:30', 'Every day 7:30–19:30', 'https://dogiday.lt', true, true, true,
+    'Kasdien 7:30–19:30', 'Every day 7:30–19:30', 'https://dogiday.lt', '/partners/dogiday.png', true, true, true,
     'Email from Dogiday, 26 Oct 2026', now())
   returning id
 ), dogiday_location as (
@@ -139,12 +140,12 @@ from dogiday, (values
 
 with dogpunk as (
   insert into public.places (slug, name, categories, accepts, tier, source, status, description_lt, description_en,
-    prices_note_lt, prices_note_en, website_url, is_founding_partner, consent_logo, consent_note, published_at)
+    prices_note_lt, prices_note_en, website_url, logo_path, is_founding_partner, consent_logo, consent_note, published_at)
   values ('dogpunk', 'DogPunk', array['training'], array['dog'], 'partner', 'partner', 'published',
     'Šunų dresūros mokykla Vilniuje ir Panevėžyje. Individualios pamokos ir grupiniai kursai: nuo pirmųjų žingsnių iki pilno paklusnumo, elgesio mieste, triukų ir reabilitacijos bailiems bei jautriems šunims. Taip pat siūlo vebinarų įrašus apie šunų elgesį.',
     'A dog training school in Vilnius and Panevėžys. Individual lessons and group courses: from the first steps to full obedience, manners in the city, tricks, and rehabilitation for fearful and sensitive dogs. Also sells recorded webinars on dog behaviour.',
     'Kiekvieno kurso kaina nurodyta jo puslapyje.', 'Each course''s price is on its own page.',
-    'https://mokyksuni.lt/', true, true, 'Email from DogPunk, 26 Oct 2026', now())
+    'https://mokyksuni.lt/', '/partners/dogpunk.png', true, true, 'Email from DogPunk, 26 Oct 2026', now())
   returning id
 ), dogpunk_locations as (
   insert into public.place_locations (place_id, city, address, note_lt, note_en, lat, lng, sort_order)

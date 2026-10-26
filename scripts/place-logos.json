@@ -1,0 +1,451 @@
+[
+  {
+    "slug": "dogiday",
+    "partner": true,
+    "website": "https://dogiday.lt",
+    "logo": "/partners/dogiday.png",
+    "source": {
+      "url": "https://www.dogiday.lt/wp-content/uploads/2020/12/Dogiday_juodas_0111-.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 552,
+      "height": 424,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "dogpunk",
+    "partner": true,
+    "website": "https://mokyksuni.lt/",
+    "logo": "/partners/dogpunk.png",
+    "source": {
+      "url": "https://mokyksuni.lt/wp-content/themes/project/img/dogpunk-logo.jpg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 324,
+      "height": 280,
+      "format": "jpeg"
+    },
+    "tried": []
+  },
+  {
+    "slug": "8-drambliai",
+    "partner": false,
+    "website": "https://www.8drambliai.lt/",
+    "logo": "/places/8-drambliai.png",
+    "source": {
+      "url": "https://www.8drambliai.lt/catalog/view/theme/default/images/logo.svg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 438,
+      "height": 438,
+      "format": "svg"
+    },
+    "tried": []
+  },
+  {
+    "slug": "alpha-zoo",
+    "partner": false,
+    "website": "https://alphazoo.lt/",
+    "logo": "/places/alpha-zoo.png",
+    "source": {
+      "url": "https://alphazoo.lt/wp-content/uploads/2023/12/Alphazoo-logo-brown-1.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 2000,
+      "height": 1183,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "animu",
+    "partner": false,
+    "website": "https://animu.lt/",
+    "logo": "/places/animu.png",
+    "source": {
+      "url": "https://animu.lt/img/logo-1673444073.jpg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 231,
+      "height": 84,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "antakalnio-veterinarijos-gydykla",
+    "partner": false,
+    "website": "https://vetpaslaugos.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "icon-any: Input buffer contains unsupported image format",
+      "apple-touch-icon-guess: 404"
+    ]
+  },
+  {
+    "slug": "barbosas",
+    "partner": false,
+    "website": "https://barbosas.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "page: fetch failed"
+    ]
+  },
+  {
+    "slug": "blusius-gyvunu-kirpykla",
+    "partner": false,
+    "website": "https://blusius.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "page: fetch failed"
+    ]
+  },
+  {
+    "slug": "canisfelis",
+    "partner": false,
+    "website": "https://www.canisfelis.lt/",
+    "logo": "/places/canisfelis.png",
+    "source": {
+      "url": "https://canisfelis.lt/wp-content/uploads/2022/11/logo2.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 400,
+      "height": 422,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "divet",
+    "partner": false,
+    "website": "https://divet.lt/",
+    "logo": null,
+    "source": {
+      "url": "https://digital-planet.b-cdn.net/Kepritogel/logo-kpr.gif",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 300,
+      "height": 73,
+      "format": "gif"
+    },
+    "tried": [],
+    "rejected": "white on transparent: invisible on a light card"
+  },
+  {
+    "slug": "ernista",
+    "partner": false,
+    "website": "https://www.ernista.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "page: fetch failed"
+    ]
+  },
+  {
+    "slug": "greitoji-zirafa",
+    "partner": false,
+    "website": "https://www.greitojizirafa.lt/",
+    "logo": "/places/greitoji-zirafa.png",
+    "source": {
+      "url": "https://greitojizirafa.lt/wp-content/uploads/2022/06/1465758579-e1655894801328.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 119,
+      "height": 126,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "yzi-pet",
+    "partner": false,
+    "website": "https://www.yzipet.com/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "apple-touch-icon-guess: Input buffer contains unsupported image format"
+    ]
+  },
+  {
+    "slug": "jakovo-veterinarijos-centras",
+    "partner": false,
+    "website": "https://www.vetmed.lt/",
+    "logo": "/places/jakovo-veterinarijos-centras.png",
+    "source": {
+      "url": "https://vetmed.lt/wp-content/uploads/2024/04/Jakovo-login.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 320,
+      "height": 129,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "kaivana",
+    "partner": false,
+    "website": "https://catalog.kaivana.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "page: fetch failed"
+    ]
+  },
+  {
+    "slug": "kauno-gyvunu-ligonine",
+    "partner": false,
+    "website": "https://www.kgl.lt/",
+    "logo": "/places/kauno-gyvunu-ligonine.png",
+    "source": {
+      "url": "https://www.kgl.lt/wp-content/uploads/2024/01/KGL-logo.svg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 844,
+      "height": 354,
+      "format": "svg"
+    },
+    "tried": []
+  },
+  {
+    "slug": "keturkojis",
+    "partner": false,
+    "website": "https://www.keturkojis.lt/",
+    "logo": null,
+    "source": {
+      "url": "https://www.keturkojis.lt/uploads/2024/02/logovet.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 336,
+      "height": 280,
+      "format": "png"
+    },
+    "tried": [],
+    "rejected": "a vet-registry badge, not their logo"
+  },
+  {
+    "slug": "kika",
+    "partner": false,
+    "website": "https://www.kika.lt/",
+    "logo": "/places/kika.png",
+    "source": {
+      "url": "https://www.kika.lt/cdn/shop/files/KIKA_logo_rgb_green_9db4b0c7-1af2-478c-be3d-acbbd88a7006.png?v=1753186074&amp;width=600",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 1978,
+      "height": 760,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "lazdynu-veterinarijos-klinika",
+    "partner": false,
+    "website": "https://www.vilniausveterinarija.lt/",
+    "logo": "/places/lazdynu-veterinarijos-klinika.png",
+    "source": {
+      "url": "https://vilniausveterinarija.lt/wp-content/uploads/2024/05/logo2.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 1588,
+      "height": 755,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "letenos",
+    "partner": false,
+    "website": "https://letenos.lt/",
+    "logo": "/places/letenos.png",
+    "source": {
+      "url": "https://letenos.lt/wp-content/uploads/2023/08/Letenos.lt_BE-FONO.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 967,
+      "height": 266,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "lumis",
+    "partner": false,
+    "website": "https://www.kirpyklalumis.lt/",
+    "logo": "/places/lumis.png",
+    "source": {
+      "url": "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,fit=crop/Aq2e6Xv4NGUlqDp8/lumiostendas-A0xeW2gzV7TZabjP.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 768,
+      "height": 302,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "minivet",
+    "partner": false,
+    "website": "https://minivet.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "page: fetch failed"
+    ]
+  },
+  {
+    "slug": "pet-city",
+    "partner": false,
+    "website": "https://petcity.lt/",
+    "logo": null,
+    "source": {
+      "url": "https://www.petcity.lt/static/version1791971023/frontend/Opus/petcity/lt_LT/images/rxchat/logo_skin1.svg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 400,
+      "height": 400,
+      "format": "svg"
+    },
+    "tried": [],
+    "rejected": "white on transparent: invisible on a light card"
+  },
+  {
+    "slug": "pet24",
+    "partner": false,
+    "website": "https://www.pet24.lt/",
+    "logo": "/places/pet24.png",
+    "source": {
+      "url": "https://pet24.lt/img/pet24lt-logo-17398851461.jpg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 400,
+      "height": 160,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "pethappy-lt",
+    "partner": false,
+    "website": "https://pethappy.lt/",
+    "logo": null,
+    "source": {
+      "url": "https://pethappy.lt/wp-content/uploads/2025/02/Dibag-logo.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 320,
+      "height": 158,
+      "format": "png"
+    },
+    "tried": [
+      "logo-img: small 208x40"
+    ],
+    "rejected": "a food brand they sell (Dibaq), not their logo"
+  },
+  {
+    "slug": "superaugintinis",
+    "partner": false,
+    "website": "https://www.superaugintinis.lt/",
+    "logo": null,
+    "source": null,
+    "tried": [
+      "icon-any: Input buffer contains unsupported image format",
+      "apple-touch-icon-guess: 404"
+    ]
+  },
+  {
+    "slug": "superkate",
+    "partner": false,
+    "website": "https://superkate.lt/",
+    "logo": "/places/superkate.png",
+    "source": {
+      "url": "https://superkate.lt/img/superkate-lt.webp",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 618,
+      "height": 246,
+      "format": "webp"
+    },
+    "tried": []
+  },
+  {
+    "slug": "vet1",
+    "partner": false,
+    "website": "https://vet1.lt/",
+    "logo": "/places/vet1.png",
+    "source": {
+      "url": "https://vet1.lt/img/vet1-logo-16367138364.jpg",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 522,
+      "height": 150,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "veterinarines-diagnostikos-ir-chirurgijos-klinika",
+    "partner": false,
+    "website": "https://vdcklinika.lt/",
+    "logo": "/places/veterinarines-diagnostikos-ir-chirurgijos-klinika.png",
+    "source": {
+      "url": "https://vdcklinika.lt/wp-content/uploads/logo-14.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 416,
+      "height": 120,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "vetpulsas",
+    "partner": false,
+    "website": "https://www.vetpulsas.lt/",
+    "logo": "/places/vetpulsas.png",
+    "source": {
+      "url": "https://vetpulsas.lt/wp-content/uploads/2025/09/logo_dark.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 960,
+      "height": 960,
+      "format": "png"
+    },
+    "tried": []
+  },
+  {
+    "slug": "zoofanai-lt",
+    "partner": false,
+    "website": "https://zoofanai.lt/",
+    "logo": null,
+    "source": {
+      "url": "https://www.zoofanai.lt/components/com_virtuemart/shop_image/ps_image/menu_logo.gif",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 78,
+      "height": 80,
+      "format": "gif"
+    },
+    "tried": [],
+    "rejected": "a generic shopping cart"
+  },
+  {
+    "slug": "zveryno-veterinarijos-gydykla",
+    "partner": false,
+    "website": "https://www.veterinaras.com/",
+    "logo": "/places/zveryno-veterinarijos-gydykla.png",
+    "source": {
+      "url": "https://veterinaras.com/wp-content/uploads/2017/11/Logo-round.png",
+      "kind": "logo-img",
+      "score": 100,
+      "width": 102,
+      "height": 99,
+      "format": "png"
+    },
+    "tried": []
+  }
+]

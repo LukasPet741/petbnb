@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { ALL_PLACES, PARTNERS, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
 
@@ -175,9 +177,9 @@ describe("listed places (OpenStreetMap)", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it("lists facts only: no logo, no copy, no claimed pets, no founding badge", () => {
+  it("lists facts only: no copy, no claimed pets, no founding badge, a logo only as a PNG under /places/", () => {
     for (const p of listed) {
-      expect(p.logo, p.slug).toBeUndefined();
+      if (p.logo) expect(p.logo, p.slug).toMatch(/^\/places\/[a-z0-9-]+\.png$/);
       expect(p.description, p.slug).toBeUndefined();
       expect(p.founding, p.slug).toBeFalsy();
       expect(p.accepts, p.slug).toEqual([]);
@@ -197,5 +199,23 @@ describe("listed places (OpenStreetMap)", () => {
   it("never lists a partner a second time", () => {
     expect(listed.map((p) => p.slug)).not.toEqual(expect.arrayContaining(["dogiday"]));
     expect(listed.some((p) => /dog ?punk|dogiday/i.test(p.name))).toBe(false);
+  });
+});
+
+describe("logos", () => {
+  it("has a file in /public for every logo a place names", () => {
+    for (const p of ALL_PLACES) {
+      if (p.logo) expect(fs.existsSync(path.join(process.cwd(), "public", p.logo)), p.slug).toBe(true);
+    }
+  });
+
+  it("shows the partners' own logos", () => {
+    expect(PARTNERS.every((p) => p.logo)).toBe(true);
+  });
+
+  it("never serves a third-party SVG: every place logo is a PNG", () => {
+    const files = fs.readdirSync(path.join(process.cwd(), "public/places"));
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) expect(f, f).toMatch(/\.png$/);
   });
 });

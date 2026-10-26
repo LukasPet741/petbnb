@@ -94,6 +94,8 @@ export const PARTNERS: Partner[] = [
       en: "Prices depend on the length of the stay, the dog's size and holiday periods.",
     },
     website: "https://dogiday.lt",
+    // Logo from their own site (they said yes to the logo, 26 Oct 2026); scripts/place-logos.mjs.
+    logo: "/partners/dogiday.png",
     founding: true,
   },
   {
@@ -140,6 +142,7 @@ export const PARTNERS: Partner[] = [
       en: "Each course's price is on its own page.",
     },
     website: "https://mokyksuni.lt/",
+    logo: "/partners/dogpunk.png",
     founding: true,
   },
 ];
@@ -216,6 +219,8 @@ export interface MapPlace {
   approximate: boolean;
   /** A listed place: drawn as a small dot under the partners' pins. */
   listed: boolean;
+  /** A partner's pin shows its logo instead of the paw. */
+  logo?: string;
 }
 
 /** One point per geocoded location: a partner in two cities is two points. */
@@ -223,7 +228,7 @@ export function mapPlaces(partners: Partner[]): MapPlace[] {
   return partners.flatMap((p) =>
     p.locations.flatMap((l) =>
       l.lat != null && l.lng != null
-        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p) }]
+        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p), logo: p.logo }]
         : [],
     ),
   );

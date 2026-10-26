@@ -22,7 +22,7 @@ const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.char
 /** Pins at or above this count open on the busiest city instead of the whole country. */
 const MANY = 20;
 /** "The busiest city": every pin within this many metres of the median pin. */
-const CITY_RADIUS_M = 12_000;
+const CITY_RADIUS_M = 6_000;
 
 const median = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 
@@ -47,6 +47,17 @@ function dotIcon(brand: string) {
     iconSize: [14, 14],
     iconAnchor: [7, 7],
     tooltipAnchor: [0, -9],
+  });
+}
+
+/** A partner with a logo: the logo on a white disc in a brand ring (dashed where only the area is known). */
+function logoIcon(brand: string, logo: string, approximate: boolean) {
+  return L.divIcon({
+    className: "",
+    html: `<span style="display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:#fff;border:3px ${approximate ? "dashed" : "solid"} ${brand};box-shadow:0 2px 8px rgb(19 26 23 / 0.35);overflow:hidden;"><img src="${escapeHtml(logo)}" alt="" style="width:28px;height:28px;object-fit:contain;" /></span>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    tooltipAnchor: [0, -23],
   });
 }
 
@@ -122,7 +133,7 @@ export default function PlacesMap({
     for (const place of places) {
       const select = () => onSelectRef.current(place.slug);
       const pin = L.marker([place.lat, place.lng], {
-        icon: place.listed ? dotIcon(brand) : pinIcon(brand, place.approximate),
+        icon: place.listed ? dotIcon(brand) : place.logo ? logoIcon(brand, place.logo, place.approximate) : pinIcon(brand, place.approximate),
         title: place.name,
         keyboard: true,
         // An exact address sits above an approximate area when the two overlap at a wide zoom.

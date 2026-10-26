@@ -36,7 +36,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.8drambliai.lt/"
+    "website": "https://www.8drambliai.lt/",
+    "logo": "/places/8-drambliai.png"
   },
   {
     "slug": "8-drambliai-universitetine-veterinarijos-ligonine",
@@ -73,7 +74,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://alphazoo.lt/"
+    "website": "https://alphazoo.lt/",
+    "logo": "/places/alpha-zoo.png"
   },
   {
     "slug": "animu",
@@ -97,7 +99,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://animu.lt/"
+    "website": "https://animu.lt/",
+    "logo": "/places/animu.png"
   },
   {
     "slug": "antakalnio-veterinarijos-gydykla",
@@ -134,8 +137,7 @@ export const LISTED_PLACES: Partner[] = [
         "lng": 23.99396
       }
     ],
-    "services": [],
-    "website": "https://barbosas.lt/"
+    "services": []
   },
   {
     "slug": "blusius-gyvunu-kirpykla",
@@ -153,8 +155,7 @@ export const LISTED_PLACES: Partner[] = [
         "lng": 25.2706
       }
     ],
-    "services": [],
-    "website": "https://blusius.lt/"
+    "services": []
   },
   {
     "slug": "canisfelis",
@@ -173,7 +174,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.canisfelis.lt/"
+    "website": "https://www.canisfelis.lt/",
+    "logo": "/places/canisfelis.png"
   },
   {
     "slug": "cozzy",
@@ -338,7 +340,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.greitojizirafa.lt/"
+    "website": "https://www.greitojizirafa.lt/",
+    "logo": "/places/greitoji-zirafa.png"
   },
   {
     "slug": "haciko-gyvunu-klinika",
@@ -412,7 +415,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.vetmed.lt/"
+    "website": "https://www.vetmed.lt/",
+    "logo": "/places/jakovo-veterinarijos-centras.png"
   },
   {
     "slug": "justiniskiu-veterinarijos-klinika",
@@ -454,8 +458,7 @@ export const LISTED_PLACES: Partner[] = [
         "lng": 23.89083
       }
     ],
-    "services": [],
-    "website": "https://catalog.kaivana.lt/"
+    "services": []
   },
   {
     "slug": "kauno-gyvunu-ligonine",
@@ -474,7 +477,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.kgl.lt/"
+    "website": "https://www.kgl.lt/",
+    "logo": "/places/kauno-gyvunu-ligonine.png"
   },
   {
     "slug": "keturkojis",
@@ -636,7 +640,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.kika.lt/"
+    "website": "https://www.kika.lt/",
+    "logo": "/places/kika.png"
   },
   {
     "slug": "laila",
@@ -690,7 +695,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.vilniausveterinarija.lt/"
+    "website": "https://www.vilniausveterinarija.lt/",
+    "logo": "/places/lazdynu-veterinarijos-klinika.png"
   },
   {
     "slug": "letenos",
@@ -709,7 +715,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://letenos.lt/"
+    "website": "https://letenos.lt/",
+    "logo": "/places/letenos.png"
   },
   {
     "slug": "lumis",
@@ -728,7 +735,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.kirpyklalumis.lt/"
+    "website": "https://www.kirpyklalumis.lt/",
+    "logo": "/places/lumis.png"
   },
   {
     "slug": "meal",
@@ -770,8 +778,7 @@ export const LISTED_PLACES: Partner[] = [
         "lng": 25.18467
       }
     ],
-    "services": [],
-    "website": "https://minivet.lt/"
+    "services": []
   },
   {
     "slug": "nuaras-veterinary-clinic",
@@ -939,7 +946,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.pet24.lt/"
+    "website": "https://www.pet24.lt/",
+    "logo": "/places/pet24.png"
   },
   {
     "slug": "pethappy-lt",
@@ -1090,7 +1098,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://superkate.lt/"
+    "website": "https://superkate.lt/",
+    "logo": "/places/superkate.png"
   },
   {
     "slug": "suniuku-ir-kaciuku-kirpykla",
@@ -1193,7 +1202,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://vet1.lt/"
+    "website": "https://vet1.lt/",
+    "logo": "/places/vet1.png"
   },
   {
     "slug": "veterinarijos-vaistine-ir-poliklinika",
@@ -1230,7 +1240,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://vdcklinika.lt/"
+    "website": "https://vdcklinika.lt/",
+    "logo": "/places/veterinarines-diagnostikos-ir-chirurgijos-klinika.png"
   },
   {
     "slug": "veterinarines-medicinos-centras",
@@ -1282,7 +1293,8 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.vetpulsas.lt/"
+    "website": "https://www.vetpulsas.lt/",
+    "logo": "/places/vetpulsas.png"
   },
   {
     "slug": "vetvila",
@@ -1432,6 +1444,7 @@ export const LISTED_PLACES: Partner[] = [
       }
     ],
     "services": [],
-    "website": "https://www.veterinaras.com/"
+    "website": "https://www.veterinaras.com/",
+    "logo": "/places/zveryno-veterinarijos-gydykla.png"
   }
 ];

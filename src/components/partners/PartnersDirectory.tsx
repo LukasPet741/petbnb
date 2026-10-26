@@ -6,6 +6,7 @@ import PublicFooter from "@/components/PublicFooter";
 import Dialog from "@/components/ui/Dialog";
 import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
+import PlaceMark from "@/components/partners/PlaceMark";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -95,7 +96,7 @@ export default function PartnersDirectory() {
           </ul>
         )}
 
-        {/* Listed from public information: a plain list under the partners, never a logo card. */}
+        {/* Listed from public information: a plain list under the partners, never a partner's card. */}
         {listed.length > 0 && (
           <section aria-labelledby="listed-places" className="mt-10">
             <h2 id="listed-places" className="font-display text-xl font-semibold text-ink">{t("partners.listed.heading")}</h2>
@@ -106,11 +107,14 @@ export default function PartnersDirectory() {
                   <button
                     type="button"
                     onClick={() => setOpenSlug(place.slug)}
-                    className="flex w-full flex-col gap-0.5 py-3 text-left transition-colors hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                    className="group flex w-full items-center gap-3 py-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                   >
-                    <span className="font-medium text-ink">{place.name}</span>
-                    <span className="text-sm text-ink-soft">
-                      {place.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")} · {partnerPlace(place)}
+                    <PlaceMark place={place} className="h-11 w-11" />
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="truncate font-medium text-ink transition-colors group-hover:text-brand">{place.name}</span>
+                      <span className="truncate text-sm text-ink-soft">
+                        {place.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")} · {partnerPlace(place)}
+                      </span>
                     </span>
                   </button>
                 </li>
@@ -149,22 +153,6 @@ function ChipRow({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-function PartnerLogo({ partner, className, onBand = false }: { partner: Partner; className?: string; onBand?: boolean }) {
-  if (partner.logo) {
-    return <img src={partner.logo} alt="" className={cn("object-contain", className)} />;
-  }
-  // No logo yet: the name's first letter, so the grid still reads as a wall of brands.
-  return (
-    <span aria-hidden="true" className={cn(
-      "inline-flex items-center justify-center rounded-full font-display font-semibold",
-      onBand ? "border border-[var(--chrome-line)] bg-[var(--chrome-active)] text-[var(--hero-accent)]" : "bg-brand-soft text-brand-strong",
-      className,
-    )}>
-      {partner.name.charAt(0)}
-    </span>
-  );
-}
-
 function PartnerCard({ partner, onOpen }: { partner: Partner; onOpen: () => void }) {
   const { t } = useLanguage();
   return (
@@ -174,14 +162,18 @@ function PartnerCard({ partner, onOpen }: { partner: Partner; onOpen: () => void
       aria-label={t("partners.open", { name: partner.name })}
       className="pb-press group flex h-full w-full flex-col rounded-[var(--radius-card)] border border-ink/8 bg-surface text-left shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
-      {/* A real logo sits on a light field; the letter stand-in on the deep band, like a monogram. */}
-      <div className={cn("relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-t-[var(--radius-card)] p-6", partner.logo ? "bg-surface-2" : "pb-band")}>
+      {/* A real logo sits on white, as it was drawn (either theme); the letter stand-in on the deep band. */}
+      <div className={cn("relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-t-[var(--radius-card)] p-6", partner.logo ? "bg-white" : "pb-band")}>
         {partner.founding && (
           <span className="absolute left-2 top-2 whitespace-nowrap rounded-full bg-[var(--hero-accent)] px-2 py-0.5 text-xs font-semibold text-brand-deep shadow-[var(--shadow-sm)]">
             {t("partners.founding")}
           </span>
         )}
-        <PartnerLogo partner={partner} onBand={!partner.logo} className="h-16 w-16 text-3xl sm:h-20 sm:w-20 sm:text-4xl transition-transform duration-300 group-hover:scale-105" />
+        {partner.logo ? (
+          <img src={partner.logo} alt="" className="max-h-full max-w-[85%] object-contain pt-4 transition-transform duration-300 group-hover:scale-105" />
+        ) : (
+          <PlaceMark place={partner} onBand className="h-16 w-16 text-3xl sm:h-20 sm:w-20 sm:text-4xl transition-transform duration-300 group-hover:scale-105" />
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <span className="font-display text-lg font-semibold leading-tight text-ink">{partner.name}</span>
@@ -225,7 +217,7 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
       onClose={onClose}
       size="lg"
       initialFocus={top}
-      icon={partner && <PartnerLogo partner={partner} className="h-14 w-14 text-2xl" />}
+      icon={partner && <PlaceMark place={partner} className="h-14 w-14 text-2xl" />}
       title={partner?.name}
       description={partner && partner.categories.map((c) => t(`partners.categories.${c}`)).join(" · ")}
       footer={website && (
