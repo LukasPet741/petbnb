@@ -8,12 +8,15 @@ import Chip from "@/components/ui/Chip";
 import LazyPlacesMap from "@/components/partners/LazyPlacesMap";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
-import { PARTNERS, formatPartnerPrice, mapPlaces, partnerPlace, partnerWebsite, partnersFor, trackedUrl, type Partner } from "@/lib/partners";
+import {
+  PARTNERS, formatPartnerPrice, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  type Partner, type PartnerCategory,
+} from "@/lib/partners";
 import type { PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-/** The animals the filter offers; a partner list for any other is still empty. */
-const SPECIES: PetType[] = ["dog", "cat"];
+/** The animals the filter offers: the pet-profile species, less fish and "other". */
+const SPECIES: PetType[] = ["dog", "cat", "small_mammal", "bird", "reptile"];
 
 /**
  * /partners: every business that agreed to be featured, on a map and as logo cards. A card opens the
@@ -27,13 +30,14 @@ export default function PartnersDirectory() {
   const { t } = useLanguage();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [species, setSpecies] = useState<PetType | null>(null);
+  const [category, setCategory] = useState<PartnerCategory | null>(null);
   const open = PARTNERS.find((p) => p.slug === openSlug) ?? null;
   // /partners?p=dogiday opens that partner: the dashboard map's pins link here.
   useEffect(() => {
     const slug = new URLSearchParams(window.location.search).get("p");
     if (slug && PARTNERS.some((p) => p.slug === slug)) setOpenSlug(slug);
   }, []);
-  const shown = useMemo(() => partnersFor(species ? [species] : []), [species]);
+  const shown = useMemo(() => partnersDoing(category, partnersFor(species ? [species] : [])), [category, species]);
   const places = useMemo(() => mapPlaces(shown), [shown]);
 
   return (
@@ -48,14 +52,23 @@ export default function PartnersDirectory() {
           <p className="mt-4 max-w-2xl text-chrome-ink-soft leading-relaxed sm:text-lg">{t("partners.intro")}</p>
         </header>
 
-        <div role="group" aria-label={t("partners.filter.label")} className="mt-6 flex flex-wrap gap-2">
-          <Chip pressed={species === null} onClick={() => setSpecies(null)}>{t("partners.filter.all")}</Chip>
-          {SPECIES.map((s) => (
-            <Chip key={s} pressed={species === s} onClick={() => setSpecies(s)}>{t(`partners.filter.${s}`)}</Chip>
-          ))}
+        <div className="mt-6 space-y-2">
+          <ChipRow label={t("partners.filter.categoryLabel")}>
+            <Chip pressed={category === null} onClick={() => setCategory(null)}>{t("partners.filter.all")}</Chip>
+            {offeredCategories().map((c) => (
+              <Chip key={c} pressed={category === c} onClick={() => setCategory(c)}>{t(`partners.categories.${c}`)}</Chip>
+            ))}
+          </ChipRow>
+          <ChipRow label={t("partners.filter.label")}>
+            <Chip pressed={species === null} onClick={() => setSpecies(null)}>{t("partners.filter.all")}</Chip>
+            {SPECIES.map((s) => (
+              <Chip key={s} pressed={species === s} onClick={() => setSpecies(s)}>{t(`partners.filter.${s}`)}</Chip>
+            ))}
+          </ChipRow>
         </div>
 
-        <div className="mt-4 h-72 overflow-hidden rounded-[var(--radius-card)] border border-ink/8 bg-surface-2 sm:h-96">
+        {/* isolate: Leaflet's panes sit at z-index 400+, which would paint over the sticky header. */}
+        <div className="relative isolate mt-4 h-72 overflow-hidden rounded-[var(--radius-card)] border border-ink/8 bg-surface-2 sm:h-96">
           <LazyPlacesMap places={places} onSelect={setOpenSlug} label={t("partners.map.label")} />
         </div>
 
@@ -79,6 +92,16 @@ export default function PartnersDirectory() {
       <PublicFooter />
 
       <PartnerDialog partner={open} onClose={() => setOpenSlug(null)} />
+    </div>
+  );
+}
+
+/** A labelled row of filter chips that scrolls sideways on a phone instead of wrapping. */
+function ChipRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div role="group" aria-label={label} className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:px-0">
+      <span aria-hidden="true" className="shrink-0 pr-1 text-xs font-semibold uppercase tracking-[0.08em] text-ink-soft">{label}</span>
+      {children}
     </div>
   );
 }

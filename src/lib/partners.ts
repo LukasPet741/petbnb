@@ -158,6 +158,25 @@ export function partnerPlace(partner: Partner): string {
   return [...new Set(partner.locations.map((l) => l.city))].join(" · ");
 }
 
+/** Fixed order for the "what they do" chips, whatever order the data lists them in. */
+const CATEGORY_ORDER: PartnerCategory[] = ["boarding", "daycare", "grooming", "training", "walking"];
+
+/** Partners that do this; no category chosen = every partner. */
+export function partnersDoing(category: PartnerCategory | null, partners: Partner[] = PARTNERS): Partner[] {
+  return category ? partners.filter((p) => p.categories.includes(category)) : partners;
+}
+
+/** What these partners do, each once, for the filter chips. */
+export function offeredCategories(partners: Partner[] = PARTNERS): PartnerCategory[] {
+  const offered = new Set(partners.flatMap((p) => p.categories));
+  return CATEGORY_ORDER.filter((c) => offered.has(c));
+}
+
+/** "Reksas or Murka" / "Reksas ar Murka". */
+export function joinPetNames(names: string[], locale: Locale): string {
+  return new Intl.ListFormat(locale, { type: "disjunction" }).format(names);
+}
+
 /** Partners that take at least one of these animals; no animals given = every partner. */
 export function partnersFor(species: readonly PetType[], partners: Partner[] = PARTNERS): Partner[] {
   if (species.length === 0) return partners;

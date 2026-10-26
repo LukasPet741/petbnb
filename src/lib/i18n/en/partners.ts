@@ -19,6 +19,10 @@ const partners = {
     all: "All",
     dog: "For dogs",
     cat: "For cats",
+    small_mammal: "For small animals",
+    bird: "For birds",
+    reptile: "For reptiles",
+    categoryLabel: "What they do",
     none: "No partners like that yet. More are coming soon.",
   },
   map: {
@@ -28,6 +32,7 @@ const partners = {
     title: "Places for your pets",
     forPets: "Showing places that take {names}",
     all: "Every partner place",
+    allPlaces: "All places",
     seeAll: "All partners",
   },
   about: "About",

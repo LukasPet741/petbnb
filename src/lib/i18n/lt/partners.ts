@@ -19,6 +19,10 @@ const partners = {
     all: "Visi",
     dog: "Šunims",
     cat: "Katėms",
+    small_mammal: "Smulkiems gyvūnams",
+    bird: "Paukščiams",
+    reptile: "Ropliams",
+    categoryLabel: "Ką jie daro",
     none: "Tokių partnerių dar nėra. Netrukus jų bus daugiau.",
   },
   map: {
@@ -28,6 +32,7 @@ const partners = {
     title: "Vietos jūsų augintiniui",
     forPets: "Rodomos vietos, kurios priima: {names}",
     all: "Visos partnerių vietos",
+    allPlaces: "Visos vietos",
     seeAll: "Visi partneriai",
   },
   about: "Apie",

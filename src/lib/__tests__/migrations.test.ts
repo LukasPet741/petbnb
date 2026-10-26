@@ -39,3 +39,22 @@ describe("migrations", () => {
     expect(read("00000000000000_baseline_initial_schema.sql")).toMatch(/NEVER RUN IT AGAINST PRODUCTION/);
   });
 });
+
+describe("places migration", () => {
+  const sql = read("20261026180000_places.sql").replace(/--.*$/gm, "").toLowerCase();
+  const tables = ["places", "place_locations", "place_services"];
+
+  it("turns on row level security for every places table", () => {
+    for (const t of tables) expect(sql, t).toContain(`alter table public.${t} enable row level security`);
+  });
+
+  it("lets the API read published places and write nothing", () => {
+    expect(sql).not.toMatch(/\bfor (insert|update|delete|all)\b/);
+    expect(sql).toContain("revoke insert, update, delete, truncate on public.places, public.place_locations, public.place_services from anon, authenticated");
+    expect(sql.match(/status = 'published'/g)).toHaveLength(3);
+  });
+
+  it("pins the search path of its trigger function", () => {
+    expect(sql).toMatch(/create function public\.places_touch_updated_at\(\)[^$]*set search_path = ''/);
+  });
+});

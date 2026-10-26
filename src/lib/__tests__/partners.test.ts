@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PARTNERS, formatPartnerPrice, mapPlaces, partnerPlace, partnerWebsite, partnersFor, type Partner } from "@/lib/partners";
+import { PARTNERS, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -107,5 +107,33 @@ describe("mapPlaces", () => {
       { slug: "two", name: "Two", lat: 54.7, lng: 25.3, approximate: false },
       { slug: "two", name: "Two", lat: 55.7, lng: 24.4, approximate: true },
     ]);
+  });
+});
+
+describe("partnersDoing", () => {
+  const base: Omit<Partner, "slug" | "categories"> = {
+    name: "X", accepts: ["dog"], locations: [], description: { lt: "a", en: "a" }, services: [],
+  };
+  const hotel: Partner = { ...base, slug: "hotel", categories: ["boarding", "daycare"] };
+  const school: Partner = { ...base, slug: "school", categories: ["training"] };
+
+  it("keeps only partners that do this", () => {
+    expect(partnersDoing("training", [hotel, school]).map((p) => p.slug)).toEqual(["school"]);
+  });
+
+  it("keeps every partner when no category is chosen", () => {
+    expect(partnersDoing(null, [hotel, school])).toHaveLength(2);
+  });
+
+  it("lists what the partners do, each once, in a fixed order", () => {
+    expect(offeredCategories([school, hotel])).toEqual(["boarding", "daycare", "training"]);
+  });
+});
+
+describe("joinPetNames", () => {
+  it("joins with 'or' in each language", () => {
+    expect(joinPetNames(["Reksas", "Murka"], "en")).toBe("Reksas or Murka");
+    expect(joinPetNames(["Reksas", "Murka"], "lt")).toBe("Reksas ar Murka");
+    expect(joinPetNames(["Reksas"], "en")).toBe("Reksas");
   });
 });

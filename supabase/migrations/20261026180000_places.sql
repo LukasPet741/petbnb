@@ -107,6 +107,9 @@ create policy "Anyone reads the services of published places" on public.place_se
   for select to anon, authenticated
   using (exists (select 1 from public.places p where p.id = place_id and p.status = 'published'));
 
+-- No write policies, and no write grants either (Supabase grants them on every new table).
+revoke insert, update, delete, truncate on public.places, public.place_locations, public.place_services from anon, authenticated;
+
 -- The two partners already on /partners, as src/lib/partners.ts has them. Both agreed by email on
 -- 26 Oct 2026; neither has sent a logo file yet, so consent_logo is recorded and logo_path is empty.
 with dogiday as (
