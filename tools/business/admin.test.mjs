@@ -86,6 +86,12 @@ describe("the claim decisions migration", () => {
     expect(sql).toMatch(/status = 'rejected', decided_reason = '[^']+'/);
   });
 
+  it("tells the claimant in the app, never by email (booking-notify skips these types)", () => {
+    expect(sql).toMatch(/'claim_approved', 'claim_rejected'/);
+    expect(sql).toMatch(/insert into public\.notifications \(user_id, type\)[\s\S]*'claim_approved'/);
+    expect(sql).toMatch(/insert into public\.notifications \(user_id, type\)[\s\S]*'claim_rejected'/);
+  });
+
   it("is for the service role alone", () => {
     for (const fn of ["approve_place_claim(uuid)", "reject_place_claim(uuid, text)"]) {
       expect(sql).toContain(`revoke all on function public.${fn} from public, anon, authenticated`);

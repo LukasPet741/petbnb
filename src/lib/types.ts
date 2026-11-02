@@ -217,7 +217,9 @@ export type NotificationType =
   | "offer_received"
   | "price_agreed"
   | "walk_started"
-  | "walk_finished";
+  | "walk_finished"
+  | "claim_approved"
+  | "claim_rejected";
 
 export interface AppNotification {
   id: string;

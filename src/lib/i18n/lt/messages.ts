@@ -83,6 +83,8 @@ const messages = {
     price_agreed: "{actor} sutiko su jūsų kaina",
     walk_started: "{actor} pradėjo pasivaikščiojimą",
     walk_finished: "{actor} baigė pasivaikščiojimą",
+    claim_approved: "{actor} patvirtino jūsų verslo puslapio prašymą",
+    claim_rejected: "{actor} nepatvirtino jūsų verslo puslapio prašymo",
     fallbackPet: "jūsų augintinis",
   },
 };

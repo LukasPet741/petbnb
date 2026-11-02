@@ -29,6 +29,8 @@ const TYPES: NotificationType[] = [
   "price_agreed",
   "walk_started",
   "walk_finished",
+  "claim_approved",
+  "claim_rejected",
 ];
 
 function note(overrides: Partial<AppNotification> = {}): AppNotification {
@@ -60,6 +62,8 @@ describe("notificationSentence", () => {
     ["price_agreed", "Emilija Ambrazevičiūtė sutiko su jūsų kaina"],
     ["walk_started", "Emilija Ambrazevičiūtė pradėjo pasivaikščiojimą"],
     ["walk_finished", "Emilija Ambrazevičiūtė baigė pasivaikščiojimą"],
+    ["claim_approved", "PetBnB patvirtino jūsų verslo puslapio prašymą"],
+    ["claim_rejected", "PetBnB nepatvirtino jūsų verslo puslapio prašymo"],
   ])("reads %s in Lithuanian with the actor as the only name in it", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("lt"))).toBe(expected);
   });
@@ -75,6 +79,8 @@ describe("notificationSentence", () => {
     ["price_agreed", "Emilija Ambrazevičiūtė accepted your price"],
     ["walk_started", "Emilija Ambrazevičiūtė started a walk"],
     ["walk_finished", "Emilija Ambrazevičiūtė finished a walk"],
+    ["claim_approved", "PetBnB approved your business claim"],
+    ["claim_rejected", "PetBnB did not approve your business claim"],
   ])("reads %s in English", (type, expected) => {
     expect(notificationSentence(note({ type: type as NotificationType }), tFor("en"))).toBe(expected);
   });
@@ -122,6 +128,18 @@ describe("notificationMeta", () => {
     const meta = notificationMeta(note({ booking: undefined }), tFor("en"));
     expect(meta).not.toContain("·");
     expect(meta.length).toBeGreaterThan(0);
+  });
+});
+
+describe("claim notifications", () => {
+  it("come from PetBnB, whoever the row's actor is", () => {
+    expect(notificationActor(note({ type: "claim_approved", actor_id: null, actor: undefined }), tFor("en"))).toBe("PetBnB");
+    expect(notificationActor(note({ type: "claim_rejected", actor_id: null, actor: undefined }), tFor("lt"))).toBe("PetBnB");
+  });
+
+  it("open My business, where the page and the reason are", () => {
+    expect(notificationHref(note({ type: "claim_approved", booking_id: null }))).toBe("/business");
+    expect(notificationHref(note({ type: "claim_rejected", booking_id: null }))).toBe("/business");
   });
 });
 

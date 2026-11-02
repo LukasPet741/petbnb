@@ -17,8 +17,12 @@ export function notificationSentence(n: AppNotification, t: Translate): string {
   return t(`messages.notifications.${n.type}`, { actor: notificationActor(n, t) });
 }
 
+/** A claim decision is PetBnB's own (tools/business), with no person as its actor. */
+const fromPetbnb = (n: AppNotification) => n.type === "claim_approved" || n.type === "claim_rejected";
+
 /** Trim-then-fallback, as MessageThread does: an empty or blank name reads as "Someone". */
 export function notificationActor(n: AppNotification, t: Translate): string {
+  if (fromPetbnb(n)) return "PetBnB";
   return n.actor?.full_name?.trim() || t("messages.unknownPerson");
 }
 
@@ -28,9 +32,10 @@ export function notificationContext(n: AppNotification, t: Translate): string {
   return [n.booking?.pet?.name?.trim() || null, service].filter(Boolean).join(" · ");
 }
 
-/** Where a notification leads: a walk to the collar, anything else on a booking to its thread. */
+/** Where a notification leads: a walk to the collar, a claim to My business, anything else on a booking to its thread. */
 export function notificationHref(n: AppNotification): string | null {
   if (n.type === "walk_started" || n.type === "walk_finished") return "/collar";
+  if (fromPetbnb(n)) return "/business";
   return n.booking_id ? `/messages/${n.booking_id}` : null;
 }
 

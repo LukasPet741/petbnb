@@ -84,6 +84,8 @@ const messages = {
     price_agreed: "{actor} accepted your price",
     walk_started: "{actor} started a walk",
     walk_finished: "{actor} finished a walk",
+    claim_approved: "{actor} approved your business claim",
+    claim_rejected: "{actor} did not approve your business claim",
     fallbackPet: "your pet",
   },
 };

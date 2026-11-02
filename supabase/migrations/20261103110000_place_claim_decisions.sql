@@ -1,6 +1,15 @@
 -- Deciding "Is this your business?" claims (20261026220000) in one call each, for the local
 -- `npm run business` tool (tools/business), which runs with the service role on Lukas's machine.
 -- Until now an approval was three hand-written updates. Nobody else can call these.
+-- Each decision tells the claimant in the app (claim_approved / claim_rejected, linking to My
+-- business). booking-notify emails only booking types, so these send no email.
+
+alter table public.notifications drop constraint notifications_type_check;
+alter table public.notifications add constraint notifications_type_check check (type = any (array[
+  'booking_requested', 'booking_accepted', 'booking_declined', 'booking_cancelled', 'booking_completed',
+  'message_received', 'offer_received', 'price_agreed', 'walk_started', 'walk_finished',
+  'claim_approved', 'claim_rejected'
+]));
 
 -- Approve: the claimant becomes the place's owner, if it still has none, and every other open
 -- claim for that place is closed with a reason its claimant sees. A listed place (public
@@ -32,9 +41,17 @@ begin
   end if;
 
   update public.place_claims set status = 'approved', decided_at = now() where id = p_claim;
-  update public.place_claims
-  set status = 'rejected', decided_reason = 'Patvirtintas kitas šios vietos prašymas. Another claim for this place was approved.', decided_at = now()
-  where place_id = v_place and status = 'pending' and id <> p_claim;
+  insert into public.notifications (user_id, type)
+  select v_user, 'claim_approved' where exists (select 1 from public.profiles where id = v_user);
+
+  with closed as (
+    update public.place_claims
+    set status = 'rejected', decided_reason = 'Patvirtintas kitas šios vietos prašymas. Another claim for this place was approved.', decided_at = now()
+    where place_id = v_place and status = 'pending' and id <> p_claim
+    returning user_id
+  )
+  insert into public.notifications (user_id, type)
+  select c.user_id, 'claim_rejected' from closed c where exists (select 1 from public.profiles where id = c.user_id);
   return 'approved';
 end;
 $$;
@@ -47,16 +64,21 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_user uuid;
 begin
   if nullif(btrim(coalesce(p_reason, '')), '') is null then
     return 'reason_required';
   end if;
   update public.place_claims
   set status = 'rejected', decided_reason = left(btrim(p_reason), 500), decided_at = now()
-  where id = p_claim and status = 'pending';
-  if not found then
+  where id = p_claim and status = 'pending'
+  returning user_id into v_user;
+  if v_user is null then
     return 'not_pending';
   end if;
+  insert into public.notifications (user_id, type)
+  select v_user, 'claim_rejected' where exists (select 1 from public.profiles where id = v_user);
   return 'rejected';
 end;
 $$;
