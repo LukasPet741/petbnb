@@ -68,6 +68,14 @@ const partners = {
       open: "Open My business",
       statuses: { pending: "Being checked", approved: "Approved", rejected: "Not approved" },
     },
+    promote: {
+      title: "Show your page first",
+      text: "For {price} a month your page comes first in the places list and stands out on the map, marked “Ad” so pet owners know it is paid. Everything else on PetBnB stays free.",
+      button: "Promote for {price}/month",
+      note: "Payment is by card through Stripe. We switch promotion on by hand once the payment arrives, and you can cancel any time.",
+      activeTitle: "Your page is promoted",
+      activeText: "It comes first in the places list and stands out on the map, marked “Ad”.",
+    },
     page: {
       title: "My business",
       subtitle: "Your places on the map, their words and services, and booking requests.",

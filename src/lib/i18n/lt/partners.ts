@@ -68,6 +68,14 @@ const partners = {
       open: "Atidaryti „Mano verslas“",
       statuses: { pending: "Tikrinama", approved: "Patvirtinta", rejected: "Nepatvirtinta" },
     },
+    promote: {
+      title: "Rodykite savo puslapį pirmą",
+      text: "Už {price} per mėnesį jūsų puslapis rodomas pirmas vietų sąraše ir išsiskiria žemėlapyje, pažymėtas „Reklama“, kad gyvūnų šeimininkai žinotų, jog vieta mokama. Visa kita PetBnB lieka nemokama.",
+      button: "Reklamuoti už {price}/mėn.",
+      note: "Mokama kortele per „Stripe“. Reklamą įjungiame rankiniu būdu, kai gauname mokėjimą, o atsisakyti galite bet kada.",
+      activeTitle: "Jūsų puslapis reklamuojamas",
+      activeText: "Jis rodomas pirmas vietų sąraše ir išsiskiria žemėlapyje, pažymėtas „Reklama“.",
+    },
     page: {
       title: "Mano verslas",
       subtitle: "Jūsų vietos žemėlapyje, jų aprašymai, paslaugos ir užsakymų užklausos.",

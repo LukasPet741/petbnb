@@ -5,6 +5,7 @@ import { Building2, Users } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import EmptyState from "@/components/EmptyState";
 import { OwnedPlaceCard, RequestsCard, cardClass, headingClass } from "@/components/business/BusinessCards";
+import PromoteCard from "@/components/business/PromoteCard";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
@@ -73,6 +74,7 @@ export default function BusinessPage() {
             {places.length > 0 && <RequestsCard requests={requests} onAnswered={load} />}
           </div>
           <aside className="min-w-0 space-y-5">
+            {places.map((place) => <PromoteCard key={place.id} place={place} />)}
             {claims.length > 0 && (
               <section className={cardClass}>
                 <h2 className={headingClass}>{t("partners.forBusiness.page.claims")}</h2>

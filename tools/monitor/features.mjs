@@ -134,6 +134,12 @@ export const FEATURES = [
     match: [/\/business\/|placeBusiness|PlaceBusinessActions|BusinessCards/],
   },
   {
+    id: "promote",
+    label: "Promoted placement (Stripe)",
+    routes: ["/business"],
+    match: [/PromoteCard|lib\/promote/],
+  },
+  {
     id: "partners-map",
     label: "Partners & places map",
     routes: ["/partners"],
