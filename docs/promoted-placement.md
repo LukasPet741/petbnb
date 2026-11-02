@@ -35,6 +35,17 @@ before the first promotion; the app reads places with or without it, so merge or
   The ad label ("Reklama" / "Ad") already meets DSA Art. 26 for marking paid placement.
 - `PRODUCT.md` describes PetBnB as a student project: update the footer note once it trades.
 
+## Running it day to day
+
+`npm run business` (on your machine, against the database in `.env.local`):
+
+- `npm run business`: claims waiting, with the claimant's email and message.
+- `npm run business approve <claim id>`: the claimant owns the place and sees the Promote card.
+- `npm run business reject <claim id> <reason>`: they read the reason on My business.
+- `npm run business promotions`: every subscription and how many are paying.
+
+Needs migrations `20261103100000` and `20261103110000`.
+
 ## Who to offer it to first
 
 Businesses that already claimed their page on `/business` (they see the card), then the two

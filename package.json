@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "monitor": "node tools/monitor/server.mjs",
+    "business": "node tools/business/admin.mjs",
     "e2e": "playwright test --project=public",
     "e2e:signed-in": "playwright test --project=signed-in"
   },
