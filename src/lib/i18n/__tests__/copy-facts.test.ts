@@ -110,6 +110,12 @@ describe("payments copy, once businesses can pay for Promoted placement", () => 
     expect(text("lt", "legal.terms.sections.aboutProject.body")).not.toMatch(/nėra komercinė|joks juridinis asmuo/i);
   });
 
+  it("says on the landing page who pays nothing, rather than that PetBnB charges nobody", () => {
+    expect(text("en", "home.honest.points.fees.title")).not.toMatch(/charges nothing/i);
+    expect(text("en", "home.honest.points.fees.title")).toMatch(/owners or sitters/i);
+    expect(text("lt", "home.honest.points.fees.title")).toMatch(/šeimininkams ir globėjams/);
+  });
+
   it("tells readers of the privacy policy who handles business payments", () => {
     expect(text("en", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);
     expect(text("lt", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);

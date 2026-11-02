@@ -114,8 +114,8 @@ const home = {
     title: "What we do, and what we don't",
     points: {
       fees: {
-        title: "PetBnB charges nothing",
-        body: "No commission, and the site never handles money. You pay whoever does the job, directly.",
+        title: "No fees for owners or sitters",
+        body: "No commission, and the site never handles money between you. You pay whoever does the job, directly.",
       },
       vetting: {
         title: "We don't check profiles",

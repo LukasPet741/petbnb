@@ -113,8 +113,8 @@ const home = {
     title: "Ką darome ir ko ne",
     points: {
       fees: {
-        title: "PetBnB neima mokesčių",
-        body: "Jokių komisinių, o pinigų svetainė netvarko: už paslaugą mokate tiesiogiai tam, kas ją atlieka.",
+        title: "Jokių mokesčių šeimininkams ir globėjams",
+        body: "Jokių komisinių, o jūsų tarpusavio pinigų svetainė netvarko: už paslaugą mokate tiesiogiai tam, kas ją atlieka.",
       },
       vetting: {
         title: "Profilių netikriname",
