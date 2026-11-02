@@ -15,6 +15,8 @@ import { promotionChange, verifyStripeSignature } from "./lib.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")?.trim() ?? "";
+// The Promoted Payment Link's id (plink_…). Only its checkouts start a promotion; see lib.ts.
+const PAYMENT_LINK = Deno.env.get("STRIPE_PROMOTE_PAYMENT_LINK")?.trim() ?? "";
 
 const json = (body: unknown, status: number) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -34,7 +36,7 @@ Deno.serve(async (req) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const change = promotionChange(event);
+  const change = promotionChange(event, PAYMENT_LINK);
   if (change.kind === "ignore") return json({ ok: true, status: "ignored", reason: change.reason }, 200);
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });

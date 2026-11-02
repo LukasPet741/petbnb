@@ -51,53 +51,61 @@ describe("verifyStripeSignature", () => {
 });
 
 const CREATED = 1_762_000_000;
+const LINK_ID = "plink_promoted";
 const AT = new Date(CREATED * 1000).toISOString();
 const completed = (session: Record<string, unknown>, type = "checkout.session.completed") => ({
   id: "evt_1", type, created: CREATED,
-  data: { object: { object: "checkout.session", mode: "subscription", payment_status: "paid", client_reference_id: PLACE, subscription: "sub_1", customer: "cus_1", ...session } },
+  data: { object: { object: "checkout.session", payment_link: "plink_promoted", mode: "subscription", payment_status: "paid", client_reference_id: PLACE, subscription: "sub_1", customer: "cus_1", ...session } },
 });
 
 describe("promotionChange", () => {
   it("starts a promotion when a subscription checkout for a place is paid", () => {
-    expect(promotionChange(completed({}))).toEqual({ kind: "start", placeId: PLACE, subscriptionId: "sub_1", customerId: "cus_1", at: AT });
+    expect(promotionChange(completed({}), LINK_ID)).toEqual({ kind: "start", placeId: PLACE, subscriptionId: "sub_1", customerId: "cus_1", at: AT });
   });
 
   it("starts one when a delayed payment succeeds", () => {
-    expect(promotionChange(completed({ payment_status: "paid" }, "checkout.session.async_payment_succeeded")).kind).toBe("start");
+    expect(promotionChange(completed({ payment_status: "paid" }, "checkout.session.async_payment_succeeded"), LINK_ID).kind).toBe("start");
+  });
+
+  it("starts nothing from another Payment Link, or while none is configured", () => {
+    // Anyone can add ?client_reference_id=<place id> to any Payment Link on the account.
+    expect(promotionChange(completed({ payment_link: "plink_cheaper" }), LINK_ID)).toEqual({ kind: "ignore", reason: "other_payment_link" });
+    expect(promotionChange(completed({ payment_link: null }), LINK_ID)).toEqual({ kind: "ignore", reason: "other_payment_link" });
+    expect(promotionChange(completed({}), "")).toEqual({ kind: "ignore", reason: "other_payment_link" });
   });
 
   it("waits while the checkout is not paid yet", () => {
-    expect(promotionChange(completed({ payment_status: "unpaid" }))).toEqual({ kind: "ignore", reason: "not_paid" });
+    expect(promotionChange(completed({ payment_status: "unpaid" }), LINK_ID)).toEqual({ kind: "ignore", reason: "not_paid" });
   });
 
   it("ignores a checkout without a place, or with one that is not a place id", () => {
-    expect(promotionChange(completed({ client_reference_id: null }))).toEqual({ kind: "ignore", reason: "no_place" });
-    expect(promotionChange(completed({ client_reference_id: "'; drop table places;--" }))).toEqual({ kind: "ignore", reason: "no_place" });
+    expect(promotionChange(completed({ client_reference_id: null }), LINK_ID)).toEqual({ kind: "ignore", reason: "no_place" });
+    expect(promotionChange(completed({ client_reference_id: "'; drop table places;--" }), LINK_ID)).toEqual({ kind: "ignore", reason: "no_place" });
   });
 
   it("ignores a one-off payment, which would never end", () => {
-    expect(promotionChange(completed({ mode: "payment", subscription: null }))).toEqual({ kind: "ignore", reason: "not_a_subscription" });
+    expect(promotionChange(completed({ mode: "payment", subscription: null }), LINK_ID)).toEqual({ kind: "ignore", reason: "not_a_subscription" });
   });
 
   it("reports a deleted subscription as canceled", () => {
     const event = { id: "evt_2", type: "customer.subscription.deleted", created: CREATED, data: { object: { object: "subscription", id: "sub_1", status: "active" } } };
-    expect(promotionChange(event)).toEqual({ kind: "status", subscriptionId: "sub_1", status: "canceled", at: AT });
+    expect(promotionChange(event, LINK_ID)).toEqual({ kind: "status", subscriptionId: "sub_1", status: "canceled", at: AT });
   });
 
   it("reports every status an update carries, for the database to judge", () => {
     const updated = (status: string) => ({ id: "evt_3", type: "customer.subscription.updated", created: CREATED, data: { object: { object: "subscription", id: "sub_1", status } } });
     for (const status of ["active", "past_due", "unpaid", "canceled", "paused"]) {
-      expect(promotionChange(updated(status))).toEqual({ kind: "status", subscriptionId: "sub_1", status, at: AT });
+      expect(promotionChange(updated(status), LINK_ID)).toEqual({ kind: "status", subscriptionId: "sub_1", status, at: AT });
     }
-    expect(promotionChange(updated("made_up"))).toEqual({ kind: "ignore", reason: "malformed" });
+    expect(promotionChange(updated("made_up"), LINK_ID)).toEqual({ kind: "ignore", reason: "malformed" });
   });
 
   it("ignores every other event and anything malformed", () => {
-    expect(promotionChange({ id: "evt_4", type: "invoice.paid", created: CREATED, data: { object: {} } })).toEqual({ kind: "ignore", reason: "event_type" });
-    expect(promotionChange(null)).toEqual({ kind: "ignore", reason: "malformed" });
-    expect(promotionChange({ type: "customer.subscription.deleted", created: CREATED, data: { object: {} } })).toEqual({ kind: "ignore", reason: "malformed" });
+    expect(promotionChange({ id: "evt_4", type: "invoice.paid", created: CREATED, data: { object: {} } }, LINK_ID)).toEqual({ kind: "ignore", reason: "event_type" });
+    expect(promotionChange(null, LINK_ID)).toEqual({ kind: "ignore", reason: "malformed" });
+    expect(promotionChange({ type: "customer.subscription.deleted", created: CREATED, data: { object: {} } }, LINK_ID)).toEqual({ kind: "ignore", reason: "malformed" });
     // Without Stripe's event time an update could not be ordered against the others.
-    expect(promotionChange({ ...completed({}), created: undefined })).toEqual({ kind: "ignore", reason: "malformed" });
+    expect(promotionChange({ ...completed({}), created: undefined }, LINK_ID)).toEqual({ kind: "ignore", reason: "malformed" });
   });
 });
 

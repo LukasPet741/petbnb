@@ -60,15 +60,20 @@ export async function verifyStripeSignature(
 export type PromotionChange =
   | { kind: "start"; placeId: string; subscriptionId: string; customerId: string | null; at: string }
   | { kind: "status"; subscriptionId: string; status: SubscriptionStatus; at: string }
-  | { kind: "ignore"; reason: "malformed" | "event_type" | "not_paid" | "no_place" | "not_a_subscription" };
+  | { kind: "ignore"; reason: "malformed" | "event_type" | "not_paid" | "no_place" | "not_a_subscription" | "other_payment_link" };
 
 const text = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
 /** Stripe sends an id, or the expanded object when the endpoint asks for it. */
 const idOf = (v: unknown): string | null => text(v) ?? (v && typeof v === "object" ? text((v as { id?: unknown }).id) : null);
 
-/** What a verified Stripe event does to a place's promotion. */
+/**
+ * What a verified Stripe event does to a place's promotion. paymentLink is the Promoted Payment
+ * Link's id (plink_…): any Payment Link takes a client_reference_id from its URL, so without this
+ * check a cheaper subscription on the same Stripe account, bought with a place's id, would
+ * promote that place. With no paymentLink configured, no checkout promotes anything.
+ */
 // deno-lint-ignore no-explicit-any
-export function promotionChange(event: any): PromotionChange {
+export function promotionChange(event: any, paymentLink: string): PromotionChange {
   const type = text(event?.type);
   const object = event?.data?.object;
   // When Stripe created the event: the database orders statuses by it, since delivery is unordered.
@@ -77,6 +82,7 @@ export function promotionChange(event: any): PromotionChange {
   const at = new Date(created * 1000).toISOString();
 
   if (type === "checkout.session.completed" || type === "checkout.session.async_payment_succeeded") {
+    if (!paymentLink || idOf(object.payment_link) !== paymentLink) return { kind: "ignore", reason: "other_payment_link" };
     if (object.payment_status !== "paid" && object.payment_status !== "no_payment_required") return { kind: "ignore", reason: "not_paid" };
     const placeId = text(object.client_reference_id);
     if (!placeId || !UUID.test(placeId)) return { kind: "ignore", reason: "no_place" };

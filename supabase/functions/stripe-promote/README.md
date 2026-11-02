@@ -31,6 +31,9 @@ time and an older event never overwrites a newer one. A status that arrives befo
    `customer.subscription.updated`, `customer.subscription.deleted`.
 4. Copy the endpoint's signing secret (`whsec_…`) into Supabase → Edge Functions → Secrets as
    `STRIPE_WEBHOOK_SECRET`. Until it is set, every request is refused.
+   Also set `STRIPE_PROMOTE_PAYMENT_LINK` to the Payment Link's id (`plink_…`, on its page in
+   Stripe). Only checkouts from that link promote a place: any Payment Link accepts a
+   `client_reference_id` in its URL, so a cheaper subscription on the same account must not count.
 5. Test from Stripe's dashboard with "Send test event"; the response body says what happened.
 
 ## Tests
