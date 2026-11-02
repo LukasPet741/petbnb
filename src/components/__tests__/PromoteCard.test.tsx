@@ -11,7 +11,7 @@ vi.mock("@/lib/supabase", () => ({ supabase: {} }));
 
 const LINK = "https://buy.stripe.com/test_abc123";
 const place: OwnedPlace = {
-  id: "pl-1", slug: "dogiday", name: "Dogiday", tier: "partner", status: "published",
+  id: "pl-1", slug: "dogiday", name: "Dogiday", tier: "partner", status: "published", promoted: false,
   descriptionLt: "", descriptionEn: "", hoursLt: "", hoursEn: "", website: "", accepts: [], services: [],
 };
 
@@ -44,13 +44,13 @@ describe("PromoteCard", () => {
     expect(container.textContent).toBe("");
   });
 
-  it("does not offer a Bookable page, since promoting it would end its booking requests", () => {
-    const { container } = render(<PromoteCard place={{ ...place, tier: "bookable" }} checkoutBase={LINK} />);
-    expect(container.textContent).toBe("");
+  it("offers a Bookable page too, since promotion no longer replaces its tier", () => {
+    render(<PromoteCard place={{ ...place, tier: "bookable" }} checkoutBase={LINK} />);
+    expect(screen.getByRole("link", { name: /promote.button/ })).toBeTruthy();
   });
 
   it("says a promoted page is promoted, with nothing to buy", () => {
-    render(<PromoteCard place={{ ...place, tier: "promoted" }} checkoutBase={LINK} />);
+    render(<PromoteCard place={{ ...place, tier: "bookable", promoted: true }} checkoutBase={LINK} />);
     expect(screen.getByText("partners.forBusiness.promote.activeTitle")).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });

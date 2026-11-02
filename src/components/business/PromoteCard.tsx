@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * My business: put one owned place first on the map and the list, as a labelled ad.
- * Promoted is a tier of its own, so a Bookable place is not offered it (promoting it would end
- * its booking requests). Shows nothing while promotion is not on sale (see lib/promote).
+ * Promotion is a flag on top of the tier, so a Bookable place keeps its booking requests.
+ * Shows nothing while promotion is not on sale (see lib/promote).
  */
 export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase() }: { place: OwnedPlace; checkoutBase?: string }) {
   const { t, locale } = useLanguage();
   const { user } = useAuth();
   if (place.status !== "published") return null;
 
-  if (place.tier === "promoted") {
+  if (place.promoted) {
     return (
       <section className={cardClass}>
         <h2 className={cn(headingClass, "flex items-center gap-1.5")}>
@@ -30,7 +30,6 @@ export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase(
     );
   }
 
-  if (place.tier !== "partner" && place.tier !== "listed") return null;
   const href = promoteCheckoutUrl(checkoutBase, place.id, user?.email);
   if (!href) return null;
   const price = formatPromotePrice(locale);

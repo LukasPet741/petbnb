@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fetchPlaces, rowToPlace, type PlaceRow } from "@/lib/placesDb";
 import { LISTED_PLACES } from "@/lib/listedPlaces";
+import { isBookable, isPromoted } from "@/lib/partners";
 
 const partnerRow: PlaceRow = {
   slug: "dogpunk", name: "DogPunk", categories: ["training"], accepts: ["dog"], tier: "partner",
@@ -49,6 +50,18 @@ describe("rowToPlace", () => {
     expect(place.founding).toBe(false);
     expect(place.locations).toEqual([{ city: "Kaunas", lat: 54.9, lng: 23.9 }]);
   });
+
+  it("reads promotion as a flag beside the tier, so a promoted Bookable place stays bookable", () => {
+    const place = rowToPlace({ ...partnerRow, tier: "bookable", is_promoted: true });
+    expect(place.tier).toBe("bookable");
+    expect(isBookable(place)).toBe(true);
+    expect(isPromoted(place)).toBe(true);
+  });
+
+  it("leaves a place unpromoted when the flag is false or absent", () => {
+    expect(isPromoted(rowToPlace({ ...partnerRow, is_promoted: false }))).toBe(false);
+    expect(isPromoted(rowToPlace(partnerRow))).toBe(false);
+  });
 });
 
 /** A stand-in for the Supabase client: one select that answers with what the test says. */
@@ -60,6 +73,12 @@ describe("fetchPlaces", () => {
   it("lists partners before listed places, then by name", async () => {
     const places = await fetchPlaces(client({ data: [listedRow, partnerRow], error: null }));
     expect(places?.map((p) => p.slug)).toEqual(["dogpunk", "kika"]);
+  });
+
+  it("lists promoted places first, whatever their tier", async () => {
+    const promoted = { ...listedRow, slug: "zoo", name: "Zoo", tier: "bookable", is_promoted: true };
+    const places = await fetchPlaces(client({ data: [listedRow, partnerRow, promoted], error: null }));
+    expect(places?.map((p) => p.slug)).toEqual(["zoo", "dogpunk", "kika"]);
   });
 
   it("answers null when the table is not there yet, so the app keeps its built-in list", async () => {
@@ -82,5 +101,23 @@ describe("the listed seed migration", () => {
   it("seeds every address", () => {
     const addresses = LISTED_PLACES.reduce((n, p) => n + p.locations.length, 0);
     expect(sql).toContain(`(${addresses} addresses)`);
+  });
+});
+
+describe("the promotion flag migration", () => {
+  const sql = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261103090000_place_promotion_flag.sql"), "utf8").replace(/--.*$/gm, "");
+
+  it("adds is_promoted, off by default", () => {
+    expect(sql).toMatch(/add column is_promoted boolean not null default false/);
+  });
+
+  it("moves every promoted-tier place onto the flag before the tier stops allowing it", () => {
+    expect(sql.indexOf("set is_promoted = true")).toBeGreaterThan(-1);
+    expect(sql.indexOf("set is_promoted = true")).toBeLessThan(sql.indexOf("add constraint places_tier_check"));
+    expect(sql).toMatch(/check \(tier in \('listed', 'partner', 'bookable'\)\)/);
+  });
+
+  it("never lets an owner switch promotion on for themselves", () => {
+    expect(sql).not.toMatch(/grant[^;]*is_promoted/i);
   });
 });

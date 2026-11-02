@@ -1,13 +1,13 @@
 /**
- * Promoted placement, the one paid tier on the places map (place_business migration: "Promoted
- * places need no table: places.tier = 'promoted' is set by an admin, and the map labels it").
+ * Promoted placement, the one paid thing on the places map: places.is_promoted, a flag on top of
+ * any tier (20261103090000), set by an admin only; the map and the list label it as an ad.
  *
  * Payment is a Stripe Payment Link, so the site holds no payment secret and no webhook:
  *   1. Lukas creates a recurring Payment Link in Stripe for PROMOTE_PLAN and sets its URL as
  *      NEXT_PUBLIC_PROMOTE_CHECKOUT_URL (Vercel → Project → Environment Variables), then redeploys.
  *   2. A place owner opens it from My business. The place id rides along as client_reference_id,
  *      so each payment in Stripe names the place it is for.
- *   3. An admin sets that place's tier to 'promoted'. Until the variable is set, nothing is sold.
+ *   3. An admin sets that place's is_promoted to true. Until the variable is set, nothing is sold.
  */
 
 /** Edit here to change what My business quotes; keep it equal to the Payment Link's price. */

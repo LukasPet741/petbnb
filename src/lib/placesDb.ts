@@ -47,13 +47,15 @@ export interface PlaceRow {
   website_url: string | null;
   logo_path: string | null;
   is_founding_partner: boolean;
+  /** Absent in rows written before 20261103090000; read as not promoted. */
+  is_promoted?: boolean;
   place_locations: PlaceLocationRow[];
   place_services: PlaceServiceRow[];
 }
 
 const COLUMNS =
   "id, slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +
-  "hours_lt, hours_en, website_url, logo_path, is_founding_partner, " +
+  "hours_lt, hours_en, website_url, logo_path, is_founding_partner, is_promoted, " +
   "place_locations(city, area, address, note_lt, note_en, lat, lng, approximate, opening_hours, sort_order), " +
   "place_services(name_lt, name_en, price_from, price_to, unit_lt, unit_en, url, sort_order)";
 
@@ -101,7 +103,8 @@ export function rowToPlace(row: PlaceRow): Partner {
   return {
     slug: row.slug,
     name: row.name,
-    tier: row.tier === "listed" || row.tier === "bookable" || row.tier === "promoted" ? row.tier : "partner",
+    tier: row.tier === "listed" || row.tier === "bookable" ? row.tier : "partner",
+    ...(row.is_promoted ? { promoted: true } : {}),
     id: row.id,
     categories: row.categories as PartnerCategory[],
     accepts: row.accepts as PetType[],
@@ -116,7 +119,7 @@ export function rowToPlace(row: PlaceRow): Partner {
   };
 }
 
-const rank = (p: Partner) => (p.tier === "promoted" ? 0 : p.tier === "listed" ? 2 : 1);
+const rank = (p: Partner) => (p.promoted ? 0 : p.tier === "listed" ? 2 : 1);
 
 /** Published places, promoted and partners first and then by name; null when there is nothing to read. */
 export async function fetchPlaces(client: PlacesClient): Promise<Partner[] | null> {

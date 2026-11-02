@@ -54,7 +54,9 @@ export interface Partner {
    * "listed": a business from public information (OpenStreetMap) that has not agreed to
    * anything: facts only, no logo or copy, until it claims its page. Left out = a partner.
    */
-  tier?: "partner" | "listed" | "bookable" | "promoted";
+  tier?: "partner" | "listed" | "bookable";
+  /** Paid placement, on top of any tier: shown first and labelled as an ad. */
+  promoted?: boolean;
   /** The places table's id, once the map reads it; the built-in list has none. Writes need it. */
   id?: string;
   /** The animals they take; the map and the list filter on it. Empty = not known yet. */
@@ -222,7 +224,7 @@ export const isListed = (place: Partner) => place.tier === "listed";
 export const isBookable = (place: Partner) => place.tier === "bookable";
 
 /** Paid placement: always labelled as advertising ("Reklama"; Business, Tax & Legal Handbook §7). */
-export const isPromoted = (place: Partner) => place.tier === "promoted";
+export const isPromoted = (place: Partner) => place.promoted === true;
 
 export function partnersFor(species: readonly PetType[], partners: Partner[] = PARTNERS): Partner[] {
   if (species.length === 0) return partners;

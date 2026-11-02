@@ -29,6 +29,8 @@ export interface OwnedPlace {
   name: string;
   tier: string;
   status: string;
+  /** Paid placement (places.is_promoted), set by an admin only. */
+  promoted: boolean;
   descriptionLt: string;
   descriptionEn: string;
   hoursLt: string;
@@ -82,10 +84,10 @@ export async function fetchMyClaims(client: CommunityClient): Promise<MyClaim[] 
 export async function fetchOwnedPlaces(client: CommunityClient, userId: string): Promise<OwnedPlace[]> {
   const { data } = await client
     .from("places")
-    .select("id, slug, name, tier, status, description_lt, description_en, hours_lt, hours_en, website_url, accepts, place_services(id, name_lt, name_en, price_from, sort_order)")
+    .select("id, slug, name, tier, status, is_promoted, description_lt, description_en, hours_lt, hours_en, website_url, accepts, place_services(id, name_lt, name_en, price_from, sort_order)")
     .eq("owner_user_id", userId);
   return (Array.isArray(data) ? data : []).map((p: any) => ({
-    id: p.id, slug: p.slug, name: p.name, tier: p.tier, status: p.status,
+    id: p.id, slug: p.slug, name: p.name, tier: p.tier, status: p.status, promoted: p.is_promoted === true,
     descriptionLt: p.description_lt ?? "", descriptionEn: p.description_en ?? "",
     hoursLt: p.hours_lt ?? "", hoursEn: p.hours_en ?? "", website: p.website_url ?? "", accepts: p.accepts ?? [],
     services: [...(p.place_services ?? [])]

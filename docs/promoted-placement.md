@@ -14,10 +14,14 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
 3. When a payment arrives, Stripe shows the place id as **client_reference_id**. Switch it on:
 
    ```sql
-   update public.places set tier = 'promoted' where id = '<client_reference_id>';
+   update public.places set is_promoted = true where id = '<client_reference_id>';
    ```
 
-   On cancellation, set it back to `'partner'` (or `'listed'`).
+   On cancellation, set it back to `false`. The place keeps its tier either way.
+
+Migration `20261103090000_place_promotion_flag.sql` adds `is_promoted`: apply it to prod
+**before** deploying this code, or the map falls back to its built-in list and My business
+cannot read owned places.
 
 ## Before taking real money (not legal advice)
 
@@ -31,5 +35,4 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
 ## Who to offer it to first
 
 Businesses that already claimed their page on `/business` (they see the card), then the two
-founding partners. A Bookable place is not offered it yet: `tier` holds one value, so promoting
-it would switch off its booking requests (follow-up: make promotion a flag, not a tier).
+founding partners. Bookable places can be promoted and keep taking booking requests.
