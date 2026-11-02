@@ -13,6 +13,7 @@ import PlaceBusinessActions from "@/components/partners/PlaceBusinessActions";
 import AreaLegend, { useAreaLabel } from "@/components/partners/AreaLegend";
 import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
+import { formatPromotePrice, promoteCheckoutBase } from "@/lib/promote";
 import {
   distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
   type Partner, type PartnerCategory,
@@ -35,7 +36,7 @@ const SPECIES: PetType[] = ["dog", "cat", "small_mammal", "bird", "reptile"];
  * consumer rules (Omnibus) want owners told which is which.
  */
 export default function PartnersDirectory() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [species, setSpecies] = useState<PetType | null>(null);
   const [category, setCategory] = useState<PartnerCategory | null>(null);
@@ -146,6 +147,9 @@ export default function PartnersDirectory() {
         <section className="mt-12 rounded-[var(--radius-card)] border border-ink/8 bg-surface p-6 sm:p-8">
           <h2 className="font-display text-xl font-semibold text-ink">{t("partners.join.title")}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{t("partners.join.text")}</p>
+          {promoteCheckoutBase() && (
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{t("partners.join.promote", { price: formatPromotePrice(locale) })}</p>
+          )}
           <Link href="/business" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline">
             {t("partners.forBusiness.page.title")}
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />

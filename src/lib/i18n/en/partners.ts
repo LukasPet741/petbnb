@@ -191,6 +191,7 @@ const partners = {
   join: {
     title: "Run a pet business?",
     text: "PetBnB is free for partners for now: no fees, no commitment. We prepare your page from your answers and publish it only once you agree.",
+    promote: "Want to be seen first? Once the page is yours, you can promote it from My business for {price} a month, always marked “Ad”.",
   },
 };
 

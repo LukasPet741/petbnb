@@ -47,3 +47,11 @@ describe("PROMOTE_PLAN", () => {
     expect(PROMOTE_PLAN.period).toBe("month");
   });
 });
+
+describe("formatPromotePrice", () => {
+  it("writes the plan's price in euros for each language", async () => {
+    const { formatPromotePrice } = await import("@/lib/promote");
+    expect(formatPromotePrice("en")).toMatch(/€\s?19/);
+    expect(formatPromotePrice("lt")).toMatch(/19\s?€/);
+  });
+});

@@ -13,6 +13,10 @@
 /** Edit here to change what My business quotes; keep it equal to the Payment Link's price. */
 export const PROMOTE_PLAN = { priceEur: 19, period: "month" } as const;
 
+/** The plan's price as the page shows it ("19 €" in Lithuanian, "€19" in English). */
+export const formatPromotePrice = (locale: string): string =>
+  new Intl.NumberFormat(locale === "lt" ? "lt-LT" : "en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(PROMOTE_PLAN.priceEur);
+
 /** Stripe's limit for client_reference_id: letters, digits, dashes and underscores, up to 200. */
 const REFERENCE = /^[A-Za-z0-9_-]{1,200}$/;
 

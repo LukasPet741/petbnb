@@ -191,6 +191,7 @@ const partners = {
   join: {
     title: "Turite gyvūnų verslą?",
     text: "Partneriams PetBnB kol kas nemokamas: jokių mokesčių ar įsipareigojimų. Puslapį paruošiame pagal jūsų atsakymus ir paskelbiame tik jums sutikus.",
+    promote: "Norite būti matomi pirmi? Kai puslapis bus jūsų, galite jį reklamuoti skiltyje „Mano verslas“ už {price} per mėnesį, visada su žyma „Reklama“.",
   },
 };
 

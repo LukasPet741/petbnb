@@ -5,7 +5,7 @@ import { cardClass, headingClass } from "@/components/business/BusinessCards";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import type { OwnedPlace } from "@/lib/placeBusiness";
-import { PROMOTE_PLAN, promoteCheckoutBase, promoteCheckoutUrl } from "@/lib/promote";
+import { formatPromotePrice, promoteCheckoutBase, promoteCheckoutUrl } from "@/lib/promote";
 import { cn } from "@/lib/utils";
 
 /**
@@ -33,7 +33,7 @@ export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase(
   if (place.tier !== "partner" && place.tier !== "listed") return null;
   const href = promoteCheckoutUrl(checkoutBase, place.id, user?.email);
   if (!href) return null;
-  const price = new Intl.NumberFormat(locale === "lt" ? "lt-LT" : "en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(PROMOTE_PLAN.priceEur);
+  const price = formatPromotePrice(locale);
 
   return (
     <section className={cardClass}>
