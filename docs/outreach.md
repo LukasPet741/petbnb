@@ -9,7 +9,7 @@ know they are on PetBnB. This is the kit for telling them; sending is yours to d
 npm run business outreach > outreach.csv
 ```
 
-One row per published place nobody has claimed yet: name, city, categories, website, and its
+One row per published, listed place (from OpenStreetMap; partners are left out) nobody has claimed yet: name, city, categories, website, and its
 **claim link** (`https://petbnb.lt/partners?p=<slug>&claim=1`). The link opens the place with
 its claim form already open, and brings the visitor back to it after signing in.
 

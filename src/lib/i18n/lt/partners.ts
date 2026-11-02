@@ -74,6 +74,8 @@ const partners = {
       button: "Reklamuoti už {price}/mėn.",
       note: "Mokama kortele per „Stripe“. Reklamą įjungiame rankiniu būdu, kai gauname mokėjimą, o atsisakyti galite bet kada.",
       terms: "Taisyklės reklamuotojams",
+      paidTitle: "Mokėjimas gautas",
+      paidText: "Ačiū. Reklama įjungiama, kai tik mokėjimas patvirtinamas, ir ši kortelė tai parodys.",
       activeTitle: "Jūsų puslapis reklamuojamas",
       activeText: "Jis rodomas pirmas vietų sąraše ir išsiskiria žemėlapyje, pažymėtas „Reklama“.",
     },

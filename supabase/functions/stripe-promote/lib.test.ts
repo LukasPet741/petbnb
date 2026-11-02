@@ -50,14 +50,16 @@ describe("verifyStripeSignature", () => {
   });
 });
 
+const CREATED = 1_762_000_000;
+const AT = new Date(CREATED * 1000).toISOString();
 const completed = (session: Record<string, unknown>, type = "checkout.session.completed") => ({
-  id: "evt_1", type,
+  id: "evt_1", type, created: CREATED,
   data: { object: { object: "checkout.session", mode: "subscription", payment_status: "paid", client_reference_id: PLACE, subscription: "sub_1", customer: "cus_1", ...session } },
 });
 
 describe("promotionChange", () => {
   it("starts a promotion when a subscription checkout for a place is paid", () => {
-    expect(promotionChange(completed({}))).toEqual({ kind: "start", placeId: PLACE, subscriptionId: "sub_1", customerId: "cus_1" });
+    expect(promotionChange(completed({}))).toEqual({ kind: "start", placeId: PLACE, subscriptionId: "sub_1", customerId: "cus_1", at: AT });
   });
 
   it("starts one when a delayed payment succeeds", () => {
@@ -78,22 +80,24 @@ describe("promotionChange", () => {
   });
 
   it("reports a deleted subscription as canceled", () => {
-    const event = { id: "evt_2", type: "customer.subscription.deleted", data: { object: { object: "subscription", id: "sub_1", status: "active" } } };
-    expect(promotionChange(event)).toEqual({ kind: "status", subscriptionId: "sub_1", status: "canceled" });
+    const event = { id: "evt_2", type: "customer.subscription.deleted", created: CREATED, data: { object: { object: "subscription", id: "sub_1", status: "active" } } };
+    expect(promotionChange(event)).toEqual({ kind: "status", subscriptionId: "sub_1", status: "canceled", at: AT });
   });
 
   it("reports every status an update carries, for the database to judge", () => {
-    const updated = (status: string) => ({ id: "evt_3", type: "customer.subscription.updated", data: { object: { object: "subscription", id: "sub_1", status } } });
+    const updated = (status: string) => ({ id: "evt_3", type: "customer.subscription.updated", created: CREATED, data: { object: { object: "subscription", id: "sub_1", status } } });
     for (const status of ["active", "past_due", "unpaid", "canceled", "paused"]) {
-      expect(promotionChange(updated(status))).toEqual({ kind: "status", subscriptionId: "sub_1", status });
+      expect(promotionChange(updated(status))).toEqual({ kind: "status", subscriptionId: "sub_1", status, at: AT });
     }
     expect(promotionChange(updated("made_up"))).toEqual({ kind: "ignore", reason: "malformed" });
   });
 
   it("ignores every other event and anything malformed", () => {
-    expect(promotionChange({ id: "evt_4", type: "invoice.paid", data: { object: {} } })).toEqual({ kind: "ignore", reason: "event_type" });
+    expect(promotionChange({ id: "evt_4", type: "invoice.paid", created: CREATED, data: { object: {} } })).toEqual({ kind: "ignore", reason: "event_type" });
     expect(promotionChange(null)).toEqual({ kind: "ignore", reason: "malformed" });
-    expect(promotionChange({ type: "customer.subscription.deleted", data: { object: {} } })).toEqual({ kind: "ignore", reason: "malformed" });
+    expect(promotionChange({ type: "customer.subscription.deleted", created: CREATED, data: { object: {} } })).toEqual({ kind: "ignore", reason: "malformed" });
+    // Without Stripe's event time an update could not be ordered against the others.
+    expect(promotionChange({ ...completed({}), created: undefined })).toEqual({ kind: "ignore", reason: "malformed" });
   });
 });
 
@@ -115,13 +119,13 @@ describe("the place_promotions migration", async () => {
   it("keeps the table and both functions away from browsers", () => {
     expect(sql).toMatch(/enable row level security/);
     expect(sql).toMatch(/revoke all on public\.place_promotions from anon, authenticated/);
-    for (const fn of ["_refresh_place_promotion(uuid)", "start_place_promotion(text, uuid, text)", "set_place_promotion_status(text, text)"]) {
+    for (const fn of ["_refresh_place_promotion(uuid)", "start_place_promotion(text, uuid, text, timestamptz)", "set_place_promotion_status(text, text, timestamptz)"]) {
       expect(sql).toContain(`revoke all on function public.${fn} from public, anon, authenticated`);
     }
     expect(sql).not.toMatch(/grant [^;]* to (anon|authenticated)/);
   });
 
-  it("never revives a canceled subscription", () => {
-    expect(sql).toMatch(/status <> 'canceled'/);
+  it("never revives a canceled subscription, nor lets an older event overwrite a newer one", () => {
+    expect(sql).toMatch(/status <> 'canceled' and public\.place_promotions\.status_at <= excluded\.status_at/);
   });
 });

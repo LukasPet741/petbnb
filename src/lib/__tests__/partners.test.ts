@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it, expect } from "vitest";
-import { ALL_PLACES, PARTNERS, claimPath, wantsClaim, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
+import { ALL_PLACES, PARTNERS, claimPath, wantsClaim, splitForList, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -133,6 +133,28 @@ describe("mapPlaces", () => {
       locations: [{ city: "Kaunas", lat: 54.9, lng: 23.9 }],
     };
     expect(mapPlaces([listed])[0].listed).toBe(true);
+  });
+
+  it("draws a promoted listed place as a promoted pin, not a listed dot", () => {
+    const paid: Partner = {
+      slug: "shop", name: "Shop", tier: "listed", promoted: true, categories: ["shop"], accepts: [], services: [],
+      locations: [{ city: "Kaunas", lat: 54.9, lng: 23.9 }],
+    };
+    expect(mapPlaces([paid])[0]).toMatchObject({ listed: false, promoted: true });
+  });
+});
+
+describe("splitForList", () => {
+  const place = (slug: string, extra: Partial<Partner>): Partner => ({ slug, name: slug, categories: [], accepts: [], services: [], locations: [], ...extra });
+
+  it("shows a promoted listed place with the partners, where its Ad label is, and keeps the order", () => {
+    const { featured, listed } = splitForList([
+      place("paid", { tier: "listed", promoted: true }),
+      place("partner", { tier: "partner" }),
+      place("free", { tier: "listed" }),
+    ]);
+    expect(featured.map((p) => p.slug)).toEqual(["paid", "partner"]);
+    expect(listed.map((p) => p.slug)).toEqual(["free"]);
   });
 });
 

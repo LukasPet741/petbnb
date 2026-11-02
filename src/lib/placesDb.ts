@@ -61,7 +61,8 @@ export const isMissingColumn = (error: unknown): boolean =>
   !!error && typeof error === "object" && (error as { code?: unknown }).code === "42703";
 
 /** The same select without is_promoted, for a database the migration has not reached yet. */
-export const withoutPromoted = (columns: string): string => columns.replace(/\bis_promoted,\s*/, "");
+export const withoutPromoted = (columns: string): string =>
+  columns.replace(/\bis_promoted\b\s*,\s*|\s*,\s*\bis_promoted\b(?!\s*,)/, "");
 
 const COLUMNS =
   "id, slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +

@@ -54,6 +54,12 @@ describe("PromoteCard", () => {
     expect(screen.getByRole("link", { name: /promote.button/ })).toBeTruthy();
   });
 
+  it("offers no second checkout to an owner just back from paying", () => {
+    render(<PromoteCard place={place} paid checkoutBase={LINK} />);
+    expect(screen.getByText("partners.forBusiness.promote.paidTitle")).toBeTruthy();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
   it("says a promoted page is promoted, with nothing to buy", () => {
     render(<PromoteCard place={{ ...place, tier: "bookable", promoted: true }} checkoutBase={LINK} />);
     expect(screen.getByText("partners.forBusiness.promote.activeTitle")).toBeTruthy();

@@ -15,7 +15,7 @@ import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import { formatPromotePrice, promoteCheckoutBase } from "@/lib/promote";
 import {
-  distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl, wantsClaim,
+  distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, splitForList, trackedUrl, wantsClaim,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
@@ -60,8 +60,7 @@ export default function PartnersDirectory() {
     () => partnersDoing(category, partnersFor(species ? [species] : [], allPlaces)).filter((p) => !openNow || isOpenNow(p)),
     [allPlaces, category, species, openNow],
   );
-  const partners = shown.filter((p) => !isListed(p));
-  const listed = shown.filter(isListed);
+  const { featured: partners, listed } = splitForList(shown);
   const places = useMemo(() => mapPlaces(shown), [shown]);
 
   return (
@@ -161,7 +160,7 @@ export default function PartnersDirectory() {
       </main>
       <PublicFooter />
 
-      <PartnerDialog partner={open} claim={!!open && open.slug === claimSlug} onClose={() => setOpenSlug(null)} />
+      <PartnerDialog partner={open} claim={!!open && open.slug === claimSlug} onClose={() => { setOpenSlug(null); setClaimSlug(null); }} />
     </div>
   );
 }

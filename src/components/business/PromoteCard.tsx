@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * Promotion is a flag on top of the tier, so a Bookable place keeps its booking requests.
  * Shows nothing while promotion is not on sale (see lib/promote).
  */
-export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase() }: { place: OwnedPlace; checkoutBase?: string }) {
+export default function PromoteCard({ place, paid = false, checkoutBase = promoteCheckoutBase() }: { place: OwnedPlace; paid?: boolean; checkoutBase?: string }) {
   const { t, locale } = useLanguage();
   const { user } = useAuth();
   if (place.status !== "published") return null;
@@ -33,6 +33,19 @@ export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase(
 
   const href = promoteCheckoutUrl(checkoutBase, place.id, user?.email);
   if (!href) return null;
+
+  // Back from Stripe and not switched on yet: no second checkout.
+  if (paid) {
+    return (
+      <section className={cardClass}>
+        <h2 className={cn(headingClass, "flex items-center gap-1.5")}>
+          <Megaphone className="h-4 w-4 text-amber-strong" aria-hidden="true" />
+          {t("partners.forBusiness.promote.paidTitle")}
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t("partners.forBusiness.promote.paidText")}</p>
+      </section>
+    );
+  }
   const price = formatPromotePrice(locale);
 
   return (

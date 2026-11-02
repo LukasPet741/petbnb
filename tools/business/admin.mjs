@@ -68,7 +68,7 @@ if (command.kind === "promotions") {
     .select("stripe_subscription_id, status, created_at, places(name)")
     .order("created_at", { ascending: false });
   if (error) fail(error, "20261103100000_place_promotions.sql");
-  console.log(formatPromotions(data.map((p) => ({ placeName: p.places?.name ?? "?", status: p.status, subscriptionId: p.stripe_subscription_id, since: p.created_at }))));
+  console.log(formatPromotions(data.map((p) => ({ placeName: p.places?.name ?? "(checkout not received yet)", status: p.status, subscriptionId: p.stripe_subscription_id, since: p.created_at }))));
 }
 
 if (command.kind === "outreach") {
@@ -76,6 +76,8 @@ if (command.kind === "outreach") {
     .from("places")
     .select("slug, name, categories, website_url, place_locations(city, sort_order)")
     .eq("status", "published")
+    // Listed places only: partners already agreed to their page, and the message says "from OpenStreetMap".
+    .eq("tier", "listed")
     .is("owner_user_id", null)
     .order("name");
   if (error) fail(error, "20261026220000_place_business.sql");

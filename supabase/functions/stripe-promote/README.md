@@ -16,6 +16,10 @@ A place is promoted while one of its subscriptions is `active`, `trialing` or `p
 (Stripe is still retrying the card). `unpaid`, `paused` and `canceled` switch it off; a later
 `active` switches it back on, except after `canceled`.
 
+Stripe does not deliver events in order, so each status is stamped with the event's `created`
+time and an older event never overwrites a newer one. A status that arrives before its checkout
+(a cancellation overtaking it) is kept, and the checkout picks it up instead of promoting.
+
 ## Set it up (Lukas)
 
 1. Apply `20261103090000_place_promotion_flag.sql` and `20261103100000_place_promotions.sql`.

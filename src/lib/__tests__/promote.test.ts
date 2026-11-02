@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PROMOTE_PLAN, promoteCheckoutUrl } from "@/lib/promote";
+import { PROMOTE_PLAN, PAID_KEY, notePaidReturn, paidRecently, promoteCheckoutUrl } from "@/lib/promote";
 
 const LINK = "https://buy.stripe.com/test_abc123";
 const PLACE = "3f6c2a1e-9b7d-4c1a-8e2f-0a1b2c3d4e5f";
@@ -53,5 +53,35 @@ describe("formatPromotePrice", () => {
     const { formatPromotePrice } = await import("@/lib/promote");
     expect(formatPromotePrice("en")).toMatch(/€\s?19/);
     expect(formatPromotePrice("lt")).toMatch(/19\s?€/);
+  });
+});
+
+describe("paid return", () => {
+  const store = () => {
+    const m = new Map<string, string>();
+    return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), m };
+  };
+  const DAY = 86_400_000;
+
+  it("remembers that Stripe sent the owner back after paying", () => {
+    const s = store();
+    expect(notePaidReturn("?paid=1", s, 1_000)).toBe(true);
+    expect(s.m.get(PAID_KEY)).toBe("1000");
+    expect(paidRecently(s, 1_000 + DAY)).toBe(true);
+  });
+
+  it("forgets it after three days, by when the promotion is on or something went wrong", () => {
+    const s = store();
+    notePaidReturn("?paid=1", s, 0);
+    expect(paidRecently(s, 3 * DAY + 1)).toBe(false);
+  });
+
+  it("ignores a visit without the return, and storage that throws", () => {
+    const s = store();
+    expect(notePaidReturn("?p=x", s, 0)).toBe(false);
+    expect(paidRecently(s, 0)).toBe(false);
+    const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } };
+    expect(notePaidReturn("?paid=1", broken, 0)).toBe(true);
+    expect(paidRecently(broken, 0)).toBe(false);
   });
 });

@@ -39,5 +39,35 @@ export function promoteCheckoutUrl(base: string | undefined, placeId: string, em
   return url.toString();
 }
 
+/** Where My business keeps the time Stripe sent the owner back after paying (per browser). */
+export const PAID_KEY = "petbnb-promote-paid";
+const PAID_FOR_MS = 3 * 86_400_000;
+type Store = Pick<Storage, "getItem" | "setItem">;
+
+/**
+ * The Payment Link redirects to /business?paid=1 after a payment. Remember it, so the card says
+ * the payment is in instead of offering a second one while promotion switches on. Answers whether
+ * this visit is that return; a storage that throws only loses the memory.
+ */
+export function notePaidReturn(search: string, store: Store, now: number): boolean {
+  if (new URLSearchParams(search).get("paid") !== "1") return false;
+  try {
+    store.setItem(PAID_KEY, String(now));
+  } catch {
+    // private mode or blocked storage: this visit still knows, from the URL
+  }
+  return true;
+}
+
+/** Whether this browser came back from paying in the last three days. */
+export function paidRecently(store: Store, now: number): boolean {
+  try {
+    const at = Number(store.getItem(PAID_KEY));
+    return at > 0 && now - at <= PAID_FOR_MS;
+  } catch {
+    return false;
+  }
+}
+
 /** The configured Payment Link. Read literally so Next inlines it at build time. */
 export const promoteCheckoutBase = (): string | undefined => process.env.NEXT_PUBLIC_PROMOTE_CHECKOUT_URL;

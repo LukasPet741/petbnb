@@ -7,8 +7,13 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
 
 1. **Stripe** → Products → add "PetBnB Promoted placement", recurring, €19 / month
    (keep it equal to `PROMOTE_PLAN` in `src/lib/promote.ts`). Create a **Payment Link** for it.
-   Under the link's options, collect the customer's name and turn on the customer portal so
-   businesses can cancel on their own.
+   Under the link's options, collect the customer's name, and set "After payment" to redirect to
+   `https://petbnb.lt/business?paid=1` (My business then says the payment is in and hides the
+   button, so nobody pays twice while it switches on).
+   The advertiser terms promise two things that are Stripe settings, so set them:
+   - Settings → Billing → **Customer portal**: on, cancellation **at the end of the billing period**.
+   - Settings → Billing → Subscriptions → **Manage failed payments**: after the last retry,
+     **cancel the subscription** (a subscription left past_due counts as paying).
 2. **Vercel** → petbnb → Settings → Environment Variables → `NEXT_PUBLIC_PROMOTE_CHECKOUT_URL`
    = the Payment Link URL (Production and Preview). Redeploy: the value is baked in at build.
 3. **Automatic switch-on** (recommended): set up `supabase/functions/stripe-promote` as its

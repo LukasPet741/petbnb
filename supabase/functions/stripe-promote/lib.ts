@@ -58,8 +58,8 @@ export async function verifyStripeSignature(
 }
 
 export type PromotionChange =
-  | { kind: "start"; placeId: string; subscriptionId: string; customerId: string | null }
-  | { kind: "status"; subscriptionId: string; status: SubscriptionStatus }
+  | { kind: "start"; placeId: string; subscriptionId: string; customerId: string | null; at: string }
+  | { kind: "status"; subscriptionId: string; status: SubscriptionStatus; at: string }
   | { kind: "ignore"; reason: "malformed" | "event_type" | "not_paid" | "no_place" | "not_a_subscription" };
 
 const text = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
@@ -71,7 +71,10 @@ const idOf = (v: unknown): string | null => text(v) ?? (v && typeof v === "objec
 export function promotionChange(event: any): PromotionChange {
   const type = text(event?.type);
   const object = event?.data?.object;
-  if (!type || !object || typeof object !== "object") return { kind: "ignore", reason: "malformed" };
+  // When Stripe created the event: the database orders statuses by it, since delivery is unordered.
+  const created = event?.created;
+  if (!type || !object || typeof object !== "object" || !Number.isInteger(created) || created <= 0) return { kind: "ignore", reason: "malformed" };
+  const at = new Date(created * 1000).toISOString();
 
   if (type === "checkout.session.completed" || type === "checkout.session.async_payment_succeeded") {
     if (object.payment_status !== "paid" && object.payment_status !== "no_payment_required") return { kind: "ignore", reason: "not_paid" };
@@ -79,7 +82,7 @@ export function promotionChange(event: any): PromotionChange {
     if (!placeId || !UUID.test(placeId)) return { kind: "ignore", reason: "no_place" };
     const subscriptionId = idOf(object.subscription);
     if (object.mode !== "subscription" || !subscriptionId) return { kind: "ignore", reason: "not_a_subscription" };
-    return { kind: "start", placeId: placeId.toLowerCase(), subscriptionId, customerId: idOf(object.customer) };
+    return { kind: "start", placeId: placeId.toLowerCase(), subscriptionId, customerId: idOf(object.customer), at };
   }
 
   if (type === "customer.subscription.deleted" || type === "customer.subscription.updated") {
@@ -87,7 +90,7 @@ export function promotionChange(event: any): PromotionChange {
     // A deleted subscription is canceled, whatever status the object still carries.
     const status = type === "customer.subscription.deleted" ? "canceled" : object.status;
     if (!subscriptionId || !isStatus(status)) return { kind: "ignore", reason: "malformed" };
-    return { kind: "status", subscriptionId, status };
+    return { kind: "status", subscriptionId, status, at };
   }
 
   return { kind: "ignore", reason: "event_type" };

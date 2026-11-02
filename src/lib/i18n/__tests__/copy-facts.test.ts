@@ -105,6 +105,11 @@ describe("payments copy, once businesses can pay for Promoted placement", () => 
     expect(text("lt", "legal.terms.sections.payments.body")).toMatch(/nieko nemoka/i);
   });
 
+  it("no longer says, in the same terms, that nothing is sold", () => {
+    expect(text("en", "legal.terms.sections.aboutProject.body")).not.toMatch(/not a commercial service|no legal entity/i);
+    expect(text("lt", "legal.terms.sections.aboutProject.body")).not.toMatch(/nėra komercinė|joks juridinis asmuo/i);
+  });
+
   it("tells readers of the privacy policy who handles business payments", () => {
     expect(text("en", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);
     expect(text("lt", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);

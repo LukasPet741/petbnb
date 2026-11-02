@@ -184,7 +184,7 @@ export default function PlacesMap({
       const select = () => onSelectRef.current(place.slug);
       const pin = L.marker([place.lat, place.lng], {
         // A promoted place's ring is amber, and its name says it is an ad.
-        icon: place.listed ? dotIcon(brand) : place.logo ? logoIcon(place.promoted ? "var(--amber)" : brand, place.logo, place.approximate) : pinIcon(brand, place.approximate),
+        icon: place.listed ? dotIcon(brand) : place.logo ? logoIcon(place.promoted ? "var(--amber)" : brand, place.logo, place.approximate) : pinIcon(place.promoted ? "var(--amber)" : brand, place.approximate),
         title: place.name,
         keyboard: true,
         // An exact address sits above an approximate area when the two overlap at a wide zoom.

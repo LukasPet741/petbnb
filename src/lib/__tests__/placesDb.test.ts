@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { fetchPlaces, rowToPlace, type PlaceRow } from "@/lib/placesDb";
+import { fetchPlaces, rowToPlace, withoutPromoted, type PlaceRow } from "@/lib/placesDb";
 import { LISTED_PLACES } from "@/lib/listedPlaces";
 import { isBookable, isPromoted } from "@/lib/partners";
 
@@ -137,5 +137,14 @@ describe("the promotion flag migration", () => {
 
   it("never lets an owner switch promotion on for themselves", () => {
     expect(sql).not.toMatch(/grant[^;]*is_promoted/i);
+  });
+});
+
+describe("withoutPromoted", () => {
+  it("drops is_promoted wherever it sits in a select", () => {
+    expect(withoutPromoted("id, is_promoted, name")).toBe("id, name");
+    expect(withoutPromoted("id, name, is_promoted")).toBe("id, name");
+    expect(withoutPromoted("is_promoted, id")).toBe("id");
+    expect(withoutPromoted("id, is_promoted, place_services(id, name)")).toBe("id, place_services(id, name)");
   });
 });

@@ -223,6 +223,15 @@ export const isListed = (place: Partner) => place.tier === "listed";
 /** Takes booking requests through PetBnB (the Bookable tier). */
 export const isBookable = (place: Partner) => place.tier === "bookable";
 
+/**
+ * The places list's two parts: partners' cards, then the plain list of listed places. A promoted
+ * place always gets a card, where it comes first and carries its "Ad" label, whatever its tier.
+ */
+export function splitForList(places: Partner[]): { featured: Partner[]; listed: Partner[] } {
+  const plain = (p: Partner) => isListed(p) && !isPromoted(p);
+  return { featured: places.filter((p) => !plain(p)), listed: places.filter(plain) };
+}
+
 /** A place with its claim form open: the link sent to a business to claim its page. */
 export const claimPath = (slug: string) => `/partners?p=${encodeURIComponent(slug)}&claim=1`;
 
@@ -257,7 +266,7 @@ export function mapPlaces(partners: Partner[]): MapPlace[] {
   return partners.flatMap((p) =>
     p.locations.flatMap((l) =>
       l.lat != null && l.lng != null
-        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p), logo: p.logo, promoted: isPromoted(p) || undefined }]
+        ? [{ slug: p.slug, name: p.name, lat: l.lat, lng: l.lng, approximate: l.approximate ?? false, listed: isListed(p) && !isPromoted(p), logo: p.logo, promoted: isPromoted(p) || undefined }]
         : [],
     ),
   );

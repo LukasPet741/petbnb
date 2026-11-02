@@ -40,8 +40,8 @@ Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });
   const { data, error } =
     change.kind === "start"
-      ? await supabase.rpc("start_place_promotion", { p_subscription: change.subscriptionId, p_place: change.placeId, p_customer: change.customerId })
-      : await supabase.rpc("set_place_promotion_status", { p_subscription: change.subscriptionId, p_status: change.status });
+      ? await supabase.rpc("start_place_promotion", { p_subscription: change.subscriptionId, p_place: change.placeId, p_customer: change.customerId, p_at: change.at })
+      : await supabase.rpc("set_place_promotion_status", { p_subscription: change.subscriptionId, p_status: change.status, p_at: change.at });
 
   if (error) {
     console.error("stripe-promote: database call failed", change.kind, error.message);

@@ -25,7 +25,7 @@ const legal = {
     sections: {
       aboutProject: {
         heading: "1. About this project",
-        body: "PetBnB is a student-built demonstration marketplace that connects pet owners with independent pet sitters in Lithuania. It is not a commercial service, there is no company behind it, and no legal entity is offering you a service here. Treat everything on the site as a working prototype.",
+        body: "PetBnB is a student-built marketplace that connects pet owners with independent pet sitters and pet businesses in Lithuania. It is run by one person, not a company. Pet owners and sitters use it for free; the one thing it sells is optional Promoted placement for businesses, under the advertiser terms, and the seller's details are on every Stripe receipt. Treat the rest of the site as a working prototype.",
       },
       acceptance: {
         heading: "2. Accepting these terms",

@@ -25,7 +25,7 @@ const legal = {
     sections: {
       aboutProject: {
         heading: "1. Apie šį projektą",
-        body: "PetBnB — studento sukurta demonstracinė platforma, jungianti augintinių šeimininkus su nepriklausomais globėjais Lietuvoje. Tai nėra komercinė paslauga, už jos nestovi jokia įmonė ir joks juridinis asmuo jums čia paslaugų nesiūlo. Viską svetainėje vertinkite kaip veikiantį prototipą.",
+        body: "PetBnB — studento sukurta platforma, jungianti augintinių šeimininkus su nepriklausomais globėjais ir gyvūnų verslais Lietuvoje. Ją valdo vienas asmuo, o ne įmonė. Augintinių šeimininkams ir globėjams ji nemokama; vienintelis dalykas, kurį ji parduoda, yra neprivaloma reklamuojama vieta verslams pagal taisykles reklamuotojams, o pardavėjo duomenys nurodyti kiekviename „Stripe“ kvite. Kitką svetainėje vertinkite kaip veikiantį prototipą.",
       },
       acceptance: {
         heading: "2. Taisyklių priėmimas",
