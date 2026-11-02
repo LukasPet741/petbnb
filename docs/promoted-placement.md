@@ -54,6 +54,10 @@ before the first promotion; the app reads places with or without it, so merge or
 
 Needs migrations `20261103100000` and `20261103110000`.
 
+You don't have to remember to look: the monitor (`npm run monitor`) shows a **business** pill,
+amber while a claim waits, with how many promotions are paying. Approving or rejecting tells
+the claimant in the app (bell and dashboard), without email.
+
 ## Who to offer it to first
 
 Businesses that already claimed their page on `/business` (they see the card), then the two
