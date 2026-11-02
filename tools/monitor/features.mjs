@@ -137,7 +137,14 @@ export const FEATURES = [
     id: "promote",
     label: "Promoted placement (Stripe)",
     routes: ["/business"],
-    match: [/PromoteCard|lib\/promote/],
+    // Paths are lowercased before matching (featuresForPath).
+    match: [/promotecard|lib\/promote\./],
+  },
+  {
+    id: "business-cli",
+    label: "Business admin CLI",
+    routes: [],
+    match: [/^tools\/business\//],
   },
   {
     id: "partners-map",

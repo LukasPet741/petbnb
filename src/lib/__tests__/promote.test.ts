@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PROMOTE_PLAN, PAID_KEY, notePaidReturn, paidRecently, promoteCheckoutUrl } from "@/lib/promote";
+import { PROMOTE_PLAN, PAID_KEY, notePaidReturn, paidRecently, promoteCheckoutUrl, promotePortalUrl } from "@/lib/promote";
 
 const LINK = "https://buy.stripe.com/test_abc123";
 const PLACE = "3f6c2a1e-9b7d-4c1a-8e2f-0a1b2c3d4e5f";
@@ -83,5 +83,19 @@ describe("paid return", () => {
     const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } };
     expect(notePaidReturn("?paid=1", broken, 0)).toBe(true);
     expect(paidRecently(broken, 0)).toBe(false);
+  });
+});
+
+describe("promotePortalUrl", () => {
+  it("is Stripe's customer portal login, with the owner's email filled in", () => {
+    const url = new URL(promotePortalUrl("https://billing.stripe.com/p/login/test_abc", "owner@example.com")!);
+    expect(url.origin + url.pathname).toBe("https://billing.stripe.com/p/login/test_abc");
+    expect(url.searchParams.get("prefilled_email")).toBe("owner@example.com");
+  });
+
+  it("is null while none is configured, or for a link that is not https", () => {
+    expect(promotePortalUrl(undefined, null)).toBeNull();
+    expect(promotePortalUrl("http://billing.stripe.com/p/login/x", null)).toBeNull();
+    expect(promotePortalUrl("javascript:alert(1)", null)).toBeNull();
   });
 });

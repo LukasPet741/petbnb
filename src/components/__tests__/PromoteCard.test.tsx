@@ -60,8 +60,14 @@ describe("PromoteCard", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
+  it("lets a paying owner manage or cancel, through Stripe's portal", () => {
+    render(<PromoteCard place={{ ...place, promoted: true }} checkoutBase={LINK} portalBase="https://billing.stripe.com/p/login/test_abc" />);
+    const manage = screen.getByRole("link", { name: /partners.forBusiness.promote.manage/ });
+    expect(new URL(manage.getAttribute("href")!).searchParams.get("prefilled_email")).toBe("owner@example.com");
+  });
+
   it("says a promoted page is promoted, with nothing to buy", () => {
-    render(<PromoteCard place={{ ...place, tier: "bookable", promoted: true }} checkoutBase={LINK} />);
+    render(<PromoteCard place={{ ...place, tier: "bookable", promoted: true }} checkoutBase={LINK} portalBase={undefined} />);
     expect(screen.getByText("partners.forBusiness.promote.activeTitle")).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();
   });

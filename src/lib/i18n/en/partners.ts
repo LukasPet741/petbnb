@@ -74,6 +74,7 @@ const partners = {
       button: "Promote for {price}/month",
       note: "Payment is by card through Stripe. We switch promotion on by hand once the payment arrives, and you can cancel any time.",
       terms: "Advertiser terms",
+      manage: "Manage or cancel in Stripe",
       paidTitle: "Payment received",
       paidText: "Thank you. Promotion switches on as soon as the payment is confirmed, and this card will say so.",
       activeTitle: "Your page is promoted",

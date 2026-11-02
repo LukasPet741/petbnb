@@ -6,7 +6,7 @@ import { cardClass, headingClass } from "@/components/business/BusinessCards";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import type { OwnedPlace } from "@/lib/placeBusiness";
-import { formatPromotePrice, promoteCheckoutBase, promoteCheckoutUrl } from "@/lib/promote";
+import { formatPromotePrice, promoteCheckoutBase, promoteCheckoutUrl, promotePortalBase, promotePortalUrl } from "@/lib/promote";
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,10 +14,13 @@ import { cn } from "@/lib/utils";
  * Promotion is a flag on top of the tier, so a Bookable place keeps its booking requests.
  * Shows nothing while promotion is not on sale (see lib/promote).
  */
-export default function PromoteCard({ place, paid = false, checkoutBase = promoteCheckoutBase() }: { place: OwnedPlace; paid?: boolean; checkoutBase?: string }) {
+export default function PromoteCard({
+  place, paid = false, checkoutBase = promoteCheckoutBase(), portalBase = promotePortalBase(),
+}: { place: OwnedPlace; paid?: boolean; checkoutBase?: string; portalBase?: string }) {
   const { t, locale } = useLanguage();
   const { user } = useAuth();
   if (place.status !== "published") return null;
+  const portal = promotePortalUrl(portalBase, user?.email);
 
   if (place.promoted) {
     return (
@@ -27,6 +30,12 @@ export default function PromoteCard({ place, paid = false, checkoutBase = promot
           {t("partners.forBusiness.promote.activeTitle")}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t("partners.forBusiness.promote.activeText")}</p>
+        {portal && (
+          <a href={portal} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline">
+            {t("partners.forBusiness.promote.manage")}
+            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+        )}
       </section>
     );
   }

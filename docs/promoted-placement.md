@@ -15,7 +15,9 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
    - Settings → Billing → Subscriptions → **Manage failed payments**: after the last retry,
      **cancel the subscription** (a subscription left past_due counts as paying).
 2. **Vercel** → petbnb → Settings → Environment Variables → `NEXT_PUBLIC_PROMOTE_CHECKOUT_URL`
-   = the Payment Link URL (Production and Preview). Redeploy: the value is baked in at build.
+   = the Payment Link URL (Production and Preview), and `NEXT_PUBLIC_PROMOTE_PORTAL_URL` = the
+   customer portal's login link (same Stripe page), which gives a promoted business a
+   "Manage or cancel" link. Redeploy: the values are baked in at build.
 3. **Automatic switch-on** (recommended): set up `supabase/functions/stripe-promote` as its
    README says (two Supabase secrets: the webhook's signing secret and the Payment Link's
    `plink_…` id). Each paid checkout from that link then promotes its place, and a

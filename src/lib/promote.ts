@@ -26,17 +26,34 @@ const REFERENCE = /^[A-Za-z0-9_-]{1,200}$/;
  * a link that is not https, or a place id Stripe would refuse as a reference.
  */
 export function promoteCheckoutUrl(base: string | undefined, placeId: string, email?: string | null): string | null {
-  if (!base || !REFERENCE.test(placeId)) return null;
-  let url: URL;
-  try {
-    url = new URL(base.trim());
-  } catch {
-    return null;
-  }
-  if (url.protocol !== "https:") return null;
+  if (!REFERENCE.test(placeId)) return null;
+  const url = httpsUrl(base);
+  if (!url) return null;
   url.searchParams.set("client_reference_id", placeId);
   if (email && email.includes("@")) url.searchParams.set("prefilled_email", email);
   return url.toString();
+}
+
+/**
+ * Stripe's customer portal login link (Settings → Billing → Customer portal), where a paying
+ * business manages or cancels its subscription; null while none is configured.
+ */
+export function promotePortalUrl(base: string | undefined, email?: string | null): string | null {
+  const url = httpsUrl(base);
+  if (!url) return null;
+  if (email && email.includes("@")) url.searchParams.set("prefilled_email", email);
+  return url.toString();
+}
+
+/** A configured link, only when it is an https URL. */
+function httpsUrl(base: string | undefined): URL | null {
+  if (!base) return null;
+  try {
+    const url = new URL(base.trim());
+    return url.protocol === "https:" ? url : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Where My business keeps the time Stripe sent the owner back after paying (per browser). */
@@ -71,3 +88,6 @@ export function paidRecently(store: Store, now: number): boolean {
 
 /** The configured Payment Link. Read literally so Next inlines it at build time. */
 export const promoteCheckoutBase = (): string | undefined => process.env.NEXT_PUBLIC_PROMOTE_CHECKOUT_URL;
+
+/** The configured customer portal login link, the same way. */
+export const promotePortalBase = (): string | undefined => process.env.NEXT_PUBLIC_PROMOTE_PORTAL_URL;

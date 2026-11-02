@@ -28,6 +28,12 @@ describe("featuresForPath", () => {
     expect(featuresForPath("src/app/(app)/walks/[walkId]/page.tsx")).toContain("collar-walks");
   });
 
+  it("lights the Promoted dot for its card and helper, and the CLI dot for the business tool", () => {
+    expect(featuresForPath("src/components/business/PromoteCard.tsx")).toContain("promote");
+    expect(featuresForPath("src/lib/promote.ts")).toContain("promote");
+    expect(featuresForPath("tools/business/admin.mjs")).toContain("business-cli");
+  });
+
   it("keeps the Pi's code apart from the collar page", () => {
     expect(featuresForPath("iot-collar/collar/gps.py")).toEqual(["collar-hw"]);
     expect(featuresForPath("iot-collar/supabase/functions/collar-ingest/index.ts")).toEqual(["collar-hw"]);
