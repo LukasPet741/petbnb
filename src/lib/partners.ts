@@ -223,6 +223,12 @@ export const isListed = (place: Partner) => place.tier === "listed";
 /** Takes booking requests through PetBnB (the Bookable tier). */
 export const isBookable = (place: Partner) => place.tier === "bookable";
 
+/** A place with its claim form open: the link sent to a business to claim its page. */
+export const claimPath = (slug: string) => `/partners?p=${encodeURIComponent(slug)}&claim=1`;
+
+/** Whether a /partners query string asks for the claim form (see claimPath). */
+export const wantsClaim = (search: string) => new URLSearchParams(search).get("claim") === "1";
+
 /** Paid placement: always labelled as advertising ("Reklama"; Business, Tax & Legal Handbook §7). */
 export const isPromoted = (place: Partner) => place.promoted === true;
 

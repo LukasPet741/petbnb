@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { withNext } from "@/lib/next-path";
-import { isBookable, type Partner } from "@/lib/partners";
+import { claimPath, isBookable, type Partner } from "@/lib/partners";
 import { fetchMyPets, type CommunityClient, type MyPet } from "@/lib/placeCommunity";
 import {
   CLAIM_ROLES, TIMES_OF_DAY, cancelRequest, claimPlace, earliestRequestDate, fetchMyRequestsAt, requestBooking,
@@ -27,19 +27,19 @@ const headingClass = "text-xs font-semibold uppercase tracking-[0.08em] text-ink
  * "Is this your business?" for its owner to claim the page. Both need the places table (a place
  * read from it carries its id); on the built-in list they stay out of the panel.
  */
-export default function PlaceBusinessActions({ place }: { place: Partner }) {
+export default function PlaceBusinessActions({ place, claim = false }: { place: Partner; claim?: boolean }) {
   if (!place.id) return null;
   return (
     <div className="flex flex-col gap-4">
       {isBookable(place) && <BookingRequests place={place} placeId={place.id} />}
-      <ClaimPlace place={place} placeId={place.id} />
+      <ClaimPlace place={place} placeId={place.id} initiallyOpen={claim} />
     </div>
   );
 }
 
-function SignInLink({ slug, label }: { slug: string; label: string }) {
+function SignInLink({ slug, label, next = `/partners?p=${slug}` }: { slug: string; label: string; next?: string }) {
   return (
-    <Link href={withNext("/login", `/partners?p=${slug}`)} className="text-sm font-semibold text-brand underline-offset-4 hover:underline">
+    <Link href={withNext("/login", next)} className="text-sm font-semibold text-brand underline-offset-4 hover:underline">
       {label}
     </Link>
   );
@@ -154,10 +154,11 @@ export function StatusBadge({ status }: { status: BookingRequest["status"] }) {
   return <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", tone)}>{t(`partners.forBusiness.status.${status}`)}</span>;
 }
 
-function ClaimPlace({ place, placeId }: { place: Partner; placeId: string }) {
+/** initiallyOpen: the visitor came by a claim link (claimPath), so the form is the point. */
+function ClaimPlace({ place, placeId, initiallyOpen }: { place: Partner; placeId: string; initiallyOpen: boolean }) {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
   const [role, setRole] = useState<ClaimRole>("owner");
   const [message, setMessage] = useState("");
   const [outcome, setOutcome] = useState<"sent" | "already" | "owned" | "failed" | null>(null);
@@ -184,7 +185,7 @@ function ClaimPlace({ place, placeId }: { place: Partner; placeId: string }) {
       <h3 className={headingClass}>{t("partners.forBusiness.claim.heading", { name: place.name })}</h3>
       <p className="text-sm leading-relaxed text-ink-soft">{t("partners.forBusiness.claim.intro")}</p>
       {!user ? (
-        <SignInLink slug={place.slug} label={t("partners.forBusiness.claim.signIn")} />
+        <SignInLink slug={place.slug} label={t("partners.forBusiness.claim.signIn")} next={claimPath(place.slug)} />
       ) : (
         <form
           className="flex flex-col gap-2"

@@ -15,7 +15,7 @@ import { buttonClasses } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import { formatPromotePrice, promoteCheckoutBase } from "@/lib/promote";
 import {
-  distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl,
+  distinctLocations, formatPartnerPrice, isListed, isOpenNow, isPromoted, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, trackedUrl, wantsClaim,
   type Partner, type PartnerCategory,
 } from "@/lib/partners";
 import type { PetType } from "@/lib/types";
@@ -38,6 +38,8 @@ const SPECIES: PetType[] = ["dog", "cat", "small_mammal", "bird", "reptile"];
 export default function PartnersDirectory() {
   const { t, locale } = useLanguage();
   const [openSlug, setOpenSlug] = useState<string | null>(null);
+  // The place a claim link (claimPath) opened, whose claim form starts open.
+  const [claimSlug, setClaimSlug] = useState<string | null>(null);
   const [species, setSpecies] = useState<PetType | null>(null);
   const [category, setCategory] = useState<PartnerCategory | null>(null);
   const [allListed, setAllListed] = useState(false);
@@ -52,6 +54,7 @@ export default function PartnersDirectory() {
   useEffect(() => {
     const slug = new URLSearchParams(window.location.search).get("p");
     if (slug) setOpenSlug(slug);
+    if (slug && wantsClaim(window.location.search)) setClaimSlug(slug);
   }, []);
   const shown = useMemo(
     () => partnersDoing(category, partnersFor(species ? [species] : [], allPlaces)).filter((p) => !openNow || isOpenNow(p)),
@@ -158,7 +161,7 @@ export default function PartnersDirectory() {
       </main>
       <PublicFooter />
 
-      <PartnerDialog partner={open} onClose={() => setOpenSlug(null)} />
+      <PartnerDialog partner={open} claim={!!open && open.slug === claimSlug} onClose={() => setOpenSlug(null)} />
     </div>
   );
 }
@@ -243,7 +246,7 @@ function Tag({ children, tone = "plain" }: { children: React.ReactNode; tone?: "
   );
 }
 
-function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose: () => void }) {
+function PartnerDialog({ partner, claim, onClose }: { partner: Partner | null; claim: boolean; onClose: () => void }) {
   const { t, locale } = useLanguage();
   const website = partner ? partnerWebsite(partner) : null;
   const priced = partner?.services.some((s) => s.price) ?? false;
@@ -339,7 +342,7 @@ function PartnerDialog({ partner, onClose }: { partner: Partner | null; onClose:
             </ul>
           </section>
 
-          <PlaceBusinessActions place={partner} />
+          <PlaceBusinessActions place={partner} claim={claim} />
 
           <PlaceCommunity slug={partner.slug} />
         </div>

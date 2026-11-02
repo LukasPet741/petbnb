@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { parseCommand, formatClaims, formatPromotions, USAGE } from "./lib.mjs";
+import { parseCommand, formatClaims, formatPromotions, outreachCsv, USAGE } from "./lib.mjs";
 
 const UUID = "3f6c2a1e-9b7d-4c1a-8e2f-0a1b2c3d4e5f";
 
@@ -10,6 +10,7 @@ describe("parseCommand", () => {
     expect(parseCommand([])).toEqual({ kind: "claims" });
     expect(parseCommand(["claims"])).toEqual({ kind: "claims" });
     expect(parseCommand(["promotions"])).toEqual({ kind: "promotions" });
+    expect(parseCommand(["outreach"])).toEqual({ kind: "outreach" });
   });
 
   it("approves one claim by id", () => {
@@ -28,7 +29,7 @@ describe("parseCommand", () => {
   });
 
   it("documents every command it accepts", () => {
-    for (const word of ["claims", "approve", "reject", "promotions"]) expect(USAGE).toContain(word);
+    for (const word of ["claims", "approve", "reject", "promotions", "outreach"]) expect(USAGE).toContain(word);
   });
 });
 
@@ -83,5 +84,28 @@ describe("the claim decisions migration", () => {
       expect(sql).toContain(`grant execute on function public.${fn} to service_role`);
     }
     expect(sql).not.toMatch(/to (anon|authenticated)\b/);
+  });
+});
+
+describe("outreachCsv", () => {
+  const rows = [
+    { slug: "8-drambliai", name: "8 Drambliai", categories: ["vet"], city: "Vilnius", website: "https://8drambliai.lt/" },
+    { slug: "kika", name: 'Kika, "Zoo"', categories: ["shop", "grooming"], city: "Kaunas", website: null },
+  ];
+
+  it("gives each business its claim link on the live site", () => {
+    const [header, first] = outreachCsv(rows, "https://petbnb.lt").split("\n");
+    expect(header).toBe("name,city,categories,website,claim_link");
+    expect(first).toBe("8 Drambliai,Vilnius,vet,https://8drambliai.lt/,https://petbnb.lt/partners?p=8-drambliai&claim=1");
+  });
+
+  it("quotes fields that hold commas or quotes", () => {
+    const second = outreachCsv(rows, "https://petbnb.lt").split("\n")[2];
+    expect(second).toBe('"Kika, ""Zoo""",Kaunas,shop grooming,,https://petbnb.lt/partners?p=kika&claim=1');
+  });
+
+  it("neutralises a cell a spreadsheet would run as a formula", () => {
+    const out = outreachCsv([{ slug: "x", name: "=HYPERLINK(1)", categories: [], city: "+Vilnius", website: null }], "https://petbnb.lt");
+    expect(out.split("\n")[1].startsWith("'=HYPERLINK(1),'+Vilnius")).toBe(true);
   });
 });

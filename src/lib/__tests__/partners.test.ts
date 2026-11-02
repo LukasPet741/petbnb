@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it, expect } from "vitest";
-import { ALL_PLACES, PARTNERS, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
+import { ALL_PLACES, PARTNERS, claimPath, wantsClaim, distinctLocations, formatPartnerPrice, joinPetNames, mapPlaces, offeredCategories, partnerPlace, partnerWebsite, partnersDoing, partnersFor, type Partner } from "@/lib/partners";
 
 describe("partners data", () => {
   it("gives every partner a unique slug", () => {
@@ -217,5 +217,18 @@ describe("logos", () => {
     const files = fs.readdirSync(path.join(process.cwd(), "public/places"));
     expect(files.length).toBeGreaterThan(0);
     for (const f of files) expect(f, f).toMatch(/\.png$/);
+  });
+});
+
+describe("claimPath", () => {
+  it("opens a place with its claim form, for links sent to businesses", () => {
+    expect(claimPath("8-drambliai")).toBe("/partners?p=8-drambliai&claim=1");
+    expect(wantsClaim(claimPath("8-drambliai").split("?")[1])).toBe(true);
+  });
+
+  it("escapes a slug, and wants a claim only when the link says so", () => {
+    expect(claimPath("a&b")).toBe("/partners?p=a%26b&claim=1");
+    expect(wantsClaim("?p=dogiday")).toBe(false);
+    expect(wantsClaim("?p=dogiday&claim=yes")).toBe(false);
   });
 });

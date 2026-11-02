@@ -5,12 +5,13 @@
 //   npm run business approve <id>       the claimant becomes the place's owner
 //   npm run business reject <id> <why>  the claimant reads why on My business
 //   npm run business promotions         Stripe subscriptions for Promoted placement
+//   npm run business outreach > out.csv unclaimed businesses with their claim links
 //
 // It uses the service role key in .env.local, so it writes to whichever database that file points
 // at (production, on Lukas's machine). Nothing here is deployed. Needs migrations
 // 20261103110000 (approve/reject) and 20261103100000 (promotions).
 import { createClient } from "@supabase/supabase-js";
-import { formatClaims, formatPromotions, parseCommand, USAGE } from "./lib.mjs";
+import { formatClaims, formatPromotions, outreachCsv, parseCommand, USAGE } from "./lib.mjs";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(USAGE);
@@ -42,7 +43,8 @@ const fail = (error, migration) => {
   process.exit(1);
 };
 
-console.log(`(${new URL(url).host})\n`);
+// Outreach is CSV on stdout, so the host line goes to stderr where it cannot end up in the file.
+(command.kind === "outreach" ? console.error : console.log)(`(${new URL(url).host})\n`);
 
 if (command.kind === "claims") {
   const { data, error } = await db
@@ -67,6 +69,22 @@ if (command.kind === "promotions") {
     .order("created_at", { ascending: false });
   if (error) fail(error, "20261103100000_place_promotions.sql");
   console.log(formatPromotions(data.map((p) => ({ placeName: p.places?.name ?? "?", status: p.status, subscriptionId: p.stripe_subscription_id, since: p.created_at }))));
+}
+
+if (command.kind === "outreach") {
+  const { data, error } = await db
+    .from("places")
+    .select("slug, name, categories, website_url, place_locations(city, sort_order)")
+    .eq("status", "published")
+    .is("owner_user_id", null)
+    .order("name");
+  if (error) fail(error, "20261026220000_place_business.sql");
+  const rows = data.map((p) => ({
+    slug: p.slug, name: p.name, categories: p.categories ?? [], website: p.website_url,
+    city: [...(p.place_locations ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]?.city ?? "",
+  }));
+  // Claim links point at the live site: .env.local's NEXT_PUBLIC_SITE_URL is localhost by design.
+  console.log(outreachCsv(rows, process.env.PETBNB_PUBLIC_ORIGIN || "https://petbnb.lt"));
 }
 
 const SAID = {

@@ -59,4 +59,16 @@ describe("PlaceBusinessActions", () => {
     await waitFor(() => expect(biz.claimPlace).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ placeId: "pl-1", role: "manager" })));
     expect((await screen.findByRole("link", { name: "partners.forBusiness.claim.open" })).getAttribute("href")).toBe("/business");
   });
+
+  it("opens straight on the claim form when the link asked for it", () => {
+    render(<PlaceBusinessActions place={place} claim />);
+    expect(screen.getByText("partners.forBusiness.claim.heading")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /partners.forBusiness.claim.link/ })).toBeNull();
+  });
+
+  it("brings a visitor back to the open claim form after signing in", () => {
+    render(<PlaceBusinessActions place={place} claim />);
+    const href = screen.getByRole("link", { name: "partners.forBusiness.claim.signIn" }).getAttribute("href")!;
+    expect(new URL(href, "https://petbnb.lt").searchParams.get("next")).toBe("/partners?p=dogiday&claim=1");
+  });
 });
