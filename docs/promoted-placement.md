@@ -11,7 +11,11 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
    businesses can cancel on their own.
 2. **Vercel** → petbnb → Settings → Environment Variables → `NEXT_PUBLIC_PROMOTE_CHECKOUT_URL`
    = the Payment Link URL (Production and Preview). Redeploy: the value is baked in at build.
-3. When a payment arrives, Stripe shows the place id as **client_reference_id**. Switch it on:
+3. **Automatic switch-on** (recommended): set up `supabase/functions/stripe-promote` as its
+   README says. Each paid checkout then promotes its place, and a cancellation or unpaid
+   subscription switches it off.
+
+   **By hand** instead: Stripe shows the place id as **client_reference_id** on each payment.
 
    ```sql
    update public.places set is_promoted = true where id = '<client_reference_id>';
