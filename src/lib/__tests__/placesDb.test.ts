@@ -81,6 +81,24 @@ describe("fetchPlaces", () => {
     expect(places?.map((p) => p.slug)).toEqual(["zoo", "dogpunk", "kika"]);
   });
 
+  it("still reads the places before the promotion migration, without the flag", async () => {
+    const asked: string[] = [];
+    const premigration = {
+      from: () => ({
+        select: (columns: string) => ({
+          eq: () => {
+            asked.push(columns);
+            return Promise.resolve(columns.includes("is_promoted") ? { data: null, error: { code: "42703" } } : { data: [listedRow, partnerRow], error: null });
+          },
+        }),
+      }),
+    };
+    const places = await fetchPlaces(premigration);
+    expect(places?.map((p) => p.slug)).toEqual(["dogpunk", "kika"]);
+    expect(asked[1]).not.toContain("is_promoted");
+    expect(asked[1]).toContain("is_founding_partner, place_locations(");
+  });
+
   it("answers null when the table is not there yet, so the app keeps its built-in list", async () => {
     expect(await fetchPlaces(client({ data: null, error: { code: "PGRST205" } }))).toBeNull();
   });

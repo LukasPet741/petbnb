@@ -19,9 +19,8 @@ Until step 2 is done, nothing is offered and nothing changes on petbnb.lt.
 
    On cancellation, set it back to `false`. The place keeps its tier either way.
 
-Migration `20261103090000_place_promotion_flag.sql` adds `is_promoted`: apply it to prod
-**before** deploying this code, or the map falls back to its built-in list and My business
-cannot read owned places.
+Migration `20261103090000_place_promotion_flag.sql` adds `is_promoted`. Apply it to prod
+before the first promotion; the app reads places with or without it, so merge order is free.
 
 ## Before taking real money (not legal advice)
 

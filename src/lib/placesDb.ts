@@ -53,6 +53,16 @@ export interface PlaceRow {
   place_services: PlaceServiceRow[];
 }
 
+/**
+ * Postgres "undefined column" (42703): the select named is_promoted before 20261103090000 reached
+ * this database. Readers retry without it, so the app and the migration can ship in either order.
+ */
+export const isMissingColumn = (error: unknown): boolean =>
+  !!error && typeof error === "object" && (error as { code?: unknown }).code === "42703";
+
+/** The same select without is_promoted, for a database the migration has not reached yet. */
+export const withoutPromoted = (columns: string): string => columns.replace(/\bis_promoted,\s*/, "");
+
 const COLUMNS =
   "id, slug, name, categories, accepts, tier, description_lt, description_en, prices_note_lt, prices_note_en, " +
   "hours_lt, hours_en, website_url, logo_path, is_founding_partner, is_promoted, " +
@@ -124,7 +134,9 @@ const rank = (p: Partner) => (p.promoted ? 0 : p.tier === "listed" ? 2 : 1);
 /** Published places, promoted and partners first and then by name; null when there is nothing to read. */
 export async function fetchPlaces(client: PlacesClient): Promise<Partner[] | null> {
   try {
-    const { data, error } = await client.from("places").select(COLUMNS).eq("status", "published");
+    const read = (columns: string) => client.from("places").select(columns).eq("status", "published");
+    let { data, error } = await read(COLUMNS);
+    if (isMissingColumn(error)) ({ data, error } = await read(withoutPromoted(COLUMNS)));
     if (error || !Array.isArray(data) || data.length === 0) return null;
     return (data as PlaceRow[])
       .map(rowToPlace)

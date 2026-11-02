@@ -2,7 +2,7 @@
 -- replaced 'bookable', so promoting a Bookable place ended its booking requests. Now a place keeps
 -- its tier and is promoted on top of it. Only an admin sets the flag: owners hold column grants for
 -- their words alone (20261026220000), and this adds none. Needs 20261026180000.
--- Apply before deploying the app that reads is_promoted.
+-- The app reads places with or without this column (placesDb.isMissingColumn), so it may ship first.
 
 alter table public.places add column is_promoted boolean not null default false;
 

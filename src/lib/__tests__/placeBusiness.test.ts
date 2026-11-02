@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { claimPlace, earliestRequestDate, fetchOwnerRequests, updateOwnedPlace } from "@/lib/placeBusiness";
+import { claimPlace, earliestRequestDate, fetchOwnedPlaces, fetchOwnerRequests, updateOwnedPlace } from "@/lib/placeBusiness";
 import type { CommunityClient } from "@/lib/placeCommunity";
 
 type Err = { code?: string; message: string } | null;
@@ -70,5 +70,41 @@ describe("fetchOwnerRequests", () => {
 describe("earliestRequestDate", () => {
   it("is tomorrow, in local time, across a month's end", () => {
     expect(earliestRequestDate(new Date(2026, 9, 31, 23, 30))).toBe("2026-11-01");
+  });
+});
+
+describe("fetchOwnedPlaces", () => {
+  const row = { id: "pl-1", slug: "dogiday", name: "Dogiday", tier: "bookable", status: "published", accepts: ["dog"], place_services: [] };
+
+  /** Answers 42703 for any select naming is_promoted, like a database before 20261103090000. */
+  function owned(migrated: boolean, data: object[]) {
+    const asked: string[] = [];
+    const c = {
+      from: () => ({
+        select: (columns: string) => ({
+          eq: () => {
+            asked.push(columns);
+            const missing = !migrated && columns.includes("is_promoted");
+            return Promise.resolve(missing ? { data: null, error: { code: "42703", message: "column places.is_promoted does not exist" } } : { data, error: null });
+          },
+        }),
+      }),
+    };
+    return { asked, c: c as unknown as CommunityClient };
+  }
+
+  it("reads the promotion flag", async () => {
+    const { c } = owned(true, [{ ...row, is_promoted: true }]);
+    const [place] = await fetchOwnedPlaces(c, "u-1");
+    expect(place.promoted).toBe(true);
+    expect(place.tier).toBe("bookable");
+  });
+
+  it("still reads owned places before the migration, as not promoted", async () => {
+    const { asked, c } = owned(false, [row]);
+    const places = await fetchOwnedPlaces(c, "u-1");
+    expect(places.map((p) => [p.slug, p.promoted])).toEqual([["dogiday", false]]);
+    expect(asked).toHaveLength(2);
+    expect(asked[1]).not.toContain("is_promoted");
   });
 });

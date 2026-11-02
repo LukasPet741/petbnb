@@ -5,6 +5,7 @@
  */
 
 import type { CommunityClient } from "@/lib/placeCommunity";
+import { isMissingColumn, withoutPromoted } from "@/lib/placesDb";
 
 type DbError = { code?: string; message: string } | null;
 
@@ -81,11 +82,14 @@ export async function fetchMyClaims(client: CommunityClient): Promise<MyClaim[] 
   }));
 }
 
+const OWNED_COLUMNS =
+  "id, slug, name, tier, status, is_promoted, description_lt, description_en, hours_lt, hours_en, website_url, accepts, " +
+  "place_services(id, name_lt, name_en, price_from, sort_order)";
+
 export async function fetchOwnedPlaces(client: CommunityClient, userId: string): Promise<OwnedPlace[]> {
-  const { data } = await client
-    .from("places")
-    .select("id, slug, name, tier, status, is_promoted, description_lt, description_en, hours_lt, hours_en, website_url, accepts, place_services(id, name_lt, name_en, price_from, sort_order)")
-    .eq("owner_user_id", userId);
+  const read = (columns: string) => client.from("places").select(columns).eq("owner_user_id", userId);
+  let { data, error } = await read(OWNED_COLUMNS);
+  if (isMissingColumn(error)) ({ data } = await read(withoutPromoted(OWNED_COLUMNS)));
   return (Array.isArray(data) ? data : []).map((p: any) => ({
     id: p.id, slug: p.slug, name: p.name, tier: p.tier, status: p.status, promoted: p.is_promoted === true,
     descriptionLt: p.description_lt ?? "", descriptionEn: p.description_en ?? "",
