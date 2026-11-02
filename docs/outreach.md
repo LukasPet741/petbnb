@@ -11,7 +11,10 @@ npm run business outreach > outreach.csv
 
 One row per published, listed place (from OpenStreetMap; partners are left out) nobody has claimed yet: name, city, categories, website, and its
 **claim link** (`https://petbnb.lt/partners?p=<slug>&claim=1`). The link opens the place with
-its claim form already open, and brings the visitor back to it after signing in.
+its claim form already open, and brings the visitor back to it after signing in. A new account
+keeps it too: the confirmation email links back to `/login?next=…`. For that, Supabase → Auth →
+URL Configuration must accept it: Site URL `https://petbnb.lt` does, and adding the redirect URL
+`https://petbnb.lt/login**` makes sure (otherwise Supabase sends them to the home page).
 
 ## How to reach them (not legal advice)
 
