@@ -51,7 +51,7 @@ export default function LoginClient() {
       {error && <FormError message={error} />}
       {/* Signed up but never opened the link: the way out is the email, so offer it again. */}
       {errorKey === "auth.knownErrors.emailNotConfirmed" && (
-        <div className="-mt-2 mb-4"><ResendConfirmation email={email} /></div>
+        <div className="-mt-2 mb-4"><ResendConfirmation email={email} next={next} /></div>
       )}
 
       <motion.div variants={fadeUp}>

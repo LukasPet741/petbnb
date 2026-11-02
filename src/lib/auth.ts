@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { clearPasswordRecovery } from "./password-recovery";
+import { withNext } from "./next-path";
 
 const AUTH_ERROR_KEYS: [RegExp, string][] = [
   [/invalid login credentials/i, "invalidCredentials"],
@@ -23,24 +24,29 @@ export function matchAuthErrorKey(message: string): string | null {
  * Creates the account. When the project asks for a confirmed email, Supabase answers with a user
  * but no session: the caller says "check your email" rather than going on to a signed-in page.
  * The confirmation link comes back to /login (when Auth's redirect list allows it; otherwise
- * Supabase falls back to the Site URL).
+ * Supabase falls back to the Site URL), with the page the visitor was heading for as ?next=,
+ * which /login's signed-in redirect then follows: a business owner who signed up from a claim
+ * link lands back on the claim form, not on the dashboard.
  */
-export async function signUp(email: string, password: string) {
+export async function signUp(email: string, password: string, next: string | null = null) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${window.location.origin}/login` },
+    options: { emailRedirectTo: confirmationRedirect(next) },
   });
   if (error) throw error;
   return data;
 }
 
-/** Sends the sign-up confirmation email again. */
-export async function resendSignupEmail(email: string) {
+/** Where a confirmation link lands: /login, carrying a safe ?next= (withNext drops any other). */
+const confirmationRedirect = (next: string | null) => `${window.location.origin}${withNext("/login", next)}`;
+
+/** Sends the sign-up confirmation email again, to the same place as the first. */
+export async function resendSignupEmail(email: string, next: string | null = null) {
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: `${window.location.origin}/login` },
+    options: { emailRedirectTo: confirmationRedirect(next) },
   });
   if (error) throw error;
 }

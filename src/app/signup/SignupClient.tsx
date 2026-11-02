@@ -34,7 +34,7 @@ export default function SignupClient() {
     if (form.password !== form.confirm) { setError(t("auth.signup.passwordMismatch")); return; }
     setError(""); setLoading(true);
     try {
-      const { session } = await signUp(form.email, form.password);
+      const { session } = await signUp(form.email, form.password, next);
       if (!session) {
         setSentTo(form.email);
         return;
@@ -87,7 +87,7 @@ export default function SignupClient() {
           <p className="text-sm">{t("auth.signup.checkEmail.spamHint")}</p>
         </motion.div>
         <motion.div variants={fadeUp} className="mt-5">
-          <ResendConfirmation email={sentTo} />
+          <ResendConfirmation email={sentTo} next={next} />
         </motion.div>
         <motion.p variants={fadeUp} className="mt-8 text-sm">
           <Link href={withNext("/login", next)} className="text-brand font-medium hover:underline">{t("auth.signup.checkEmail.backToSignIn")}</Link>

@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/LanguageContext";
  * "Send the email again" for an account whose email is not confirmed yet: on the check-your-email
  * screen after signing up, and under the sign-in error that says the email is not confirmed.
  */
-export default function ResendConfirmation({ email }: { email: string }) {
+export default function ResendConfirmation({ email, next = null }: { email: string; next?: string | null }) {
   const { t } = useLanguage();
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
@@ -16,7 +16,7 @@ export default function ResendConfirmation({ email }: { email: string }) {
     setState("sending");
     setError("");
     try {
-      await resendSignupEmail(email);
+      await resendSignupEmail(email, next);
       setState("sent");
     } catch (err: unknown) {
       const key = err instanceof Error ? matchAuthErrorKey(err.message) : null;

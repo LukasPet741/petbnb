@@ -158,6 +158,21 @@ describe("signUp", () => {
     });
   });
 
+  it("brings the confirmation link back to the page the visitor was heading for", async () => {
+    // A business owner from a claim link must land on the claim form, not the dashboard.
+    signUpMock.mockResolvedValue({ data: {}, error: null });
+    await signUp("a@b.com", "pw", "/partners?p=dogiday&claim=1");
+    const { emailRedirectTo } = signUpMock.mock.calls[0][0].options;
+    expect(new URL(emailRedirectTo).pathname).toBe("/login");
+    expect(new URL(emailRedirectTo).searchParams.get("next")).toBe("/partners?p=dogiday&claim=1");
+  });
+
+  it("leaves an unsafe next out of the confirmation link", async () => {
+    signUpMock.mockResolvedValue({ data: {}, error: null });
+    await signUp("a@b.com", "pw", "//evil.example/x");
+    expect(signUpMock.mock.calls[0][0].options.emailRedirectTo).toBe(`${window.location.origin}/login`);
+  });
+
   it("passes whitespace-padded input through untrimmed", async () => {
     // There is no client-side normalisation anywhere in this module.
     signUpMock.mockResolvedValue({ data: {}, error: null });

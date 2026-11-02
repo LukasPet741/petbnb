@@ -16,6 +16,7 @@ const h = vi.hoisted(() => ({
   signIn: vi.fn(),
   resend: vi.fn(),
   push: vi.fn(),
+  next: null as string | null,
 }));
 
 vi.mock("@/lib/auth", async (importOriginal) => ({
@@ -27,11 +28,12 @@ vi.mock("@/lib/auth", async (importOriginal) => ({
 vi.mock("@/lib/supabase", () => ({ supabase: {} }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: h.push, replace: h.push }) }));
 vi.mock("@/hooks/useRedirectIfSignedIn", () => ({ useRedirectIfSignedIn: () => {} }));
-vi.mock("@/hooks/useNextPath", () => ({ useNextPath: () => null }));
+vi.mock("@/hooks/useNextPath", () => ({ useNextPath: () => h.next }));
 vi.mock("@/components/SocialLogin", () => ({ default: () => null }));
 
 beforeEach(() => {
   for (const fn of [h.signUp, h.signIn, h.resend, h.push]) fn.mockReset();
+  h.next = null;
 });
 
 async function signUpAs(email: string) {
@@ -60,8 +62,18 @@ describe("signing up", () => {
     h.resend.mockResolvedValue(undefined);
     const user = await signUpAs("ruta@example.test");
     await user.click(await screen.findByRole("button", { name: "auth.signup.checkEmail.resend" }));
-    expect(h.resend).toHaveBeenCalledWith("ruta@example.test");
+    expect(h.resend).toHaveBeenCalledWith("ruta@example.test", null);
     expect(await screen.findByText("auth.signup.checkEmail.resent")).toBeInTheDocument();
+  });
+
+  it("carries ?next= into the confirmation email, sent and resent", async () => {
+    h.next = "/partners?p=dogiday&claim=1";
+    h.signUp.mockResolvedValue({ user: { id: "u1" }, session: null });
+    h.resend.mockResolvedValue(undefined);
+    const user = await signUpAs("ruta@example.test");
+    expect(h.signUp).toHaveBeenCalledWith("ruta@example.test", "correct-horse-1", "/partners?p=dogiday&claim=1");
+    await user.click(await screen.findByRole("button", { name: "auth.signup.checkEmail.resend" }));
+    expect(h.resend).toHaveBeenCalledWith("ruta@example.test", "/partners?p=dogiday&claim=1");
   });
 
   it("says why when the email cannot be sent again", async () => {
@@ -90,7 +102,7 @@ describe("signing in before confirming", () => {
     await user.click(screen.getByRole("button", { name: /common\.signIn/ }));
     expect(await screen.findByRole("alert")).toHaveTextContent("auth.knownErrors.emailNotConfirmed");
     await user.click(screen.getByRole("button", { name: "auth.signup.checkEmail.resend" }));
-    expect(h.resend).toHaveBeenCalledWith("ruta@example.test");
+    expect(h.resend).toHaveBeenCalledWith("ruta@example.test", null);
     expect(await screen.findByText("auth.signup.checkEmail.resent")).toBeInTheDocument();
   });
 });
