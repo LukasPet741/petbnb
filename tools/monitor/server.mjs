@@ -15,7 +15,9 @@ import { fileURLToPath } from "node:url";
 import { FEATURES, featuresForPath } from "./features.mjs";
 import { DATA_DIR, appendFeed, deriveNow, loadBoard, readFeed, saveBoard, transition } from "./agents.mjs";
 import {
+  businessPill,
   classifyResponse,
+  countFromContentRange,
   parseGitLog,
   parseGitStatus,
   parsePytest,
@@ -59,6 +61,7 @@ const state = {
   dev: { mode: "down", port: 3000, pid: null, last: null, sweeping: false },
   prod: { at: null, sweeping: false },
   supabase: null,
+  business: null,
   system: {},
   checks: { vitest: blankCheck(), tsc: blankCheck(), pytest: blankCheck(), build: blankCheck() },
   queue: [],
@@ -216,6 +219,7 @@ function snapshot() {
     dev: { ...state.dev, child: Boolean(devChild) },
     prod: state.prod,
     supabase: state.supabase,
+    business: state.business,
     system: state.system,
     checks: state.checks,
     queue: state.queue,
@@ -421,6 +425,35 @@ async function pingSupabase() {
   return { ...r, state: r.status === 200 ? classifyResponse(r, SLOW_MS.prod) : "fail", at: Date.now() };
 }
 
+/**
+ * Claims waiting and Promoted subscriptions paying, read with the service role key in .env.local
+ * (HEAD + count=exact: numbers only, no rows). Idle without the key; a count is null while its
+ * table is not in the database yet.
+ */
+async function countBusiness() {
+  const env = readEnv();
+  const url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  const count = async (query) => {
+    try {
+      const res = await fetch(`${url}/rest/v1/${query}`, {
+        method: "HEAD",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: "count=exact" },
+        signal: AbortSignal.timeout(10_000),
+      });
+      return res.ok ? countFromContentRange(res.headers.get("content-range")) : null;
+    } catch {
+      return null;
+    }
+  };
+  const [claims, paying] = await Promise.all([
+    count("place_claims?status=eq.pending&select=id"),
+    count("place_promotions?status=in.(active,trialing,past_due)&place_id=not.is.null&select=stripe_subscription_id"),
+  ]);
+  return { claims, paying, ...businessPill({ claims, paying }), at: Date.now() };
+}
+
 async function sweepProd() {
   if (state.prod.sweeping) return;
   state.prod.sweeping = true;
@@ -434,6 +467,11 @@ async function sweepProd() {
   };
   await Promise.all([worker(), worker(), worker()]);
   state.supabase = await pingSupabase();
+  const before = state.business?.claims ?? 0;
+  state.business = await countBusiness();
+  if ((state.business?.claims ?? 0) > before) {
+    activity("prod", `${state.business.claims} business claim(s) waiting: npm run business`);
+  }
   state.prod.sweeping = false;
   state.prod.at = Date.now();
   const bad = ALL_ROUTES.filter((r) => state.routes.prod[r].state !== "ok");

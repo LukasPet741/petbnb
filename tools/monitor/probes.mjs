@@ -186,3 +186,20 @@ export function run(command, { cwd, env, onLine = () => {} } = {}) {
   });
   return { child, done };
 }
+
+// The total in a PostgREST Content-Range header ("*" + "/3", "0-0/12"); null when it has none.
+export function countFromContentRange(header) {
+  const m = /\/(\d+)$/.exec(header ?? "");
+  return m ? Number(m[1]) : null;
+}
+
+/**
+ * The business pill: claims waiting for Lukas (npm run business) and Promoted subscriptions
+ * paying. It asks for attention while a claim waits; null counts are tables not there yet.
+ */
+export function businessPill(counts) {
+  if (!counts || counts.claims == null) return { state: "idle", text: "business" };
+  const claims = `${counts.claims} claim${counts.claims === 1 ? "" : "s"}`;
+  const paying = counts.paying == null ? "" : ` · ${counts.paying} paying`;
+  return { state: counts.claims > 0 ? "slow" : "ok", text: `business ${claims}${paying}` };
+}

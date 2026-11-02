@@ -10,6 +10,8 @@ import {
   pathsInText,
   summarizeVitest,
   worst,
+  countFromContentRange,
+  businessPill,
 } from "./probes.mjs";
 
 const TAB = String.fromCharCode(9);
@@ -190,5 +192,34 @@ describe("parseWorktrees", () => {
       { path: "C:/Users/lkspe/petbnb-wt-ics", head: "40c8dd0", branch: "agent/add-a-booked-stay" },
       { path: "C:/Users/lkspe/petbnb-wt-x", head: "77b44ac", branch: null },
     ]);
+  });
+});
+
+describe("countFromContentRange", () => {
+  it("reads the total PostgREST sends for a counted request", () => {
+    expect(countFromContentRange("*/3")).toBe(3);
+    expect(countFromContentRange("0-0/12")).toBe(12);
+    expect(countFromContentRange("*/0")).toBe(0);
+  });
+
+  it("is null without a total", () => {
+    expect(countFromContentRange(null)).toBeNull();
+    expect(countFromContentRange("0-9/*")).toBeNull();
+  });
+});
+
+describe("businessPill", () => {
+  it("asks for attention while claims wait, and counts what is paying", () => {
+    expect(businessPill({ claims: 2, paying: 1 })).toEqual({ state: "slow", text: "business 2 claims · 1 paying" });
+    expect(businessPill({ claims: 1, paying: 0 })).toEqual({ state: "slow", text: "business 1 claim · 0 paying" });
+  });
+
+  it("is calm when nothing waits", () => {
+    expect(businessPill({ claims: 0, paying: 3 })).toEqual({ state: "ok", text: "business 0 claims · 3 paying" });
+  });
+
+  it("stays idle before the tables or the service key exist", () => {
+    expect(businessPill(null)).toEqual({ state: "idle", text: "business" });
+    expect(businessPill({ claims: 0, paying: null })).toEqual({ state: "ok", text: "business 0 claims" });
   });
 });

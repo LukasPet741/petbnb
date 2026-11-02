@@ -315,6 +315,7 @@
     <button class="pill" id="pill-dev" data-settings><i class="led"></i>dev</button>
     <button class="pill" id="pill-prod" data-settings><i class="led"></i>prod</button>
     <button class="pill" id="pill-supa" data-settings><i class="led"></i>supabase</button>
+    <span class="pill" id="pill-business" title="Claims waiting (npm run business) and Promoted subscriptions paying" hidden><i class="led"></i>business</span>
     <span class="ram" id="ram" title="Memory in use on this machine">RAM <b>–</b><span class="bar"><div style="width:0"></div></span></span>
     <button class="gear" id="gear" data-settings aria-controls="drawer" aria-expanded="false">⚙ Settings</button>
   </div>
@@ -507,6 +508,12 @@ function renderHeader() {
   const sb = S.supabase?.state ?? "idle";
   $("#pill-supa").className = `pill s-${sb}`;
   $("#pill-supa").innerHTML = `<i class="led"></i>supabase ${sb === "ok" ? dur(S.supabase.ms) : sb}`;
+  // Shown once .env.local holds the service key (see countBusiness in server.mjs).
+  $("#pill-business").hidden = !S.business;
+  if (S.business) {
+    $("#pill-business").className = `pill s-${S.business.state}`;
+    $("#pill-business").innerHTML = `<i class="led"></i>${esc(S.business.text)}`;
+  }
   const ram = S.system.ramPct ?? 0;
   $("#ram b").textContent = ram + "%";
   $("#ram").title = `${S.system.freeGb ?? "?"} GB free of ${S.system.totalGb ?? "?"} GB`;
