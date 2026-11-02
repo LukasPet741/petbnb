@@ -80,8 +80,12 @@ export interface PlacesClient {
   };
 }
 
-/** Both languages, or nothing: a half-translated field is left out rather than shown empty. */
-const localized = (lt: string | null, en: string | null): Localized | undefined => (lt && en ? { lt, en } : undefined);
+/**
+ * Both languages; a field written in one only (an owner on My business who writes Lithuanian)
+ * serves both, as a service name does, rather than leave their page empty. Neither: left out.
+ */
+const localized = (lt: string | null, en: string | null): Localized | undefined =>
+  lt || en ? { lt: (lt || en)!, en: (en || lt)! } : undefined;
 
 const bySortOrder = (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order;
 

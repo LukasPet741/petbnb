@@ -71,7 +71,15 @@ describe("the claim decisions migration", () => {
   const sql = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261103110000_place_claim_decisions.sql"), "utf8").replace(/--.*$/gm, "");
 
   it("gives a place to its claimant only while it has no owner", () => {
-    expect(sql).toMatch(/set owner_user_id = v_user\s+where id = v_place and owner_user_id is null/);
+    expect(sql).toMatch(/set owner_user_id = v_user,[^;]*where id = v_place and owner_user_id is null/);
+  });
+
+  it("makes a claimed listed place a partner, so it stops saying it is not one", () => {
+    expect(sql).toMatch(/tier = case when tier = 'listed' then 'partner' else tier end/);
+  });
+
+  it("does the same for places claimed before it, by hand", () => {
+    expect(sql).toMatch(/update public\.places set tier = 'partner'\s+where tier = 'listed' and owner_user_id is not null/);
   });
 
   it("closes the other open claims for that place, with a reason", () => {

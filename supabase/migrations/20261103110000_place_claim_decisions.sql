@@ -3,7 +3,8 @@
 -- Until now an approval was three hand-written updates. Nobody else can call these.
 
 -- Approve: the claimant becomes the place's owner, if it still has none, and every other open
--- claim for that place is closed with a reason its claimant sees.
+-- claim for that place is closed with a reason its claimant sees. A listed place (public
+-- information, "not a partner yet") becomes a partner: its owner has now agreed to the page.
 -- Answers 'approved', 'not_pending' (unknown or already decided) or 'place_owned'.
 create function public.approve_place_claim(p_claim uuid)
 returns text
@@ -23,7 +24,8 @@ begin
     return 'not_pending';
   end if;
 
-  update public.places set owner_user_id = v_user
+  update public.places
+  set owner_user_id = v_user, tier = case when tier = 'listed' then 'partner' else tier end
   where id = v_place and owner_user_id is null;
   if not found then
     return 'place_owned';
@@ -58,6 +60,10 @@ begin
   return 'rejected';
 end;
 $$;
+
+-- Places already given to an owner by hand stop saying they are not a partner.
+update public.places set tier = 'partner'
+where tier = 'listed' and owner_user_id is not null;
 
 revoke all on function public.approve_place_claim(uuid) from public, anon, authenticated;
 revoke all on function public.reject_place_claim(uuid, text) from public, anon, authenticated;

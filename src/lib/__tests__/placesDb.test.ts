@@ -51,6 +51,14 @@ describe("rowToPlace", () => {
     expect(place.locations).toEqual([{ city: "Kaunas", lat: 54.9, lng: 23.9 }]);
   });
 
+  it("shows text written in one language in both, as a service name already is", () => {
+    // An owner who writes only Lithuanian on My business must not see their page stay empty.
+    const place = rowToPlace({ ...partnerRow, description_lt: "Kirpykla Vilniuje", description_en: null, hours_lt: null, hours_en: "Mo-Fr 9-18" });
+    expect(place.description).toEqual({ lt: "Kirpykla Vilniuje", en: "Kirpykla Vilniuje" });
+    expect(place.hours).toEqual({ lt: "Mo-Fr 9-18", en: "Mo-Fr 9-18" });
+    expect(rowToPlace({ ...partnerRow, description_lt: null, description_en: null }).description).toBeUndefined();
+  });
+
   it("reads promotion as a flag beside the tier, so a promoted Bookable place stays bookable", () => {
     const place = rowToPlace({ ...partnerRow, tier: "bookable", is_promoted: true });
     expect(place.tier).toBe("bookable");
