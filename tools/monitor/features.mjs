@@ -94,7 +94,7 @@ export const FEATURES = [
   {
     id: "legal",
     label: "Legal",
-    routes: ["/legal", "/legal/privacy", "/legal/terms"],
+    routes: ["/legal", "/legal/privacy", "/legal/terms", "/legal/advertising"],
     match: [/legal/],
   },
   {

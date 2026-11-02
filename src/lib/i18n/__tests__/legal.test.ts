@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { dictionaries } from "@/lib/i18n";
-import { LEGAL_DOCS, TERMS_SECTIONS, PRIVACY_SECTIONS } from "@/lib/legal";
+import { LEGAL_DOCS, TERMS_SECTIONS, PRIVACY_SECTIONS, ADVERTISING_SECTIONS } from "@/lib/legal";
 
 /**
  * LegalDoc renders t(`legal.${doc}.sections.${id}.heading`) and .body, building
@@ -43,11 +43,12 @@ function unresolved(keys: string[]): string[] {
 const SECTIONS = {
   terms: TERMS_SECTIONS,
   privacy: PRIVACY_SECTIONS,
+  advertising: ADVERTISING_SECTIONS,
 } as const;
 
 describe("legal document sections", () => {
-  it("lists both documents in the order the nav renders them", () => {
-    expect(LEGAL_DOCS).toEqual(["terms", "privacy"]);
+  it("lists the documents in the order the nav renders them", () => {
+    expect(LEGAL_DOCS).toEqual(["terms", "privacy", "advertising"]);
   });
 
   it.each(LEGAL_DOCS)("resolves a heading and a body for every %s section", (doc) => {
@@ -72,7 +73,7 @@ describe("legal document sections", () => {
 
   it("resolves the shared layout chrome", () => {
     expect(
-      unresolved(["legal.backLink", "legal.backToDashboard", "legal.nav.terms", "legal.nav.privacy"]),
+      unresolved(["legal.backLink", "legal.backToDashboard", ...LEGAL_DOCS.map((doc) => `legal.nav.${doc}`)]),
     ).toEqual([]);
   });
 
@@ -80,6 +81,7 @@ describe("legal document sections", () => {
     // Every it.each above is vacuously green against an empty array.
     expect(TERMS_SECTIONS.length).toBeGreaterThan(5);
     expect(PRIVACY_SECTIONS.length).toBeGreaterThan(5);
+    expect(ADVERTISING_SECTIONS.length).toBeGreaterThan(5);
   });
 
   it("numbers every heading consecutively from 1, in both languages", () => {

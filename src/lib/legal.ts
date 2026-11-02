@@ -8,7 +8,7 @@
  * array here without renumbering the copy is a test failure, not a silent typo.
  */
 
-export const LEGAL_DOCS = ["terms", "privacy"] as const;
+export const LEGAL_DOCS = ["terms", "privacy", "advertising"] as const;
 
 export type LegalDoc = (typeof LEGAL_DOCS)[number];
 
@@ -37,8 +37,21 @@ export const PRIVACY_SECTIONS = [
   "yourRights",
 ] as const;
 
+/** For businesses buying Promoted placement (docs/promoted-placement.md). */
+export const ADVERTISING_SECTIONS = [
+  "whatItIs",
+  "whoCanBuy",
+  "price",
+  "startEnd",
+  "labelling",
+  "content",
+  "results",
+  "changes",
+] as const;
+
 /** The sections belonging to a document, for callers that hold only its name. */
 export const SECTIONS_BY_DOC: Record<LegalDoc, readonly string[]> = {
   terms: TERMS_SECTIONS,
   privacy: PRIVACY_SECTIONS,
+  advertising: ADVERTISING_SECTIONS,
 };

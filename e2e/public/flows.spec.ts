@@ -24,7 +24,7 @@ test.describe("landing and public pages", () => {
     expect(crashes).toEqual([]);
   });
 
-  for (const path of ["/legal", "/legal/terms", "/legal/privacy"]) {
+  for (const path of ["/legal", "/legal/terms", "/legal/privacy", "/legal/advertising"]) {
     test(`${path} renders`, async ({ page }) => {
       const crashes = watchCrashes(page);
       const response = await page.goto(path);

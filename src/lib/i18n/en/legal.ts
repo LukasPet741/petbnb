@@ -14,11 +14,12 @@ const legal = {
   nav: {
     terms: "Terms",
     privacy: "Privacy",
+    advertising: "Advertisers",
   },
 
   terms: {
     title: "Terms & Conditions",
-    lastUpdated: "Last updated: September 2026",
+    lastUpdated: "Last updated: November 2026",
     intro:
       "PetBnB is a university project, not a company. These terms describe how the demonstration works and what it deliberately does not do. They are written to be honest rather than exhaustive, and they are not legal advice.",
     sections: {
@@ -40,7 +41,7 @@ const legal = {
       },
       payments: {
         heading: "5. Payments",
-        body: "PetBnB processes no payments, holds no money and charges no fees. Nothing on this site takes card details. Owners and sitters settle up between themselves, entirely outside the platform, and any dispute about money is between them.",
+        body: "Pet owners and sitters pay PetBnB nothing: there are no booking fees, and PetBnB holds no money for either side. Owners and sitters settle up between themselves, outside the platform, and any dispute about money is between them. The one thing PetBnB sells is optional Promoted placement for businesses on the places map, where it is offered: it is paid by card through Stripe under the advertiser terms, and PetBnB never sees card details.",
       },
       sitters: {
         heading: "6. Sitters",
@@ -69,7 +70,7 @@ const legal = {
 
   privacy: {
     title: "Privacy Policy",
-    lastUpdated: "Last updated: September 2026",
+    lastUpdated: "Last updated: November 2026",
     intro:
       "This policy describes what PetBnB actually stores, where it sits and who can read it. Where the honest answer is 'nothing', it says so — this is a student project, and it collects far less than a commercial marketplace would.",
     sections: {
@@ -79,7 +80,7 @@ const legal = {
       },
       whatWeCollect: {
         heading: "2. What we collect",
-        body: "Only what the site needs to work: your name, email address and password credentials for the account; your city and phone number if you fill them in; a profile photo if you upload one; details of the pets you add, including species, age and care notes; your bookings; and the messages you exchange with other users. If you complete the Smart-ID demo, we also store that you did, when, and the demo session's identifier, but nothing from the certificate. There is nothing else — no hidden profiling, no data bought from anywhere.",
+        body: "Only what the site needs to work: your name, email address and password credentials for the account; your city and phone number if you fill them in; a profile photo if you upload one; details of the pets you add, including species, age and care notes; your bookings; and the messages you exchange with other users. If you complete the Smart-ID demo, we also store that you did, when, and the demo session's identifier, but nothing from the certificate. For a business that pays for Promoted placement, we also keep Stripe's identifiers for its subscription and that subscription's status. There is nothing else — no hidden profiling, no data bought from anywhere.",
       },
       howWeUse: {
         heading: "3. What we use it for",
@@ -91,7 +92,7 @@ const legal = {
       },
       whereItLives: {
         heading: "5. Where your data is stored",
-        body: "In a Postgres database and file storage operated by Supabase, hosted in the European Union — the eu-central-1 region, in Frankfurt, Germany. Your data does not leave the EU as part of normal operation. Passwords are handled by Supabase Auth and are never stored by us in a readable form.",
+        body: "In a Postgres database and file storage operated by Supabase, hosted in the European Union — the eu-central-1 region, in Frankfurt, Germany. Your data does not leave the EU as part of normal operation. Passwords are handled by Supabase Auth and are never stored by us in a readable form. If a business pays for Promoted placement, Stripe handles the payment and the billing details entered at checkout, under its own privacy policy. PetBnB passes the account's email to fill in the checkout and gets back only Stripe's identifiers for the subscription and the customer, and the subscription's status.",
       },
       browserStorage: {
         heading: "6. What your browser keeps",
@@ -111,6 +112,48 @@ const legal = {
       },
     },
     contactPrefix: "Questions about your data?",
+    contactCta: "Email us",
+  },
+  advertising: {
+    title: "Advertiser terms",
+    lastUpdated: "Last updated: November 2026",
+    intro:
+      "These terms apply to businesses that pay for Promoted placement on the PetBnB places map. They cover a business purchase, not a consumer one, and promotion is on sale only where My business offers it. They are written plainly and are not legal advice.",
+    sections: {
+      whatItIs: {
+        heading: "1. What Promoted placement is",
+        body: "Your page comes first in the places list and stands out on the places map. Nothing else changes: not your reviews, not your rating, not what the community writes about you, and not which sitters appear in search.",
+      },
+      whoCanBuy: {
+        heading: "2. Who can buy it",
+        body: "A business whose page on the places map it has claimed and PetBnB has approved, buying for the business rather than as a private consumer. Whoever pays confirms they may act for the business.",
+      },
+      price: {
+        heading: "3. Price and billing",
+        body: "€19 a month, charged in advance by card through Stripe and renewed every month until you cancel. Stripe sends a receipt for every payment, with the seller's details on it. PetBnB never sees or stores card details.",
+      },
+      startEnd: {
+        heading: "4. When it starts and stops",
+        body: "Promotion starts once Stripe confirms the payment. You can cancel at any time from the link in your Stripe receipt; promotion then runs to the end of the month already paid. If a renewal fails, it stays on while Stripe retries the card and stops if the payment cannot be collected.",
+      },
+      labelling: {
+        heading: "5. Always labelled as an ad",
+        body: "A promoted page is always marked “Ad” (“Reklama” in Lithuanian), with a note that the business pays PetBnB to be shown first, so pet owners can tell which places are paid. The label cannot be removed. This is how PetBnB follows the EU Digital Services Act's rule that advertising is marked as such.",
+      },
+      content: {
+        heading: "6. What your page may say",
+        body: "The page shows only what you write about your own business. It must be true, services, prices and hours included, and must not mislead pet owners or put animals at risk. PetBnB may stop promoting a page that breaks this or the general terms; if we stop it for any other reason, we refund the unused part of the month.",
+      },
+      results: {
+        heading: "7. No promise of results",
+        body: "Promotion buys visibility. PetBnB makes no promise of views, booking requests or customers, and is not liable for business you expected and did not get.",
+      },
+      changes: {
+        heading: "8. Changes to the price or these terms",
+        body: "We announce a price change at least 30 days before it applies, by email to the address on the subscription, and it applies from the next billing month. You can cancel before then.",
+      },
+    },
+    contactPrefix: "Questions about advertising?",
     contactCta: "Email us",
   },
 };

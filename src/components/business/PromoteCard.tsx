@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Megaphone, ArrowUpRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/Button";
 import { cardClass, headingClass } from "@/components/business/BusinessCards";
@@ -45,7 +46,10 @@ export default function PromoteCard({ place, checkoutBase = promoteCheckoutBase(
         {t("partners.forBusiness.promote.button", { price })}
         <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
       </a>
-      <p className="mt-2 text-xs leading-relaxed text-ink-soft">{t("partners.forBusiness.promote.note")}</p>
+      <p className="mt-2 text-xs leading-relaxed text-ink-soft">
+        {t("partners.forBusiness.promote.note")}{" "}
+        <Link href="/legal/advertising" className="font-medium text-brand hover:underline">{t("partners.forBusiness.promote.terms")}</Link>
+      </p>
     </section>
   );
 }

@@ -73,6 +73,7 @@ const partners = {
       text: "Už {price} per mėnesį jūsų puslapis rodomas pirmas vietų sąraše ir išsiskiria žemėlapyje, pažymėtas „Reklama“, kad gyvūnų šeimininkai žinotų, jog vieta mokama. Visa kita PetBnB lieka nemokama.",
       button: "Reklamuoti už {price}/mėn.",
       note: "Mokama kortele per „Stripe“. Reklamą įjungiame rankiniu būdu, kai gauname mokėjimą, o atsisakyti galite bet kada.",
+      terms: "Taisyklės reklamuotojams",
       activeTitle: "Jūsų puslapis reklamuojamas",
       activeText: "Jis rodomas pirmas vietų sąraše ir išsiskiria žemėlapyje, pažymėtas „Reklama“.",
     },

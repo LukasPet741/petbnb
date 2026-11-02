@@ -73,6 +73,7 @@ const partners = {
       text: "For {price} a month your page comes first in the places list and stands out on the map, marked “Ad” so pet owners know it is paid. Everything else on PetBnB stays free.",
       button: "Promote for {price}/month",
       note: "Payment is by card through Stripe. We switch promotion on by hand once the payment arrives, and you can cancel any time.",
+      terms: "Advertiser terms",
       activeTitle: "Your page is promoted",
       activeText: "It comes first in the places list and stands out on the map, marked “Ad”.",
     },

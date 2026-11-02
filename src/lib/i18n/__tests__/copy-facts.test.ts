@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { dictionaries } from "@/lib/i18n";
+import { PROMOTE_PLAN } from "@/lib/promote";
 
 /**
  * Copy that states a fact about the system, pinned to the fact.
@@ -87,5 +88,35 @@ describe("error pages", () => {
     for (const lang of ["en", "lt"] as const) {
       for (const key of keys) expect(() => text(lang, key)).not.toThrow();
     }
+  });
+});
+
+describe("payments copy, once businesses can pay for Promoted placement", () => {
+  it("no longer says PetBnB takes no money at all, and names the one thing it sells", () => {
+    expect(text("en", "legal.terms.sections.payments.body")).not.toMatch(/processes no payments|charges no fees/i);
+    expect(text("lt", "legal.terms.sections.payments.body")).not.toMatch(/neapdoroja mokėjimų|netaiko jokių mokesčių/i);
+    for (const lang of ["en", "lt"] as const) {
+      expect(text(lang, "legal.terms.sections.payments.body")).toMatch(/Stripe/);
+    }
+  });
+
+  it("still promises owners and sitters that they pay PetBnB nothing", () => {
+    expect(text("en", "legal.terms.sections.payments.body")).toMatch(/owners and sitters[^.]*nothing/i);
+    expect(text("lt", "legal.terms.sections.payments.body")).toMatch(/nieko nemoka/i);
+  });
+
+  it("tells readers of the privacy policy who handles business payments", () => {
+    expect(text("en", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);
+    expect(text("lt", "legal.privacy.sections.whereItLives.body")).toMatch(/Stripe/);
+  });
+
+  it("quotes the price the checkout charges in the advertiser terms", () => {
+    expect(text("en", "legal.advertising.sections.price.body")).toContain(`€${PROMOTE_PLAN.priceEur}`);
+    expect(text("lt", "legal.advertising.sections.price.body")).toContain(`${PROMOTE_PLAN.priceEur} €`);
+  });
+
+  it("promises visibility, never bookings", () => {
+    expect(text("en", "legal.advertising.sections.results.body")).toMatch(/no promise/i);
+    expect(text("lt", "legal.advertising.sections.results.body")).toMatch(/nežada/i);
   });
 });

@@ -14,11 +14,12 @@ const legal = {
   nav: {
     terms: "Taisyklės",
     privacy: "Privatumas",
+    advertising: "Reklamuotojams",
   },
 
   terms: {
     title: "Taisyklės ir sąlygos",
-    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjo mėn.",
+    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. lapkričio mėn.",
     intro:
       "PetBnB yra universiteto projektas, o ne įmonė. Šiose taisyklėse aprašoma, kaip veikia ši demonstracinė versija ir ko ji sąmoningai nedaro. Jos parašytos siekiant sąžiningumo, o ne išsamumo, ir nėra teisinė konsultacija.",
     sections: {
@@ -40,7 +41,7 @@ const legal = {
       },
       payments: {
         heading: "5. Mokėjimai",
-        body: "PetBnB neapdoroja mokėjimų, nelaiko pinigų ir netaiko jokių mokesčių. Niekur šioje svetainėje neprašoma kortelės duomenų. Šeimininkai ir globėjai atsiskaito tarpusavyje, visiškai už platformos ribų, ir bet koks ginčas dėl pinigų sprendžiamas tarp jų.",
+        body: "Gyvūnų šeimininkai ir globėjai PetBnB nieko nemoka: užsakymo mokesčių nėra, o PetBnB nelaiko nė vienos pusės pinigų. Šeimininkai ir globėjai atsiskaito tarpusavyje, už platformos ribų, ir bet koks ginčas dėl pinigų sprendžiamas tarp jų. Vienintelis dalykas, kurį PetBnB parduoda, yra neprivaloma reklamuojama vieta verslams vietų žemėlapyje, kur ji siūloma: už ją mokama kortele per „Stripe“ pagal taisykles reklamuotojams, o PetBnB kortelės duomenų nemato.",
       },
       sitters: {
         heading: "6. Globėjai",
@@ -69,7 +70,7 @@ const legal = {
 
   privacy: {
     title: "Privatumo politika",
-    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. rugsėjo mėn.",
+    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. lapkričio mėn.",
     intro:
       "Šioje politikoje aprašoma, ką PetBnB iš tikrųjų saugo, kur tai laikoma ir kas gali tai skaityti. Ten, kur sąžiningas atsakymas yra „nieko“, taip ir parašyta — tai studento projektas, renkantis kur kas mažiau duomenų nei komercinė platforma.",
     sections: {
@@ -79,7 +80,7 @@ const legal = {
       },
       whatWeCollect: {
         heading: "2. Ką renkame",
-        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Jei atliekate Smart-ID demo patikrą, dar išsaugome, kad ją atlikote, kada ir demo sesijos identifikatorių, bet nieko iš sertifikato. Daugiau nieko — jokio slapto profiliavimo, jokių iš kitur nupirktų duomenų.",
+        body: "Tik tai, ko reikia svetainės veikimui: jūsų vardą, el. pašto adresą ir prisijungimo duomenis; miestą bei telefono numerį, jei juos nurodote; profilio nuotrauką, jei ją įkeliate; informaciją apie pridėtus augintinius, įskaitant rūšį, amžių ir priežiūros pastabas; jūsų užsakymus; ir žinutes, kuriomis susirašinėjate su kitais naudotojais. Jei atliekate Smart-ID demo patikrą, dar išsaugome, kad ją atlikote, kada ir demo sesijos identifikatorių, bet nieko iš sertifikato. Verslui, kuris moka už reklamuojamą vietą, dar saugome „Stripe“ jo prenumeratos identifikatorių ir tos prenumeratos būseną. Daugiau nieko — jokio slapto profiliavimo, jokių iš kitur nupirktų duomenų.",
       },
       howWeUse: {
         heading: "3. Kam tai naudojame",
@@ -91,7 +92,7 @@ const legal = {
       },
       whereItLives: {
         heading: "5. Kur saugomi jūsų duomenys",
-        body: "„Supabase“ valdomoje „Postgres“ duomenų bazėje ir failų saugykloje, Europos Sąjungoje — eu-central-1 regione, Frankfurte, Vokietijoje. Įprastai veikiant, jūsų duomenys ES ribų neperžengia. Slaptažodžius tvarko „Supabase Auth“, ir mes jų niekada nesaugome skaitomu pavidalu.",
+        body: "„Supabase“ valdomoje „Postgres“ duomenų bazėje ir failų saugykloje, Europos Sąjungoje — eu-central-1 regione, Frankfurte, Vokietijoje. Įprastai veikiant, jūsų duomenys ES ribų neperžengia. Slaptažodžius tvarko „Supabase Auth“, ir mes jų niekada nesaugome skaitomu pavidalu. Jei verslas moka už reklamuojamą vietą, mokėjimą ir atsiskaitymo duomenis tvarko „Stripe“ pagal savo privatumo politiką. PetBnB perduoda paskyros el. pašto adresą, kad jis būtų įrašytas mokėjimo formoje, ir gauna atgal tik „Stripe“ prenumeratos ir kliento identifikatorius bei prenumeratos būseną.",
       },
       browserStorage: {
         heading: "6. Ką išsaugo jūsų naršyklė",
@@ -111,6 +112,48 @@ const legal = {
       },
     },
     contactPrefix: "Turite klausimų dėl savo duomenų?",
+    contactCta: "Parašykite mums",
+  },
+  advertising: {
+    title: "Taisyklės reklamuotojams",
+    lastUpdated: "Paskutinį kartą atnaujinta: 2026 m. lapkričio mėn.",
+    intro:
+      "Šios taisyklės taikomos verslams, kurie moka už reklamuojamą vietą PetBnB vietų žemėlapyje. Tai verslo, o ne vartotojo pirkimas, o reklama parduodama tik ten, kur ją siūlo „Mano verslas“. Taisyklės parašytos paprastai ir nėra teisinė konsultacija.",
+    sections: {
+      whatItIs: {
+        heading: "1. Kas yra reklamuojama vieta",
+        body: "Jūsų puslapis rodomas pirmas vietų sąraše ir išsiskiria vietų žemėlapyje. Daugiau niekas nesikeičia: nei jūsų atsiliepimai, nei įvertinimas, nei tai, ką apie jus rašo bendruomenė, nei tai, kurie globėjai rodomi paieškoje.",
+      },
+      whoCanBuy: {
+        heading: "2. Kas gali ją pirkti",
+        body: "Verslas, kurio puslapį vietų žemėlapyje jis perėmė ir PetBnB patvirtino, perkantis verslo, o ne asmeniniams poreikiams. Mokantis asmuo patvirtina, kad gali veikti verslo vardu.",
+      },
+      price: {
+        heading: "3. Kaina ir atsiskaitymas",
+        body: "19 € per mėnesį, mokama iš anksto kortele per „Stripe“ ir pratęsiama kas mėnesį, kol atsisakysite. Už kiekvieną mokėjimą „Stripe“ atsiunčia kvitą su pardavėjo duomenimis. PetBnB kortelės duomenų niekada nemato ir nesaugo.",
+      },
+      startEnd: {
+        heading: "4. Kada ji prasideda ir baigiasi",
+        body: "Reklama įjungiama, kai „Stripe“ patvirtina mokėjimą. Atsisakyti galite bet kada per nuorodą „Stripe“ kvite; tada reklama rodoma iki jau apmokėto mėnesio pabaigos. Jei pratęsimo mokėjimas nepavyksta, reklama lieka, kol „Stripe“ bando nuskaityti kortelę, ir išjungiama, jei mokėjimo gauti nepavyksta.",
+      },
+      labelling: {
+        heading: "5. Visada pažymėta kaip reklama",
+        body: "Reklamuojamas puslapis visada pažymėtas „Reklama“ (anglų kalba „Ad“) su paaiškinimu, kad verslas moka PetBnB, kad būtų rodomas pirmas, todėl gyvūnų šeimininkai mato, kurios vietos mokamos. Žymos pašalinti negalima. Taip PetBnB laikosi ES skaitmeninių paslaugų akto reikalavimo reklamą žymėti kaip reklamą.",
+      },
+      content: {
+        heading: "6. Ką gali skelbti jūsų puslapis",
+        body: "Puslapyje rodoma tik tai, ką rašote apie savo verslą. Tai turi būti tiesa, įskaitant paslaugas, kainas ir darbo laiką, ir negali klaidinti gyvūnų šeimininkų ar kelti pavojaus gyvūnams. PetBnB gali nustoti reklamuoti puslapį, kuris pažeidžia šias ar bendrąsias taisykles; jei nustojame dėl kitos priežasties, grąžiname pinigus už nepanaudotą mėnesio dalį.",
+      },
+      results: {
+        heading: "7. Rezultatų nežadame",
+        body: "Reklama suteikia matomumą. PetBnB nežada peržiūrų, užsakymų užklausų ar klientų ir neatsako už lauktus, bet negautus užsakymus.",
+      },
+      changes: {
+        heading: "8. Kainos ar šių taisyklių pakeitimai",
+        body: "Apie kainos pakeitimą pranešame bent prieš 30 dienų el. paštu, nurodytu prenumeratoje, ir jis taikomas nuo kito atsiskaitymo mėnesio. Iki tol galite atsisakyti.",
+      },
+    },
+    contactPrefix: "Turite klausimų dėl reklamos?",
     contactCta: "Parašykite mums",
   },
 };

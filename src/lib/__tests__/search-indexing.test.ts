@@ -39,6 +39,7 @@ describe("X-Robots-Tag noindex", () => {
     "/smart-id-demo",
     "/legal/terms",
     "/legal/privacy",
+    "/legal/advertising",
     "/login",
     "/signup",
     "/forgot-password",

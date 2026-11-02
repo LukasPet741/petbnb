@@ -29,6 +29,11 @@ describe("PromoteCard", () => {
     expect(link.getAttribute("rel")).toContain("noopener");
   });
 
+  it("links the advertiser terms next to the checkout", () => {
+    render(<PromoteCard place={place} checkoutBase={LINK} />);
+    expect(screen.getByRole("link", { name: "partners.forBusiness.promote.terms" }).getAttribute("href")).toBe("/legal/advertising");
+  });
+
   it("offers a listed page the same", () => {
     render(<PromoteCard place={{ ...place, tier: "listed" }} checkoutBase={LINK} />);
     expect(screen.getByRole("link", { name: /promote.button/ })).toBeTruthy();
